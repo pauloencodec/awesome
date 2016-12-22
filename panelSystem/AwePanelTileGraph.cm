@@ -37,6 +37,7 @@
 package custom.awesome.panelSystem;
 
 public class AwePanelTileGraph extends AweGraph {
+    public AwePath2D path;
     public constructor(AwePanelTileModel model) {
         line2D outsideLine = model.insideBottomLine.offset(-model.thickness);
         AwePath2D path(model.insideBottomLine.p0);
@@ -44,6 +45,7 @@ public class AwePanelTileGraph extends AweGraph {
         path.lineTo(outsideLine.p1);
         path.lineTo(outsideLine.p0);
         path.lineTo(model.insideBottomLine.p0);
+        this.path = path;
         this << GShape(path);
     }   
 }

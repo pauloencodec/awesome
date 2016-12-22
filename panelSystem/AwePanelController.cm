@@ -42,16 +42,18 @@ public class AwePanelController extends Snapper {
 
     private DistanceEnum widths(24inch, 30inch, 36inch, 42inch, 48inch, 54inch, 60inch);
     private DistanceEnum heights(30inch, 42inch, 54inch, 66inch);
-    
-    public AweNotifyProp distance width {
-        model.centerline = line2D((0,0), (width, 0));
-        modelUpdated();
-    }
 
-    public AweNotifyProp distance height {
-        model.height = height;
-        modelUpdated();
-    }
+    //tiles
+    private StrSubSet panelTypes([str: "Monolithic", "Segmented"]);
+    private str panelType;
+    //always visible
+    private AwePanelTileModel sideABottomTile();
+    private AwePanelTileModel sideBBottomTile();
+
+    //only when Segmented
+    private AwePanelTileModel sideATopTile();
+    private AwePanelTileModel sideBTopTile();
+
 
     extend private void modelUpdated() {
         this.alignAllSnapped(tryRealign=false);
@@ -70,36 +72,35 @@ public class AwePanelController extends Snapper {
     public box localBound() {
         rect r(
                 (0, -model.frameThickness /2),
-                (width, model.frameThickness /2)
+                (model.centerline.length, model.frameThickness /2)
             );
         return box(r, 0, model.height);
     }
 
 
     public constructor() {
-        width = 42inch;
-        model.height = 60inch;
+        initProps();
         super(..);
     }   
 
+    extend private void initProps() {
+        propChanged("width", 42inch);
+        propChanged("height", 60inch);
+        propChanged("panelType", "Monolithic");
+    }
+
    
     public bool buildQuickProperties(QuickProperties props) { 
-        props.append("width", "Width", distance(width), widths);
-        props.append("height", "Height", distance(height), heights);
+        props.append("width", "Width", distance(model.centerline.length), widths);
+        props.append("height", "Height", distance(model.height), heights);
+        props.append("panelType", "Panel Type", panelType, panelTypes);
         return true;
     }
 
     public bool quickPropertyChanged(QuickProperties props, str key, Object value, bool testChangeOnly) {
         if (key and !testChangeOnly) {
-            if(key == "width") {
-                this.width = value.double;
-            }
-            if(key == "height" and this.height != value.double) {
-                this.height = value.double;
-                sendChangedToNeighbors();
-            }
+           propChanged(key, value);
         }
-
         return true;
     }
 
@@ -111,7 +112,84 @@ public class AwePanelController extends Snapper {
 
     extend private void groupChanged(Snapper changeTrigger) {
         if(changeTrigger as AwePanelController) {
-            this.height = changeTrigger.height;
+            propChanged("height", changeTrigger.model.height);
+        }
+    }
+
+    extend private void propChanged(str key, Object value) {
+        if(key == "width") {
+            double newWidth = value.double;
+
+            if(model.centerline.length == newWidth)
+                return;
+
+            model.centerline = line2D((0,0), (newWidth, 0));
+
+            adjustTileWidth();
+            
+        }
+        else if(key == "height") {
+            double newHeight = value.double;
+
+            if(newHeight == model.height) return;
+
+            model.height = newHeight;
+
+            adjustTileHeights();
+
+            sendChangedToNeighbors();
+            
+        }
+        else if(key == "panelType") {
+            str newPanelType = value.toS;
+
+            if(newPanelType == panelType) return;
+
+            panelType = newPanelType;
+            
+            if(panelType == "Segmented") {
+                //order here matters for BOM
+                model.tiles = [AwePanelTileModel: sideABottomTile, sideBBottomTile, sideATopTile, sideBTopTile];
+            } else {
+                model.tiles = [AwePanelTileModel: sideABottomTile, sideBBottomTile];
+            }
+            adjustTileHeights();
+            adjustTileWidth();
+        }
+
+        modelUpdated();
+    }
+
+    private double racewayHeight = 6inch;
+
+    extend private void adjustTileHeights() {
+        if(panelType == "Monolithic") {
+            sideABottomTile.z = racewayHeight;
+            sideABottomTile.height = model.height - racewayHeight;
+            sideBBottomTile.z = racewayHeight;
+            sideBBottomTile.height = model.height - racewayHeight;
+        } else {
+            double segmentedBottomTileHeight = 22inch;
+
+            sideABottomTile.z = racewayHeight;
+            sideABottomTile.height = segmentedBottomTileHeight;
+            sideBBottomTile.z = racewayHeight;
+            sideBBottomTile.height = segmentedBottomTileHeight;
+
+            sideATopTile.z = racewayHeight + segmentedBottomTileHeight;
+            sideATopTile.height = model.height - racewayHeight - segmentedBottomTileHeight;
+            sideBTopTile.z = racewayHeight + segmentedBottomTileHeight;
+            sideBTopTile.height = model.height - racewayHeight -segmentedBottomTileHeight;
+        }
+    }
+
+    extend private void adjustTileWidth() {
+        for(t in model.tiles, index=i) {
+            //every other tile is a side B tile
+            line2D line = i%2==0 ?  model.centerline : model.centerline.flip();
+            t.insideBottomLine = line.offset(-model.frameThickness/2);
+            t.thickness = .5inch;
+            
         }
     }
 }

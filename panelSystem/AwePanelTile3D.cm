@@ -42,9 +42,9 @@ public class AwePanelTile3D extends Awe3D {
             (0,-model.thickness),
             (model.insideBottomLine.length, 0)
         );
-        box volume(base, model.z, model.height);
+        box volume(base, model.z, model.height + model.z);
         Box3D prim(volume);
-        prim.setMaterial(plainGreenMaterial3D);
+        prim.setMaterial(plainRandomColorMaterial3D(100));
         prim.orientBy(model.insideBottomLine);
         this << prim;
     }   
