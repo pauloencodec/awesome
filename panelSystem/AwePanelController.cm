@@ -38,7 +38,7 @@ package custom.awesome.panelSystem;
 
 public class AwePanelController extends Snapper {
 
-    public AweMPC<AweProductPanelModel, AwePanelProduct>;
+    public AweMPC<AwePanelModel, AwePanelProduct>;
 
     private DistanceEnum widths(24inch, 30inch, 36inch, 42inch, 48inch, 54inch, 60inch);
     private DistanceEnum heights(30inch, 42inch, 54inch, 66inch);

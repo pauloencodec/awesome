@@ -36,12 +36,13 @@
 
 package custom.awesome.panelSystem;
 
-public class AweProductPanelModel {
-    public line2D centerline;
+public class AwePanelTileModel {
+    public line2D insideBottomLine;
+    public double z;
     public double height;
-    public double frameThickness=3inch;
-    public str frameMaterialCode;
+    public double thickness;
+    public str materialCode;
 
-    public constructor auto();
-    public constructor() {}
+    public constructor() {
+    }   
 }

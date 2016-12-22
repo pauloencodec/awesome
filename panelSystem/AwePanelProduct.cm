@@ -38,10 +38,13 @@ package custom.awesome.panelSystem;
 
 public class AwePanelProduct extends AweProduct {
 
-    public AweModel<AweProductPanelModel> m;
+    public AweModel<AwePanelModel> m;
 
     public void build3D(Awe3D awe3D, FetchEnv3D env) {
         awe3D << AwePanelFrame3D(m.centerline, m.height, m.frameThickness);
+        for(t in m.tiles) {
+            awe3D << AwePanelTile3D(t);
+        }
     }
 
     public void build2D(AweGraph aweGraph, FetchEnv2D env) {
@@ -50,11 +53,21 @@ public class AwePanelProduct extends AweProduct {
 }
 
 {
-    AweProductPanelModel model(
+
+    AwePanelTileModel[] tiles();
+
+    AwePanelTileModel m();
+    m.insideBottomLine = line2D((0,0),(1,1));
+    m.thickness = 1inch;
+    m.height = 36inch;
+    tiles << m;
+
+    AwePanelModel model(
         line2D((0,0), (3feet,3feet)),
         8feet,
         3inch,
-        "materialX"
+        "materialX",
+        tiles
     );
     test(AwePanelProduct(model));
 }

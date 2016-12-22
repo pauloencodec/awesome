@@ -34,21 +34,24 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package custom.awesome.panelSystem;
 
-public orientation orientation(line2D l2d) {
-    vector lineVector = l2d.p1.point - l2d.p0.point;
-    vector lineNormal = (0,0,1);
-    return orientation(lineVector, lineNormal);
-} 
-
-public line2D offset(line2D l, double offsetDistance) {
-    orientation lineOrientation = l.orientation();
-    orientation offsetDirection(lineOrientation.perpendicular);
-    vector offset(offsetDirection, offsetDistance);
-    return l.offset(point2D(offset));
+public class AwePanelTileGraph extends AweGraph {
+    public constructor(AwePanelTileModel model) {
+        line2D outsideLine = model.insideBottomLine.offset(-model.thickness);
+        AwePath2D path(model.insideBottomLine.p0);
+        path.lineTo(model.insideBottomLine.p1);
+        path.lineTo(outsideLine.p1);
+        path.lineTo(outsideLine.p0);
+        path.lineTo(model.insideBottomLine.p0);
+        this << GShape(path);
+    }   
 }
 
-public line2D offset(line2D l, vector2D offset) {
-    return line2D(l.p0 + offset, l.p1 + offset);
+{
+    AwePanelTileModel m();
+    m.insideBottomLine = line2D((0,0),(1,1));
+    m.thickness = 1inch;
+    m.height = 36inch;
+    test(AwePanelTileGraph(m));
 }
