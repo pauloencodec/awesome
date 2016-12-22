@@ -113,6 +113,7 @@ public class AwePanelController extends Snapper {
     extend private void groupChanged(Snapper changeTrigger) {
         if(changeTrigger as AwePanelController) {
             propChanged("height", changeTrigger.model.height);
+            propChanged("panelType", changeTrigger.panelType);
         }
     }
 
@@ -155,6 +156,7 @@ public class AwePanelController extends Snapper {
             }
             adjustTileHeights();
             adjustTileWidth();
+            sendChangedToNeighbors();
         }
 
         modelUpdated();
