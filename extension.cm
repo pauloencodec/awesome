@@ -1,0 +1,110 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+package custom.awesome;
+
+
+use cm.extension, cm.extension.util, cm.security;
+
+/**
+ * The extension.cm file contains info used for building the extension.
+ *
+ * Most importantly it contains the extension id (used for checking license of the extension)
+ * and the list of resource files (for example images) that are to be included in it.
+ */
+
+ /**
+ * Extension name.
+ */
+private const str name = "Awesome";
+
+private class AwesomeLibraryExtension extends MultiCatalogExtension {
+    public void start(ExtensionEnv env) {
+        super(env);
+    }
+
+    public void initialize( ExtensionEnv env ) {
+        super(env);
+    }
+
+    /**
+     * Build libraries.
+     */
+    public LazyLibraryInfo[] buildLibraries(ExtensionEnv env) {
+        LazyLibraryInfo[] seq();
+        return seq;
+    }
+}
+
+
+/**
+ * Actual extension (dont change function name).
+ */
+package Extension getExtension() : referred {
+    return AwesomeLibraryExtension();
+}
+
+/**
+ * Extension id (dont change function name).
+ */
+package ExtensionId getExtensionId() : encrypted, referred {
+    // Created 12/21/2015, restriction=none
+    ExtensionId extensionId(#:package, name);
+    // ID1=130951834381210000
+    // ID2=-821812470321879517
+    // ID3=-8438375413836258273
+    // ID4=-2744379190703340573
+    extensionId.id0 = int64(0x1d13bff, 0xe2fa5190);
+    extensionId.id1 = int64(0xf49855e9, 0x927a6623);
+    extensionId.id2 = int64(0x8ae4de45, 0xe6641f);
+    extensionId.id3 = int64(0xd9ea01aa, 0x992743e3);
+    return extensionId;
+}
+
+public version extensionVersion;
+
+/**
+ * Actual extension info (dont change function name).
+ */
+package ExtensionInfo getExtensionInfo() : referred {
+    ExtensionInfo info = loadExtensionInfoFromXml(#:package);
+    extensionVersion = info.extensionVersion;
+    
+    Url[] files();
+
+    info.filesToInclude = files;
+
+    return info;
+}
