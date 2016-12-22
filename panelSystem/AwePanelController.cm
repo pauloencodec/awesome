@@ -152,8 +152,14 @@ private void width_changed(Object newValue, Object oldValue, Snapper controller)
 }
 
 private void height_changed(Object newValue, Object oldValue, Snapper controller) {
-    controller.AwePanelController.model.height = newValue.double;
-    controller.AwePanelController.adjustTileHeights();
+    AwePanelController panel = controller.AwePanelController;
+    panel.model.height = newValue.double;
+    panel.adjustTileHeights();
+    for(s in panel.space.?selection.?snappers) {
+        if(s as AwePanelController and s != panel) {
+            s.props.set("height", newValue.double);
+        }
+    }
 }
 
 private void panelType_changed(Object newValue, Object oldValue, Snapper controller) {
@@ -168,6 +174,12 @@ private void panelType_changed(Object newValue, Object oldValue, Snapper control
     }
     panel.adjustTileHeights();
     panel.adjustTileWidth();
+
+    for(s in panel.space.?selection.?snappers) {
+        if(s as AwePanelController and s != panel) {
+            s.props.set("panelType", panelType);
+        }
+    }
 }
 
 private void property_changed(Object newValue, Object oldValue, Snapper controller) {
