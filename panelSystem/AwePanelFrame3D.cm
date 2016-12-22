@@ -38,19 +38,27 @@ package custom.awesome.panelSystem;
 
 public class AwePanelFrame3D extends Awe3D {
     public constructor(line2D centerline, double height, double thickness, Material3D material=MetalMaterial3D(), double lip=1inch) {
-        AwePath2D framePath();
-        framePath.right(centerline.length).up(height).left(centerline.length).down(height);
+        AwePath2D framePath1();
+        framePath1.right(centerline.length).up(28inch).left(centerline.length).down(28inch);
+        AwePath2D framePath2((0, 28inch));
+        framePath2.right(centerline.length).up(height - 28inch).left(centerline.length).down(height - 28inch);
 
         AwePath2D frameProfile((-lip, -thickness/2));
         frameProfile.right(lip).up(thickness).left(lip);
 
-        Primitive3D frame = extrudePathAlongPath(frameProfile, framePath, doubleSided=true);
+        Primitive3D frame1 = extrudePathAlongPath(frameProfile, framePath1, doubleSided=true);
+        Primitive3D frame2 = extrudePathAlongPath(frameProfile, framePath2, doubleSided=true);
 
-        frame.setMaterial(material);
-        frame.standUp();
-        frame.orientBy(centerline);
+        frame1.setMaterial(material);
+        frame1.standUp();
+        frame1.orientBy(centerline);
 
-        this << frame;
+        frame2.setMaterial(material);
+        frame2.standUp();
+        frame2.orientBy(centerline);
+
+        this << frame1;
+        this << frame2;
     }   
 }
 
