@@ -39,6 +39,7 @@ package custom.awesome.panelSystem;
 public class AwePanelJunctionModel {
     public AwePanelJunctionConnectionModel[] connections();
     public double height=60inch;
+    public Material3D material;
 
     public constructor() { }
     
@@ -47,16 +48,7 @@ public class AwePanelJunctionModel {
         this.height = height;
     }   
 
-     public constructor(int connectionCount, double radius, double height=60inch) {
-        AwePanelJunctionConnectionModel[] connections();
-        angle step = angle(360 / connectionCount);
-        angle current = 0deg;
-        for(i in 1..connectionCount) {
-            connections << AwePanelJunctionConnectionModel(current, true, radius, radius * 2);
-            current += step;
-        }
-        this(connections, height);
-    }
+     
 
 }
 

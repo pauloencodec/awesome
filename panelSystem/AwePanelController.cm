@@ -42,7 +42,7 @@ public class AwePanelController extends Snapper {
 
     public AweMPC<AwePanelModel, AwePanelProduct>;
 
-    private AwePropBag props(this, 
+    public AwePropBag props(this, 
         [AweProp:
             AweProp("width", "Width", DistanceEnum(24inch, 30inch, 36inch, 42inch, 48inch, 54inch, 60inch), function width_changed),
             AweProp("height", "Height", DistanceEnum(30inch, 42inch, 54inch, 66inch), function height_changed),
@@ -208,6 +208,9 @@ private void height_changed(Object newValue, Object oldValue, Snapper controller
         if(s as AwePanelController and s != panel) {
             s.props.set("height", newValue.double);
         }
+        else if(s as AwePanelJunctionController) {
+            s.props.set("height", newValue.double);
+        }
     }
 }
 
@@ -228,6 +231,7 @@ private void panelType_changed(Object newValue, Object oldValue, Snapper control
         if(s as AwePanelController and s != panel) {
             s.props.set("panelType", panelType);
         }
+        
     }
 }
 
@@ -244,6 +248,7 @@ private void fabricColor_changed(Object newValue, Object oldValue, Snapper contr
         if(s as AwePanelController and s != panel) {
             s.props.set("fabricColor", fabricColor);
         }
+        
     }
 }
 
@@ -257,6 +262,9 @@ private void frameColor_changed(Object newValue, Object oldValue, Snapper contro
     panel.model.sideBRaceway.material = material;
     for(s in panel.space.?selection.?snappers) {
         if(s as AwePanelController and s != panel) {
+            s.props.set("frameColor", frameColor);
+        }
+        else if(s as AwePanelJunctionController) {
             s.props.set("frameColor", frameColor);
         }
     }

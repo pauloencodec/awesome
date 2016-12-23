@@ -36,13 +36,23 @@
 
 package custom.awesome.panelSystem;
 
-public class AwePanelJunction3D extends Awe3D {
+public class AwePanelJunctionGeometry extends AweGeometry {
+    private AwePanelJunctionModel model;
     public constructor(AwePanelJunctionModel model) {
-        AwePath2D path = AwePanelJunctionGraphPath(model);
-        if(!path) return;
-        Primitive3D core = path.toPrimitive(0, model.height);
-        core.setMaterial(model.material);
-        this << core;
+        this.model = model;
     }   
-}
 
+    public Primitive3D medium3D() {
+        double halfThickness = 3.5inch/2;
+        rect r((-halfThickness,-halfThickness), (halfThickness,halfThickness));
+        box b(r, .5inch, model.height + .25inch);
+        Box3D core(b);
+        core.setMaterial(model.material);
+        AwePanelGlide3D glide(point2D());
+        return Awe3D(core, glide);
+    }
+
+    public Graph graph() {
+        return AwePanelJunctionGraph(model);
+    }
+}
