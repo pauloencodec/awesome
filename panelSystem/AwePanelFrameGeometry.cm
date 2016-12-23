@@ -45,7 +45,7 @@ public class AwePanelFrameGeometry extends AweGeometry {
 
     public Primitive3D medium3D() {
 
-        box volume(base, .5inch, model.height - .5inch);
+        box volume(base, .5inch, model.height);
         Box3D prim(volume);
         prim.setMaterial(model.frameMaterial);
 

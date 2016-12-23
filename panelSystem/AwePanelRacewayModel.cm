@@ -37,4 +37,7 @@
 package custom.awesome.panelSystem;
 
 public class AwePanelRacewayModel extends AwePanelTileModel{
+    public constructor() {
+        shrink = 0;
+    } 
 }

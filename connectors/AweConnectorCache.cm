@@ -55,4 +55,8 @@ public class AweConnectorCache {
 
         return c;
     }
+
+    extend public Connector get(str key) {
+        return _cache.get(key);
+    }
 }

@@ -38,15 +38,31 @@ package custom.awesome.panelSystem;
 
 public class AwePanelProduct extends AweProduct {
 
-    public AweModel<AwePanelModel> m;
+    public AweModel<AwePanelModel> model;
 
     public void build() {
-        this << AwePanelFrameGeometry(m);
-        for(t in m.tiles) {
+        this << AwePanelFrameGeometry(model);
+        for(t in model.tiles) {
             this << AwePanelTileGeometry(t);
         }
-        this << AwePanelTileGeometry(m.sideARaceway);
-        this << AwePanelTileGeometry(m.sideBRaceway);
+        this << AwePanelTileGeometry(model.sideARaceway);
+        this << AwePanelTileGeometry(model.sideBRaceway);
+        if(model.openEndOnLeft) {
+            AwePanelEndCapModel m();
+            m.z = .5inch;
+            m.height = model.height - .5inch;
+            m.insideBottomLine = line2D((0,model.frameThickness/2), (0,-model.frameThickness/2));
+            m.material = model.frameMaterial;
+            this << AwePanelEndCapGeometry(m);
+        }
+        if(model.openEndOnRight) {
+            AwePanelEndCapModel m();
+            m.z = .5inch;
+            m.height = model.height - .5inch;
+            m.insideBottomLine = line2D((model.centerline.length,-model.frameThickness/2), (model.centerline.length,model.frameThickness/2));
+            m.material = model.frameMaterial;
+            this << AwePanelEndCapGeometry(m);
+        }
     }
     
 }
@@ -69,7 +85,9 @@ public class AwePanelProduct extends AweProduct {
         tiles, 
         blackMarbleMaterial3D,
         null,
-        null
+        null,
+        true,
+        true
     );
     test(AwePanelProduct(model));
 }

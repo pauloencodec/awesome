@@ -45,6 +45,8 @@ public class AwePanelModel {
     public Material3D frameMaterial;
     public AwePanelRacewayModel sideARaceway();
     public AwePanelRacewayModel sideBRaceway();
+    public bool openEndOnLeft;
+    public bool openEndOnRight;
 
     public constructor auto();
     public constructor() {}

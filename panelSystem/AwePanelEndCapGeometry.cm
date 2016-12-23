@@ -36,15 +36,5 @@
 
 package custom.awesome.panelSystem;
 
-public class AwePanelTileModel {
-    public line2D insideBottomLine;
-    public double z;
-    public double height;
-    public double thickness;
-    public Material3D material;
-    public double shrink;
-
-    public constructor() {
-        shrink = 1inch/8;
-    }   
+public class AwePanelEndCapGeometry  extends AwePanelTileGeometry {
 }

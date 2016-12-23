@@ -89,6 +89,7 @@ public class AwePanelController extends Snapper {
 
     public constructor() {
         initProps();
+        updateEndCaps();
         super(..);
     }   
 
@@ -161,6 +162,31 @@ public class AwePanelController extends Snapper {
         tiles << model.sideARaceway;
         tiles << model.sideBRaceway;
         return tiles;
+    }
+
+    public void connected(Connector c0, Connector c1, bool snapped, bool attached) {
+        updateEndCaps();
+    }
+
+    public void disconnected(Connector c0, Connector c1, bool wasSnapped, bool wasAttached) {
+        updateEndCaps();
+    }
+
+    extend private void updateEndCaps() {
+        bool changed = false;
+        bool openEndOnLeft = !_cc.get("p0").?isConnected;
+        bool openEndOnRight = !_cc.get("p1").?isConnected;
+        if(openEndOnLeft != model.openEndOnLeft) {
+            model.openEndOnLeft = openEndOnLeft;
+            changed = true;
+        }
+        if(openEndOnRight != model.openEndOnRight) {
+            model.openEndOnRight = openEndOnRight;
+            changed = true;
+        }
+        if(changed) {
+            modelUpdated();
+        }
     }
 
 }
