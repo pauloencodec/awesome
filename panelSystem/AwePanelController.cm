@@ -46,7 +46,9 @@ public class AwePanelController extends Snapper {
         [AweProp:
             AweProp("width", "Width", DistanceEnum(24inch, 30inch, 36inch, 42inch, 48inch, 54inch, 60inch), function width_changed),
             AweProp("height", "Height", DistanceEnum(30inch, 42inch, 54inch, 66inch), function height_changed),
-            AweProp("panelType", "Panel Type", StrSubSet([str: "Monolithic", "Segmented"]), function panelType_changed)
+            AweProp("panelType", "Panel Type", StrSubSet([str: "Monolithic", "Segmented"]), function panelType_changed),
+            AweProp("fabricColor", "Fabric Color", StrSubSet([str: "Biege", "Red", "Blue"]), function fabricColor_changed),
+            AweProp("frameColor", "Frame Color", StrSubSet([str: "White", "Black"]), function frameColor_changed)
         ],
         onChange=function property_changed);
 
@@ -94,6 +96,8 @@ public class AwePanelController extends Snapper {
         props.set("width", distance(42inch));
         props.set("height", distance(54inch));
         props.set("panelType", "Monolithic");
+        props.set("fabricColor", "Biege");
+        props.set("frameColor", "White");
     }
 
    
@@ -133,10 +137,16 @@ public class AwePanelController extends Snapper {
             sideBTopTile.z = racewayHeight + segmentedBottomTileHeight;
             sideBTopTile.height = model.height - racewayHeight -segmentedBottomTileHeight;
         }
+
+         model.sideARaceway.z = .5inch;
+         model.sideARaceway.height = racewayHeight - .5inch;
+         model.sideBRaceway.z = .5inch;
+         model.sideBRaceway.height = racewayHeight - .5inch;
+
     }
 
     extend private void adjustTileWidth() {
-        for(t in model.tiles, index=i) {
+        for(t in allTilesAndRaceways(), index=i) {
             //every other tile is a side B tile
             line2D line = i%2==0 ?  model.centerline : model.centerline.flip();
             t.insideBottomLine = line.offset(-model.frameThickness/2);
@@ -144,6 +154,15 @@ public class AwePanelController extends Snapper {
             
         }
     }
+
+    extend private AwePanelTileModel[] allTilesAndRaceways() {
+        AwePanelTileModel[] tiles();
+        tiles += model.tiles;
+        tiles << model.sideARaceway;
+        tiles << model.sideBRaceway;
+        return tiles;
+    }
+
 }
 
 
@@ -179,6 +198,37 @@ private void panelType_changed(Object newValue, Object oldValue, Snapper control
     for(s in panel.space.?selection.?snappers) {
         if(s as AwePanelController and s != panel) {
             s.props.set("panelType", panelType);
+        }
+    }
+}
+
+private void fabricColor_changed(Object newValue, Object oldValue, Snapper controller) {
+    AwePanelController panel = controller.AwePanelController;
+    str fabricColor = newValue.toS;
+    Material3D material = beigeFabricMaterial3D();
+    if(fabricColor == "Red") material = redFabricMaterial3D();
+    if(fabricColor == "Blue") material = blueFabricMaterial3D();
+    for(t in panel.model.tiles) {
+        t.material = material;
+    }
+    for(s in panel.space.?selection.?snappers) {
+        if(s as AwePanelController and s != panel) {
+            s.props.set("fabricColor", fabricColor);
+        }
+    }
+}
+
+private void frameColor_changed(Object newValue, Object oldValue, Snapper controller) {
+    AwePanelController panel = controller.AwePanelController;
+    str frameColor = newValue.toS;
+    Material3D material = intenseWhiteMaterial3D();
+    if(frameColor == "Black") material = blackPlasticMaterial3D();
+    panel.model.frameMaterial = material;
+    panel.model.sideARaceway.material = material;
+    panel.model.sideBRaceway.material = material;
+    for(s in panel.space.?selection.?snappers) {
+        if(s as AwePanelController and s != panel) {
+            s.props.set("frameColor", frameColor);
         }
     }
 }

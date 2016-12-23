@@ -44,38 +44,28 @@ public class AwePanelFrameGeometry extends AweGeometry {
     }   
 
     public Primitive3D medium3D() {
-        
-        double lip = 1inch;
 
-        AwePath2D framePath1();
-        framePath1.right(model.centerline.length).up(28inch).left(model.centerline.length).down(28inch);
-        AwePath2D framePath2((0, 28inch));
-        framePath2.right(model.centerline.length).up(model.height - 28inch).left(model.centerline.length).down(model.height - 28inch);
+        box volume(base, .5inch, model.height - .5inch);
+        Box3D prim(volume);
+        prim.setMaterial(model.frameMaterial);
 
-        AwePath2D frameProfile((-lip, -model.frameThickness/2));
-        frameProfile.right(lip).up(model.frameThickness).left(lip);
-
-        Primitive3D frame1 = extrudePathAlongPath(frameProfile, framePath1, doubleSided=true);
-        Primitive3D frame2 = extrudePathAlongPath(frameProfile, framePath2, doubleSided=true);
-
-        frame1.setMaterial(MetalMaterial3D());
-        frame1.standUp();
-        frame1.orientBy(model.centerline);
-
-        frame2.setMaterial(MetalMaterial3D());
-        frame2.standUp();
-        frame2.orientBy(model.centerline);
-
-        return Awe3D(frame1, frame2);
+        AwePanelGlide3D leftGlide(model.centerline.shrunken(3inch).p0);
+        AwePanelGlide3D rightGlide(model.centerline.shrunken(3inch).p1);
+        return Awe3D(prim, leftGlide, rightGlide);
     }
 
     public Graph graph() {
+       
+        GRect gr(base);
+        gr.orientBy(model.centerline);
+        return gr;
+    }
+
+    extend private rect base() {
         rect r(
                 (0, -model.frameThickness /2),
                 (model.centerline.length, model.frameThickness /2)
             );
-        GRect gr(r);
-        gr.orientBy(model.centerline);
-        return gr;
+            return r;
     }
 }

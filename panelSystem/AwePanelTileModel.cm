@@ -41,7 +41,7 @@ public class AwePanelTileModel {
     public double z;
     public double height;
     public double thickness;
-    public str materialCode;
+    public Material3D material;
 
     public constructor() {
     }   

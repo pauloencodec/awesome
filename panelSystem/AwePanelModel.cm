@@ -42,6 +42,9 @@ public class AwePanelModel {
     public double frameThickness=3inch;
     public str frameMaterialCode;
     public AwePanelTileModel[] tiles;
+    public Material3D frameMaterial;
+    public AwePanelRacewayModel sideARaceway();
+    public AwePanelRacewayModel sideBRaceway();
 
     public constructor auto();
     public constructor() {}

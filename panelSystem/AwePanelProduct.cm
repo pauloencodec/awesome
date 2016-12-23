@@ -45,6 +45,8 @@ public class AwePanelProduct extends AweProduct {
         for(t in m.tiles) {
             this << AwePanelTileGeometry(t);
         }
+        this << AwePanelTileGeometry(m.sideARaceway);
+        this << AwePanelTileGeometry(m.sideBRaceway);
     }
     
 }
@@ -64,7 +66,10 @@ public class AwePanelProduct extends AweProduct {
         8feet,
         3inch,
         "materialX",
-        tiles
+        tiles, 
+        blackMarbleMaterial3D,
+        null,
+        null
     );
     test(AwePanelProduct(model));
 }
