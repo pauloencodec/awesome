@@ -34,40 +34,13 @@
    END OF CETSC
 */
 
-package custom.awesome.panelSystem;
+package custom.awesome;
 
-public class AwePanelJunctionModel {
-    public AwePanelJunctionConnectionModel[] connections();
-    public double height=60inch;
-
-    public constructor() { }
-    
-    public constructor(AwePanelJunctionConnectionModel[] connections, double height=60inch) {
-        this.connections = connections;
-        this.height = height;
-    }   
-
-     public constructor(int connectionCount, double radius, double height=60inch) {
-        AwePanelJunctionConnectionModel[] connections();
-        angle step = angle(360 / connectionCount);
-        angle current = 0deg;
-        for(i in 1..connectionCount) {
-            connections << AwePanelJunctionConnectionModel(current, true, radius, radius * 2);
-            current += step;
-        }
-        this(connections, height);
-    }
-
-}
-
-public class AwePanelJunctionConnectionModel {
-    public angle angle;
-    public bool available=true;
-    public double radius;
-    public double faceWidth;
-
-    public constructor() { }
-    public constructor auto();
-
-    
+public rect orientBy(rect r, line2D l) {
+    orientation o = l.orientation();
+    box b(r, 0, 1);
+    b.rotate(o);
+    b.move((0,0,0));
+    b.move(l.p0.point); 
+    return b.rect;
 }

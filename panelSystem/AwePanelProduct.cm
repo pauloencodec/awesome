@@ -50,16 +50,16 @@ public class AwePanelProduct extends AweProduct {
         if(model.openEndOnLeft) {
             AwePanelEndCapModel m();
             m.z = .5inch;
-            m.height = model.height - .5inch;
-            m.insideBottomLine = line2D((0,model.frameThickness/2), (0,-model.frameThickness/2));
+            m.height = model.height - .25inch;
+            m.insideBottomLine = line2D((0,model.frameThickness/2 + .5inch), (0,-model.frameThickness/2 - .5inch));
             m.material = model.frameMaterial;
             this << AwePanelEndCapGeometry(m);
         }
         if(model.openEndOnRight) {
             AwePanelEndCapModel m();
             m.z = .5inch;
-            m.height = model.height - .5inch;
-            m.insideBottomLine = line2D((model.centerline.length,-model.frameThickness/2), (model.centerline.length,model.frameThickness/2));
+            m.height = model.height - .25inch;
+            m.insideBottomLine = line2D((model.centerline.length,-model.frameThickness/2 - .5inch), (model.centerline.length,model.frameThickness/2 + .5inch));
             m.material = model.frameMaterial;
             this << AwePanelEndCapGeometry(m);
         }

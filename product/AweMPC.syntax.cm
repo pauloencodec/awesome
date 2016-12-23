@@ -49,7 +49,8 @@ public member @visibility AweMPC '<' @modelType=type ',' @productType=type '>' '
 
         public void drawGraphs(LayerBuffer lb, View view, GeometricFinder finder=null) {
             Graph g = product.get2D();
-            g.draw(lb);
+            if(g)
+                g.draw(lb);
         }
     
     };

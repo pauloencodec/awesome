@@ -49,23 +49,22 @@ public class AwePanelFrameGeometry extends AweGeometry {
         Box3D prim(volume);
         prim.setMaterial(model.frameMaterial);
 
+        box topTrimBox(model.centerline.rect(model.frameThickness + 1inch), model.height, model.height + .25inch);
+        Box3D topTrim(topTrimBox);
+        topTrim.setMaterial(model.frameMaterial);
+
         AwePanelGlide3D leftGlide(model.centerline.shrunken(3inch).p0);
         AwePanelGlide3D rightGlide(model.centerline.shrunken(3inch).p1);
-        return Awe3D(prim, leftGlide, rightGlide);
+        return Awe3D(prim, topTrim, leftGlide, rightGlide);
     }
 
     public Graph graph() {
-       
         GRect gr(base);
         gr.orientBy(model.centerline);
         return gr;
     }
 
     extend private rect base() {
-        rect r(
-                (0, -model.frameThickness /2),
-                (model.centerline.length, model.frameThickness /2)
-            );
-            return r;
+        return model.centerline.rect(model.frameThickness);
     }
 }

@@ -39,7 +39,7 @@ package custom.awesome.panelSystem;
 public class AwePanelModel {
     public line2D centerline;
     public double height;
-    public double frameThickness=3inch;
+    public double frameThickness=2.5inch;
     public str frameMaterialCode;
     public AwePanelTileModel[] tiles;
     public Material3D frameMaterial;
