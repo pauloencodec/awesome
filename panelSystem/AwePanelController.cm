@@ -62,6 +62,8 @@ public class AwePanelController extends Snapper {
     private AwePanelTileModel sideATopTile();
     private AwePanelTileModel sideBTopTile();
 
+    private AwePanelTileModel[] allTiles();
+
 
     extend private void modelUpdated() {
         this.alignAllSnapped(tryRealign=false);
@@ -88,6 +90,7 @@ public class AwePanelController extends Snapper {
 
 
     public constructor() {
+        allTiles << sideABottomTile << sideBBottomTile << sideATopTile << sideBTopTile;
         initProps();
         updateEndCaps();
         super(..);
@@ -234,7 +237,7 @@ private void fabricColor_changed(Object newValue, Object oldValue, Snapper contr
     Material3D material = beigeFabricMaterial3D();
     if(fabricColor == "Red") material = redFabricMaterial3D();
     if(fabricColor == "Blue") material = blueFabricMaterial3D();
-    for(t in panel.model.tiles) {
+    for(t in panel.allTiles) {
         t.material = material;
     }
     for(s in panel.space.?selection.?snappers) {
