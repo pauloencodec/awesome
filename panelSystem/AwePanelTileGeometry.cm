@@ -36,35 +36,66 @@
 
 package custom.awesome.panelSystem;
 
-public class AwePanelFrame3D extends Awe3D {
-    public constructor(line2D centerline, double height, double thickness, Material3D material=MetalMaterial3D(), double lip=1inch) {
-        AwePath2D framePath1();
-        framePath1.right(centerline.length).up(28inch).left(centerline.length).down(28inch);
-        AwePath2D framePath2((0, 28inch));
-        framePath2.right(centerline.length).up(height - 28inch).left(centerline.length).down(height - 28inch);
+public class AwePanelTileGeometry extends AweGeometry {
+    
+    private AwePanelTileModel model;
 
-        AwePath2D frameProfile((-lip, -thickness/2));
-        frameProfile.right(lip).up(thickness).left(lip);
-
-        Primitive3D frame1 = extrudePathAlongPath(frameProfile, framePath1, doubleSided=true);
-        Primitive3D frame2 = extrudePathAlongPath(frameProfile, framePath2, doubleSided=true);
-
-        frame1.setMaterial(material);
-        frame1.standUp();
-        frame1.orientBy(centerline);
-
-        frame2.setMaterial(material);
-        frame2.standUp();
-        frame2.orientBy(centerline);
-
-        this << frame1;
-        this << frame2;
+    public constructor(AwePanelTileModel model) {
+        this.model = model;
     }   
+
+    public Primitive3D medium3D() {
+        
+        box volume(base, model.z, model.height + model.z);
+        Box3D prim(volume.shrunken(1inch/8));
+        prim.setMaterial(plainRandomColorMaterial3D(100));
+        prim.orientBy(model.insideBottomLine.offset(1inch/8));
+        return prim;
+    }
+
+    public Primitive3D super3D() {
+        double chamfer = 0.001;
+
+        AwePath2D profile();
+        profile.go(-chamfer, chamfer).up(model.thickness - chamfer*2).go(chamfer, chamfer);
+
+        rect pathRect((0,0), (model.insideBottomLine.length, model.height));
+        pathRect.shrink(1inch/8);
+
+        AwePath2D path(pathRect.p0);
+        path.right(pathRect.w).up(pathRect.d).left(pathRect.w).down(pathRect.d);
+
+        Primitive3D frame = extrudePathAlongPath(profile, path);
+        Primitive3D core = path.toPrimitive(model.thickness);
+        Instance3D tile([Primitive3D: frame, core]);
+
+        tile.setMaterial(plainRandomColorMaterial3D(100));
+        tile.standUp();
+        tile.orientBy(model.insideBottomLine);
+        tile.move((0,0,model.z));
+    
+        return tile;
+    }
+
+    extend private rect base() {
+        rect base(
+            (0,-model.thickness),
+            (model.insideBottomLine.length, 0)
+        );
+        return base;
+    }
+
+    public Graph graph() {
+        GRect g(base);
+        g.orientBy(model.insideBottomLine);
+        return g;
+    }
 }
 
 {
-     test(
-        AwePanelFrame3D(
-            line2D((0,0), (1,0))
-            , 1.5, 3inch));
+    AwePanelTileModel m();
+    m.insideBottomLine = line2D((0,0),(1,1));
+    m.thickness = 1inch;
+    m.height = 36inch;
+    test(AwePanelTileGeometry(m));
 }

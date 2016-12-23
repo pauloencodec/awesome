@@ -63,6 +63,7 @@ public class AwePanelController extends Snapper {
 
     extend private void modelUpdated() {
         this.alignAllSnapped(tryRealign=false);
+        product.refresh();
         invalidate();
         space.invalidateSelection();
     }

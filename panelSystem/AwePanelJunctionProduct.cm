@@ -39,13 +39,13 @@ package custom.awesome.panelSystem;
 public class AwePanelJunctionProduct extends AweProduct {
     public AweModel<AwePanelJunctionModel> m;
 
-    public void build3D(Awe3D awe3D, FetchEnv3D env) {
-        awe3D << AwePanelJunction3D(m);
-    }
+    // public void build3D(Awe3D awe3D, FetchEnv3D env) {
+    //     awe3D << AwePanelJunction3D(m);
+    // }
 
-    public void build2D(AweGraph aweGraph, FetchEnv2D env) {
-        aweGraph << AwePanelJunctionGraph(m);
-    }  
+    // public void build2D(AweGraph aweGraph, FetchEnv2D env) {
+    //     aweGraph << AwePanelJunctionGraph(m);
+    // }  
 }
 
 {

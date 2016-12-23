@@ -39,17 +39,22 @@ package custom.awesome.product;
 public class AweTestSnapper extends Snapper {
     public Graph graph;
     public Primitive3D primitive3D;
+    public AweProduct product;
 
-    public constructor(Graph graph=null, Primitive3D primitive3D=null) {
+    public constructor(Graph graph=null, Primitive3D primitive3D=null, AweProduct product=null) {
         this.graph = graph;
         this.primitive3D = primitive3D;
+        this.product = product;
     }   
 
     public void drawGraphs(LayerBuffer lb, View view, GeometricFinder finder=null) {
+        if(product) graph = product.get2D();
+
         if (graph) graph.draw(lb);
     }
 
     public Primitive3D get3D(FetchEnv3D env) {
+        if(product) return product.get3D(env);
         if(primitive3D) return primitive3D;
         return super(..);
     }
@@ -68,5 +73,9 @@ public void test(Primitive3D p) {
 }
 
 public void test(AweProduct p) {
-    AweTestSnapper(primitive3D=p.get3D(), graph=p.get2D()).launch();
+    AweTestSnapper(product=p).launch();
+}
+
+public void test(AweGeometry p) {
+    AweTestSnapper(primitive3D=p.medium3D(), graph=p.graph()).launch();
 }

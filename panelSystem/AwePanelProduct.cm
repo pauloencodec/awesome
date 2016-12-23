@@ -40,16 +40,13 @@ public class AwePanelProduct extends AweProduct {
 
     public AweModel<AwePanelModel> m;
 
-    public void build3D(Awe3D awe3D, FetchEnv3D env) {
-        awe3D << AwePanelFrame3D(m.centerline, m.height, m.frameThickness);
+    public void build() {
+        this << AwePanelFrameGeometry(m);
         for(t in m.tiles) {
-            awe3D << AwePanelTile3D(t);
+            this << AwePanelTileGeometry(t);
         }
     }
-
-    public void build2D(AweGraph aweGraph, FetchEnv2D env) {
-        aweGraph << AwePanelFrameGraph(m.centerline, m.frameThickness);
-    } 
+    
 }
 
 {

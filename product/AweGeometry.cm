@@ -34,23 +34,21 @@
    END OF CETSC
 */
 
-package custom.awesome.panelSystem;
+package custom.awesome.product;
 
-public class AwePanelFrameGraph  extends AweGraph {
-    public constructor(line2D centerline, double thickness) {
-        rect r(
-                (0, -thickness /2),
-                (centerline.length, thickness /2)
-            );
-        GRect gr(r);
-        gr.orientBy(centerline);
-        this << gr;
+public class AweGeometry {
+    public constructor() {
     }   
-}
 
-{
-    test(
-        AwePanelFrameGraph(
-            line2D((0,0), (1,0))
-            , 3inch));
+    extend public Primitive3D medium3D() {
+        return null;
+    }
+
+    extend public Primitive3D super3D() {
+        return medium3D();
+    }
+
+    extend public Graph graph() {
+        return null;
+    }
 }

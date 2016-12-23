@@ -36,24 +36,46 @@
 
 package custom.awesome.panelSystem;
 
-public class AwePanelTile3D extends Awe3D {
-    public constructor(AwePanelTileModel model) {
-        rect base(
-            (0,-model.thickness),
-            (model.insideBottomLine.length, 0)
-        );
-        box volume(base, model.z, model.height + model.z);
-        Box3D prim(volume.shrunken(1inch/8));
-        prim.setMaterial(plainRandomColorMaterial3D(100));
-        prim.orientBy(model.insideBottomLine.offset(1inch/8));
-        this << prim;
-    }   
-}
+public class AwePanelFrameGeometry extends AweGeometry {
+    private AwePanelModel model;
 
-{
-    AwePanelTileModel m();
-    m.insideBottomLine = line2D((0,0),(1,1));
-    m.thickness = 1inch;
-    m.height = 36inch;
-    test(AwePanelTile3D(m));
+    public constructor(AwePanelModel model) {
+        this.model = model;
+    }   
+
+    public Primitive3D medium3D() {
+        
+        double lip = 1inch;
+
+        AwePath2D framePath1();
+        framePath1.right(model.centerline.length).up(28inch).left(model.centerline.length).down(28inch);
+        AwePath2D framePath2((0, 28inch));
+        framePath2.right(model.centerline.length).up(model.height - 28inch).left(model.centerline.length).down(model.height - 28inch);
+
+        AwePath2D frameProfile((-lip, -model.frameThickness/2));
+        frameProfile.right(lip).up(model.frameThickness).left(lip);
+
+        Primitive3D frame1 = extrudePathAlongPath(frameProfile, framePath1, doubleSided=true);
+        Primitive3D frame2 = extrudePathAlongPath(frameProfile, framePath2, doubleSided=true);
+
+        frame1.setMaterial(MetalMaterial3D());
+        frame1.standUp();
+        frame1.orientBy(model.centerline);
+
+        frame2.setMaterial(MetalMaterial3D());
+        frame2.standUp();
+        frame2.orientBy(model.centerline);
+
+        return Awe3D(frame1, frame2);
+    }
+
+    public Graph graph() {
+        rect r(
+                (0, -model.frameThickness /2),
+                (model.centerline.length, model.frameThickness /2)
+            );
+        GRect gr(r);
+        gr.orientBy(model.centerline);
+        return gr;
+    }
 }

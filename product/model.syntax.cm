@@ -41,7 +41,7 @@ use cm.syntax, cm.runtime;
 public member @visibility AweModel '<' @type=type '>' @id=id ';' {
     return member {
         extend @visibility @type @id() {
-            return this.model.@type;
+            return this._model.@type;
         }
     };
 }

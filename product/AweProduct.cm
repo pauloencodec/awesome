@@ -38,49 +38,94 @@ package custom.awesome.product;
 
 public class AweProduct extends Snapper {
 
-    public Object model;
+    public Object _model;
 
-    private Awe3D awe3D;
-    private AweGraph aweGraph;
+    private Primitive3D medium3D;
+    private Primitive3D super3D;
+    private AweGraph graph;
+
+    private AweGeometry[] geometries;
+    extend public AweProduct operator<<(AweGeometry geometry) {
+        geometries << geometry;
+        return this;
+    }
 
     public constructor(Object model) {
-        this.model = model;
+        updateModel(model);
     }   
 
     extend public void updateModel(Object model) {
+        this._model = model;
         modelChanged();
     }
 
     extend public void modelChanged() {
-        awe3D = null;
-        aweGraph = null;
+        refresh();
     }
 
-    extend public void build3D(Awe3D awe3D, FetchEnv3D env) {
+    extend public void refresh() {
+        medium3D = null;
+        super3D = null;
+        graph = null;
+        geometries = new AweGeometry[]();
+        build();
+    }
+
+    //abstract?
+    extend public void build() {
 
     }
 
-    extend public void build2D(AweGraph aweGraph, FetchEnv2D env) {
+    extend public void buildSuper3D() {
+        pln("building super3D");
+        Primitive3D[] prims();
+        for(g in geometries) {
+            prims << g.super3D();
+        }
+        super3D = safeSet3D(prims);
+    }
+
+    extend public void buildMedium3D() {
+        pln("building medium3D");
         
+        Primitive3D[] prims();
+
+        for(g in geometries) {
+            prims << g.medium3D();
+        }
+
+        medium3D = safeSet3D(prims);
     }
 
-    extend public Primitive3D get3D() {
-        return get3D(FetchEnv3D());
+    extend public void buildGraph() {
+        pln("building graph");
+        
+        graph = new AweGraph();
+
+        for(g in geometries) {
+            graph << g.graph();
+        }
     }
 
     public Primitive3D get3D(FetchEnv3D env) {
-        if(awe3D) return awe3D;
+        //for rendering
+        if(env.detail == detailLevel3D.super) return getSuper3D();
 
-        Awe3D awe3D();
-        build3D(awe3D, env);
-        return awe3D;
+        return getMedium3D;
     }
 
-    extend public Graph get2D(FetchEnv2D env=null) {
-        if(aweGraph) return aweGraph;
+    extend private Primitive3D getSuper3D() {
+        if(!super3D) buildSuper3D();
+        return super3D;
+    }
 
-        AweGraph aweGraph();
-        build2D(aweGraph, env);
-        return aweGraph;
+    extend private Primitive3D getMedium3D() {
+        if(!medium3D) buildMedium3D();
+        return medium3D;
+    }
+
+    extend public Graph get2D() {
+        if(!graph) buildGraph();
+        return graph;
     }
 }

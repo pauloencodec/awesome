@@ -41,6 +41,12 @@ public class Awe3D extends Instance3D {
         
     }
 
+    public constructor(rest: Primitive3D[] prims) {
+        for(p in prims) {
+            this << p;
+        }
+    }
+
     extend public Awe3D operator << (Primitive3D prim) {
         Primitive3D[] prims();
         if(subPrims) {
@@ -48,6 +54,10 @@ public class Awe3D extends Instance3D {
         }
         prims << prim;
         setSubPrims(prims);
+        return this;
+    }
+
+    extend public Primitive3D super3D() {
         return this;
     }
 
