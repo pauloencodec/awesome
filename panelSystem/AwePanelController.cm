@@ -255,12 +255,15 @@ private void frameColor_changed(Object newValue, Object oldValue, Snapper contro
     panel.model.sideARaceway.material = material;
     panel.model.sideBRaceway.material = material;
     for(s in panel.space.?selection.?snappers) {
-        if(s as AwePanelController and s != panel) {
+        aweCast s as AwePanelHeightInterface {
+            pln(#s);
             s.props.set("frameColor", frameColor);
         }
-        else if(s as AwePanelJunctionController) {
-            s.props.set("frameColor", frameColor);
-        }
+        // if(s as AwePanelController and s != panel) {
+        // }
+        // else if(s as AwePanelJunctionController) {
+        //     s.props.set("frameColor", frameColor);
+        // }
     }
 }
 
