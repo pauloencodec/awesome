@@ -50,18 +50,13 @@ public class AwePanelJunctionController extends Snapper {
         ],
         onChange=function property_changed);
 
-    
+    public aweQuickPropertiesBinder(props);
 
     public box localBound() {
         return box(AwePanelJunctionGraphPath(model).bound, 0, model.height);
     }
 
-    extend private void modelUpdated() {
-        this.alignAllSnapped(tryRealign=false);
-        product.refresh();
-        invalidate();
-        space.invalidateSelection();
-    }
+    
 
     public constructor() {
         this.connectionCount = 4;
@@ -84,20 +79,6 @@ public class AwePanelJunctionController extends Snapper {
         props.set("height", 54inch);
     }
 
-    public bool buildQuickProperties(QuickProperties qp) { 
-        for(p in props) {
-            Object value = p.value;
-            qp.append(p.key, p.title, value, p.domain);
-        }
-        return true;
-    }
-
-    public bool quickPropertyChanged(QuickProperties qp, str key, Object value, bool testChangeOnly) {
-        if (key and !testChangeOnly) {
-           props.set(key, value);
-        }
-        return true;
-    }
 
     private AweConnectorCache _cc();
 

@@ -43,9 +43,9 @@ public class AwePanelInsertAnimation extends AwePointsAnimation {
 
     public Point adjustPoint(int pointIndex, point mousePoint, AnimationMouseInfo mi) {
         //WIP
-        // ConnectorFilter filter();
-        // FilteredConnectorSet fcs(filter);
-        // pln(#space.getCollection(mi.currentLine, 1, collection=fcs));
+        ConnectorFilter filter();
+        FilteredConnectorSet fcs(filter);
+        pln(#space.getCollection(mi.currentLine, 1, collection=fcs));
 
         FeatureSearch fs(mi.currentView, mi.mouseLine);
         if(fs.search()) {

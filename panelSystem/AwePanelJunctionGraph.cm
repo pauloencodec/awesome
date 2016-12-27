@@ -51,6 +51,3 @@ public class AwePanelJunctionGraph extends AweGraph {
   
 }
 
-{
-    test(AwePanelJunctionGraph(AwePanelJunctionModel(3, 3inch)));
-}

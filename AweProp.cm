@@ -103,8 +103,27 @@ public class AwePropBag {
     }
 }
 
+public member @visibility aweQuickPropertiesBinder '(' @propsObj=id ')' ';' {
+    return member {
+        @visibility bool buildQuickProperties(QuickProperties qp) { 
+            for(p in @propsObj) {
+                Object value = p.value;
+                qp.append(p.key, p.title, value, p.domain);
+            }
+            return true;
+        }
+
+        @visibility bool quickPropertyChanged(QuickProperties qp, str key, Object value, bool testChangeOnly) {
+            if (key and !testChangeOnly) {
+                @propsObj.set(key, value);
+            }
+            return true;
+        }
+    };
+}
+
 /**
- * For PartsEnv.
+ * For implementation.
  */
 private SStatement forAwePropBag(ForEnv this) {
     SExpr e = expr `{ @collection ? @collection.list : null };

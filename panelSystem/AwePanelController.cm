@@ -53,6 +53,8 @@ public class AwePanelController extends Snapper {
         onChange=function property_changed);
 
 
+    public aweQuickPropertiesBinder(props);
+
     //tiles
     //always visible
     private AwePanelTileModel sideABottomTile();
@@ -75,13 +77,6 @@ public class AwePanelController extends Snapper {
             new GDot(frontLine.p1).draw(lb);
             new GDot(backLine.p0).draw(lb);
             new GDot(backLine.p1).draw(lb);
-        }
-
-        extend private void modelUpdated() {
-            this.alignAllSnapped(tryRealign=false);
-            product.refresh();
-            invalidate();
-            space.invalidateSelection();
         }
 
 
@@ -117,20 +112,7 @@ public class AwePanelController extends Snapper {
         }
 
     
-        public bool buildQuickProperties(QuickProperties qp) { 
-            for(p in props) {
-                Object value = p.value;
-                qp.append(p.key, p.title, value, p.domain);
-            }
-            return true;
-        }
-
-        public bool quickPropertyChanged(QuickProperties qp, str key, Object value, bool testChangeOnly) {
-            if (key and !testChangeOnly) {
-            props.set(key, value);
-            }
-            return true;
-        }
+        
 
         private double racewayHeight = 6inch;
 

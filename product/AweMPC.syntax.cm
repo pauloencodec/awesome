@@ -52,6 +52,13 @@ public member @visibility AweMPC '<' @modelType=type ',' @productType=type '>' '
             if(g)
                 g.draw(lb);
         }
+
+        extend @visibility void modelUpdated() {
+            this.alignAllSnapped(tryRealign=false);
+            product.refresh();
+            invalidate();
+            space.invalidateSelection();
+        }
     
     };
 }

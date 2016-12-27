@@ -45,6 +45,3 @@ public class AwePanelJunctionProduct extends AweProduct {
      
 }
 
-{
-    test(AwePanelJunctionProduct(AwePanelJunctionModel(3, 3inch)));
-}
