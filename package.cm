@@ -35,7 +35,7 @@
 */
 package custom.awesome;
 
-
+use custom.awesome.product;
 use cm.application;
 use cm.basic;
 use cm.core;

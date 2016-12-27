@@ -65,134 +65,146 @@ public class AwePanelController extends Snapper {
     private AwePanelTileModel[] allTiles();
 
 
-    extend private void modelUpdated() {
-        this.alignAllSnapped(tryRealign=false);
-        product.refresh();
-        invalidate();
-        space.invalidateSelection();
-    }
+    public void drawFeatures(LayerBuffer lb, View inView, GeometricFinder finder=null) {
+            //super(..);
 
+            line2D frontLine = model.centerline.offset(-model.frameThickness / 2 + .5inch);
+            line2D backLine = model.centerline.offset(model.frameThickness / 2 + .5inch );
 
-    private AweConnectorCache _cc();
-
-    public void connectors(ConnectorCollection coll) {
-        coll << _cc.get("p0", this, model.centerline.p0.point, orientation(180deg), ctAlways);
-        coll << _cc.get("p1", this, model.centerline.p1.point, orientation(0deg), ctAlways);
-    }
-
-    public box localBound() {
-        rect r(
-                (0, -model.frameThickness /2),
-                (model.centerline.length, model.frameThickness /2)
-            );
-        return box(r, 0, model.height);
-    }
-
-
-    public constructor() {
-        allTiles << sideABottomTile << sideBBottomTile << sideATopTile << sideBTopTile;
-        initProps();
-        updateEndCaps();
-        super(..);
-    }   
-
-    extend private void initProps() {
-        props.set("width", distance(42inch));
-        props.set("height", distance(54inch));
-        props.set("panelType", "Monolithic");
-        props.set("fabricColor", "Biege");
-        props.set("frameColor", "White");
-    }
-
-   
-    public bool buildQuickProperties(QuickProperties qp) { 
-        for(p in props) {
-            Object value = p.value;
-            qp.append(p.key, p.title, value, p.domain);
-        }
-        return true;
-    }
-
-    public bool quickPropertyChanged(QuickProperties qp, str key, Object value, bool testChangeOnly) {
-        if (key and !testChangeOnly) {
-           props.set(key, value);
-        }
-        return true;
-    }
-
-    private double racewayHeight = 6inch;
-
-    extend private void adjustTileHeights() {
-        if(props.get("panelType").?toS == "Monolithic") {
-            sideABottomTile.z = racewayHeight;
-            sideABottomTile.height = model.height - racewayHeight;
-            sideBBottomTile.z = racewayHeight;
-            sideBBottomTile.height = model.height - racewayHeight;
-        } else {
-            double segmentedBottomTileHeight = 22inch;
-
-            sideABottomTile.z = racewayHeight;
-            sideABottomTile.height = segmentedBottomTileHeight;
-            sideBBottomTile.z = racewayHeight;
-            sideBBottomTile.height = segmentedBottomTileHeight;
-
-            sideATopTile.z = racewayHeight + segmentedBottomTileHeight;
-            sideATopTile.height = model.height - racewayHeight - segmentedBottomTileHeight;
-            sideBTopTile.z = racewayHeight + segmentedBottomTileHeight;
-            sideBTopTile.height = model.height - racewayHeight -segmentedBottomTileHeight;
+            new GDot(frontLine.p0).draw(lb);
+            new GDot(frontLine.p1).draw(lb);
+            new GDot(backLine.p0).draw(lb);
+            new GDot(backLine.p1).draw(lb);
         }
 
-         model.sideARaceway.z = .5inch;
-         model.sideARaceway.height = racewayHeight - .5inch;
-         model.sideBRaceway.z = .5inch;
-         model.sideBRaceway.height = racewayHeight - .5inch;
-
-    }
-
-    extend private void adjustTileWidth() {
-        for(t in allTilesAndRaceways(), index=i) {
-            //every other tile is a side B tile
-            line2D line = i%2==0 ?  model.centerline : model.centerline.flip();
-            t.insideBottomLine = line.offset(-model.frameThickness/2);
-            t.thickness = .5inch;
-            
+        extend private void modelUpdated() {
+            this.alignAllSnapped(tryRealign=false);
+            product.refresh();
+            invalidate();
+            space.invalidateSelection();
         }
-    }
 
-    extend private AwePanelTileModel[] allTilesAndRaceways() {
-        AwePanelTileModel[] tiles();
-        tiles += model.tiles;
-        tiles << model.sideARaceway;
-        tiles << model.sideBRaceway;
-        return tiles;
-    }
 
-    public void connected(Connector c0, Connector c1, bool snapped, bool attached) {
-        updateEndCaps();
-    }
+        private AweConnectorCache _cc();
 
-    public void disconnected(Connector c0, Connector c1, bool wasSnapped, bool wasAttached) {
-        updateEndCaps();
-    }
-
-    extend private void updateEndCaps() {
-        bool changed = false;
-        bool openEndOnLeft = !_cc.get("p0").?isConnected;
-        bool openEndOnRight = !_cc.get("p1").?isConnected;
-        if(openEndOnLeft != model.openEndOnLeft) {
-            model.openEndOnLeft = openEndOnLeft;
-            changed = true;
+        public void connectors(ConnectorCollection coll) {
+            coll << _cc.get("p0", this, model.centerline.p0.point, orientation(180deg), ctAlways);
+            coll << _cc.get("p1", this, model.centerline.p1.point, orientation(0deg), ctAlways);
         }
-        if(openEndOnRight != model.openEndOnRight) {
-            model.openEndOnRight = openEndOnRight;
-            changed = true;
-        }
-        if(changed) {
-            modelUpdated();
-        }
-    }
 
-}
+        public box localBound() {
+            rect r(
+                    (0, -model.frameThickness /2),
+                    (model.centerline.length, model.frameThickness /2)
+                );
+            return box(r, 0, model.height);
+        }
+
+
+        public constructor() {
+            allTiles << sideABottomTile << sideBBottomTile << sideATopTile << sideBTopTile;
+            initProps();
+            updateEndCaps();
+            super(..);
+        }   
+
+        extend private void initProps() {
+            props.set("width", distance(42inch));
+            props.set("height", distance(54inch));
+            props.set("panelType", "Monolithic");
+            props.set("fabricColor", "Biege");
+            props.set("frameColor", "White");
+        }
+
+    
+        public bool buildQuickProperties(QuickProperties qp) { 
+            for(p in props) {
+                Object value = p.value;
+                qp.append(p.key, p.title, value, p.domain);
+            }
+            return true;
+        }
+
+        public bool quickPropertyChanged(QuickProperties qp, str key, Object value, bool testChangeOnly) {
+            if (key and !testChangeOnly) {
+            props.set(key, value);
+            }
+            return true;
+        }
+
+        private double racewayHeight = 6inch;
+
+        extend private void adjustTileHeights() {
+            if(props.get("panelType").?toS == "Monolithic") {
+                sideABottomTile.z = racewayHeight;
+                sideABottomTile.height = model.height - racewayHeight;
+                sideBBottomTile.z = racewayHeight;
+                sideBBottomTile.height = model.height - racewayHeight;
+            } else {
+                double segmentedBottomTileHeight = 22inch;
+
+                sideABottomTile.z = racewayHeight;
+                sideABottomTile.height = segmentedBottomTileHeight;
+                sideBBottomTile.z = racewayHeight;
+                sideBBottomTile.height = segmentedBottomTileHeight;
+
+                sideATopTile.z = racewayHeight + segmentedBottomTileHeight;
+                sideATopTile.height = model.height - racewayHeight - segmentedBottomTileHeight;
+                sideBTopTile.z = racewayHeight + segmentedBottomTileHeight;
+                sideBTopTile.height = model.height - racewayHeight -segmentedBottomTileHeight;
+            }
+
+            model.sideARaceway.z = .5inch;
+            model.sideARaceway.height = racewayHeight - .5inch;
+            model.sideBRaceway.z = .5inch;
+            model.sideBRaceway.height = racewayHeight - .5inch;
+
+        }
+
+        extend private void adjustTileWidth() {
+            for(t in allTilesAndRaceways(), index=i) {
+                //every other tile is a side B tile
+                line2D line = i%2==0 ?  model.centerline : model.centerline.flip();
+                t.insideBottomLine = line.offset(-model.frameThickness/2);
+                t.thickness = .5inch;
+                
+            }
+        }
+
+        extend private AwePanelTileModel[] allTilesAndRaceways() {
+            AwePanelTileModel[] tiles();
+            tiles += model.tiles;
+            tiles << model.sideARaceway;
+            tiles << model.sideBRaceway;
+            return tiles;
+        }
+
+        public void connected(Connector c0, Connector c1, bool snapped, bool attached) {
+            updateEndCaps();
+        }
+
+        public void disconnected(Connector c0, Connector c1, bool wasSnapped, bool wasAttached) {
+            updateEndCaps();
+        }
+
+        extend private void updateEndCaps() {
+            bool changed = false;
+            bool openEndOnLeft = !_cc.get("p0").?isConnected;
+            bool openEndOnRight = !_cc.get("p1").?isConnected;
+            if(openEndOnLeft != model.openEndOnLeft) {
+                model.openEndOnLeft = openEndOnLeft;
+                changed = true;
+            }
+            if(openEndOnRight != model.openEndOnRight) {
+                model.openEndOnRight = openEndOnRight;
+                changed = true;
+            }
+            if(changed) {
+                modelUpdated();
+            }
+        }
+
+    }
 
 
 private void width_changed(Object newValue, Object oldValue, Snapper controller) {

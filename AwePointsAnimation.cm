@@ -1,0 +1,177 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome;
+
+public class AwePointsAnimation extends Animation {
+    public constructor(int count=1) {
+        StartAnimationEnv env(count);
+        super(env);
+    }   
+
+    public double z=0;
+    public point[] points();
+    public Point currentPoint=point();
+
+    //return null if you don't want it.
+    extend public Point adjustPoint(int pointIndex, point mousePoint, AnimationMouseInfo mi) {
+        return mousePoint;
+    }
+
+    //a point has been clicked. return null if you don't want it. return a different point if you'd like to save something else. why would you? i don't know. thought i'd give you the chance.
+    extend public point savePoint(int pointIndex, point mousePoint) {
+        return mousePoint;
+    }
+
+    public void move(AnimationMouseInfo mi) {
+        updateCurrentPoint(mi);
+    }
+
+    public void click(AnimationMouseInfo mi) {
+	    super(..);
+
+        if(currentPoint) {
+            Point pointToSave = savePoint(points.count, currentPoint.v);
+            if(pointToSave) {
+                points << pointToSave.v;
+            }
+        }
+
+    }
+
+    extend public plane referencePlane() {
+        plane pl(vector(0,0,1), z);
+        return pl;
+    }
+
+    extend public void updateCurrentPoint(AnimationMouseInfo mi) {
+        line ml = mi.mouseLine;
+        point mp = ml.intersect(referencePlane).ip;
+        Point newPoint = adjustPoint(points.count, mp, mi);
+        if(!newPoint) {
+            currentPoint = null;
+            refresh();
+        }
+        else if(newPoint != currentPoint) {
+            currentPoint = newPoint;
+            refresh();
+        }
+    }
+
+    extend public void refresh() {
+        if (space) {
+            space.invalidate2D(this);
+            space.invalidate3D(this);
+            space.beginAnimateDrawSequence(this);
+            space.initAnimateDraw(this);
+            space.animateDraw(this);
+        }
+    }
+
+    public bool deny3D() {
+	    return false;
+    }
+
+    /**
+     * Get 2D.
+     */
+    public void drawGraphs(LayerBuffer lb) {
+        get2D().draw(lb);
+    }
+
+    /**
+     * Get 2D.
+     */
+    public Graph get2D() {
+        AweGraph graph();
+
+        if(currentPoint)
+            graph << GDot(currentPoint.v);
+        for(p in points) {
+            graph << GDot(p);
+        }
+        return graph;
+    }
+
+    public Primitive3D get3D(FetchEnv3D env) {
+        if(currentPoint) {
+            Sphere3D current(currentPoint.v, 3inch);
+            current.setMaterial(glassMaterial3D);
+            return Awe3D(current);
+        }
+        return null;
+    }
+
+
+    private Space _space;
+    public Space space() {
+        if(!_space) _space = activeSpace;
+        return _space;
+    }
+
+    public void increaseState() {
+        if(currentPoint) {
+            super(..);
+        }
+    }
+
+    public void begin() {
+        super();
+        if (space) {
+            space.beginAnimateDrawSequence(this);
+            space.show(this);
+        }
+    }
+
+
+    public void end() {
+        if (space) {
+            space.endAnimateDrawSequence(this);
+            space.hide(this);
+        }
+        super(..);
+    }
+
+    public void abort() {
+        if (space) {
+            space.abortAnimateDraw(this);
+        }
+        super(..);
+    }
+}
+{
+    animate(AwePointsAnimation(5));
+}

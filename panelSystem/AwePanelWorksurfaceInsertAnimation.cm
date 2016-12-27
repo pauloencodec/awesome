@@ -34,16 +34,41 @@
    END OF CETSC
 */
 
-package custom.awesome.product;
+package custom.awesome.panelSystem;
+use cm.abstract.draw;
 
-public class AweGraph extends GInstance {
-    public constructor(rest: Graph[] graphs) {
-        for(g in graphs) {
-            this << g;
-        }
-        super();
+public class AwePanelWorksurfaceInsertAnimation extends DrawShapeRectAnimation {
+
+    public DistanceEnum widths(24inch, 30inch, 36inch, 42inch, 48inch, 54inch, 60inch, 66inch, 72inch, 76inch, 80inch);
+    public DistanceEnum depths(-30inch, -24inch, 24inch, 30inch);
+
+    public void adjustXAxis(point xp, bool snapped) {
+        super(..);
+        dRect.w = widths.closest(dRect.w).double;
+        dRect.d = depths.closest(dRect.d).double;
     }
-    public constructor() {
-        super();
+
+    /**
+     * Adjust Y axis.
+     */
+    public void adjustYAxis(point yp, bool snapped) {
+        super(..);
+        dRect.w = widths.closest(dRect.w).double;
+        dRect.d = depths.closest(dRect.d).double;
     }
+
+    /**
+     * Create insert snapper.
+     */
+    public Snapper createInsertSnapper() {
+        DrawRect r();
+        r.w = dRect.w;
+        r.d = dRect.d;
+        r.setPos(dRect.pos);
+        return r;
+    }
+}
+
+{
+    animate(AwePanelWorksurfaceInsertAnimation());
 }

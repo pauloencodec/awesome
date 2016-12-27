@@ -34,16 +34,29 @@
    END OF CETSC
 */
 
-package custom.awesome.product;
+package custom.awesome.panelSystem;
 
-public class AweGraph extends GInstance {
-    public constructor(rest: Graph[] graphs) {
-        for(g in graphs) {
-            this << g;
-        }
-        super();
-    }
+public class AwePanelInsertAnimation extends AwePointsAnimation {
     public constructor() {
-        super();
+        super(2);
+    }   
+
+    public Point adjustPoint(int pointIndex, point mousePoint, AnimationMouseInfo mi) {
+        //WIP
+        // ConnectorFilter filter();
+        // FilteredConnectorSet fcs(filter);
+        // pln(#space.getCollection(mi.currentLine, 1, collection=fcs));
+
+        FeatureSearch fs(mi.currentView, mi.mouseLine);
+        if(fs.search()) {
+            return fs.pos;
+        }
+        else return null;
+        
+        return mousePoint;
     }
+}
+
+{
+    animate(AwePanelInsertAnimation());
 }
