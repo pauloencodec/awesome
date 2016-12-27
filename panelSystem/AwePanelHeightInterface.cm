@@ -39,4 +39,4 @@ use cm.syntax;
 use cm.runtime;
 
 
-public aweTypeBundle AwePanelHeightInterface<AwePanelController, Linguica>;
+public aweTypeBundle AwePanelHeightInterface<AwePanelController, AwePanelJunctionController>;
