@@ -37,5 +37,5 @@
 package $dynamicPackageName;
 
 public class AweConnectPoint extends ConnectPoint {
-    public AweConnector;
+    // public AweConnector;
 }
