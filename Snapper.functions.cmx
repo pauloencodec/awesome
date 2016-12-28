@@ -34,7 +34,7 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package $dynamicPackageName;
 
 public void launch(Snapper s) {
     animate(s.insertAnimation(StartInsertAnimationEnv(s.space, s)));

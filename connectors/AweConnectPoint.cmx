@@ -34,7 +34,7 @@
    END OF CETSC
 */
 
-package custom.awesome.connectors;
+package $dynamicPackageName;
 
 public class AweConnectPoint extends ConnectPoint {
     public AweConnector;

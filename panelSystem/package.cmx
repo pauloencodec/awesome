@@ -33,7 +33,7 @@
 
    END OF CETSC
 */
-package custom.awesome.panelSystem;
+package $dynamicPackageName;
 
 use custom.awesome;
 use custom.awesome.product;

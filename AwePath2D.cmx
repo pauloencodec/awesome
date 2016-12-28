@@ -34,7 +34,7 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package $dynamicPackageName;
 
 public class AwePath2D extends APath2D {
     private point2D cursor;

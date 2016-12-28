@@ -34,7 +34,7 @@
    END OF CETSC
 */
 
-package custom.awesome.panelSystem;
+package $dynamicPackageName;
 
 public class AwePanelJunctionController extends Snapper {
     public AweMPC<AwePanelJunctionModel, AwePanelJunctionProduct>;   

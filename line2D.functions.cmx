@@ -34,7 +34,7 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package $dynamicPackageName;
 
 public orientation orientation(line2D l2d) {
     vector lineVector = l2d.p1.point - l2d.p0.point;

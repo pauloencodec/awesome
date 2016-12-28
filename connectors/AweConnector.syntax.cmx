@@ -34,7 +34,7 @@
    END OF CETSC
 */
 
-package custom.awesome.connectors;
+package $dynamicPackageName;
 use cm.runtime, cm.syntax;
 
 public member @visibility AweConnector ';' {

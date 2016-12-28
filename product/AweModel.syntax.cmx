@@ -34,7 +34,7 @@
    END OF CETSC
 */
 
-package custom.awesome.product;
+package $dynamicPackageName;
 
 use cm.syntax, cm.runtime;
 

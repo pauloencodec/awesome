@@ -34,7 +34,7 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package $dynamicPackageName;
 
 public class AwePointsAnimation extends Animation {
     public constructor(int count=1) {

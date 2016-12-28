@@ -34,7 +34,7 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package $dynamicPackageName;
 
 public void orientBy(Primitive3D p, line2D l) {
     orientation o = l.orientation();

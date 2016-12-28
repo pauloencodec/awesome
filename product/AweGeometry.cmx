@@ -34,7 +34,7 @@
    END OF CETSC
 */
 
-package custom.awesome.product;
+package $dynamicPackageName;
 
 public class AweGeometry {
     public constructor() {

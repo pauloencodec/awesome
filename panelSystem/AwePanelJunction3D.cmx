@@ -34,7 +34,7 @@
    END OF CETSC
 */
 
-package custom.awesome.panelSystem;
+package $dynamicPackageName;
 
 public class AwePanelJunction3D extends Awe3D {
     public constructor(AwePanelJunctionModel model) {

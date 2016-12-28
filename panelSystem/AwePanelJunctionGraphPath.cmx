@@ -34,7 +34,7 @@
    END OF CETSC
 */
 
-package custom.awesome.panelSystem;
+package $dynamicPackageName;
 
 public AwePath2D AwePanelJunctionGraphPath(AwePanelJunctionConnectionModel[] connections) {
     point2D[] vertices();
