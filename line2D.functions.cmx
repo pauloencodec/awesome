@@ -1,0 +1,72 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome;
+
+public orientation orientation(line2D l2d) {
+    vector lineVector = l2d.p1.point - l2d.p0.point;
+    vector lineNormal = (0,0,1);
+    return orientation(lineVector, lineNormal);
+} 
+
+public line2D offset(line2D l, double offsetDistance) {
+    orientation lineOrientation = l.orientation();
+    orientation offsetDirection(lineOrientation.perpendicular);
+    vector offset(offsetDirection, offsetDistance);
+    return l.offset(point2D(offset));
+}
+
+public line2D offset(line2D l, vector2D offset) {
+    return line2D(l.p0 + offset, l.p1 + offset);
+}
+
+public line2D flip(line2D l) {
+    return line2D(l.p1, l.p0);
+}
+
+public line2D shrunken(line2D l, double shrinkDistance) {
+    orientation lineOrientation = l.orientation();
+    vector2D offset = point2D(point(lineOrientation, shrinkDistance));
+    return line2D(l.p0 + offset, l.p1 - offset);
+}
+
+public rect rect(line2D l, double depth) {
+    rect r((0,0), (l.length, depth));
+    line2D referenceLine = l.offset(-depth/2);
+    r = r.orientBy(referenceLine);
+    return r;
+}
+
