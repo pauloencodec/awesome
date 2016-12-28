@@ -48,23 +48,15 @@ use cm.extension, cm.extension.util, cm.security;
  /**
  * Extension name.
  */
-private const str name = "Awesome";
+private const str name = "Awesome Core";
 
-private class AwesomeLibraryExtension extends MultiCatalogExtension {
+private class AwesomeLibraryExtension extends CodeExtension {
     public void start(ExtensionEnv env) {
         super(env);
     }
 
     public void initialize( ExtensionEnv env ) {
         super(env);
-    }
-
-    /**
-     * Build libraries.
-     */
-    public LazyLibraryInfo[] buildLibraries(ExtensionEnv env) {
-        LazyLibraryInfo[] seq();
-        return seq;
     }
 }
 
@@ -108,3 +100,10 @@ package ExtensionInfo getExtensionInfo() : referred {
 
     return info;
 }
+
+
+{
+    generateHardExtensionId(#:package, name).dumpAsCode();
+    // autoBuildExtension(#:package);
+}
+
