@@ -35,7 +35,7 @@
 */
 package $dynamicPackageName;
 
-use custom.awesome.product;
+use $dynamicPackageName.product;
 use cm.application;
 use cm.basic;
 use cm.core;

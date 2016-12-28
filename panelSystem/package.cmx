@@ -35,9 +35,9 @@
 */
 package $dynamicPackageName;
 
-use custom.awesome;
-use custom.awesome.product;
-use custom.awesome.connectors;
+use $parentPackageName;
+use $parentPackageName.product;
+use $parentPackageName.connectors;
 
 use cm.core;
 use cm.basic;
