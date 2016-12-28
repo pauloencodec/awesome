@@ -41,9 +41,9 @@ use cm.syntax;
 public member @visibility AweNotifyProp @type=type @name=id @notify=statement {
     SId privateName("_"#name.name);
     return member {
-        @visibility double @privateName;
-        extend @visibility double @name() { return this.@privateName; }
-        extend @visibility double @name=(double value) {
+        @visibility @type @privateName;
+        extend @visibility @type @name() { return this.@privateName; }
+        extend @visibility @type @name=(@type value) {
             this.@privateName = value;
             @notify;
             return this.@privateName;
