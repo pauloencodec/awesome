@@ -36,26 +36,22 @@
 
 package $dynamicPackageName;
 
-public class AweGeometry {
-    public constructor() {
-    }   
+use cm.syntax, cm.runtime;
 
-    extend public Primitive3D medium3D() {
-        return null;
-    }
-
-    extend public Primitive3D super3D() {
-        return medium3D();
-    }
-
-    extend public Graph graph() {
-        return null;
-    }
+public member @visibility AweGeoModel '<' @type=type '>' @id=id ';' {
     
-    final public Primitive3D applyMaterial(Primitive3D p, str materialName) { 
-        if (!materialName) { return p; }
-        var m = material(materialName);
-        m.apply(p, FetchEnv3D());
-        return p;
-    }
+    var privateFieldName = SId("___" # id.name);
+
+    return member { 
+
+        public @type @privateFieldName;
+        
+        extend @visibility @type @id() {
+            return this.@privateFieldName;
+        }
+
+        final private @type @id=(@type value) {
+            return this.@privateFieldName = value;
+        }
+    };
 }
