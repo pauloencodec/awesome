@@ -36,6 +36,7 @@
 package $dynamicPackageName;
 
 use $parentPackageName;
+use $parentPackageName.util;
 use cm.core;
 use cm.geometry;
 use cm.geometry2D.advanced;

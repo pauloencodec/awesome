@@ -51,4 +51,10 @@ public class AweGeometry {
     extend public Graph graph() {
         return null;
     }
+    
+    final public Primitive3D applyMaterial(Primitive3D p, str materialName) { 
+        var m = material(materialName);
+        m.apply(p, FetchEnv3D());
+        return p;
+    }
 }
