@@ -49,8 +49,10 @@ public definition @visibility AweReactiveController @id=id
 
     definition { 
         public class @id extends Snapper {
+            
             public AweReactive<@modelType, @productType, property_changed>;
 
+            /// Todo: improve on this
             public box localBound() {
                 return product.get3D(FetchEnv3D(detailLevel3D.lousy)).bound;
             }

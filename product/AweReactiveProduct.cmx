@@ -56,7 +56,7 @@ public class AweReactiveProduct extends AweProduct : abstract, inherit construct
     /// its quickProperties shown
     extend public void initProps() { 
         for (prop in this.props) { 
-            prop.value = prop.domain.first();
+            this.propertyChanged(prop.key, prop.domain.first(), null);
         }
     } 
 
