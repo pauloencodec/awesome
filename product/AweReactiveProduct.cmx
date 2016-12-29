@@ -51,7 +51,14 @@ public class AweReactiveProduct extends AweProduct : abstract, inherit construct
     } 
 
     extend public AweReactiveProp[] getAweProps() : abstract { } 
-    extend public void initProps() : abstract { } 
+    
+    /// This is usually called by the controller whenever it's ready to have
+    /// its quickProperties shown
+    extend public void initProps() { 
+        for (prop in this.props) { 
+            prop.value = prop.domain.first();
+        }
+    } 
 
     final public void propertyChanged(str key, Object newValue, Object oldValue) { 
         this.propertyChangedCore(..);
