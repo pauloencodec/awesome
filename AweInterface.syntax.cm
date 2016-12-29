@@ -34,60 +34,81 @@
    END OF CETSC
 */
 
-package $dynamicPackageName;
+package custom.awesome;
+use cm.syntax;
 
-public class AwePanelProduct extends AweProduct {
-
-    public AweModel<AwePanelModel> model;
-
-    public void build() {
-        this << AwePanelFrameGeometry(model);
-        for(t in model.tiles) {
-            this << AwePanelTileGeometry(t);
-        }
-        this << AwePanelRacewayGeometry(model.sideARaceway);
-        this << AwePanelRacewayGeometry(model.sideBRaceway);
-        if(model.openEndOnLeft) {
-            AwePanelEndCapModel m();
-            m.z = .5inch;
-            m.height = model.height - .25inch;
-            m.insideBottomLine = line2D((0,model.frameThickness/2 + .5inch), (0,-model.frameThickness/2 - .5inch));
-            m.material = model.frameMaterial;
-            this << AwePanelEndCapGeometry(m);
-        }
-        if(model.openEndOnRight) {
-            AwePanelEndCapModel m();
-            m.z = .5inch;
-            m.height = model.height - .25inch;
-            m.insideBottomLine = line2D((model.centerline.length,-model.frameThickness/2 - .5inch), (model.centerline.length,model.frameThickness/2 + .5inch));
-            m.material = model.frameMaterial;
-            this << AwePanelEndCapGeometry(m);
-        }
-    }
-    
+public class AweTypeBundle : abstract {
+    extend public Type[] types() : abstract { }
+    public constructor() {
+    }   
 }
 
+public statement aweCast @what=id "as" @bundle=type @code=statement {
+    AweTypeBundle mc = bundle.type.Class.instantiate.AweTypeBundle;
+    SStatements s = statement {  };
+    
+    for (t in mc.types) { 
+        SType tType(t);
+        s << block { 
+            if (@what.@tType) { 
+                @tType @what = @what.@tType;
+                @code;
+            }
+        };
+    }
+    
+    return s;
+}
+
+
+public definition @visibility aweTypeBundle @name=id '<' @types=list[type, ',']+ '>' ';' {
+    Type[] list();
+    SStatements s();
+    for(t in types) {
+        s << block { list << @t; };
+    }
+
+    definition {
+        @visibility class @name extends AweTypeBundle {
+            public Type[] types() {
+                Type[] list();
+                @s;
+                return list;
+            }
+        }
+    };
+}
+
+public class X {
+    extend public void pln() {
+        pln("eh o xis");
+    }
+    public constructor() { }
+}
+
+public class Y {
+    extend public void pln() {
+        pln("eh o ips");
+    }
+    public constructor() { }
+}
+
+public class Factory {
+    extend public Object get(str type) {
+        if(type == "x")
+            return X();
+        else 
+            return Y();
+    }
+    public constructor() { }
+}
+
+public aweTypeBundle IXY<X,Y>;
+
 {
-
-    AwePanelTileModel[] tiles();
-
-    AwePanelTileModel m();
-    m.insideBottomLine = line2D((0,0),(1,1));
-    m.thickness = 1inch;
-    m.height = 36inch;
-    tiles << m;
-
-    AwePanelModel model(
-        line2D((0,0), (3feet,3feet)),
-        8feet,
-        3inch,
-        "materialX",
-        tiles, 
-        blackMarbleMaterial3D,
-        null,
-        null,
-        true,
-        true
-    );
-    test(AwePanelProduct(model));
+    Object o = Factory().get("x");
+    
+    aweCast o as IXY {
+        o.pln();
+    }
 }
