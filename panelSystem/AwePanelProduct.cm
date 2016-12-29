@@ -45,8 +45,8 @@ public class AwePanelProduct extends AweProduct {
         for(t in model.tiles) {
             this << AwePanelTileGeometry(t);
         }
-        this << AwePanelTileGeometry(model.sideARaceway);
-        this << AwePanelTileGeometry(model.sideBRaceway);
+        this << AwePanelRacewayGeometry(model.sideARaceway);
+        this << AwePanelRacewayGeometry(model.sideBRaceway);
         if(model.openEndOnLeft) {
             AwePanelEndCapModel m();
             m.z = .5inch;
