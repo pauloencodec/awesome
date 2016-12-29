@@ -42,7 +42,7 @@ public definition @visibility AweReactiveController @id=id
     '<' @modelType=type ',' @productType=type '>'
     '{' @extraMembers=[classMember]* '}' {
 
-    SMembers bundledMembers(noSrcRef);
+    SMembers bundledMembers(modelType.src);
     for(m in extraMembers) {
         bundledMembers << m;
     }
@@ -51,9 +51,13 @@ public definition @visibility AweReactiveController @id=id
         public class @id extends Snapper {
             public AweReactive<@modelType, @productType, property_changed>;
 
+            public box localBound() {
+                return product.get3D(FetchEnv3D()).bound;
+            }
+
             public constructor() {
-                super(..); 
                 this.product.initProps();
+                super(..);
             }
         }
 

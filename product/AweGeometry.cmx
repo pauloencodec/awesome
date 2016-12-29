@@ -55,7 +55,9 @@ public class AweGeometry {
     final public Primitive3D applyMaterial(Primitive3D p, str materialName) { 
         if (!materialName) { return p; }
         var m = material(materialName);
-        m.apply(p, FetchEnv3D());
+        if (m) { 
+            m.apply(p, FetchEnv3D());
+        }
         return p;
     }
 }

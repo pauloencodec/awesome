@@ -36,7 +36,7 @@
 
 package $dynamicPackageName;
 
-public class AweReactiveProduct extends AweProduct : abstract {
+public class AweReactiveProduct extends AweProduct : abstract, inherit constructors {
 
     private AweReactivePropBag props : public readable;
     private Snapper owner : public readable;
