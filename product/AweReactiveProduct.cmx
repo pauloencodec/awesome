@@ -36,28 +36,36 @@
 
 package $dynamicPackageName;
 
-use cm.syntax;
+public class AweReactiveProduct extends AweProduct : abstract {
 
-public member @visibility AweMPC '<' @modelType=type ',' @productType=type '>' ';' {
-    return member {
-        @visibility @modelType model();
-        @visibility @productType product(model);
+    private AweReactivePropBag props : public readable;
+    private Snapper owner : public readable;
 
-        public Primitive3D get3D(FetchEnv3D env) {
-            return product.get3D(env);
+    private function(str key, Object newValue, Object oldValue, Snapper controller) onChange : public readable;
+
+    public constructor(Object model, Snapper owner, function(str key, Object newValue, Object oldValue, Snapper controller) onChange) {
+        super(model);
+        this.owner = owner;
+        this.props = new AweReactivePropBag(this, this.getAweProps(), function property_changed);
+        this.onChange = onChange;
+    } 
+
+    extend public AweReactiveProp[] getAweProps() : abstract { } 
+    extend public void initProps() : abstract { } 
+
+    final public void propertyChanged(str key, Object newValue, Object oldValue) { 
+        this.propertyChangedCore(..);
+        if (this.onChange and this.owner) { 
+            this.onChange(key, newValue, oldValue, this.owner);
         }
+    }
 
-        public void drawGraphs(LayerBuffer lb, View view, GeometricFinder finder=null) {
-            Graph g = product.get2D();
-            if(g)
-                g.draw(lb);
-        }
+    extend public void propertyChangedCore(str key, Object newValue, Object oldValue) { 
 
-        extend @visibility void modelUpdated() {
-            this.alignAllSnapped(tryRealign=false);
-            product.refresh();
-            invalidate();
-            space.invalidateSelection();
-        }    
-    };
+    }
+
+}
+
+private void property_changed(str key, Object newValue, Object oldValue, Snapper controller) {
+    controller.AweReactiveProduct.propertyChanged(key, newValue, oldValue);
 }

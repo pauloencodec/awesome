@@ -36,8 +36,6 @@
 
 package $dynamicPackageName;
 
-
-
 public class AwePanelController extends Snapper {
 
     public AweMPC<AwePanelModel, AwePanelProduct>;
@@ -110,9 +108,6 @@ public class AwePanelController extends Snapper {
             props.set("fabricColor", "Biege");
             props.set("frameColor", "White");
         }
-
-    
-        
 
         private double racewayHeight = 6inch;
 

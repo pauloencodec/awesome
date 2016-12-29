@@ -35,29 +35,42 @@
 */
 
 package $dynamicPackageName;
-
 use cm.syntax;
 
-public member @visibility AweMPC '<' @modelType=type ',' @productType=type '>' ';' {
-    return member {
-        @visibility @modelType model();
-        @visibility @productType product(model);
+public class AweReactiveProp {
 
-        public Primitive3D get3D(FetchEnv3D env) {
-            return product.get3D(env);
+    public str key;
+    public str title;
+    private Object _value;
+    extend public Object value() { return _value; }
+    extend public Object value=(Object newValue) {
+        if(!newValue.equal(_value)) {
+            Object oldValue = _value;
+            _value = newValue;
+            if(onChange) {
+                onChange(this.key, newValue, oldValue, controller);
+            }
+            if(bag and bag.onChange) {
+                bag.onChange(this.key, newValue, oldValue, controller);
+            }
+            if(notifyNeighbors and controller) {
+                controller.sendChangedToNeighbors();
+            }
         }
+        return _value;
+    }
+    public SubSet domain;
+    public function(str key, Object newValue, Object oldValue, Snapper controller) onChange;
+    public bool notifyNeighbors;
+    public Snapper controller;
+    public AweReactivePropBag bag;
+    
 
-        public void drawGraphs(LayerBuffer lb, View view, GeometricFinder finder=null) {
-            Graph g = product.get2D();
-            if(g)
-                g.draw(lb);
-        }
-
-        extend @visibility void modelUpdated() {
-            this.alignAllSnapped(tryRealign=false);
-            product.refresh();
-            invalidate();
-            space.invalidateSelection();
-        }    
-    };
+    public constructor(str key, str title, SubSet domain, function(str key, Object newValue, Object oldValue, Snapper controller) onChange=null, bool notifyNeighbors=false) {
+        this.key = key;
+        this.title = title;
+        this.domain = domain;
+        this.onChange = onChange;
+        this.notifyNeighbors = notifyNeighbors;
+    }   
 }

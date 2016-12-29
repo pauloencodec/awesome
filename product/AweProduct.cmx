@@ -51,8 +51,8 @@ public class AweProduct extends Snapper {
     }
 
     public constructor(Object model) {
-        updateModel(model);
-    }   
+        this.updateModel(model);
+    } 
 
     extend public void updateModel(Object model) {
         this._model = model;

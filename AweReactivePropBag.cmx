@@ -34,30 +34,43 @@
    END OF CETSC
 */
 
-package $dynamicPackageName;
 
+package $dynamicPackageName;
 use cm.syntax;
 
-public member @visibility AweMPC '<' @modelType=type ',' @productType=type '>' ';' {
-    return member {
-        @visibility @modelType model();
-        @visibility @productType product(model);
+public class AweReactivePropBag {
+    private str->AweReactiveProp props();
+    public Snapper controller;
+    public function(str key, Object newValue, Object oldValue, Snapper controller) onChange;
+    public AweReactiveProp[] list;
 
-        public Primitive3D get3D(FetchEnv3D env) {
-            return product.get3D(env);
+    extend public Object get(str key) {
+        return props.?get(key).?value;
+    }
+
+    extend public void set(str key, Object value) {
+        AweReactiveProp prop = props.get(key);
+        if(!prop) return;
+        prop.value = value;
+    }
+
+    public constructor(Snapper controller, AweReactiveProp[] props, function(str key, Object newValue, Object oldValue, Snapper controller) onChange=null) {
+        this.controller = controller;
+        this.list = props;
+        this.onChange = onChange;
+        for(p in props) {
+            p.controller = this.controller;
+            p.bag = this;
+            this.props.put(p.key, p);
         }
-
-        public void drawGraphs(LayerBuffer lb, View view, GeometricFinder finder=null) {
-            Graph g = product.get2D();
-            if(g)
-                g.draw(lb);
-        }
-
-        extend @visibility void modelUpdated() {
-            this.alignAllSnapped(tryRealign=false);
-            product.refresh();
-            invalidate();
-            space.invalidateSelection();
-        }    
-    };
+    }
 }
+
+/**
+ * For implementation.
+ */
+private SStatement forAweReactivePropBag(ForEnv this) {
+    SExpr e = expr `{ @collection ? @collection.list : null };
+    return forSeq(vars, e, keywords, body);
+}
+init defFor(AweReactivePropBag, 1, function forAweReactivePropBag);

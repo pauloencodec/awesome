@@ -38,10 +38,11 @@ package $dynamicPackageName;
 
 use cm.syntax;
 
-public member @visibility AweMPC '<' @modelType=type ',' @productType=type '>' ';' {
+public member @visibility AweReactive '<' @modelType=type ',' @productType=type ',' @delegate=expr '>' ';' {
+    
     return member {
         @visibility @modelType model();
-        @visibility @productType product(model);
+        @visibility @productType product(model, this, function @delegate);
 
         public Primitive3D get3D(FetchEnv3D env) {
             return product.get3D(env);
@@ -58,6 +59,10 @@ public member @visibility AweMPC '<' @modelType=type ',' @productType=type '>' '
             product.refresh();
             invalidate();
             space.invalidateSelection();
-        }    
+        } 
+
+        final public AweReactivePropBag props() { 
+            return product.props;
+        }
     };
 }
