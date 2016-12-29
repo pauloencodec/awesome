@@ -36,38 +36,33 @@
 
 package $dynamicPackageName;
 
-public class AweReactiveProduct extends AweProduct : abstract {
+use cm.syntax;
 
-    private AweReactivePropBag props : public readable;
-    private Snapper owner : public readable;
+public definition @visibility AweReativeController @id=id 
+    '<' @modelType=type ',' @productType=type '>'
+    '{' @extraMembers=[classMember]* '}' {
 
-    private function(str key, Object newValue, Object oldValue, Snapper controller) onChange : public readable;
+    SMembers bundledMembers(noSrcRef);
+    for(m in extraMembers) {
+        bundledMembers << m;
+    }
 
-    public constructor(Object model, Snapper owner, function(str key, Object newValue, Object oldValue, Snapper controller) onChange) {
-        super(model);
-        this.owner = owner;
-        this.props = new AweReactivePropBag(this, this.getAweProps(), function property_changed);
-        this.onChange = onChange;
-    } 
+    definition { 
+        public class @id extends Snapper {
+            public AweReactive<@modelType, @productType, property_changed>;
 
-    extend public AweReactiveProp[] getAweProps() : abstract { } 
-    extend public void initProps() : abstract { } 
-
-    final public void propertyChanged(str key, Object newValue, Object oldValue) { 
-        this.propertyChangedCore(..);
-        if (this.onChange and this.owner) { 
-            this.onChange(key, newValue, oldValue, this.owner);
+            public constructor() {
+                super(..); 
+                this.product.initProps();
+            }
         }
-    }
 
-    extend public void propertyChangedCore(str key, Object newValue, Object oldValue) { 
-
-    }
-
-}
-
-private void property_changed(str key, Object newValue, Object oldValue, Snapper snapper) {
-    if (snapper as AweReactiveProduct) { 
-        snapper.propertyChanged(key, newValue, oldValue);
-    }
+        private void property_changed(str key, Object newValue, Object oldValue, Snapper controller) {
+            if(controller as @id) { 
+                if (controller.model) { 
+                    controller.modelUpdated();
+                }
+            }
+        }
+    };
 }
