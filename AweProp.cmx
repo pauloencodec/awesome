@@ -75,33 +75,6 @@ public class AweProp {
     }   
 }
 
-public class AwePropBag {
-    private str->AweProp props();
-    public Snapper controller;
-    public function(Object newValue, Object oldValue, Snapper controller) onChange;
-    public AweProp[] list;
-
-    extend public Object get(str key) {
-        return props.?get(key).?value;
-    }
-
-    extend public void set(str key, Object value) {
-        AweProp prop = props.get(key);
-        if(!prop) return;
-        prop.value = value;
-    }
-
-    public constructor(Snapper controller, AweProp[] props, function(Object newValue, Object oldValue, Snapper controller) onChange=null) {
-        this.controller = controller;
-        this.list = props;
-        this.onChange = onChange;
-        for(p in props) {
-            p.controller = this.controller;
-            p.bag = this;
-            this.props.put(p.key, p);
-        }
-    }
-}
 
 public member @visibility aweQuickPropertiesBinder '(' @propsObj=id ')' ';' {
     return member {
@@ -121,12 +94,3 @@ public member @visibility aweQuickPropertiesBinder '(' @propsObj=id ')' ';' {
         }
     };
 }
-
-/**
- * For implementation.
- */
-private SStatement forAwePropBag(ForEnv this) {
-    SExpr e = expr `{ @collection ? @collection.list : null };
-    return forSeq(vars, e, keywords, body);
-}
-init defFor(AwePropBag, 1, function forAwePropBag);
