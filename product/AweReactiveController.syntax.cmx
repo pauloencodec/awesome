@@ -38,7 +38,7 @@ package $dynamicPackageName;
 
 use cm.syntax;
 
-public definition @visibility AweReativeController @id=id 
+public definition @visibility AweReactiveController @id=id 
     '<' @modelType=type ',' @productType=type '>'
     '{' @extraMembers=[classMember]* '}' {
 
