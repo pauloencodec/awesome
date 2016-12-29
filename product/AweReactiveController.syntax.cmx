@@ -52,7 +52,7 @@ public definition @visibility AweReactiveController @id=id
             public AweReactive<@modelType, @productType, property_changed>;
 
             public box localBound() {
-                return product.get3D(FetchEnv3D(detailLeval3D.lousy)).bound;
+                return product.get3D(FetchEnv3D(detailLevel3D.lousy)).bound;
             }
 
             public aweQuickPropertiesBinder(props);
