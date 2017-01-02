@@ -79,7 +79,3 @@ public void test(AweProduct p) {
 public void test(AweGeometry p) {
     AweTestSnapper(primitive3D=p.medium3D(), graph=p.graph()).launch();
 }
-
-public void testSuper(AweGeometry p) {
-    AweTestSnapper(primitive3D=p.super3D(), graph=p.graph()).launch();
-}

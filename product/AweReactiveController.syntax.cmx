@@ -74,3 +74,89 @@ public definition @visibility AweReactiveController @id=id
         }
     };
 }
+
+public definition @visibility BundleDelegates @bundleDelegatesName=id @bundleDelegates=id 
+    @classRef=type { 
+
+    SMembers bundledMembers(noSrcRef);
+    var c = classRef.type.Class;
+    for(field in c.fields) {
+        var fieldName = field.name; 
+        str methodName = fieldName # "_changed";
+        if (!classHasMethodWithName(methodName, c)) { 
+            bundledMembers << member { 
+                extend public void @methodName() { 
+                    pln(#this.@fieldName);
+                }
+            };
+        }
+    }
+
+    definition { 
+        public class @bundleDelegatesName extends @bundleDelegates : abstract {
+            @bundledMembers;
+        }
+    };
+}
+
+package bool classHasMethodWithName(str searchFor, Class where) { 
+    for(method in where.methods(false))
+        if(method.name == searchFor) {
+            return true;
+    }
+    return false;
+}
+
+public definition @visibility BundleType @bundleName=id 
+    '{' @extraMembers=[classMember]* '}' 
+{
+    SMembers bundledMembers(noSrcRef);
+    for(m in extraMembers) {
+        bundledMembers << m;
+    }
+
+    /// Base class contains the exact declaration we received
+    var baseBundleName = bundleName.name # "__Base";
+    definition { 
+        @visibility class @baseBundleName : abstract {
+            @bundledMembers;
+        }
+    };
+
+    /// __Del class have the missing delegates from the fields in the base class
+    SType stype(baseBundleName);
+    stype.eval();
+    var delClassName = baseBundleName # "_Del"; 
+    definition { 
+        @visibility BundleDelegates @delClassName @baseBundleName @stype;
+    };
+
+    /// Final class has it all 
+    definition { 
+        @visibility class @bundleName extends @delClassName { 
+            public constructor() { }
+        }
+    };
+}
+
+public BundleType People { 
+    public int id;
+    public str name;
+    public double total;
+    extend public void name_changed(){
+        pln("Rá!");
+    }
+}
+
+
+use cm.runtime;
+
+{
+    People p();
+    p.id = 10;
+    p.total = 9992.789;
+    p.id_changed();
+    p.name_changed();
+    p.total_changed();
+    
+}

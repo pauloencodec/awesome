@@ -40,7 +40,6 @@ public class AweReactiveProduct extends AweProduct : abstract, inherit construct
 
     private AweReactivePropBag props : public readable;
     private Snapper owner : public readable;
-
     private function(str key, Object newValue, Object oldValue, Snapper controller) onChange : public readable;
 
     public constructor(Object model, Snapper owner, function(str key, Object newValue, Object oldValue, Snapper controller) onChange) {

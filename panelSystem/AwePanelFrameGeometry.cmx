@@ -43,34 +43,6 @@ public class AwePanelFrameGeometry extends AweGeometry {
         this.model = model;
     }   
 
-    public Primitive3D super3D() {
-        Awe3D bundle();
-        bundle << medium3D();
-
-        double[] segments();
-        for(t in model.tiles) {
-            if(t.z !in segments) {
-                segments << t.z;
-            }
-        }
-
-        double trimThickness = 1inch /8;
-        for(s in segments) {
-            box trimBox(model.centerline.rect(model.frameThickness + 1inch), s - trimThickness / 2, s + trimThickness);
-            Box3D trim(trimBox);
-            trim.setMaterial(model.frameMaterial);
-            
-
-            Box3D clone = trim.copy();
-            trim.move((0,0,  trimThickness));
-            clone.move((0,0,  - trimThickness));
-           
-            bundle << trim << clone;
-        }
-
-        return bundle;
-    }
-
     public Primitive3D medium3D() {
 
         box volume(base, .5inch, model.height);
@@ -81,14 +53,9 @@ public class AwePanelFrameGeometry extends AweGeometry {
         Box3D topTrim(topTrimBox);
         topTrim.setMaterial(model.frameMaterial);
 
-
-
         AwePanelGlide3D leftGlide(model.centerline.shrunken(3inch).p0);
         AwePanelGlide3D rightGlide(model.centerline.shrunken(3inch).p1);
-        Awe3D bundle(prim, topTrim, leftGlide, rightGlide);
-        
-        
-        return bundle;
+        return Awe3D(prim, topTrim, leftGlide, rightGlide);
     }
 
     public Graph graph() {
