@@ -65,6 +65,7 @@ public class AweProp {
     public Snapper controller;
     public AwePropBag bag;
     
+    public constructor() { }
 
     public constructor(str key, str title, SubSet domain, function(Object newValue, Object oldValue, Snapper controller) onChange=null, bool notifyNeighbors=false) {
         this.key = key;

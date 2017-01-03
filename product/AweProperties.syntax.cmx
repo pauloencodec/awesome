@@ -38,55 +38,26 @@ package $dynamicPackageName;
 
 use cm.syntax;
 
-public definition @visibility AweReactiveController @id=id 
-    '<' @modelType=type ',' @productType=type '>'
-    '{' @extraMembers=[classMember]* '}' {
-
-    SMembers bundledMembers(modelType.src);
-    for(m in extraMembers) {
-        bundledMembers << m;
-    }
-
-    definition { 
-        public class @id extends Snapper {
-            
-            public AweReactive<@modelType, @productType, property_changed>;
-
-            /// Todo: improve on this
-            public box localBound() {
-                return product.get3D(FetchEnv3D(detailLevel3D.lousy)).bound;
-            }
-
-            public aweQuickPropertiesBinder(props);
-
-            public constructor() {
-                this.product.initProps();
-                super(..);
-            }
-        }
-
-        private void property_changed(str key, Object newValue, Object oldValue, Snapper controller) {
-            if(controller as @id) { 
-                if (controller.model) { 
-                    controller.modelUpdated();
-                }
-            }
-        }
-    };
-}
-
 public definition @visibility BundleDelegates @bundleDelegatesName=id @bundleDelegates=id 
     @classRef=type { 
 
     SMembers bundledMembers(noSrcRef);
     var c = classRef.type.Class;
     for(field in c.fields) {
+        if (!(field.export == exportType.public)) { continue; }
         var fieldName = field.name; 
-        str methodName = fieldName # "_changed";
-        if (!classHasMethodWithName(methodName, c)) { 
+        var setMethodName = "set" # fieldName;
+        var changedMethodName = fieldName # "_changed";
+        var fieldType = field.type;
+        if (!classHasMethodWithName(changedMethodName, c)) { 
             bundledMembers << member { 
-                extend public void @methodName() { 
-                    pln(#this.@fieldName);
+                extend public @fieldType @changedMethodName(@fieldType oldValue, @fieldType newValue) { 
+                    return newValue;
+                }
+
+                extend public @fieldType @setMethodName(@fieldType newValue) { 
+                    this.@fieldName = this.@changedMethodName(this.@fieldName, newValue);
+                    return this.@fieldName;
                 }
             };
         }
@@ -99,15 +70,7 @@ public definition @visibility BundleDelegates @bundleDelegatesName=id @bundleDel
     };
 }
 
-package bool classHasMethodWithName(str searchFor, Class where) { 
-    for(method in where.methods(false))
-        if(method.name == searchFor) {
-            return true;
-    }
-    return false;
-}
-
-public definition @visibility BundleType @bundleName=id 
+public definition @visibility AweProperties @bundleName=id 
     '{' @extraMembers=[classMember]* '}' 
 {
     SMembers bundledMembers(noSrcRef);
@@ -118,7 +81,7 @@ public definition @visibility BundleType @bundleName=id
     /// Base class contains the exact declaration we received
     var baseBundleName = bundleName.name # "__Base";
     definition { 
-        @visibility class @baseBundleName : abstract {
+        @visibility class @baseBundleName extends AweProp : abstract {
             @bundledMembers;
         }
     };
@@ -139,15 +102,30 @@ public definition @visibility BundleType @bundleName=id
     };
 }
 
-public BundleType People { 
+package bool classHasMethodWithName(str searchFor, Class where) { 
+    for(method in where.methods(false))
+        if(method.name == searchFor) {
+            return true;
+    }
+    return false;
+}
+
+public member @visibility AweProp @id=id @subset=expr @defaultValue=expr { 
+    var subsetType = subset.type;
+    return member { 
+        @visibility @subsetType @id;
+    };
+}
+
+public AweProperties People { 
     public int id;
     public str name;
     public double total;
-    extend public void name_changed(){
+    extend public str name_changed(){
         pln("Rá!");
+        return "V";
     }
 }
-
 
 use cm.runtime;
 
@@ -155,8 +133,7 @@ use cm.runtime;
     People p();
     p.id = 10;
     p.total = 9992.789;
-    p.id_changed();
-    p.name_changed();
-    p.total_changed();
-    
+    p.id_changed(1, 2);
+    // p.name_changed();
+    // p.total_changed();
 }
