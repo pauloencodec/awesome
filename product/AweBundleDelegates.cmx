@@ -79,8 +79,18 @@ public definition @visibility AweBundleDelegates @bundleDelegatesName=id @bundle
                     return true;
                 }
 
-                extend public Object @fieldChangedMethod(Object oldValue, Object newValue) { 
+                extend public Object @fieldChangedMethod(Object oldValue, Object newValue, Object unwrapedValue) { 
                     return newValue;
+                }
+
+                extend public Object @fieldChangedMethod(Object oldValue, Object newValue) {
+                    Object unwrapedValue;
+                    if (newValue as AweGenericSubsetData) { 
+                        unwrapedValue = newValue.value;
+                    } else { 
+                        unwrapedValue = newValue;
+                    }
+                    return this.@fieldChangedMethod(oldValue, newValue, unwrapedValue);
                 }
 
                 extend public Object @fieldName=(Object newValue) {
@@ -103,7 +113,7 @@ public definition @visibility AweBundleDelegates @bundleDelegatesName=id @bundle
                     /// If the domain changes, we trigger the set event so we can be prepared
                     /// for that new values before showing that to the user
                     var domain = this.@fieldDomainMethod();
-                    if (domain != this.@realFieldName) { 
+                    if ((!this.@realFieldName and domain) or (domain and !domain.equal(this.@realFieldName))) { 
                         this.@realFieldName = domain; 
                         this.set(@fieldName, domain.?first());
                     }
@@ -123,10 +133,10 @@ public definition @visibility AweBundleDelegates @bundleDelegatesName=id @bundle
             }
             if (targetType) { 
                 setterLogic << block { 
-                    if (key == @fieldName) { 
+                    if (key == @fieldName) {
                         this.@fieldName = value;
-                        if (value) { 
-                            this.model.@fieldName = value.@targetType;
+                        if (unwrapedValue) { 
+                            this.model.@fieldName = unwrapedValue.@targetType;
                         } 
                         else { 
                             @targetType defaultV;
@@ -194,6 +204,12 @@ public definition @visibility AweBundleDelegates @bundleDelegatesName=id @bundle
             }
 
             public void set(str key, Object value) {
+                Object unwrapedValue;
+                if (value as AweGenericSubsetData) { 
+                    unwrapedValue = value.value;
+                } else { 
+                    unwrapedValue = value;
+                }
                 @setterLogic;
                 this.invalidateAll();
             }
