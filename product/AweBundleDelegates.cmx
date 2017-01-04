@@ -63,6 +63,7 @@ public definition @visibility AweBundleDelegates @bundleDelegatesName=id @bundle
         var fieldChangedMethod = fieldName # "_changed";
         var fieldTitleMethod = fieldName # "_title";
         var fieldDomainMethod = fieldName # "_domain";
+        var privateFinalFieldDomainMethod = fieldName # "_realDomain";
         var fieldType = field.type; 
         if (!classHasMethodWithName(fieldChangedMethod, c)) {
 
@@ -97,6 +98,17 @@ public definition @visibility AweBundleDelegates @bundleDelegatesName=id @bundle
                 extend public @fieldType @fieldDomainMethod() { 
                     return this.@realFieldName;
                 }
+
+                extend private @fieldType @privateFinalFieldDomainMethod() { 
+                    /// If the domain changes, we trigger the set event so we can be prepared
+                    /// for that new values before showing that to the user
+                    var domain = this.@fieldDomainMethod();
+                    if (domain != this.@realFieldName) { 
+                        this.@realFieldName = domain; 
+                        this.set(@fieldName, domain.?first());
+                    }
+                    return domain;
+                }
                 
             };
 
@@ -105,16 +117,21 @@ public definition @visibility AweBundleDelegates @bundleDelegatesName=id @bundle
             };
 
             /// Can we update this value down to the model class?!
-            SType targetType = null;
+            Type targetType = null;
             for (f in modelCallsFields) if (f.name == fieldName) { 
-                targetType = SType(f.type);
+                targetType = f.type;
             }
             if (targetType) { 
                 setterLogic << block { 
                     if (key == @fieldName) { 
                         this.@fieldName = value;
-                        this.model.@fieldName = value.@targetType;
-                        this.invalidateController();
+                        if (value) { 
+                            this.model.@fieldName = value.@targetType;
+                        } 
+                        else { 
+                            @targetType defaultV;
+                            this.model.@fieldName = defaultV;
+                        }
                     }
                 };
             } else { 
@@ -131,9 +148,10 @@ public definition @visibility AweBundleDelegates @bundleDelegatesName=id @bundle
                 }
             };
 
-            listLogic << block { 
+            listLogic << block {
                 result << PropState(@fieldName, this.@fieldValue, 
-                            this.@fieldTitleMethod(), this.@fieldDomainMethod(), this.@fieldEnabledMethod());
+                            this.@fieldTitleMethod(), this.@privateFinalFieldDomainMethod(), 
+                            this.@fieldEnabledMethod());
             };
         }
     }
@@ -166,8 +184,18 @@ public definition @visibility AweBundleDelegates @bundleDelegatesName=id @bundle
                 this.controller.invalidate(UPDATE_PRODUCT_SYMBOL);
             }
 
+            final public void invalidateQuickProperties() { 
+                invalidateQuickPropertiesFor(this.controller);
+            }
+
+            final public void invalidateAll() { 
+                this.invalidateQuickProperties();
+                this.invalidateController();
+            }
+
             public void set(str key, Object value) {
                 @setterLogic;
+                this.invalidateAll();
             }
         }
     };
