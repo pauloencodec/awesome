@@ -35,53 +35,23 @@
 */
 
 package $dynamicPackageName;
-
 use cm.syntax;
+use cm.runtime;
 
-public definition @visibility BundleDelegates @bundleDelegatesName=id @bundleDelegates=id 
-    @classRef=type { 
-
-    SMembers bundledMembers(noSrcRef);
-    var c = classRef.type.Class;
-    for(field in c.fields) {
-        if (!(field.export == exportType.public)) { continue; }
-        var fieldName = field.name; 
-        var setMethodName = "set" # fieldName;
-        var changedMethodName = fieldName # "_changed";
-        var fieldType = field.type;
-        if (!classHasMethodWithName(changedMethodName, c)) { 
-            bundledMembers << member { 
-                extend public @fieldType @changedMethodName(@fieldType oldValue, @fieldType newValue) { 
-                    return newValue;
-                }
-
-                extend public @fieldType @setMethodName(@fieldType newValue) { 
-                    this.@fieldName = this.@changedMethodName(this.@fieldName, newValue);
-                    return this.@fieldName;
-                }
-            };
-        }
-    }
-
-    definition { 
-        public class @bundleDelegatesName extends @bundleDelegates : abstract {
-            @bundledMembers;
-        }
-    };
-}
-
-public definition @visibility AweProperties @bundleName=id 
-    '{' @extraMembers=[classMember]* '}' 
+public definition @visibility AweBag @bundleName=id '<' @modelType=type '>'
+    "base" '{' @baseMembers=[classMember]* '}' 
+    "body" '{' @extraMembers=[classMember]* '}' 
 {
     SMembers bundledMembers(noSrcRef);
-    for(m in extraMembers) {
+    for(m in baseMembers) {
         bundledMembers << m;
     }
 
     /// Base class contains the exact declaration we received
     var baseBundleName = bundleName.name # "__Base";
     definition { 
-        @visibility class @baseBundleName extends AweProp : abstract {
+        @visibility class @baseBundleName extends AweDynamicPropBag : abstract {
+            private @modelType model() : public readable;
             @bundledMembers;
         }
     };
@@ -91,49 +61,17 @@ public definition @visibility AweProperties @bundleName=id
     stype.eval();
     var delClassName = baseBundleName # "_Del"; 
     definition { 
-        @visibility BundleDelegates @delClassName @baseBundleName @stype;
+        @visibility AweBundleDelegates @delClassName @baseBundleName @stype @modelType;
     };
 
-    /// Final class has it all 
+    /// Final class has it all
+    SMembers finalMembers(noSrcRef);
+    for(m in extraMembers) {
+        finalMembers << m;
+    } 
     definition { 
         @visibility class @bundleName extends @delClassName { 
-            public constructor() { }
+            @finalMembers;
         }
     };
-}
-
-package bool classHasMethodWithName(str searchFor, Class where) { 
-    for(method in where.methods(false))
-        if(method.name == searchFor) {
-            return true;
-    }
-    return false;
-}
-
-public member @visibility AweProp @id=id @subset=expr @defaultValue=expr { 
-    var subsetType = subset.type;
-    return member { 
-        @visibility @subsetType @id;
-    };
-}
-
-public AweProperties People { 
-    public int id;
-    public str name;
-    public double total;
-    extend public str name_changed(){
-        pln("Rá!");
-        return "V";
-    }
-}
-
-use cm.runtime;
-
-{
-    People p();
-    p.id = 10;
-    p.total = 9992.789;
-    p.id_changed(1, 2);
-    // p.name_changed();
-    // p.total_changed();
 }

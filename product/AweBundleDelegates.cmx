@@ -1,0 +1,182 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package $dynamicPackageName;
+use cm.syntax;
+use cm.runtime;
+
+public definition @visibility AweBundleDelegates @bundleDelegatesName=id @bundleDelegates=id 
+    @classRef=type @modelType=type { 
+
+    SMembers bundledMembers(noSrcRef);
+    SStatements initPropsLogic();
+    SStatements setterLogic();
+    SStatements getterLogic();
+    SStatements listLogic();
+    SStatements initLogic();
+
+    var modelClass = modelType.type.Class;
+    var modelCallsFields = modelClass.fields;
+    var c = classRef.type.Class;
+    for(field in c.fields) {
+        var realFieldName = field.name;
+        if (!realFieldName.ibeginsWith("_") or (field.export != exportType.private)) { 
+            continue;
+        }
+        var fieldName = realFieldName.substringAfter("_");
+        var fieldNameU = fieldName.firsToUpper();
+        var fieldValue = fieldName # "_value";
+        var fieldEnabledMethod = fieldName # "_enabled";
+        var fieldChangedMethod = fieldName # "_changed";
+        var fieldTitleMethod = fieldName # "_title";
+        var fieldDomainMethod = fieldName # "_domain";
+        var fieldType = field.type; 
+        if (!classHasMethodWithName(fieldChangedMethod, c)) {
+
+            SStatement titleLogic = block { 
+                return @fieldNameU;
+            };
+
+            bundledMembers << member { 
+
+                private Object @fieldValue;
+                
+                extend public bool @fieldEnabledMethod() { 
+                    return true;
+                }
+
+                extend public Object @fieldChangedMethod(Object oldValue, Object newValue) { 
+                    return newValue;
+                }
+
+                extend public Object @fieldName=(Object newValue) {
+                    if (newValue.equal(this.@fieldValue)) { 
+                        return this.@fieldValue;
+                    }
+
+                    return this.@fieldValue = @fieldChangedMethod(this.@fieldValue, newValue);
+                }
+
+                extend public str @fieldTitleMethod() { 
+                    @titleLogic;
+                }
+
+                extend public @fieldType @fieldDomainMethod() { 
+                    return this.@realFieldName;
+                }
+                
+            };
+
+            initPropsLogic << block { 
+                this.set(@fieldName, this.@fieldDomainMethod().?first());
+            };
+
+            /// Can we update this value down to the model class?!
+            SType targetType = null;
+            for (f in modelCallsFields) if (f.name == fieldName) { 
+                targetType = SType(f.type);
+            }
+            if (targetType) { 
+                setterLogic << block { 
+                    if (key == @fieldName) { 
+                        this.@fieldName = value;
+                        this.model.@fieldName = value.@targetType;
+                        this.invalidateController();
+                    }
+                };
+            } else { 
+                setterLogic << block { 
+                    if (key == @fieldName) { 
+                        this.@fieldName = value;
+                    }
+                };
+            }
+
+            getterLogic << block { 
+                if (key == @fieldName) { 
+                    return this.@fieldValue;
+                }
+            };
+
+            listLogic << block { 
+                result << PropState(@fieldName, this.@fieldValue, 
+                            this.@fieldTitleMethod(), this.@fieldDomainMethod(), this.@fieldEnabledMethod());
+            };
+        }
+    }
+
+    definition { 
+        public class @bundleDelegatesName extends @bundleDelegates : abstract {
+            @bundledMembers;
+
+            public Object get(str key) {
+                this.initProps();
+                @getterLogic;
+                return null;
+            }
+
+            public PropState[] list() { 
+                this.initProps();
+                PropState[] result();
+                @listLogic;
+                return result;
+            }
+
+            private bool _initializedInnerProps = false;
+            public void initProps() {
+                if (this._initializedInnerProps) { return; }
+                @initPropsLogic;
+                this._initializedInnerProps = true;
+            }
+
+            final public void invalidateController() { 
+                this.controller.invalidate(UPDATE_PRODUCT_SYMBOL);
+            }
+
+            public void set(str key, Object value) {
+                @setterLogic;
+            }
+        }
+    };
+}
+
+private bool classHasMethodWithName(str searchFor, Class where) { 
+    for(method in where.methods(false))
+        if(method.name == searchFor) {
+            return true;
+    }
+    return false;
+}

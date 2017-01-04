@@ -35,44 +35,25 @@
 */
 
 package $dynamicPackageName;
+
 use cm.syntax;
 
-public class AweProp {
-
-    public str key;
-    public str title;
-    private Object _value;
-    extend public Object value() { return _value; }
-    extend public Object value=(Object newValue) {
-        if(!newValue.equal(_value)) {
-            Object oldValue = _value;
-            _value = newValue;
-            if(onChange) {
-                onChange(newValue, oldValue, controller);
+public member @visibility aweQuickPropertiesBinder '(' @propsObj=id ')' ';' {
+    return member {
+        @visibility bool buildQuickProperties(QuickProperties qp) { 
+            for(p in @propsObj) {
+                Object value = p.value;
+                qp.append(p.key, p.title, value, p.domain);
             }
-            if(bag and bag.onChange) {
-                bag.onChange(newValue, oldValue, controller);
-            }
-            if(notifyNeighbors and controller) {
-                controller.sendChangedToNeighbors();
-            }
+            return true;
         }
-        return _value;
-    }
-    public SubSet domain;
-    public function(Object newValue, Object oldValue, Snapper controller) onChange;
-    public bool notifyNeighbors;
-    public Snapper controller;
-    public AwePropBag bag;
-    
-    public constructor() { }
 
-    public constructor(str key, str title, SubSet domain, function(Object newValue, Object oldValue, Snapper controller) onChange=null, bool notifyNeighbors=false) {
-        this.key = key;
-        this.title = title;
-        this.domain = domain;
-        this.onChange = onChange;
-        this.notifyNeighbors = notifyNeighbors;
-    }   
+        @visibility bool quickPropertyChanged(QuickProperties qp, str key, Object value, bool testChangeOnly) {
+            if (key and !testChangeOnly) {
+                @propsObj.set(key, value);
+            }
+            
+            return true;
+        }
+    };
 }
-

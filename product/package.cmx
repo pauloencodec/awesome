@@ -42,4 +42,9 @@ use cm.geometry;
 use cm.geometry2D.advanced;
 use cm.core3D;
 
-
+public str firsToUpper(str s) { 
+    if (!s or !s.any) { return s; }
+    if (s.count == 1) { return s.toUpper; }
+    
+    return s[0].toS.toUpper # s.substring(1);
+}

@@ -37,42 +37,19 @@
 package $dynamicPackageName;
 use cm.syntax;
 
-public class AweProp {
-
-    public str key;
-    public str title;
-    private Object _value;
-    extend public Object value() { return _value; }
-    extend public Object value=(Object newValue) {
-        if(!newValue.equal(_value)) {
-            Object oldValue = _value;
-            _value = newValue;
-            if(onChange) {
-                onChange(newValue, oldValue, controller);
-            }
-            if(bag and bag.onChange) {
-                bag.onChange(newValue, oldValue, controller);
-            }
-            if(notifyNeighbors and controller) {
-                controller.sendChangedToNeighbors();
-            }
-        }
-        return _value;
-    }
-    public SubSet domain;
-    public function(Object newValue, Object oldValue, Snapper controller) onChange;
-    public bool notifyNeighbors;
-    public Snapper controller;
-    public AwePropBag bag;
-    
-    public constructor() { }
-
-    public constructor(str key, str title, SubSet domain, function(Object newValue, Object oldValue, Snapper controller) onChange=null, bool notifyNeighbors=false) {
-        this.key = key;
-        this.title = title;
-        this.domain = domain;
-        this.onChange = onChange;
-        this.notifyNeighbors = notifyNeighbors;
-    }   
+/// Delegate de change para prop bag (invalidade product)
+/// HUB
+public class AweDynamicPropBag : abstract {
+    private Snapper controller : public readable;
+    public constructor auto();
+    extend public PropState[] list()  : abstract { }
+    extend public Object get(str key) : abstract { }
+    extend public void set(str key, Object value) : abstract { }
+    extend public void initProps() : abstract { }
 }
 
+private SStatement forAweDynamicPropBag(ForEnv this) {
+    SExpr e = expr `{ @collection ? @collection.list : null };
+    return forSeq(vars, e, keywords, body);
+}
+init defFor(AweDynamicPropBag, 1, function forAweDynamicPropBag);
