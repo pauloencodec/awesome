@@ -60,4 +60,13 @@ public class AweGeometry {
         }
         return p;
     }
+
+    final public Graph applyMaterial(Graph g, str materialName) { 
+        if (!materialName) { return g; }
+        var m = material(materialName);
+        if (m) {
+            g.setFillColor(m.color2D); 
+        }
+        return g;
+    }
 }
