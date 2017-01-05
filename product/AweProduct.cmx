@@ -77,7 +77,7 @@ public class AweProduct extends Snapper {
 
     }
 
-    extend private void unsureBuilt() {
+    extend private void ensureBuilt() {
         if(!_built) {
             build();
             _built = true;
@@ -85,7 +85,7 @@ public class AweProduct extends Snapper {
     }
 
     extend public void buildSuper3D() {
-        unsureBuilt();
+        ensureBuilt();
         Primitive3D[] prims();
         for(g in geometries) {
             prims << g.super3D();
@@ -94,7 +94,7 @@ public class AweProduct extends Snapper {
     }
 
     extend public void buildMedium3D() {
-        unsureBuilt();
+        ensureBuilt();
         Primitive3D[] prims();
 
         for(g in geometries) {
@@ -105,7 +105,7 @@ public class AweProduct extends Snapper {
     }
 
     extend public void buildGraph() {
-        unsureBuilt();        
+        ensureBuilt();        
         graph = new AweGraph();
 
         for(geometry in geometries) {
