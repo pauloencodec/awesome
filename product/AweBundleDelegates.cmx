@@ -125,7 +125,6 @@ public definition @visibility AweBundleDelegates @bundleDelegatesName=id @bundle
                             domain.?closest(getRealValueFrom(this.@fieldValue)) : 
                             domain.?first();
                         this.set(@fieldName, newValue);
-                        pln(#@fieldName; #this.@fieldValue);
                     }
                     return domain;
                 }

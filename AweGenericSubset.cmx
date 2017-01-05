@@ -52,6 +52,15 @@ public class AweGenericSubset extends ObjectSubSet {
         return this;
     }
 
+    public Object closest(Object o) {
+        for (m in this._members) {
+            if (m.equal(o)) { 
+                return m;
+            }
+        }
+        return super(..);
+    }
+
     public bool equal(Object other, EqualEnv env=EqualEnv()) {
         
         if (!other) { return false; }
@@ -59,7 +68,7 @@ public class AweGenericSubset extends ObjectSubSet {
         if(other as AweGenericSubset) {
             if (other._members.count == this._members.count) { 
                 for (o in other._members, index=i) { 
-                    if (!other._members[i].equal(this._members[i])) { 
+                    if (!o.equal(this._members[i])) { 
                         return false;
                     }
                 }
