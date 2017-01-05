@@ -38,6 +38,14 @@ package $dynamicPackageName;
 use cm.syntax;
 use cm.runtime;
 
+public Object getRealValueFrom(Object o) {
+    if (!o) { return o; }
+    if (o as AweGenericSubsetData) { 
+        return o.value;
+    }
+    return o;
+}
+
 public definition @visibility AweBundleDelegates @bundleDelegatesName=id @bundleDelegates=id 
     @classRef=type @modelType=type { 
 
@@ -84,13 +92,7 @@ public definition @visibility AweBundleDelegates @bundleDelegatesName=id @bundle
                 }
 
                 extend public Object @fieldChangedMethod(Object oldValue, Object newValue) {
-                    Object unwrapedValue;
-                    if (newValue as AweGenericSubsetData) { 
-                        unwrapedValue = newValue.value;
-                    } else { 
-                        unwrapedValue = newValue;
-                    }
-                    return this.@fieldChangedMethod(oldValue, newValue, unwrapedValue);
+                    return this.@fieldChangedMethod(oldValue, newValue, getRealValueFrom(newValue));
                 }
 
                 extend public Object @fieldName=(Object newValue) {
@@ -113,9 +115,17 @@ public definition @visibility AweBundleDelegates @bundleDelegatesName=id @bundle
                     /// If the domain changes, we trigger the set event so we can be prepared
                     /// for that new values before showing that to the user
                     var domain = this.@fieldDomainMethod();
-                    if ((!this.@realFieldName and domain) or (domain and !domain.equal(this.@realFieldName))) { 
+                    if ((!this.@realFieldName and domain) 
+                        or (domain and !domain.equal(this.@realFieldName))
+                        or (!domain and this.@realFieldName)) { 
                         this.@realFieldName = domain; 
-                        this.set(@fieldName, domain.?first());
+                        
+                        // TODO: Descobrir como fazer treeview de materiais
+                        var newValue = this.@fieldValue ? 
+                            domain.?closest(getRealValueFrom(this.@fieldValue)) : 
+                            domain.?first();
+                        this.set(@fieldName, newValue);
+                        pln(#@fieldName; #this.@fieldValue);
                     }
                     return domain;
                 }
@@ -204,12 +214,7 @@ public definition @visibility AweBundleDelegates @bundleDelegatesName=id @bundle
             }
 
             public void set(str key, Object value) {
-                Object unwrapedValue;
-                if (value as AweGenericSubsetData) { 
-                    unwrapedValue = value.value;
-                } else { 
-                    unwrapedValue = value;
-                }
+                Object unwrapedValue = getRealValueFrom(value);
                 @setterLogic;
                 this.invalidateAll();
             }
