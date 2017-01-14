@@ -1,0 +1,171 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome;
+use cm.syntax;
+
+public class AweModelConfigurator {
+    public str->Object props();
+    public constructor() {
+        
+    }
+
+    extend public Object get(str propName) {
+        return this.props.get(propName);
+    }
+
+    extend public void set(str propName, Object value) {
+        Object oldValue = get(propName);
+        this.props.put(propName, value);
+        propChanged(propName, oldValue, value);
+    }
+
+            
+    extend public void propChanged(str propName, Object oldValue, Object newValue) {
+
+    }        
+
+    extend public bool buildQuickProperties(QuickProperties props) {
+        return false;
+    }
+}
+
+public definition @visibility aweModelConfigurator @name=id @props=formalArgList '{' @members=[classMember]* '}' {
+
+    SMembers gettersSetters(noSrcRef);
+    SMembers onChange(noSrcRef);
+    SMembers domainMethods(noSrcRef);
+
+    SStatements initProps();
+    SStatements buildQuickProperties();
+
+    for(i in 0..(props.count-1)) {
+        SFormalArg arg = props[i];
+        SType propType = arg.typeSyntax;
+        SId propName = arg.id;
+        str propNameStr = propName.name;
+        SExpr propInitialValue = arg.default();
+        SId onChangeMethodName(propName#"Changed");
+        SId getDomainMethodName(propName#"Domain");
+        onChange << member {
+            extend @visibility void @onChangeMethodName(@propType oldValue, @propType newValue) {
+
+            }
+        };
+
+        gettersSetters << member {
+            extend @visibility @propType @propName() {
+                Object value = this.get(@propNameStr);
+                if(value) {
+                    return value.@propType;
+                }
+                return @propInitialValue;
+            }
+            extend @visibility @propType @propName=(@propType newValue) {
+                @propType oldValue = this.@propName;
+                this.set(@propNameStr, newValue);
+                @onChangeMethodName(oldValue, newValue);
+                return newValue;
+            }
+
+            
+        };
+
+        domainMethods << member {
+            extend @visibility SubSet @getDomainMethodName() {
+                return null;
+            }
+        };
+
+
+        initProps << statement {
+            this.@propName = @propName;
+        };
+
+        SId domainInstanceName(propName.name#"Domain");
+        // buildQuickProperties << statement {
+        //     SubSet @domainInstanceName = this.@getDomainMethodName();
+        //     if(@domainInstanceName) {
+        //         props.append(@propNameStr, @propNameStr, this.@propName, @domainInstanceName); 
+        //     }
+        // };
+
+    }
+
+    pln(#domainMethods);
+
+    SId baseClassName(name.name#"_BaseClass");
+    definition {
+        @visibility class @baseClassName extends AweModelConfigurator {
+            //@domainMethods;
+            @gettersSetters;
+            @onChange;
+
+            public bool buildQuickProperties(QuickProperties props) {
+                //@buildQuickProperties;
+                return true;
+            }
+        }
+    };
+
+    SMembers membersBundle(noSrcRef);
+    for(m in members) {
+        membersBundle << m;
+    }
+    definition {
+        @visibility class @name extends @baseClassName {
+            public constructor(@props) {
+                @initProps;
+            }
+            @membersBundle;
+        }
+    };
+}
+
+public aweModelConfigurator PanelConfigurator(double height=48inch, double width=30inch) {
+    public void heightChanged(double oldValue, double newValue) {
+        pln(#newValue);
+    }
+    public void propChanged(str propName, Object oldValue, Object newValue) {
+        pln(#propName; #newValue);
+        
+    }
+}
+
+{
+    PanelConfigurator c(height=3);
+    pln(#c.height);
+}
