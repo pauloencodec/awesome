@@ -63,14 +63,12 @@ public class AweModelConfigurator {
     }
 }
 
-public definition @visibility aweModelConfigurator @name=id @props=formalArgList '{' @members=[classMember]* '}' {
+public definition @visibility aweModelConfigurator @name=id '{' "with" '{' "props" @props=formalArgList ';' "domains" @domains=formalArgList ';' '}' @members=[classMember]* '}' {
 
     SMembers gettersSetters(noSrcRef);
     SMembers onChange(noSrcRef);
-    SMembers domainMethods(noSrcRef);
 
     SStatements initProps();
-    SStatements buildQuickProperties();
 
     for(i in 0..(props.count-1)) {
         SFormalArg arg = props[i];
@@ -104,38 +102,50 @@ public definition @visibility aweModelConfigurator @name=id @props=formalArgList
             
         };
 
-        domainMethods << member {
-            extend @visibility SubSet @getDomainMethodName() {
-                return null;
-            }
-        };
+        
 
 
         initProps << statement {
             this.@propName = @propName;
         };
 
-        SId domainInstanceName(propName.name#"Domain");
-        // buildQuickProperties << statement {
-        //     SubSet @domainInstanceName = this.@getDomainMethodName();
-        //     if(@domainInstanceName) {
-        //         props.append(@propNameStr, @propNameStr, this.@propName, @domainInstanceName); 
-        //     }
-        // };
+        
 
     }
 
-    pln(#domainMethods);
+    SMembers domainMembers(noSrcRef);
+    SStatements buildQuickProperties();
+    
+
+    for(i in 0..(domains.count-1)) {
+        SFormalArg arg = domains[i];
+        SId propName = arg.id;
+        str propNameStr = propName.name;
+        SType domainType = arg.typeSyntax;
+        SId domainName(arg.id.name#"Domain");
+        SExpr domainInitialValue = arg.default();
+
+        domainMembers << member {
+            @visibility SubSet @domainName = @domainInitialValue;
+        };
+
+        buildQuickProperties << statement {
+            if(@domainName) {
+                props.append(@propNameStr, @propNameStr, this.@propName, @domainName); 
+            }
+        };
+    }
 
     SId baseClassName(name.name#"_BaseClass");
     definition {
         @visibility class @baseClassName extends AweModelConfigurator {
-            //@domainMethods;
             @gettersSetters;
             @onChange;
+            @domainMembers;
+            
 
             public bool buildQuickProperties(QuickProperties props) {
-                //@buildQuickProperties;
+                @buildQuickProperties;
                 return true;
             }
         }
@@ -155,7 +165,17 @@ public definition @visibility aweModelConfigurator @name=id @props=formalArgList
     };
 }
 
-public aweModelConfigurator PanelConfigurator(double height=48inch, double width=30inch) {
+public aweModelConfigurator PanelConfigurator {
+    with {
+        props(
+            double height=48inch, 
+            double width=30inch
+        );
+        domains(
+            SubSet height=DistanceEnum(1,2,3)
+        ); 
+    }
+
     public void heightChanged(double oldValue, double newValue) {
         pln(#newValue);
     }
