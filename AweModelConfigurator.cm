@@ -174,7 +174,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
 
         buildQuickProperties << statement {
             if(@domainName) {
-                props.append(@propNameStr, @propNameStr, this.@propName, @domainName); 
+                props.append(@propNameStr, @propNameStr, @propName.@propType, @domainName); 
             }
         };
 
@@ -212,8 +212,8 @@ public aweObject PanelModel {
 
 public class PanelConfigurator extends PanelModel {
     public aweObjectDomain(
-        double height=DistanceEnum(1,2,3),
-        double width=null
+        distance height=DistanceEnum(1,2,3),
+        distance width=null
     ); 
 
      public void heightChanged() {

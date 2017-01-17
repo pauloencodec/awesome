@@ -66,7 +66,9 @@ public class AweTestSnapper extends Snapper {
     public Primitive3D get3D(FetchEnv3D env) {
         if(product) return product.get3D(env);
         if(primitive3D) return primitive3D;
-        return super(..);
+        Primitive3D prim = Box3D(localBound);
+        prim.setMaterial(plainGreenMaterial3D);
+        return prim;
     }
 
     public bool buildQuickProperties(QuickProperties props) { 
@@ -83,6 +85,10 @@ public class AweTestSnapper extends Snapper {
             return changed;
         }
         return super(..);
+    }
+
+    public box localBound() {
+        return box((0,0,0), (1,1,1));
     }
 }
 
