@@ -181,6 +181,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         quickPropertiesChanged << statement {
             if(key == @propNameStr) {
                 this.@propName = value.@propType;
+                return true;
             }
         };
     }
@@ -189,6 +190,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         @domainMembers;
                 
         @visibility bool buildQuickProperties(QuickProperties props) {
+            super(..);
             @buildQuickProperties;
             return true;
         }
@@ -197,7 +199,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
             if (key and !testChangeOnly) {
                 @quickPropertiesChanged;
             }
-            return true;
+            return super(..);
         }
     };
 }
