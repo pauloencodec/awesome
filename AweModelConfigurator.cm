@@ -37,11 +37,11 @@
 package custom.awesome;
 use cm.syntax;
 
-public class AweModelConfigurator {
+public class AweObject {
     public str->Object props();
     public constructor() {
-        
     }
+
 
     extend public Object get(str propName) {
         return this.props.get(propName);
@@ -61,67 +61,110 @@ public class AweModelConfigurator {
     extend public bool buildQuickProperties(QuickProperties props) {
         return false;
     }
+
+
+    extend public bool quickPropertyChanged(QuickProperties props, str key, Object value, bool testChangeOnly) {
+        return false;
+    }
 }
 
-public definition @visibility aweModelConfigurator @name=id '{' "with" '{' "props" @props=formalArgList ';' "domains" @domains=formalArgList ';' '}' @members=[classMember]* '}' {
+public definition @visibility aweObject @name=id @parentClass=["extends" type]? '{'  @props=["props" formalArgList ';']? @members=[classMember]* '}' {
+    
+    if(!parentClass) {
+        parentClass = SType("AweObject");
+    }
 
     SMembers gettersSetters(noSrcRef);
     SMembers onChange(noSrcRef);
-
     SStatements initProps();
 
-    for(i in 0..(props.count-1)) {
-        SFormalArg arg = props[i];
-        SType propType = arg.typeSyntax;
-        SId propName = arg.id;
-        str propNameStr = propName.name;
-        SExpr propInitialValue = arg.default();
-        SId onChangeMethodName(propName#"Changed");
-        SId getDomainMethodName(propName#"Domain");
-        onChange << member {
-            extend @visibility void @onChangeMethodName(@propType oldValue, @propType newValue) {
+    if(props) {
 
-            }
-        };
-
-        gettersSetters << member {
-            extend @visibility @propType @propName() {
-                Object value = this.get(@propNameStr);
-                if(value) {
-                    return value.@propType;
-                }
-                return @propInitialValue;
-            }
-            extend @visibility @propType @propName=(@propType newValue) {
-                @propType oldValue = this.@propName;
-                this.set(@propNameStr, newValue);
-                @onChangeMethodName(oldValue, newValue);
-                return newValue;
-            }
-
+        for(i in 0..(props.count-1)) {
+            SFormalArg arg = props[i];
+            SType propType = arg.typeSyntax;
+            SId propName = arg.id;
+            str propNameStr = propName.name;
+            SExpr propInitialValue = arg.default();
+            SId onChangeMethodName(propName#"Changed");
+            SId getDomainMethodName(propName#"Domain");
             
-        };
+            //3 signatures for change
+            onChange << member {
+                extend @visibility void @onChangeMethodName() { }
+                extend @visibility void @onChangeMethodName(@propType newValue) { }
+                extend @visibility void @onChangeMethodName(@propType oldValue, @propType newValue) { }
+            };
 
-        
+            gettersSetters << member {
+                extend @visibility @propType @propName() {
+                    Object value = this.get(@propNameStr);
+                    if(value) {
+                        return value.@propType;
+                    }
+                    return @propInitialValue;
+                }
+                extend @visibility @propType @propName=(@propType newValue) {
+                    @propType oldValue = this.@propName;
+                    this.set(@propNameStr, newValue);
+                    this.@onChangeMethodName();
+                    this.@onChangeMethodName(newValue);
+                    this.@onChangeMethodName(oldValue, newValue);
+                    return newValue;
+                }
+            };
 
-
-        initProps << statement {
-            this.@propName = @propName;
-        };
-
-        
-
+            initProps << statement {
+                this.@propName = @propName;
+            };
+        }
     }
+    
+    SId baseClassName(name.name#"_BaseClass");
+
+    SMembers membersBundle(noSrcRef);
+    for(m in members) {
+        membersBundle << m;
+    }
+
+    if(props) {
+        definition {
+            @visibility class @baseClassName extends @parentClass {
+                @gettersSetters;
+                @onChange;
+            }
+        };
+
+        definition {
+            @visibility class @name extends @baseClassName {
+                public constructor(@props) {
+                    @initProps;
+                }
+                @membersBundle;
+            }
+        };
+    } else  {
+        //pretty useless, huh?
+        definition {
+            @visibility class @name extends @parentClass {
+                @membersBundle;
+            }
+        };
+    }
+    
+}
+
+public member @visibility aweObjectDomain @domains=formalArgList ';' {
 
     SMembers domainMembers(noSrcRef);
     SStatements buildQuickProperties();
+    SStatements quickPropertiesChanged();
     
-
     for(i in 0..(domains.count-1)) {
         SFormalArg arg = domains[i];
         SId propName = arg.id;
         str propNameStr = propName.name;
-        SType domainType = arg.typeSyntax;
+        SType propType = arg.typeSyntax;
         SId domainName(arg.id.name#"Domain");
         SExpr domainInitialValue = arg.default();
 
@@ -134,58 +177,65 @@ public definition @visibility aweModelConfigurator @name=id '{' "with" '{' "prop
                 props.append(@propNameStr, @propNameStr, this.@propName, @domainName); 
             }
         };
+
+        quickPropertiesChanged << statement {
+            if(key == @propNameStr) {
+                this.@propName = value.@propType;
+            }
+        };
     }
 
-    SId baseClassName(name.name#"_BaseClass");
-    definition {
-        @visibility class @baseClassName extends AweModelConfigurator {
-            @gettersSetters;
-            @onChange;
-            @domainMembers;
-            
-
-            public bool buildQuickProperties(QuickProperties props) {
-                @buildQuickProperties;
-                return true;
-            }
+    return member {
+        @domainMembers;
+                
+        @visibility bool buildQuickProperties(QuickProperties props) {
+            @buildQuickProperties;
+            return true;
         }
-    };
 
-    SMembers membersBundle(noSrcRef);
-    for(m in members) {
-        membersBundle << m;
-    }
-    definition {
-        @visibility class @name extends @baseClassName {
-            public constructor(@props) {
-                @initProps;
+        @visibility bool quickPropertyChanged(QuickProperties props, str key, Object value, bool testChangeOnly) {
+            if (key and !testChangeOnly) {
+                @quickPropertiesChanged;
             }
-            @membersBundle;
+            return true;
         }
     };
 }
 
-public aweModelConfigurator PanelConfigurator {
-    with {
-        props(
-            double height=48inch, 
-            double width=30inch
-        );
-        domains(
-            SubSet height=DistanceEnum(1,2,3)
-        ); 
-    }
-
-    public void heightChanged(double oldValue, double newValue) {
-        pln(#newValue);
-    }
-    public void propChanged(str propName, Object oldValue, Object newValue) {
-        pln(#propName; #newValue);
-        
-    }
+public aweObject PanelModel {
+    props(
+        double height=1, 
+        double width=1
+    );
+   
 }
+
+public class PanelConfigurator extends PanelModel {
+    public aweObjectDomain(
+        double height=DistanceEnum(1,2,3),
+        double width=null
+    ); 
+
+     public void heightChanged() {
+        if(height < 2) {
+            widthDomain = DistanceEnum(.5, 1);
+        }
+        else {
+            widthDomain = DistanceEnum(1,2,3);
+        }
+    }
+    
+}
+
+
 
 {
     PanelConfigurator c(height=3);
-    pln(#c.height);
+    c.height = 5;
+    PanelModel m = c;
+    m.height = 6;
+    m.set("height", 9);
+
+   
+    test(c);
 }

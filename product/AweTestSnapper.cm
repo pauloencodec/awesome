@@ -40,11 +40,21 @@ public class AweTestSnapper extends Snapper {
     public Graph graph;
     public Primitive3D primitive3D;
     public AweProduct product;
+    public AweObject configurator;
 
-    public constructor(Graph graph=null, Primitive3D primitive3D=null, AweProduct product=null) {
+    extend private void refresh() {
+        this.alignAllSnapped(tryRealign=false);
+        product.?refresh();
+        invalidate();
+        invalidateQuickProperties();
+        space.invalidateSelection();
+    }
+
+    public constructor(Graph graph=null, Primitive3D primitive3D=null, AweProduct product=null, AweObject configurator=null) {
         this.graph = graph;
         this.primitive3D = primitive3D;
         this.product = product;
+        this.configurator = configurator;
     }   
 
     public void drawGraphs(LayerBuffer lb, View view, GeometricFinder finder=null) {
@@ -56,6 +66,22 @@ public class AweTestSnapper extends Snapper {
     public Primitive3D get3D(FetchEnv3D env) {
         if(product) return product.get3D(env);
         if(primitive3D) return primitive3D;
+        return super(..);
+    }
+
+    public bool buildQuickProperties(QuickProperties props) { 
+        if(configurator) {
+            return configurator.buildQuickProperties(..);
+        }
+        return super(..);
+    }
+
+    public bool quickPropertyChanged(QuickProperties props, str key, Object value, bool testChangeOnly) {
+        if(configurator) {
+            bool changed = configurator.quickPropertyChanged(..);
+            refresh();
+            return changed;
+        }
         return super(..);
     }
 }
@@ -78,6 +104,10 @@ public void test(AweProduct p) {
 
 public void test(AweGeometry p) {
     AweTestSnapper(primitive3D=p.medium3D(), graph=p.graph()).launch();
+}
+
+public void test(AweObject c) {
+    AweTestSnapper(configurator=c).launch();
 }
 
 public void testSuper(AweGeometry p) {
