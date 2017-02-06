@@ -51,4 +51,8 @@ public class AweGeometry {
     extend public Graph graph() {
         return null;
     }
+
+    extend public box localBound() {
+        return box();
+    }
 }
