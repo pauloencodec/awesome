@@ -172,11 +172,21 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
             @visibility SubSet @domainName = @domainInitialValue;
         };
 
-        buildQuickProperties << statement {
-            if(@domainName) {
-                props.append(@propNameStr, @propNameStr, @propName.@propType, @domainName); 
-            }
-        };
+        //we use distance subsets for double properties, so we need this great if statement there:
+        if(propType.type == distance) {
+            buildQuickProperties << statement {
+                if(@domainName) {
+                    props.append(@propNameStr, @propNameStr, distance(@propName), @domainName); 
+                }
+            };
+        } else {
+            buildQuickProperties << statement {
+                if(@domainName) {
+                    props.append(@propNameStr, @propNameStr, @propName, @domainName); 
+                }
+            };
+        }
+        
 
         quickPropertiesChanged << statement {
             if(key == @propNameStr) {
@@ -207,7 +217,8 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
 public aweObject PanelModel {
     props(
         double height=1, 
-        double width=1
+        double width=1,
+        str name=null
     );
    
 }
@@ -215,7 +226,8 @@ public aweObject PanelModel {
 public class PanelConfigurator extends PanelModel {
     public aweObjectDomain(
         distance height=DistanceEnum(1,2,3),
-        distance width=null
+        distance width=null,
+        str name = StrSubSet([str: "Jao", "Bahia"])
     ); 
 
      public void heightChanged() {
