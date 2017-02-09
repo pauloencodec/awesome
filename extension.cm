@@ -93,15 +93,12 @@ package ExtensionId getExtensionId() : encrypted, referred {
     return extensionId;
 }
 
-public version extensionVersion;
-
 /**
  * Actual extension info (dont change function name).
  */
 package ExtensionInfo getExtensionInfo() : referred {
     ExtensionInfo info = loadExtensionInfoFromXml(#:package);
-    extensionVersion = info.extensionVersion;
-    
+
     Url[] files();
 
     info.filesToInclude = files;

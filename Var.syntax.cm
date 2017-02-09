@@ -34,25 +34,21 @@
    END OF CETSC
 */
 
-package custom.awesome.product;
+package custom.awesome;
+use cm.syntax;
 
-public class AweGeometry {
-    public constructor() {
-    }   
+public member @visibility var @id=id @expr=['=' expr]? ';' { 
+    SType memberType(expr.type, expr.src);
 
-    extend public Primitive3D medium3D() {
-        return null;
-    }
+    return member { 
+        public @memberType @id = @expr;
+    };
+}
 
-    extend public Primitive3D super3D() {
-        return medium3D();
-    }
-
-    extend public Graph graph() {
-        return null;
-    }
-
-    extend public box localBound() {
-        return box();
-    }
+public statement var @id=id @expr=['=' expr]? ';' : invisible debug { 
+    SType memberType(expr.type, expr.src);
+    
+    return statement { 
+        @memberType @id = @expr;
+    };
 }

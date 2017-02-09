@@ -127,4 +127,16 @@ public class AweProduct extends Snapper {
         if(!graph) buildGraph();
         return graph;
     }
+
+    public box localBound() {
+        box result();
+
+        if(geometries and geometries.count > 0) {
+            for (g in geometries) { 
+                result += g.localBound;
+            }
+        }
+
+        return result;
+    }
 }
