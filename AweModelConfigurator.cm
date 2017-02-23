@@ -173,23 +173,37 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         };
 
         //we use distance subsets for double properties, so we need this great if statement there:
-        if(propType.type == distance) {
+        if (propType.type == distance) {
             buildQuickProperties << statement {
-                if(@domainName) {
-                    props.append(@propNameStr, @propNameStr, distance(@propName), @domainName); 
+                if (@domainName) {
+                    Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @propNameStr, distance(@propName));
+
+                    if (customQuickProperty) {
+                        props.append(customQuickProperty.QuickProperty);
+                    }
+                    else {
+                        props.append(@propNameStr, @propNameStr, distance(@propName), @domainName);
+                    }
                 }
             };
-        } else {
+        }
+        else {
             buildQuickProperties << statement {
-                if(@domainName) {
-                    props.append(@propNameStr, @propNameStr, @propName, @domainName); 
+                if (@domainName) {
+                    Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @propNameStr, @propName);
+
+                    if (customQuickProperty) {
+                        props.append(customQuickProperty.QuickProperty);
+                    }
+                    else {
+                        props.append(@propNameStr, @propNameStr, @propName, @domainName);
+                    }
                 }
             };
         }
         
-
         quickPropertiesChanged << statement {
-            if(key == @propNameStr) {
+            if (key == @propNameStr) {
                 this.@propName = value.@propType;
                 return true;
             }
