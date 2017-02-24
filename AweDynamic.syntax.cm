@@ -84,9 +84,18 @@ public statement aweDynamic @t=type @name=id @args=formalArgList ';' {
         SFormalArg arg = args[i];
         SType variableType = arg.typeSyntax;
         str variableName = arg.id.name;
-        variableDeclarations << statement {
-            @variableType @variableName = env.args[@i].@variableType;
-        };
+
+        if (variableType.type == Object) {
+            variableDeclarations << statement {
+                @variableType @variableName = env.args[@i];
+            };
+        }
+        else {
+            variableDeclarations << statement {
+                @variableType @variableName = env.args[@i].@variableType;
+            };
+        }
+
         SActualArg actualArg(arg.id.name);
 
         actualArgs << actualArg;
