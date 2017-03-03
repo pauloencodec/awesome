@@ -42,3 +42,11 @@ public void orientBy(Graph g, line2D l) {
     g.move((0,0,0));
     g.move(l.p0.point);
 }
+
+public Graph applyMaterial(Graph g, Material material) {
+    if (material) {
+        g.setFillColor(material.color2D);
+    }
+
+    return g;
+}
