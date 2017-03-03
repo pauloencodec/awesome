@@ -36,17 +36,21 @@
 
 package custom.awesome;
 
-public void orientBy(Graph g, line2D l) {
-    orientation o = l.orientation();
-    g.rotate(o);
-    g.move((0,0,0));
-    g.move(l.p0.point);
-}
+public str propNameToLabel(str propName) {
+    str label = "";
 
-public Graph applyMaterial(Graph g, Material material) {
-    if (material) {
-        g.setFillColor(material.color2D);
+    for (c in propName, index=i) {
+        if (i == 0) {
+            label #= c.toUpper();
+            continue;
+        }
+
+        if (c.isUpper()) {
+            label #= " ";
+        }
+
+        label #= c;
     }
 
-    return g;
+    return label;
 }
