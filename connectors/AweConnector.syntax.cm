@@ -42,19 +42,19 @@ public member @visibility AweConnector ';' {
         /**
         * Position.
         */
-        private point _pos;
-        @visibility point pos() { return _pos; }
+        private point _position;
+        @visibility point pos() { return _position; }
         @visibility void setPos(point newPos) {
-            _pos = newPos;
+            _position = newPos;
         }
         
         /**
         * Orientation.
         */
-        private orientation _rot;
-        @visibility orientation rot() { return _rot; }
+        private orientation _rotation;
+        @visibility orientation rot() { return _rotation; }
         @visibility void setRot(orientation newRot) {
-            _rot = newRot;
+            _rotation = newRot;
         }
 
 
