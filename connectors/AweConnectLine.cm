@@ -36,60 +36,24 @@
 
 package custom.awesome.connectors;
 
-public class AweConnectorCache {
+public class AweConnectLine extends ConnectLine {
     
-    private str->Connector _cache();
-    private Connector[] _buffer();
+    public bool hidden = false;
+    public bool hiddenWhenDisconnected = false;
     
-    public constructor() {
-    }   
-
-    extend public Connector get(str key, Snapper owner, point position, orientation direction, ConnectRule rule=ctNever) {
-        Connector c = _cache.get(key);
-        if(!c) {
-            c = AweConnectPoint(owner);
-            _cache.put(key, c);
-        }
-        return setupConnector(c, position, direction, rule);
+    public bool isVisible() {
+        return !hidden and !((hiddenWhenDisconnected and !this.isConnected()));
     }
 
-    extend public Connector makePoint(str key, Snapper owner, point position, orientation direction, ConnectRule rule=ctNever) {
-        return get(..);
-    }
+    public constructor(Snapper snapper, point p0, point p1, angle roll=0deg, ConnectRule rule= null) {
+        super(snapper);
+        this.setPos(p0);
+        this.setEndPos(p1);
 
-    extend public Connector makeLine(str key, Snapper snapper, point p0, point p1, angle roll=0deg, ConnectRule rule= null) {
-        Connector c = _cache.get(key);
-        if(!c) {
-            c = AweConnectLine(snapper, p0, p1, roll, rule);
-            _cache.put(key, c);
-        }
         orientation o = orientation(p1 - p0);
-	    c.setRot(orientation(point(0, -(p1 - p0).length, 0).transformed(o)));
-        c.setRule(rule);
-        _buffer << c;
-        return c;
+	    setRot(orientation(point(0, -_length, 0).transformed(o)));
+
+        this.setRule(rule);
     }
 
-    extend private Connector setupConnector(Connector c, point position, orientation direction, ConnectRule rule=ctNever) {
-        c.setPos(position);
-        c.setRot(direction);
-        c.setRule(rule);
-        _buffer << c;
-        return c;
-    }
-
-    extend public Connector get(str key) {
-        return _cache.get(key);
-    }
-
-    extend public void clearBuffer() {
-        _buffer.clear();
-    }
-
-
-    extend public void addToConnectors(ConnectorCollection coll) {
-        for( c in _buffer) {
-            coll << c;
-        }
-    }
 }

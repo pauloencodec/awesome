@@ -1,0 +1,65 @@
+
+package custom.awesome;
+
+{
+    use cm.runtime;
+    use cm.io;
+    use cm.format.json;
+    
+    str[] items = ["custom.awesome","custom.awesome.connectors","custom.awesome.panelSystem","custom.awesome.product"];
+    
+    symbol{} symbols();
+    
+    for( s in items ) {
+        symbols << s.symbol;
+    }
+    
+    JsonArray array();
+    
+    for( c in classes( symbols, {symbol:}, includeAllParents=true) ) {
+        if ( c.name != "Object" and  !c.name.contains("{}") ) {
+            
+            JsonObject obj();
+            
+            obj.put( "parent", c.pkg().toS # "." # c.name );
+            
+            if ( true ) {
+                JsonArray children();
+
+                for( f in c.methods(true) ) {
+                    str returnId = f.returnType().pkg().toS.substringAfter( "#", false ) # "." # f.returnType();
+                
+                    JsonObject item();
+                    item.put("type", "method");
+                    item.put("detail", f.signatureToS);
+                    item.put("returns", returnId );
+                    item.put("label", f.name);
+
+                    children << item;
+                }
+                
+                for (f in c.fields(true)) {
+                    str returnId = f.type().pkg().toS.substringAfter( "#", false ) # "." # f.type();
+                    
+                    JsonObject item();
+                    item.put("type", "property");
+                    item.put("detail", f.type() # " " # f.name );
+                    item.put("returns", returnId );
+                    item.put("label", f.name);
+                    
+                    children << item;    
+                }
+                
+                obj.put( "items", children );
+            }
+            
+            array << obj;
+        }
+    }
+    
+    File f = cmWritable("test.json").openForWrite();
+    array.output( new Utf8StreamOutput(f));
+    f.close();
+    
+    pln("[VSCODE][AutoComplete]:"#f.path);
+}
