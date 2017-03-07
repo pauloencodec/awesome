@@ -86,6 +86,9 @@ public class AweConnectorCache {
         _buffer.clear();
     }
 
+    extend public void addToBuffer(str key) {
+        _buffer << get(key);
+    }
 
     extend public void addToConnectors(ConnectorCollection coll) {
         for( c in _buffer) {
