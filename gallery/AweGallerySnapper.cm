@@ -56,7 +56,7 @@ public class AweGallerySnapper extends AweEasySnapper : abstract {
         }
 
         props.append(this._nameKey, "Name", this.galleryItemName, nameDomain);
-        
+
         return super(..);
     }
     
