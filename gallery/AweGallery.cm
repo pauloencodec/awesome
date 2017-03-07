@@ -130,7 +130,9 @@ public class AweGallery : abstract {
         var fromWorld = space.getAuxillary(this.class.name);
 
         if (fromWorld as AweGalleryItem[]) {
-            return this.sortGallery(fromWorld);
+            if(fromWorld.any()) {
+                return this.sortGallery(fromWorld);
+            }
         }
 
         // If no items are found for this gallery, save the initial items to the space to avoid 
