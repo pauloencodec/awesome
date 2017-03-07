@@ -60,16 +60,14 @@ public member @visibility aweDynamicContract '{' @contractItems=[statement]+ '}'
         //gambiarra to talk to any Object out there
         public bool equal(Object a, EqualEnv env=EqualEnv()) {
             if(env as AweDynamicCallEnv){
-                env.result = aweDynamicExecute(env);
-                return false;
+                Object result = null;
+                @ifs;
+                env.result = result;
+                return super(..);
             }
             else return super(..);
         }
 
-        extend private Object aweDynamicExecute(AweDynamicCallEnv env) {
-            @ifs;
-            return null;
-        }
     };
 }
 
@@ -105,14 +103,14 @@ public statement aweDynamic @t=type @name=id @args=formalArgList ';' {
             if(env.methodName == @nameStr and env.args.count >= @argsCount) {
                 @variableDeclarations;
                 @name(@actualArgs);
-                return null;
+                result = null;
             }
         };
     } else {
         return statement {
             if(env.methodName == @nameStr and env.args.count >= @argsCount) {
                 @variableDeclarations;
-                return @name(@actualArgs);
+                result = @name(@actualArgs);
             }
         };
     }

@@ -59,7 +59,7 @@ public class AweObject {
     }        
 
     extend public bool buildQuickProperties(QuickProperties props) {
-        return false;
+        return props and props.properties.any();
     }
 
 
