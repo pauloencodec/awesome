@@ -38,7 +38,13 @@ package custom.awesome;
 
 use custom.awesome.connectors;
 
+private alias SnapperArray=Snapper{};
+
 public class AweEasySnapper extends Snapper : abstract {
+    public aweDynamicContract {
+        aweDynamic void realign(SnapperArray visited=null);
+    }
+
     private AweConnectorCache _connectorCache();
 
     public constructor() { 
@@ -46,7 +52,7 @@ public class AweEasySnapper extends Snapper : abstract {
         this.product = createProduct(this.configurator);
         this.refresh();
     }
-        
+
     public AweProduct product;
     extend public AweProduct createProduct(AweObject configurator) : abstract { }
 
@@ -121,11 +127,38 @@ public class AweEasySnapper extends Snapper : abstract {
         refresh(true);
     }
 
+    /**
+     * Loops through all connected snappers and try to realign them just like 
+     * (re)alignAllSnapped would do except it will check individually if that
+     * connector should realign (realign property of the connector)
+     * It also triggers realign on all connected snappers that have the realign method 
+     */
+    extend public void realign(Snapper{} visited=null) {
+        if(!visited) {
+            visited = {Snapper: this};
+        } else {
+            if(this in visited) return;
+            visited << this;
+        }
+
+        for (attach in this.connectors()) {
+            var realign = aweDynamicCall attach.shouldRealign();
+            var connections = attach.connections() ? attach.connections() : {Connector: attach.connection()};
+            if(realign.bool and connections != null) {
+                for(connection in connections) if(connection) {
+                    alignConnectors(connection, attach, visited=null, invalidate3D=false, removeFromBsp=false, tryRealign=true, forcePropagate=false);
+                    var snapper = connection.snapper;
+                    aweDynamicCall snapper.realign(visited);
+                }
+            }
+        }
+    }
+
     extend public void refresh(bool updateConnectors=false, bool tryAlignAllSnapped=false) {
         this.product.?refresh();
         
         if (updateConnectors)  this.updateConnectors();
-        if (tryAlignAllSnapped) this.alignAllSnapped(tryRealign=true);
+        if (tryAlignAllSnapped) this.realign(null);        
 
         invalidateQuickPropertiesFor(this);
         invalidate();

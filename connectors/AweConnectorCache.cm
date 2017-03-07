@@ -44,28 +44,40 @@ public class AweConnectorCache {
     public constructor() {
     }   
 
-    extend public Connector get(str key, Snapper owner, point position, orientation direction, ConnectRule rule=ctNever) {
+    extend public Connector get(str key, Snapper owner, point position, orientation direction, ConnectRule rule=ctNever, bool realign=false) {
         Connector c = _cache.get(key);
         if(!c) {
             c = AweConnectPoint(owner);
             _cache.put(key, c);
         }
+
+        if(c as AweConnectPoint) {
+            c.realign = realign;
+        }
+
         return setupConnector(c, position, direction, rule);
     }
 
-    extend public Connector makePoint(str key, Snapper owner, point position, orientation direction, ConnectRule rule=ctNever) {
+    extend public Connector makePoint(str key, Snapper owner, point position, orientation direction, ConnectRule rule=ctNever, bool realign=false) {
         return get(..);
     }
 
-    extend public Connector makeLine(str key, Snapper snapper, point p0, point p1, angle roll=0deg, ConnectRule rule= null) {
+    extend public Connector makeLine(str key, Snapper snapper, point p0, point p1, angle roll=0deg, ConnectRule rule= null, bool realign=false) {
         Connector c = _cache.get(key);
         if(!c) {
             c = AweConnectLine(snapper, p0, p1, roll, rule);
             _cache.put(key, c);
+        } 
+        
+        if (c as AweConnectLine) {
+            orientation o = orientation(p1 - p0);
+            c.setRot(orientation(point(0, -(p1 - p0).length, 0).transformed(o)));
+            c.setRule(rule);
+            c.setPos(p0);
+            c.setEndPos(p1);
+            c.realign = realign;
         }
-        orientation o = orientation(p1 - p0);
-	    c.setRot(orientation(point(0, -(p1 - p0).length, 0).transformed(o)));
-        c.setRule(rule);
+        
         _buffer << c;
         return c;
     }
