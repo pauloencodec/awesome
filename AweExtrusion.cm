@@ -1,0 +1,90 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome;
+
+private AweCm3DLoader aweCm3DLoader();
+
+public class AweExtrusion {
+    public APath2D profile = null;
+
+    public constructor(str profileName, str profileDir) {
+        this.profile = aweCm3DLoader.getProfile(profileName, profileDir);
+    }
+
+    public constructor(AwePath2D profile) {
+        this.profile = profile;
+    }
+
+    extend public Primitive3D horizontal(line2D horizontalLine, double height, angle startAngle = 0 deg, angle endAngle = 0 deg,
+                                         bool closeStart = true, bool closeEnd = true,
+                                         angle arcResolution = 15deg) {
+        Primitive3D prim = extrudeAlongLine(horizontalLine, this.profile, startAngle, endAngle, closeStart, closeEnd, arcResolution);
+        prim.move((0, 0, height));
+        prim.setDoubleSided(true);
+        return prim;
+    }
+
+    extend public Primitive3D path(AwePath2D extrudePath, bool vertical=false, angle profileRotation=0deg) {
+        profile.rotate(profileRotation);
+        Primitive3D prim = extrudePathAlongPath(profile, extrudePath, doubleSided = true);
+        if (vertical)
+            prim.setPosRot((0, 0, 0), orientation(0deg, 0deg, 90deg));
+        return prim;
+    }
+
+    extend public Primitive3D vertical(double position, double length, double height, angle normal=0deg) {
+        line2D l((length, 0));
+        Primitive3D prim = horizontal(l, 0);
+        point start = (position, 0, height);
+        //stand on end
+        prim.rotate((0, 1, 0), -90deg);
+        //rotate to point to normal
+        prim.rotate((0, 0, 1), normal);
+        //go to place
+        prim.move(start);
+        return prim;
+    }
+    
+    extend public Primitive3D simple(double length) {
+       var mesh = PolygonMesh3D(this.profile, length);
+
+       mesh.setDoubleSided(true);
+
+       return mesh;
+    }
+
+}
