@@ -34,16 +34,28 @@
    END OF CETSC
 */
 
-package custom.awesome.connectors;
+package custom.awesome.gallery;
 
-public class AweConnectPoint extends ConnectPoint {
-    public aweDynamicContract {
-        aweDynamic bool shouldRealign();
+public class AweGalleryDomain extends ObjectSubSet {
+    public AweGallery gallery;
+    private Bool isEditing;
+
+    public constructor(AweGallery gallery, Bool isEditing=false) {
+        this.gallery = gallery;
+        this.isEditing = isEditing;
+
+        for (item in gallery.getItems()) {
+            this._members << item;
+        }
     }
 
-    public AweConnector;
-    public bool realign = false;
-    extend public bool shouldRealign() {
-        return this.realign;
+    extend public QuickProperty customQuickProperty(str key, str label, Object value) {
+        if (value as AweGalleryItem) {
+            if (value in this) {
+                return new AweGalleryQuickProperty(key, label, value, this, this.isEditing);
+            }
+        }
+        
+        return null;
     }
 }

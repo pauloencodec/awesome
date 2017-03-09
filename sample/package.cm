@@ -34,16 +34,19 @@
    END OF CETSC
 */
 
-package custom.awesome.connectors;
+package custom.awesome.sample;
 
-public class AweConnectPoint extends ConnectPoint {
-    public aweDynamicContract {
-        aweDynamic bool shouldRealign();
-    }
+use custom.awesome;
+use custom.awesome.connectors;
+use custom.awesome.product;
 
-    public AweConnector;
-    public bool realign = false;
-    extend public bool shouldRealign() {
-        return this.realign;
-    }
-}
+use cm.application;
+use cm.basic;
+use cm.core;
+use cm.core3D;
+use cm.draw;
+use cm.geometry;
+use cm.geometry2D.advanced;
+use cm.win;
+use cm.io;
+

@@ -50,6 +50,13 @@ public class AweProduct extends Snapper {
         return this;
     }
 
+    extend public AweProduct operator<<(AweProduct product) {
+        if(product and product.geometries) {
+            geometries += product.geometries;
+        }
+        return this;
+    }
+
     public constructor(Object model) {
         updateModel(model);
     }   
