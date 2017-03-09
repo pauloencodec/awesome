@@ -79,7 +79,12 @@ public class AwePath2D extends APath2D {
     extend public AwePath2D left(double distance) {
         return right(-distance);
     }
-    
+
+    extend public AwePath2D arcGo(point2D increment, angle startTangent) {
+        arcTo(cursor + increment, startTangent);
+        return this;
+    }
+
     extend public AwePath2D toStart() {
         if (!isClosed()) go(origin);
         return this;
