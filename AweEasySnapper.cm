@@ -164,4 +164,8 @@ public class AweEasySnapper extends Snapper : abstract {
         invalidate();
         space.invalidateSelection();
     }
+
+    public double connectLineAlignConnector(ConnectLine s, Connector c, double t) {
+        return t;
+    }
 }
