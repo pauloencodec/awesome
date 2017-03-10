@@ -91,15 +91,23 @@ public class AweConnectorCache {
     }
 
     extend public Connector get(str key) {
-        return _cache.get(key);
+        return this._cache.get(key);
     }
 
     extend public void clearBuffer() {
-        _buffer.clear();
+        this._buffer.clear();
     }
 
     extend public void addToBuffer(str key) {
-        _buffer << get(key);
+        this._buffer << this.get(key);
+    }
+
+    extend public void removeFromBuffer(str key) {
+        var c = this.get(key);
+
+        if (c in this._buffer) {
+            this._buffer.exclude(c);
+        }
     }
 
     extend public void addToConnectors(ConnectorCollection coll) {
