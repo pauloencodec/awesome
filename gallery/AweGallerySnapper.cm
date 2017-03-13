@@ -61,15 +61,11 @@ public class AweGallerySnapper extends AweEasySnapper : abstract {
     }
     
     public bool quickPropertyChanged(QuickProperties props, str key, Object value, bool testChangeOnly) {
-        var result = false;
-
         if (!testChangeOnly and key == this._nameKey) {
             galleryItemName = value.toS();
         }
             
-        super(..);
-        
-        return result;
+        return super(..);
     }
 
     public bool moveLocked() {
