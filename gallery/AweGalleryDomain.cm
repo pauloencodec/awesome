@@ -40,22 +40,46 @@ public class AweGalleryDomain extends ObjectSubSet {
     public AweGallery gallery;
     private Bool isEditing;
 
-    public constructor(AweGallery gallery, Bool isEditing=false) {
+    public constructor(AweGallery gallery, Bool isEditing=null) {
         this.gallery = gallery;
         this.isEditing = isEditing;
 
-        for (item in gallery.getItems()) {
+        this.refresh();
+    }
+
+    extend public QuickProperty customQuickProperty(str key, str label, Object value) {
+        this.refresh();
+        
+        return new AweGalleryQuickProperty(key, label, value.AweGalleryItem, this, this.isEditing);
+    }
+
+    extend private void refresh() {
+        this._members.clear();
+
+        for (item in this.gallery.getItems()) {
             this._members << item;
         }
     }
 
-    extend public QuickProperty customQuickProperty(str key, str label, Object value) {
-        if (value as AweGalleryItem) {
-            if (value in this) {
-                return new AweGalleryQuickProperty(key, label, value, this, this.isEditing);
+    public bool contains(Object o) {
+        if (o in this._members) {
+            return true;
+        }
+
+        if (o as AweGalleryItem) {
+            for (item in this._members) {
+                if (item as AweGalleryItem) {
+                    if (item.equal(o)) {
+                        return true;
+                    }
+                }
             }
         }
-        
-        return null;
+
+        return false;
+    }
+
+    public aweDynamicContract {
+        aweDynamic QuickProperty customQuickProperty(str key, str label, Object value);
     }
 }
