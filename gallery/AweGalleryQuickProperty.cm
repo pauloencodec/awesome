@@ -45,7 +45,9 @@ public class AweGalleryQuickProperty extends ComboQuickProperty {
         this.isEditing = isEditing;
 
         if (!value or !domain.contains(value)) {
-            value = domain.first().AweGalleryItem;
+            if (domain.any()) {
+                value = domain.first().AweGalleryItem;
+            }
         }
         
         super(key, label, value, value.class, domain, isEditing.?v);
