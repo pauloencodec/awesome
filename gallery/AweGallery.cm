@@ -56,6 +56,36 @@ public class AweGallery : abstract {
     }
 
     extend public void onExit(Space drawingSpace) {
+        if (!drawingSpace) return;
+
+        var matchingTypes = this.getMatchingTypes();
+
+        if (!matchingTypes or matchingTypes.empty()) return;
+
+        for (snapper in drawingSpace.snappers) {
+            if (this.typeMatches(snapper)) {
+                if (snapper as AweEasySnapper) {
+                    snapper.refresh(true, true);
+                }
+                else {
+                    snapper.invalidate();
+                }
+            }
+        }
+    }
+
+    extend public Class[] getMatchingTypes() {
+        return null;
+    }
+
+    extend public bool typeMatches(Snapper snapper) {
+        for (type in this.getMatchingTypes()) {
+            if (snapper in type) {
+                return true;
+            }
+        }
+
+        return false;
     }
      
     extend public void launch(str selectedId=null) {
@@ -242,7 +272,7 @@ public class AweGallery : abstract {
         for (s in this.gallerySpace.snappers) {
             if (s as AweGallerySnapper) {
                 if (Object item = this.save(s)) {
-                    gallery << new AweGalleryItem(s.galleryItemName, item, s.pos);
+                    gallery << new AweGalleryItem(s.galleryItemId, s.galleryItemName, item, s.pos);
                 }                
             }
         }
@@ -409,6 +439,7 @@ public class AweGallery : abstract {
     extend public Snapper newSnapper() {
         var snapper = this.createSnapper(this.defaultItem());
 
+        snapper.galleryItemId = getNewGalleryItemId();
         snapper.galleryItemName = this.getNewItemName() # " " # this.getSnappersCount(snapper);
         
         return snapper;
@@ -424,9 +455,9 @@ public class AweGallery : abstract {
                 this.gallerySpace.clearSelection();
                 this.gallerySpace.select(s);
                 this.gallerySpace.refreshSelection();
+                
+                break;
             }
-
-            break;
         }
     }
 

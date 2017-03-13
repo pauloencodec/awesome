@@ -44,7 +44,7 @@ public class AweGalleryQuickProperty extends ComboQuickProperty {
         this.gallery = domain.gallery;
         this.isEditing = isEditing;
 
-        if (!value or value !in domain) {
+        if (!value or !domain.contains(value)) {
             value = domain.first().AweGalleryItem;
         }
         
@@ -77,7 +77,7 @@ private class AweGalleryLaunchButton extends Button {
         this.gallery = gallery;
         this.selectedItem = selectedItem;
         
-        super(parentWindow, label="Go to gallery");
+        super(parentWindow, label="Go to gallery", margins=(2, 1));
     }
 
     public void release(pointI p) {

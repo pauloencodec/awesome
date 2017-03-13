@@ -50,7 +50,7 @@ public class AweGalleryItem {
     }
 
     public constructor(str name, Object data, point pos) {
-        this(guid().hex, name, data, pos);
+        this(getNewGalleryItemId(), name, data, pos);
     }
 
     public str toS() {
@@ -64,4 +64,8 @@ public class AweGalleryItem {
 
         return false;
     }
+}
+
+public str getNewGalleryItemId() {
+    return guid().hex;
 }
