@@ -1,0 +1,92 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.basic3D;
+
+public class AweBox3D extends Awe3D {
+    public Rect3D front;
+    public Rect3D back;
+    public Rect3D top;
+    public Rect3D bottom;
+    public Rect3D left;
+    public Rect3D right;
+
+    public constructor(
+        box b, 
+        Material3D frontMaterial,
+        Material3D backMaterial,
+        Material3D leftMaterial,
+        Material3D rightMaterial,
+        Material3D topMaterial,
+        Material3D bottomMaterial
+        ) {
+
+        front = Rect3D(1, point(), b.w, b.h, reversed=true);
+        back = Rect3D(1, (0,b.d,0), b.w, b.h, reversed=false);
+        left = Rect3D(2, point(), b.d, b.h, reversed=true);
+        right = Rect3D(2, (b.w,0,0), b.d, b.h, reversed=false);
+        top = Rect3D(0, (0,0,b.h), b.w, b.d, reversed=false);
+        bottom = Rect3D(0, point(), b.w, b.d, reversed=true);
+
+        this << bottom << top << left << right << front << back;
+
+        front.setMaterial(frontMaterial);
+        back.setMaterial(backMaterial);
+        left.setMaterial(leftMaterial);
+        right.setMaterial(rightMaterial);
+        top.setMaterial(topMaterial);
+        bottom.setMaterial(bottomMaterial);
+
+        this.move(b.p0);
+    }   
+    public constructor(box b, Material3D material) {
+        this(b, material, material, material, material, material, material);
+    }
+
+    extend public Rect3D[] allFaces() {
+        return [Rect3D: front, back, top, bottom, right, left];
+    }
+}
+
+{
+    box b((0,0,0), (1,2,3));
+    box xuprega = b.moved(point(0,0,-1inch));
+    box sobra = b * xuprega;
+    box tampinha((0,0,b.p1.z-1inch), b.p1);
+
+    test(AweBox3D(xuprega, plainRedMaterial3D));
+    test(AweBox3D(tampinha, plainGrayMaterial3D));
+}
