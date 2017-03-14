@@ -38,18 +38,19 @@ package custom.awesome;
 
 use custom.awesome.connectors;
 
-private alias SnapperArray=Snapper{};
+private alias SnapperArray = Snapper{};
 
 public class AweEasySnapper extends Snapper : abstract {
     public aweDynamicContract {
         aweDynamic void realign(SnapperArray visited=null);
     }
 
-    private AweConnectorCache _connectorCache();
+    public AweConnectorCache connectorCache();
 
     public constructor() { 
-        this.configurator = createConfigurator();
-        this.product = createProduct(this.configurator);
+        this.configurator = this.createConfigurator();
+        this.product = this.createProduct(this.configurator);
+
         this.refresh();
     }
 
@@ -62,50 +63,57 @@ public class AweEasySnapper extends Snapper : abstract {
     extend public void connectors(AweConnectorCache cc) { }
 
     public void connectors(ConnectorCollection collection) { 
-        _connectorCache.clearBuffer();
-        this.connectors(_connectorCache);
-        _connectorCache.addToConnectors(collection);
+        this.connectorCache.clearBuffer();
+        
+        this.connectors(connectorCache);
+        
+        this.connectorCache.addToConnectors(collection);
+
         super(collection);
     }
 
     public bool buildQuickProperties(QuickProperties props) { 
-        if(this.configurator) {
+        if (this.configurator) {
             return this.configurator.buildQuickProperties(..);
         }
+
         return super(..);
     }
 
     public void drawGraphs(LayerBuffer lb, View view, GeometricFinder finder=null) {
-        if(this.product) {
-            var graph = this.product.get2D();
-            if (graph) { 
+        if (this.product) {
+            if (Graph graph = this.product.get2D()) { 
                 graph.draw(lb);
             }
         }
     }
 
     public Primitive3D get3D(FetchEnv3D env) {
-        if(this.product) {
+        if (this.product) {
             return this.product.get3D(env);
         }
 
-        Primitive3D prim = Box3D(localBound);
+        Box3D prim(this.localBound());
+
         prim.setMaterial(plainGreenMaterial3D);
 
         return prim;
     }
 
     public bool quickPropertyChanged(QuickProperties props, str key, Object value, bool testChangeOnly) {
-        if(this.configurator and !testChangeOnly) {
+        if (this.configurator and !testChangeOnly) {
             bool changed = this.configurator.quickPropertyChanged(..);
-            refresh(true, true);
+            
+            this.refresh(true, true);
+            
             return changed;
         }
+
         return super(..);
     }
 
     public box localBound() {
-        if(this.product) {
+        if (this.product) {
             return this.product.localBound();
         }
 
@@ -113,18 +121,21 @@ public class AweEasySnapper extends Snapper : abstract {
     }
 
     public void connected(Connector c0, Connector c1, bool snapped, bool attached) {
-        refresh(true);
+        this.refresh(true);
+
         super(..);
     }
 
     public void disconnected(Connector c0, Connector c1, bool wasSnapped, bool wasAttached) {
-        refresh(true);
+        this.refresh(true);
+
         super(..);
     }
 
     public void dropped() {
         super();
-        refresh(true);
+
+        this.refresh(true);
     }
 
     /**
@@ -134,20 +145,25 @@ public class AweEasySnapper extends Snapper : abstract {
      * It also triggers realign on all connected snappers that have the realign method 
      */
     extend public void realign(Snapper{} visited=null) {
-        if(!visited) {
+        if (!visited) {
             visited = {Snapper: this};
-        } else {
-            if(this in visited) return;
+        }
+        else {
+            if (this in visited) return;
+            
             visited << this;
         }
 
         for (attach in this.connectors()) {
             var realign = aweDynamicCall attach.shouldRealign();
             var connections = attach.connections() ? attach.connections() : {Connector: attach.connection()};
-            if(realign.bool and connections != null) {
-                for(connection in connections) if(connection) {
+
+            if (realign.bool and connections != null) {
+                for (connection in connections) if(connection) {
                     alignConnectors(connection, attach, visited=null, invalidate3D=false, removeFromBsp=false, tryRealign=true, forcePropagate=false);
+                    
                     var snapper = connection.snapper;
+                    
                     aweDynamicCall snapper.realign(visited);
                 }
             }
@@ -163,9 +179,5 @@ public class AweEasySnapper extends Snapper : abstract {
         invalidateQuickPropertiesFor(this);
         invalidate();
         space.invalidateSelection();
-    }
-
-    public double connectLineAlignConnector(ConnectLine s, Connector c, double t) {
-        return t;
     }
 }
