@@ -72,8 +72,8 @@ public class AweStorageChassis3D extends Awe3D {
     }
     
     extend private AweStorageChassis3D addTop(double thickness=0.75inch) {
-        box laminate((spaceLeft.p0.x,spaceLeft.p0.y,spaceLeft.p1.z-thickness), spaceLeft.p1);
-        box temp = spaceLeft.moved(point(0,0,-thickness));
+        box laminate((spaceLeft.p0.x, spaceLeft.p0.y, spaceLeft.p1.z-thickness), spaceLeft.p1);
+        box temp = spaceLeft.moved(point(0, 0, -thickness));
         spaceLeft = spaceLeft * temp;
 
         AweBox3D prim(laminate, randomColorLWMaterial());
@@ -174,5 +174,5 @@ public class AweStorageChassis3D extends Awe3D {
     chassis.setMaterial(randomColorLWMaterial());
     chassis.setMaterial("internal", randomColorLWMaterial());
     chassis.setMaterial("front", randomColorLWMaterial());
-    test(xaci);
+    test(chassis);
 }
