@@ -180,11 +180,13 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                 if (@domainName) {
                     Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, distance(@propName));
 
-                    if (customQuickProperty) {
-                        props.append(customQuickProperty.QuickProperty);
-                    }
-                    else {
-                        props.append(@propNameStr, @labelName, distance(@propName), @domainName);
+                    if (@domainName.any()) {
+                        if (customQuickProperty) {
+                            props.append(customQuickProperty.QuickProperty);
+                        }
+                        else {
+                            props.append(@propNameStr, @labelName, distance(@propName), @domainName);
+                        }
                     }
                 }
             };
@@ -194,11 +196,13 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                 if (@domainName) {
                     Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, @propName);
 
-                    if (customQuickProperty) {
-                        props.append(customQuickProperty.QuickProperty);
-                    }
-                    else {
-                        props.append(@propNameStr, @labelName, @propName, @domainName);
+                    if (@domainName.any()) {
+                        if (customQuickProperty) {
+                            props.append(customQuickProperty.QuickProperty);
+                        }
+                        else {
+                            props.append(@propNameStr, @labelName, @propName, @domainName);
+                        }
                     }
                 }
             };
