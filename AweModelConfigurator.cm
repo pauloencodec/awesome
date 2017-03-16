@@ -168,16 +168,18 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         SId domainName(arg.id.name#"Domain");
         SExpr domainInitialValue = arg.default();
         SId labelName(arg.id.name#"Label");
+        SId visibleName(arg.id.name#"Visible");
 
         domainMembers << member {
             @visibility SubSet @domainName = @domainInitialValue;
             @visibility str @labelName = @propNameStr.propNameToLabel();
+            @visibility bool @visibleName = true;
         };
 
         //we use distance subsets for double properties, so we need this great if statement there:
         if (propType.type == distance) {
             buildQuickProperties << statement {
-                if (@domainName) {
+                if (@domainName and @visibleName) {
                     Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, distance(@propName));
 
                     if (@domainName.any()) {
@@ -193,7 +195,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         }
         else {
             buildQuickProperties << statement {
-                if (@domainName) {
+                if (@domainName and @visibleName) {
                     Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, @propName);
 
                     if (@domainName.any()) {
