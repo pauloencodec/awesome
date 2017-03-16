@@ -63,6 +63,10 @@ public class AweConnectorCache {
         return this.get(..);
     }
 
+    extend public Connector makeLine(str key, Snapper snapper, line l, angle roll=0deg, ConnectRule rule= null, bool realign=false) {
+        return this.makeLine(key, snapper, l.p0, l.p1, roll, rule, realign);
+    }
+
     extend public Connector makeLine(str key, Snapper snapper, point p0, point p1, angle roll=0deg, ConnectRule rule= null, bool realign=false) {
         Connector c = this._cache.get(key);
 
