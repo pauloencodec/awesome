@@ -33,7 +33,7 @@
 
    END OF CETSC
 */
-package custom.awesome;
+package custom.awesome : 7.5.0;
 
 use custom.awesome.product;
 use cm.application;
