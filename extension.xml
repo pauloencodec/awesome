@@ -3,7 +3,7 @@
   <main>custom.awesome</main>
   <name>Awesome library</name>
   <type>catalog</type>
-  <version>0.1</version>
+  <version>0.4</version>
   <packages>
     <package id="custom.awesome" />
     <package id="custom.awesome.product" />

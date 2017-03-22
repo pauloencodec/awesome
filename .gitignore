@@ -1,0 +1,16 @@
+*.CM.~*
+.vscode
+autocomplete*.json
+**/*.~*
+acloader.cm
+apps
+bfg.jar
+TAGS
+**/TAGS
+*.db
+*.db-journal
+**/**/TAGS
+**/**/**/TAGS
+assets/cm3d/
+assets/2d/
+assets/materials/

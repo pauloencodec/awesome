@@ -1,0 +1,567 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.gallery;
+
+public AweGallery activeAweGallery = null;
+
+public class AweGallery : abstract {
+    private Space drawingSpace;
+    private Space gallerySpace;
+    private Button[] buttons();
+    private int saveBtnWidth; 
+    private int quitBtnWidth; 
+
+    public constructor() {
+    }
+
+    extend public AweGallerySnapper createSnapper(Object dataItem) : abstract {}
+    extend public Object defaultItem() : abstract {}
+    
+    extend public Object save(AweGallerySnapper snapper) {
+        return snapper.getGalleryData();
+    }
+
+    extend public void onExit(Space drawingSpace) {
+        if (!drawingSpace) return;
+
+        var matchingTypes = this.getMatchingTypes();
+
+        if (!matchingTypes or matchingTypes.empty()) return;
+
+        for (snapper in drawingSpace.snappers) {
+            if (this.typeMatches(snapper)) {
+                if (snapper as AweEasySnapper) {
+                    snapper.refresh(true, true);
+                }
+                else {
+                    snapper.invalidate();
+                }
+            }
+        }
+    }
+
+    extend public Class[] getMatchingTypes() {
+        return null;
+    }
+
+    extend public bool typeMatches(Snapper snapper) {
+        for (type in this.getMatchingTypes()) {
+            if (snapper in type) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+     
+    extend public void launch(str selectedId=null) {
+        if (activeAweGallery) {
+            activeAweGallery.quit();
+        }
+        
+        this.cleanUp();
+        this.drawingSpace = activeSpace();
+        this.gallerySpace = new Space(drawingSpace.world, "AweGallery");
+        this.gallerySpace.put(new AweGalleryFloorSnapper());
+        
+        activeAweGallery = this;
+
+        setMajorViewAreaModeHooks << function majorViewAreaModeHook;
+        createSpaceHooks << function aweGalleryCreateSpaceHook;
+        spaceSelectHooks << function spaceSelectHook;
+
+        var galleryItems = this.getItems();
+        
+        for (item in galleryItems, index=i) {
+            var snapper = this.createSnapper(item.data);
+
+            snapper.galleryItemIndex = i;
+            snapper.galleryItemId = item.id;
+            snapper.galleryItemName = item.name;
+
+            snapper.setPos(item.pos);
+                
+            this.gallerySpace.put(snapper);
+        }
+        
+        this.selectItem(selectedId);
+        this.launchSpace(this.gallerySpace);
+        this.updateViewIfNecessary();
+    }
+
+    extend public bool adjust(AweGallerySnapper s) { return false; }
+
+    extend public void updateViewIfNecessary() { 
+        var spaceSnappers = this.gallerySpace.snappers;
+        var view = activeView;
+        var adjusted = false;
+
+        for (s in spaceSnappers) {
+            if (s as AweGallerySnapper) {
+                if (this.adjust(s)) { 
+                    adjusted = true;
+                }
+            }
+        }
+
+        if (adjusted) {
+            if (view as View2D) {
+                view.zoomExtents();
+            }
+            else if (view as View3D) {
+                view.zoomExtents();
+            } 
+        }
+    }
+    
+    extend private void cleanUp() {
+        this.drawingSpace = null;
+        this.gallerySpace = null;
+        
+        this.buttons.clear();
+    }
+
+    extend public AweGalleryItem[] getItems() {
+        Space space = this.drawingSpace ?? mainSpace();
+        var fromWorld = space.getAuxillary(this.class.name);
+
+        if (fromWorld as AweGalleryItem[]) {
+            if(fromWorld.any()) {
+                return this.sortGallery(fromWorld);
+            }
+        }
+
+        // If no items are found for this gallery, save the initial items to the space to avoid 
+        // unnecessary processing 
+        var items = this.initialItems();
+
+        this.save(items);
+
+        if (!items or items.empty()) {
+            return new AweGalleryItem[]();
+        }
+        
+        return items; 
+    }
+
+    extend public Object getData(str id) {
+        var items = this.getItems();
+
+        for (item in items) if (item.id == id) {
+            return item.data.copy();
+        }
+
+        return items[0].data.copy();
+    }
+    
+    extend private void appendButtons(Window window) {
+        AweGallerySaveAndQuitButton saveBtn(window, this);
+        AweGalleryQuitButton quitBtn(window, this);
+        AweGalleryNewItemButton newBtn(window, this);
+        
+        pointI margin(10, 10);
+        pointI spacing(10, 0);
+        
+        saveBtn.setPos(window.clientBound.p1 - saveBtn.clientBound.p1 - margin);
+        quitBtn.setPos(window.clientBound.p1 - quitBtn.clientBound.p1 - spacing - pointI(saveBtn.clientBound.w, 0) - margin);
+        newBtn.setPos(window.clientBound.p1 - newBtn.clientBound.p1 - spacing - pointI(quitBtn.clientBound.w, 0) - spacing - pointI(saveBtn.clientBound.w, 0) - margin);
+        
+        this.saveBtnWidth = saveBtn.clientBound.w; 
+        this.quitBtnWidth = quitBtn.clientBound.w; 
+
+        this.buttons << saveBtn << quitBtn << newBtn;
+    }
+
+    extend public void updateButtonsPositions() {
+        pointI margin(10, 10);
+        pointI spacing(10, 0);
+
+        for (button in this.buttons) {
+            Window window = button.parent;
+
+            if (button as AweGallerySaveAndQuitButton) {
+                button.setPos(window.clientBound.p1 - button.clientBound.p1 - margin);
+            }
+
+            if (button as AweGalleryQuitButton) {
+                button.setPos(window.clientBound.p1 - button.clientBound.p1 - spacing - pointI(this.saveBtnWidth, 0) - margin);
+            } 
+
+            if (button as AweGalleryNewItemButton) {
+                button.setPos(window.clientBound.p1 - button.clientBound.p1 - spacing - pointI(this.quitBtnWidth, 0) - spacing - pointI(this.saveBtnWidth, 0) - margin);
+            } 
+        }
+    }
+
+    extend private void launchSpace(Space space) {
+         if (World world = space.world) if (space in world.spaces) {
+            abortAllAnimations();
+            world.setMainSpace(space);
+
+            if (space == this.gallerySpace) {
+                for (view in space.views) if (view.valid) {
+                    if (view as View2D)  {
+                        view.zoomExtents();
+
+                        this.appendButtons(view.window);
+                    }
+                    else if (view as View3D)  {
+                        view.zoomExtents();
+                        
+                        this.appendButtons(view.window);
+                    }                    
+                }
+            }
+        }
+    }
+    
+    extend private void exit() {
+        this.launchSpace(this.drawingSpace);
+
+        for (view in this.gallerySpace.views) {
+            if (view as WindowView) {
+                view.window.close();
+            }
+        }
+
+        for (button in this.buttons) {
+            button.close();
+        }
+
+        activeAweGallery = null;
+        this.gallerySpace.remove();
+    }
+    
+    extend private void save() {
+        AweGalleryItem[] gallery();
+
+        for (s in this.gallerySpace.snappers) {
+            if (s as AweGallerySnapper) {
+                if (Object item = this.save(s)) {
+                    gallery << new AweGalleryItem(s.galleryItemId, s.galleryItemName, item, s.pos);
+                }                
+            }
+        }
+
+        this.save(gallery);
+    }
+
+    extend private void save(AweGalleryItem[] items) {
+        var space = this.drawingSpace ?? mainSpace();
+
+        space.putAuxillary(this.class.name, items);
+    }
+
+    extend public void save(str name, Object data) {
+        var items = this.getItems();
+        AweGalleryItem match;
+
+        for (item in items) {
+            if (item.name == name) {
+                match = item;
+                break;
+            }
+        }
+
+        if (match) {
+            var index = items.indexOf(match);
+
+            items.remove(index);
+            items.insert(index, new AweGalleryItem(match.id, match.name, data, match.pos));
+        }
+        else {
+            var pos = items.last().pos;
+
+            pos.x += 90inch + 2feet;
+
+            items << new AweGalleryItem(name, data, pos);
+        }
+
+        this.save(items);
+    }
+
+    extend private AweGalleryItem[] sortGallery(AweGalleryItem[] gallery) {
+        AweGalleryItem temp;
+        int index = 1;
+
+        do {
+            for (x in 0..(gallery.count - 2)) {
+                if (gallery[x].pos.x > gallery[x + 1].pos.x) {
+                    temp = gallery[x + 1];
+
+                    gallery[x + 1] = gallery[x];
+                    gallery[x] = temp;
+                }
+            }
+
+            index++;
+
+        }
+        while (index < gallery.count);
+
+        return gallery;
+    }
+    
+    extend public void quit() {
+        this.exit();
+    }
+
+    extend private bool validateName() {
+        str[] passed();
+
+        for (s in this.gallerySpace.snappers) { 
+            if (s as AweGallerySnapper) {
+                var name = s.galleryItemName.toLower().removeHeadingAndTrailingSpace();
+
+                if (!passed.contains(name)) {
+                    passed << name;
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    extend public bool hasDuplicateName(str name) {
+        var items = this.getItems();
+        var match = name.toLower().removeHeadingAndTrailingSpace();
+
+        for (item in items) {
+            if (item.name.toLower().removeHeadingAndTrailingSpace() == match) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    extend public AweGalleryItem firstOrDefault(str id=null) {
+        var items = this.getItems();
+
+        for (item in items) {
+            if (!id or item.id == id) {
+                return item;
+            }
+        }
+
+        return items.first();
+    }
+    
+    extend private bool validateSnappers() {
+        return this.gallerySpace.snappers.count() > 1; //The Floor count as 1 snapper.
+    }
+
+    extend private str validateGalleryItems() {        
+       if (!this.validateName()) {
+           return "One or more items in this gallery have conflicting names.";
+       }
+
+       if (!this.validateSnappers()) {
+           return "The gallery should have at least one product configuration.";
+       }
+
+       return null;
+   }
+   
+   extend public void saveAndQuit() {
+       var message = this.validateGalleryItems();
+
+       if (!message) {
+           this.save();
+           this.exit();
+
+           this.onExit(this.drawingSpace);
+       }
+       else {
+           FlexDialog modal(message, icon=dialogIcon.info);
+            
+            modal.setCustomCaption("Error");
+            modal.addOKButton();
+            modal.show();
+       }
+   }
+    
+    /**
+     * used when the gallery is new
+     */
+    extend public AweGalleryItem[] initialItems() {
+        AweGalleryItem[] items();
+
+        items << new AweGalleryItem(this.getNewItemName(), this.defaultItem(), (0, 0, 0));
+        
+        return items;
+    }
+    
+    extend private void placeNewItem() {
+        var snapper = this.newSnapper();
+        var animation = snapper.insertAnimation(new StartInsertAnimationEnv(null, snapper));
+        
+        animate(animation);
+    }
+
+    extend public Snapper newSnapper() {
+        var snapper = this.createSnapper(this.defaultItem());
+
+        snapper.galleryItemId = getNewGalleryItemId();
+        snapper.galleryItemName = this.getNewItemName() # " " # this.getSnappersCount(snapper);
+        
+        return snapper;
+    }
+
+    extend public str getNewItemName() {
+        return "Configuration";
+    }
+
+    extend private void selectItem(str id) {
+        for (s in this.gallerySpace.snappers) {
+            if (s as AweGallerySnapper and s.galleryItemId == id) {
+                this.gallerySpace.clearSelection();
+                this.gallerySpace.select(s);
+                this.gallerySpace.refreshSelection();
+                
+                break;
+            }
+        }
+    }
+
+    extend private int getSnappersCount(Snapper snapper) {
+        int count = 0;
+
+        for (s in this.gallerySpace.snappers) {
+            if (s.class == snapper.class) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    extend public int getSimilarProductsCount(Snapper snapper) { 
+        return this.getSnappersCount(snapper);
+    }
+}
+
+
+private class AweGalleryQuitButton extends Button {
+    public AweGallery gallery;
+
+    public constructor(Window parentWindow, AweGallery gallery) {
+        this.gallery = gallery;
+
+        super(parentWindow, label="Cancel");
+    }
+
+    public void click(pointI p) {
+        this.gallery.quit();
+    }
+}
+
+private class AweGallerySaveAndQuitButton extends Button {
+    public AweGallery gallery;
+
+    public constructor(Window parentWindow, AweGallery gallery) {
+        this.gallery = gallery;
+
+        super(parentWindow, label="Save");
+    }
+    
+    public void click(pointI p) {
+        this.gallery.saveAndQuit();
+    }
+}
+
+private class AweGalleryNewItemButton extends Button {
+    public AweGallery gallery;
+
+    public constructor(Window parentWindow, AweGallery gallery) {
+        this.gallery = gallery;
+
+        super(parentWindow, label="New item");
+    }
+    
+    public void click(pointI p) {
+        this.gallery.placeNewItem();
+    }
+}
+
+private class AweGalleryFloorSnapper extends FloorSnapper {    
+    extend public AwePath2D arrow() {
+        rect fr = preferences.autoExpandFloor ? visible(false) : preferences.manualFloorRect;
+        fr.shrink(.5);
+
+        AwePath2D path(fr.p0 + (0, fr.d/2));
+        path.down(.5).right(fr.w - 1).down(.5).go(1,1).go(-1,1).down(.5).left(fr.w - 1).down(.5);
+        
+        return path;
+    }
+    
+    public Primitive3D get3D(FetchEnv3D env) {
+        Primitive3D[] prims();
+        prims << super(..);
+       
+        var arrowPrim = new PolygonMesh3D(arrow.reversed(), 0);
+        
+        arrowPrim.setMaterial(plainYellowMaterial3D);
+        arrowPrim.move((0, 0, .0001));
+        
+        prims << arrowPrim;
+
+        return new Instance3D(prims);
+    }
+}
+
+private void majorViewAreaModeHook(multiViewState state, viewType pref) {
+    if (activeAweGallery) {
+        activeAweGallery.updateButtonsPositions();
+    }
+}
+
+private void aweGalleryCreateSpaceHook(Space space) {
+    if (activeAweGallery) activeAweGallery.quit();
+}
+
+private void spaceSelectHook(SpaceSelection from, SpaceSelection to) {
+    if (from and from.main in AweGallerySnapper) {
+        showQuickProperties(from.main);
+    }
+    else if (to and to.main in AweGallerySnapper) {
+        showQuickProperties(to.main);
+    }
+}

@@ -37,26 +37,116 @@
 package custom.awesome.connectors;
 
 public class AweConnectorCache {
-    
     private str->Connector _cache();
+    private Connector[] _buffer();
     
     public constructor() {
     }   
 
-    extend public Connector get(str key, Snapper owner, point position, orientation direction, ConnectRule rule=ctNever) {
-        Connector c = _cache.get(key);
-        if(!c) {
-            c = AweConnectPoint(owner);
-            _cache.put(key, c);
+    extend public Connector get(str key, Snapper owner, point position, orientation direction, ConnectRule rule=ctNever, bool realign=false) {
+        Connector c = this._cache.get(key);
+
+        if (!c) {
+            c = new AweConnectPoint(owner);
+            
+            this._cache.put(key, c);
         }
+
+        if (c as AweConnectPoint) {
+            c.realign = realign;
+        }
+
+        return this.setupConnector(c, position, direction, rule);
+    }
+
+    extend public Connector makePoint(str key, Snapper owner, point position, orientation direction, ConnectRule rule=ctNever, bool realign=false) {
+        return this.get(..);
+    }
+
+    extend public Connector makeLine(str key, Snapper snapper, line l, angle roll=0deg, ConnectRule rule= null, bool realign=false) {
+        return this.makeLine(key, snapper, l.p0, l.p1, roll, rule, realign);
+    }
+
+    extend public Connector makeLine(str key, Snapper snapper, point p0, point p1, angle roll=0deg, ConnectRule rule= null, bool realign=false) {
+        Connector c = this._cache.get(key);
+
+        if (!c) {
+            c = new AweConnectLine(snapper, p0, p1, roll, rule);
+
+            this._cache.put(key, c);
+        } 
+        
+        if (c as AweConnectLine) {
+            orientation o = orientation(p1 - p0);
+            c.setRot(orientation(point(0, -(p1 - p0).length, 0).transformed(o)));
+            c.setRule(rule);
+            c.setPos(p0);
+            c.setEndPos(p1);
+            c.realign = realign;
+        }
+        
+        this._buffer << c;
+        
+        return c;
+    }
+
+    extend private Connector setupConnector(Connector c, point position, orientation direction, ConnectRule rule=ctNever) {
         c.setPos(position);
         c.setRot(direction);
         c.setRule(rule);
-
+        
+        this._buffer << c;
+        
         return c;
     }
 
     extend public Connector get(str key) {
-        return _cache.get(key);
+        return this._cache.get(key);
+    }
+
+    extend public void clearBuffer() {
+        this._buffer.clear();
+    }
+
+    extend public void addToBuffer(str key) {
+        this._buffer << this.get(key);
+    }
+
+    extend public void addToBuffer(rest: str[] keys) {
+        for (key in keys) {
+            this.addToBuffer(key);
+        }
+    }
+
+    extend public void addToBuffer(str[] keys) {
+        for (key in keys) {
+            this.addToBuffer(key);
+        }
+    }
+
+    extend public void removeFromBuffer(str key) {
+        var c = this.get(key);
+
+        if (c in this._buffer) {
+            this._buffer.exclude(c);
+        }
+    }
+
+    extend public void removeFromBuffer(rest: str[] keys) {
+        for (key in keys) {
+            this.removeFromBuffer(key);
+        }
+    }
+
+    extend public void removeFromBuffer(str[] keys) {
+        for (key in keys) {
+            this.removeFromBuffer(key);
+        } 
+    }
+
+    extend public void addToConnectors(ConnectorCollection coll) {
+        for (c in this._buffer) {
+            coll << c;
+        }
     }
 }

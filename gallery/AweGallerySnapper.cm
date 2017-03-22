@@ -34,16 +34,49 @@
    END OF CETSC
 */
 
-package custom.awesome.connectors;
+package custom.awesome.gallery;
 
-public class AweConnectPoint extends ConnectPoint {
-    public aweDynamicContract {
-        aweDynamic bool shouldRealign();
+public class AweGallerySnapper extends AweEasySnapper : abstract {
+    private str _nameKey = "galleryItemName";
+    
+    public str galleryItemId;
+    public str galleryItemName;
+    public int galleryItemIndex;
+    
+    extend public Object getGalleryData() : abstract {}
+    extend public void applyGalleryData(Object params) : abstract {}
+
+    extend public bool readOnly() { return false; }
+
+    public bool buildQuickProperties(QuickProperties props) {
+        ObjectSubSet nameDomain = null;
+
+        if (this.readOnly) {
+            nameDomain = new ObjectSubSet([Object: this.galleryItemName]);
+        }
+
+        props.append(this._nameKey, "Name", this.galleryItemName, nameDomain);
+
+        return super(..);
+    }
+    
+    public bool quickPropertyChanged(QuickProperties props, str key, Object value, bool testChangeOnly) {
+        if (!testChangeOnly and key == this._nameKey) {
+            galleryItemName = value.toS();
+        }
+            
+        return super(..);
     }
 
-    public AweConnector;
-    public bool realign = false;
-    extend public bool shouldRealign() {
-        return this.realign;
+    public bool moveLocked() {
+        return this.readOnly();
     }
+
+    public str toolTipText() {
+        return this.galleryItemName ?? super();
+    }
+
+    public bool allowRotation() { return false; }
+    public bool rotatable(Connector s) { return false; }
+    public bool stretchable(Connector s) { return false; }
 }

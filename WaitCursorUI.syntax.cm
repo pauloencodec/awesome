@@ -34,16 +34,14 @@
    END OF CETSC
 */
 
-package custom.awesome.connectors;
+package custom.awesome;
 
-public class AweConnectPoint extends ConnectPoint {
-    public aweDynamicContract {
-        aweDynamic bool shouldRealign();
-    }
+public statement waitCursorUI @code=statement : invisible debug {
+    return block {
+        beginWaitCursor();
 
-    public AweConnector;
-    public bool realign = false;
-    extend public bool shouldRealign() {
-        return this.realign;
-    }
+        @code;
+
+        endWaitCursor();
+    };
 }

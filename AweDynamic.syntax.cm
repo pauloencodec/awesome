@@ -1,0 +1,158 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome;
+
+
+use cm.syntax;
+
+public class AweDynamicCallEnv extends EqualEnv  {
+    public str methodName;
+    public Object[] args;
+    public Object result;
+
+    public constructor(str methodName, rest: Object[] args) {
+        set*(this: methodName, args);
+    }
+}
+
+
+public member @visibility aweDynamicContract '{' @contractItems=[statement]+ '}' {
+    SStatements ifs();
+    for(s in contractItems) {
+        ifs << s;
+    }
+    return member {
+
+        //gambiarra to talk to any Object out there
+        public bool equal(Object a, EqualEnv env=EqualEnv()) {
+            if(env as AweDynamicCallEnv){
+                Object result = null;
+                @ifs;
+                env.result = result;
+                return super(..);
+            }
+            else return super(..);
+        }
+
+    };
+}
+
+public statement aweDynamic @t=type @name=id @args=formalArgList ';' {
+    str nameStr = name.name;
+    int argsCount = args.count;
+
+    SActualArgList actualArgs();
+    SStatements variableDeclarations();
+
+    for(i in 0..(args.count-1)) {
+        SFormalArg arg = args[i];
+        SType variableType = arg.typeSyntax;
+        str variableName = arg.id.name;
+
+        if (variableType.type == Object) {
+            variableDeclarations << statement {
+                @variableType @variableName = env.args[@i];
+            };
+        }
+        else {
+            variableDeclarations << statement {
+                @variableType @variableName = env.args[@i].@variableType;
+            };
+        }
+
+        SActualArg actualArg(arg.id.name);
+
+        actualArgs << actualArg;
+    }
+    if(SType("void").equal(t)) {
+        return statement {
+            if(env.methodName == @nameStr and env.args.count >= @argsCount) {
+                @variableDeclarations;
+                @name(@actualArgs);
+                result = null;
+            }
+        };
+    } else {
+        return statement {
+            if(env.methodName == @nameStr and env.args.count >= @argsCount) {
+                @variableDeclarations;
+                result = @name(@actualArgs);
+            }
+        };
+    }
+    
+}
+
+public expr aweDynamicCall @thing=id '.' @methodName=id @args=actualArgList {
+    str methodNameStr = methodName.name;
+    return blockExpr {
+        AweDynamicCallEnv env(@methodNameStr, @args);
+
+        //gambiarra to talk to any Object
+        @thing.equal(null, env);
+        result env.result;
+    };
+}
+
+public str->Object aweDynamicTickets();
+
+public class TestBoy {
+
+    public aweDynamicContract {
+        aweDynamic str sayHiTo(str person);
+        aweDynamic void doSomething();
+    }
+
+    extend public str sayHiTo(str person) {
+        return "Hi, " # person # "!";
+    }
+
+    extend public void doSomething() {
+        pln("doing shomething here");
+    }
+
+    public constructor() {
+        
+    }
+}
+
+{
+    Object subject = new TestBoy();
+    Object result = aweDynamicCall subject.sayHiTo("Jao");
+    aweDynamicCall subject.doSomething();
+    pln(#result);
+}

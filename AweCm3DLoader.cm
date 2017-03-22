@@ -1,0 +1,205 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome;
+
+public class AweCm3DLoader {
+    private str->Cm3D _cache();
+    private str->Primitive3D _3dCache();
+    private str->APath2D _2dPathCache();
+    private str->Graph _2dGraphCache();
+
+    public constructor() {
+    }
+
+    extend public Primitive3D get3D(str cadName, str folder=null) {
+       var cm3D = this.load(cadName, folder);
+
+        return this.get3D(cm3D);
+    }
+
+    extend public Graph get2D(str cadName, str folder=null) {
+       var cm3D = this.load(cadName, folder, true);
+
+        return this.get2D(cm3D);
+    }
+
+    extend public APath2D getProfile(str cadName, str folder=null) {
+       var cm3D = this.load(cadName, folder);
+
+        return this.getPath2D(cm3D);
+    }
+    
+    extend private str getFileName(str cadName, str folder=null, bool is2D=false) {
+        if (!folder) {
+            return null;
+        }
+
+        str cadFileName = folder;
+
+        if (!cadFileName.endsWith("/")) {
+            cadFileName #= "/";
+        }
+
+        cadFileName #= cadName # ".cm3D";
+
+        return cadFileName;
+    }
+
+    extend private Cm3D load(str cadName, str folder=null, bool is2D=false) {
+       var fileName = this.getFileName(cadName, folder, is2D);
+       var url = cmFindUrl(fileName);
+        
+        if (!url.isFile()) return null;
+
+       var cm3D = this._cache.get(fileName);
+
+        if (!cm3D) {
+            cm3D = url.getCm3D();
+
+            if (!cm3D) return null;
+
+            this._cache.put(fileName, cm3D);
+        }
+        
+        return cm3D;
+    }
+
+    extend private Primitive3D get3D(Cm3D cm3D) {
+        if (!cm3D) return null;
+        
+       var url = cm3D.path.toS();
+
+        if (Primitive3D prim = this._3dCache.get(url)) {
+            return prim.copy();
+        }
+
+       var geometrySet = cm3D.get(detailLevel3D.high);
+
+        if (!geometrySet) return null;
+
+        Primitive3D[] prims();
+
+        for (subGeometry in geometrySet) {
+            if (subGeometry as Cm3DGroupEntity) {
+                for (entity in subGeometry) {
+                    prims +=? entity.get3D(forceDoubleSided=false);
+                }
+            }
+        }
+
+       var prim = safeSet3D(prims);
+
+        this._3dCache.put(url, prim);
+
+        return prim.copy();
+    }
+
+    extend private APath2D getPath2D(Cm3D cm3D) {
+        if (!cm3D) return null;
+        
+       var url = cm3D.path.toS();
+
+        if (APath2D path = this._2dPathCache.get(url)) {
+            return path.copy();
+        }
+        
+       var shapes = this.getShapes2D(cm3D);
+
+        if (!shapes) return null;
+        
+        AShape2D profile;
+
+        for (shape in shapes) {
+            if (!profile) {
+                profile = shape;
+            }
+            else {
+                profile += shape;
+            }
+        }
+
+       var profilePath = profile.toPath();
+        
+        this._2dPathCache.put(url, profilePath);
+
+        return profilePath.copy();
+    }
+
+    extend private Graph get2D(Cm3D cm3D) {
+        if (!cm3D) return null;
+        
+       var url = cm3D.path.toS();
+
+        if (Graph graph = this._2dGraphCache.get(url)) {
+            return graph.copy();
+        }
+        
+       var shapes = this.getShapes2D(cm3D);
+
+        if (!shapes) return null;
+
+        GInstance graph();
+
+        for (shape in this.getShapes2D(cm3D)) {
+            graph << new GShape(shape);
+        }
+        
+        this._2dGraphCache.put(url, graph);
+
+        return graph.copy();
+    }
+
+    extend private AShape2D[] getShapes2D(Cm3D cm3D) {
+        var geometrySet = cm3D.getExact(6);
+
+        if (!geometrySet) return null;
+
+        AShape2D[] shapes();
+
+        for (group in geometrySet) {
+            if (group as Cm3DGroupEntity) {
+                for (subEntity in group) {
+                    if (subEntity as Cm2DLineTypeEntity and AShape2D shape = subEntity.geometry2D.AShape2D) {
+                        shapes << shape;
+                    }
+                }
+            }
+        }
+
+        return shapes;
+    }
+}

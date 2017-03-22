@@ -59,7 +59,7 @@ public class AweObject {
     }        
 
     extend public bool buildQuickProperties(QuickProperties props) {
-        return false;
+        return props and props.properties.any();
     }
 
 
@@ -167,19 +167,51 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         SType propType = arg.typeSyntax;
         SId domainName(arg.id.name#"Domain");
         SExpr domainInitialValue = arg.default();
+        SId labelName(arg.id.name#"Label");
+        SId visibleName(arg.id.name#"Visible");
 
         domainMembers << member {
             @visibility SubSet @domainName = @domainInitialValue;
+            @visibility str @labelName = @propNameStr.propNameToLabel();
+            @visibility bool @visibleName = true;
         };
 
-        buildQuickProperties << statement {
-            if(@domainName) {
-                props.append(@propNameStr, @propNameStr, @propName.@propType, @domainName); 
-            }
-        };
+        //we use distance subsets for double properties, so we need this great if statement there:
+        if (propType.type == distance) {
+            buildQuickProperties << statement {
+                if (@domainName and @visibleName) {
+                    Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, distance(@propName));
 
+                    if (@domainName.any()) {
+                        if (customQuickProperty) {
+                            props.append(customQuickProperty.QuickProperty);
+                        }
+                        else {
+                            props.append(@propNameStr, @labelName, distance(@propName), @domainName);
+                        }
+                    }
+                }
+            };
+        }
+        else {
+            buildQuickProperties << statement {
+                if (@domainName and @visibleName) {
+                    Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, @propName);
+
+                    if (@domainName.any()) {
+                        if (customQuickProperty) {
+                            props.append(customQuickProperty.QuickProperty);
+                        }
+                        else {
+                            props.append(@propNameStr, @labelName, @propName, @domainName);
+                        }
+                    }
+                }
+            };
+        }
+        
         quickPropertiesChanged << statement {
-            if(key == @propNameStr) {
+            if (key == @propNameStr) {
                 this.@propName = value.@propType;
                 return true;
             }
@@ -202,42 +234,4 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
             return super(..);
         }
     };
-}
-
-public aweObject PanelModel {
-    props(
-        double height=1, 
-        double width=1
-    );
-   
-}
-
-public class PanelConfigurator extends PanelModel {
-    public aweObjectDomain(
-        distance height=DistanceEnum(1,2,3),
-        distance width=null
-    ); 
-
-     public void heightChanged() {
-        if(height < 2) {
-            widthDomain = DistanceEnum(.5, 1);
-        }
-        else {
-            widthDomain = DistanceEnum(1,2,3);
-        }
-    }
-    
-}
-
-
-
-{
-    PanelConfigurator c(height=3);
-    c.height = 5;
-    PanelModel m = c;
-    m.height = 6;
-    m.set("height", 9);
-
-   
-    test(c);
 }

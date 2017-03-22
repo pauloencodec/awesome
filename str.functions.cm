@@ -34,16 +34,23 @@
    END OF CETSC
 */
 
-package custom.awesome.connectors;
+package custom.awesome;
 
-public class AweConnectPoint extends ConnectPoint {
-    public aweDynamicContract {
-        aweDynamic bool shouldRealign();
+public str propNameToLabel(str propName) {
+    str label = "";
+
+    for (c in propName, index=i) {
+        if (i == 0) {
+            label #= c.toUpper();
+            continue;
+        }
+
+        if (c.isUpper()) {
+            label #= " ";
+        }
+
+        label #= c;
     }
 
-    public AweConnector;
-    public bool realign = false;
-    extend public bool shouldRealign() {
-        return this.realign;
-    }
+    return label;
 }

@@ -48,3 +48,11 @@ public void standUp(Primitive3D p) {
     orientation up(o.direction, o.perpendicular * -1);
     p.rotate(up);
 }
+
+public Primitive3D applyMaterial(Primitive3D p, Material material) {
+    if (material) {
+        material.apply(p, new FetchEnv3D());
+    }
+
+    return p;
+}

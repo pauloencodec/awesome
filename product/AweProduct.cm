@@ -50,6 +50,13 @@ public class AweProduct extends Snapper {
         return this;
     }
 
+    extend public AweProduct operator<<(AweProduct product) {
+        if(product and product.geometries) {
+            geometries += product.geometries;
+        }
+        return this;
+    }
+
     public constructor(Object model) {
         updateModel(model);
     }   
@@ -129,12 +136,14 @@ public class AweProduct extends Snapper {
     }
 
     public box localBound() {
-        //TODO: Combine all box from all geometries instead of getting the first 
-        //and make the actual localbound
+        box result();
+
         if(geometries and geometries.count > 0) {
-            return geometries[0].localBound();
+            for (g in geometries) { 
+                result += g.localBound;
+            }
         }
 
-        return box();
+        return result;
     }
 }
