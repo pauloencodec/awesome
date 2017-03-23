@@ -46,4 +46,10 @@ public class AweConnectPoint extends ConnectPoint {
     extend public bool shouldRealign() {
         return this.realign;
     }
+
+    public bool hidden = false;
+    public bool hiddenWhenDisconnected = false;
+    public bool isVisible() {
+        return !hidden and !((hiddenWhenDisconnected and !this.isConnected()));
+    }
 }
