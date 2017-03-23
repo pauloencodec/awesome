@@ -36,21 +36,17 @@
 
 package custom.awesome.storage;
 
-public class AweStorageFrontPiece {
-    public double height;
-    public double width;
-    public double z;
+public class AweStorageShelf extends AweStorageCorePiece {
+    public double thickness;
+    public double indent;
 
-    public constructor(double height) {
-        this.height = height;
+    public constructor(double thickness, double indent = 0) {
+        this.thickness = thickness;
+        this.indent = indent;
     }   
 
-    extend public Awe3D get3D(double thickness) {
-        box b(point(), this.width, thickness, this.height);
-        double gap = 1inch / 8;
-        b.shrink(gap);
-        b.move((gap/2, gap/2, gap/2));
-        AweBox3D aweBox(b, randomColorLWMaterial());
+    public Awe3D get3D() {
+        AweBox3D aweBox(box((0, indent, 0), (width, depth, thickness)), randomColorLWMaterial());
         return aweBox;
     }
 }

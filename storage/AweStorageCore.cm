@@ -36,27 +36,33 @@
 
 package custom.awesome.storage;
 
-public class AweStorageFront {
-    public double thickness;
-    private AweStorageFrontColumn[] columns();
+public class AweStorageCore {
+    public box localBound;
+    private AweStorageCoreColumn[] columns();
 
-    public constructor(double thickness=.75inch) {
-        this.thickness = thickness;
+    public constructor(box localBound) {
+        this.localBound = localBound;
     }   
 
-    extend public AweStorageFront addColumn(double width) {
-        AweStorageFrontColumn column();
-        column.width = width;
+    extend public AweStorageCore addColumn(double width, double septumWidth = 0) {
+        AweStorageCoreColumn column();
+        column.width = width - septumWidth/2;
+        column.septumWidth = septumWidth;
+        if (columns.count > 0) {
+            columns[columns.count-1].width -= septumWidth/2;
+            columns[columns.count-1].rightPadding = septumWidth/2;
+        } 
+        column.leftPadding = septumWidth/2;
         columns << column;
+        
         return this;
     }
 
-    extend public AweStorageFront addPiece(int column, double height, int columnSpan=1) {
+    extend public AweStorageCore addPiece(AweStorageCorePiece piece, int column, double height, int columnSpan=1) {
         if(columns.count <= column) {
             bug("invalid column index");
         }
-
-        AweStorageFrontPiece piece(height);
+        piece.height = height;
         columns[column].addPiece(piece);
 
         double width = columns[column].width;
@@ -67,11 +73,12 @@ public class AweStorageFront {
                     bug("invalid column span index");
                 }
                 columns[column + i-1].addSpace(height);
-                width += columns[column + i-1].width;
+                width += columns[column + i-1].width + columns[column + i-1].leftPadding + columns[column].rightPadding;
             }
         }
         
         piece.width = width;
+        piece.depth = localBound.d;
 
         return this;
     }
@@ -80,27 +87,31 @@ public class AweStorageFront {
         Awe3D prim();
         double x = 0;
         for(c in columns) {
+            x += c.leftPadding;
+            if(c.septumWidth > 0) {
+                AweBox3D septum(box((x - c.septumWidth, localBound.p0.y, localBound.p0.z),(x, localBound.p1.y, localBound.p1.z)), randomColorLWMaterial());
+                septum.move((localBound.p0.x, 0, 0));
+                prim << septum;
+            }
             for(p in c.pieces) {
                 point origin(x,0,p.z);
-                var aweBox = p.get3D(thickness);
-                aweBox.move(origin);
+                var aweBox = p.get3D();
+                aweBox.move(origin + localBound.p0);
                 prim << aweBox;
             }
-            x += c.width;
+            x += c.width + c.rightPadding;
         }
         return prim;
     }
 }
 
 {
-    AweStorageFront front(.75inch);
-    front.addColumn(12inch);
-    front.addColumn(24inch);
-
-    front.addPiece(0, 12inch);
-    front.addPiece(1, 12inch);
-
-    front.addPiece(0, 36inch, 2);
-
-    test(front.get3D());
+    AweStorageCore core(box((0,0,0),(36inch,24inch,48inch)));
+    core.addColumn(12inch);
+    core.addColumn(24inch, 1inch);
+    core.addPiece(AweStorageCorePiece(), 0, 24inch);
+    core.addPiece(AweStorageCorePiece(), 1, 24inch);
+    core.addPiece(AweStorageCorePiece(), 0, 24inch);
+    core.addPiece(AweStorageCorePiece(), 1, 24inch);
+    test(core.get3D());
 }

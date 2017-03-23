@@ -50,6 +50,10 @@ public class AweStorageChassis3D extends Awe3D {
     private Rect3D[] allFaces();
     public box localBound;
     private box spaceLeft;
+    public box frontBox;
+    extend public box coreBox() {
+        return spaceLeft;
+    }
 
     public constructor(box localBound) {
         this.localBound = localBound;
@@ -140,25 +144,20 @@ public class AweStorageChassis3D extends Awe3D {
         return this;
     }
 
-    extend public AweStorageChassis3D addFront(AweStorageFront front) {
-        return addFront(front.thickness, front.get3D());
-    }
+    // extend public AweStorageChassis3D addFront(AweStorageFront front) {
+    //     return addFront(front.thickness, front.get3D());
+    // }
 
     extend public AweStorageChassis3D addFront(double thickness=0.75inch, Awe3D prim=null) {
         box laminate(spaceLeft.p0, spaceLeft.p0 + (spaceLeft.p1.x, thickness, spaceLeft.p1.z));
+        frontBox = laminate;
         box temp = spaceLeft.moved(point(0, thickness, 0));
         spaceLeft = spaceLeft * temp;
 
-        if(!prim) {
-            AweBox3D box(laminate, randomColorLWMaterial());
-            addToIndex("front", box.front);
-            allFaces += box.allFaces;
-            this << box;
-        } else {
+        if(prim) {
             prim.move(laminate.p0);
             this << prim;
         }
-        
         
         return this;
     }
@@ -178,20 +177,30 @@ public class AweStorageChassis3D extends Awe3D {
 }
 
 {
-
-    AweStorageFront front(1inch);
-    front.addColumn(12inch);
-    front.addColumn(24inch);
-
-    front.addPiece(0, 12inch);
-    front.addPiece(1, 12inch);
-    front.addPiece(0, 36inch, 2);
-
     AweStorageChassis3D chassis(box((0,0,0),(36inch,18inch,48inch)));
-    chassis.addFront(front).addTop().addLeft().addRight().addBottom().addBack();
-
+    chassis.addFront().addTop().addLeft().addRight().addBottom().addBack();
     // chassis.setMaterial(randomColorLWMaterial());
     // chassis.setMaterial("internal", randomColorLWMaterial());
     // chassis.setMaterial("front", randomColorLWMaterial());
     test(chassis);
+
+    AweStorageCore front(chassis.frontBox);
+    front.addColumn(12inch);
+    front.addColumn(12inch);
+    front.addPiece(AweStorageCorePiece(),0, 12inch);
+    front.addPiece(AweStorageCorePiece(),1, 12inch);
+    front.addPiece(AweStorageCorePiece(), 0, 36inch, 2);
+
+    test(front.get3D());
+
+    AweStorageCore miolin(chassis.coreBox);
+    miolin.addColumn(23.25inch);
+    miolin.addColumn(11.25inch, 0.75inch);
+    miolin.addPiece(AweStorageShelf(0.75inch, 0.5inch), 1, 10.5inch);
+    miolin.addPiece(AweStorageShelf(0.75inch, 0.5inch), 1, 12inch);
+    miolin.addPiece(AweStorageShelf(0.75inch, 0.5inch), 1, 12inch);
+    miolin.addPiece(AweStorageShelf(0.75inch, 0.5inch), 1, 12inch);
+    test(miolin.get3D());
+
+    showWireFrame = false;
 }
