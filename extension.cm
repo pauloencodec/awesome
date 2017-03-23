@@ -80,16 +80,16 @@ package Extension getExtension() : referred {
  * Extension id (dont change function name).
  */
 package ExtensionId getExtensionId() : encrypted, referred {
-    // Created 3/22/2017, restriction=hard
+    // Created 12/21/2015, restriction=none
     ExtensionId extensionId(#:package, name);
-    // ID1=131346755094060000
-    // ID2=8097188695478633537
-    // ID3=5839622199825984029
-    // ID4=-2348712083532879553
-    extensionId.id0 = int64(0x1d2a32d, 0x87c81be0);
-    extensionId.id1 = int64(0x705efe37, 0xc1500441);
-    extensionId.id2 = int64(0x510a8173, 0x7b1cea1d);
-    extensionId.id3 = int64(0xdf67b2cd, 0xd55ae93f);
+    // ID1=130951834381210000
+    // ID2=-821812470321879517
+    // ID3=-8438375413836258273
+    // ID4=-2744379190703340573
+    extensionId.id0 = int64(0x1d13bff, 0xe2fa5190);
+    extensionId.id1 = int64(0xf49855e9, 0x927a6623);
+    extensionId.id2 = int64(0x8ae4de45, 0xe6641f);
+    extensionId.id3 = int64(0xd9ea01aa, 0x992743e3);
     return extensionId;
 }
 
@@ -105,7 +105,3 @@ package ExtensionInfo getExtensionInfo() : referred {
 
     return info;
 }
-
-// {
-//     generateHardExtensionId(#:package, name).dumpAsCode();
-// }
