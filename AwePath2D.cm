@@ -37,27 +37,24 @@
 package custom.awesome;
 
 public class AwePath2D extends APath2D {
-    private point2D cursor;
-    private point2D origin;
-    
+    private line2D lastLine : public readable;
+
     public constructor (double x, double y) {
         this((x,y));
     }
     
     public constructor(point2D origin=(0, 0)) {
-        this.cursor = origin;
-        this.origin = origin;
         super(origin);
     }
     
     extend public AwePath2D to(point2D target) {
-        this.cursor = target;
+        this.lastLine = line2D(endPoint, target);
         lineTo(target);
         return this;
     }
     
     extend public AwePath2D go(point2D increment) {
-        return to(cursor + increment);
+        return to(endPoint + increment);
     }
     
     extend public AwePath2D go(double x, double y) {
@@ -67,7 +64,7 @@ public class AwePath2D extends APath2D {
     extend public AwePath2D up(double distance) {
         return go(0, distance);
     }
-    
+
     extend public AwePath2D down(double distance) {
         return up(-distance);
     }
@@ -81,12 +78,12 @@ public class AwePath2D extends APath2D {
     }
 
     extend public AwePath2D arcGo(point2D increment, angle startTangent) {
-        arcTo(cursor + increment, startTangent);
+        arcTo(endPoint + increment, startTangent);
         return this;
     }
 
     extend public AwePath2D toStart() {
-        if (!isClosed()) go(origin);
+        if (!isClosed()) go(startPoint);
         return this;
     }
     
