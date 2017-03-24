@@ -39,10 +39,24 @@ package custom.awesome.storage;
 public class AweStorageCore {
     public box localBound;
     private AweStorageCoreColumn[] columns();
+    private str->Material3D materials();
 
     public constructor(box localBound) {
         this.localBound = localBound;
     }   
+
+    extend public void setMaterial(str key, Material3D material) {
+        materials.put(key, material);
+    }
+
+    extend public Material3D getMaterial(str key){
+        var material = materials.get(key);
+        if(material) {
+            return material;
+        } else {
+            return randomColorLWMaterial;
+        }
+    }
 
     extend public AweStorageCore addColumn(double width, double septumWidth = 0) {
         AweStorageCoreColumn column();
@@ -79,6 +93,7 @@ public class AweStorageCore {
         
         piece.width = width;
         piece.depth = localBound.d;
+        piece.owner = this;
 
         return this;
     }

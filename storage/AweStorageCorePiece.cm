@@ -41,6 +41,7 @@ public class AweStorageCorePiece {
     public double depth;
     public double height;
     public double z;
+    public AweStorageCore owner;
 
     public constructor() {
     }   

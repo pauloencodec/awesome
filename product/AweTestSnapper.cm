@@ -112,7 +112,7 @@ public void test(Graph g) {
 }
 
 public void test(Primitive3D p) {
-    activeSpace.put(AweTestSnapper(primitive3D=p));
+    activeSpace.put(AweTestSnapper(primitive3D=p.?outlinedPrim));
 }
 
 public void test(AweProduct p) {
@@ -120,7 +120,7 @@ public void test(AweProduct p) {
 }
 
 public void test(AweGeometry p) {
-    AweTestSnapper(primitive3D=p.medium3D(), graph=p.graph()).launch();
+    AweTestSnapper(primitive3D=p.medium3D().?outlinedPrim, graph=p.graph()).launch();
 }
 
 public void test(AweObject c) {

@@ -50,4 +50,4 @@ use cm.draw;
 use cm.win;
 use cm.os;
 
-public const str cHniWallsCadFolder = "custom/awesome/data/cm3d/storage";
+public const str storageCm3DFolder = "custom/awesome/data/cm3d/storage";

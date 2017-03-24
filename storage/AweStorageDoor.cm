@@ -48,10 +48,12 @@ public class AweStorageDoor extends AweStorageCorePiece {
     public Awe3D get3D() {
         Awe3D prims();
 
-        Primitive3D pull = aweCm3DLoader.get3D(pullType, cHniWallsCadFolder);
+        Primitive3D pull = aweCm3DLoader.get3D(pullType, storageCm3DFolder);
+        
+        pull.setMaterial(owner.getMaterial("pull"));
         prims << pull.setPos((pullPosition.x, 0, pullPosition.y));
 
-        prims << AweBox3D(box((0, 0, 0), (width, depth, height)), randomColorLWMaterial());
+        prims << AweBox3D(box((0, 0, 0), (width, depth, height)), owner.getMaterial("door"));
         return Awe3D(prims);
     }
 }
