@@ -36,63 +36,37 @@
 
 package custom.awesome;
 
-public class AwePath2D extends APath2D {
-    private line2D lastLine : public readable;
+public class TTR {
+    public constructor() {
+    }  
 
-    public constructor (double x, double y) {
-        this((x,y));
-    }
-    
-    public constructor(point2D origin=(0, 0)) {
-        super(origin);
-    }
-    
-    extend public AwePath2D to(point2D target) {
-        this.lastLine = line2D(endPoint, target);
-        lineTo(target);
-        return this;
-    }
-    
-    extend public AwePath2D go(point2D increment) {
-        return to(endPoint + increment);
-    }
-    
-    extend public AwePath2D go(double x, double y) {
-        return go((x,y));
-    }
-    
-    extend public AwePath2D up(double distance) {
-        return go(0, distance);
-    }
+    extend public <point2D, point2D> calc(line2D a, line2D b, double radius) {
+        var abIp = a.unboundedIntersect(b);
+        a.p1 = abIp;
+        b.p1 = abIp;
+        
+        line2D f = a.offset(radius);
+        line2D g = a.offset(-radius);
+        line2D k = b.offset(radius);
+        line2D l = b.offset(-radius);
 
-    extend public AwePath2D down(double distance) {
-        return up(-distance);
-    }
-    
-    extend public AwePath2D right(double distance) {
-        return go(distance, 0);
-    }
-    
-    extend public AwePath2D left(double distance) {
-        return right(-distance);
-    }
+        point2D[] points();
+        
+        points << f.unboundedIntersect(k);
+        points << f.unboundedIntersect(l);
+        points << g.unboundedIntersect(k);
+        points << g.unboundedIntersect(l);
 
-    extend public AwePath2D arcGo(point2D increment, angle startTangent) {
-        arcTo(endPoint + increment, startTangent);
-        return this;
-    }
+        point2D circleCenter;
 
-    extend public AwePath2D toStart() {
-        if (!isClosed()) go(startPoint);
-        return this;
-    }
-    
-    //makes extrusion between planes on z1 and z2
-    extend public Primitive3D toPrimitive(double z1=0, double z2=0) {
-        PolygonMesh3D mesh(this, z2 - z1);
-        mesh.setDoubleSided(true);
-        mesh.move((0,0,z1));
-        return mesh;
+        for(p in points) if(a.normalIntersect(p).insideSegment and b.normalIntersect(p).insideSegment) {
+            circleCenter = p;
+            break;
+        }
+
+        point2D aIntersect = a.normalIntersectUnbounded(circleCenter).ip;
+        point2D bIntersect = b.normalIntersectUnbounded(circleCenter).ip;
+        
+        return <aIntersect, bIntersect>;
     }
 }
-

@@ -37,6 +37,9 @@
 package custom.awesome.product;
 
 public class AweGeometry {
+    private str->Point2D poi() : public readable;
+    private str->Line2D loi() : public readable;
+
     public constructor() {
     }   
 

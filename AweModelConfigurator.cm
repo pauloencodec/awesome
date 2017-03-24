@@ -168,37 +168,43 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         SId domainName(arg.id.name#"Domain");
         SExpr domainInitialValue = arg.default();
         SId labelName(arg.id.name#"Label");
+        SId visibleName(arg.id.name#"Visible");
 
         domainMembers << member {
             @visibility SubSet @domainName = @domainInitialValue;
             @visibility str @labelName = @propNameStr.propNameToLabel();
+            @visibility bool @visibleName = true;
         };
 
         //we use distance subsets for double properties, so we need this great if statement there:
         if (propType.type == distance) {
             buildQuickProperties << statement {
-                if (@domainName) {
+                if (@domainName and @visibleName) {
                     Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, distance(@propName));
 
-                    if (customQuickProperty) {
-                        props.append(customQuickProperty.QuickProperty);
-                    }
-                    else {
-                        props.append(@propNameStr, @labelName, distance(@propName), @domainName);
+                    if (@domainName.any()) {
+                        if (customQuickProperty) {
+                            props.append(customQuickProperty.QuickProperty);
+                        }
+                        else {
+                            props.append(@propNameStr, @labelName, distance(@propName), @domainName);
+                        }
                     }
                 }
             };
         }
         else {
             buildQuickProperties << statement {
-                if (@domainName) {
+                if (@domainName and @visibleName) {
                     Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, @propName);
 
-                    if (customQuickProperty) {
-                        props.append(customQuickProperty.QuickProperty);
-                    }
-                    else {
-                        props.append(@propNameStr, @labelName, @propName, @domainName);
+                    if (@domainName.any()) {
+                        if (customQuickProperty) {
+                            props.append(customQuickProperty.QuickProperty);
+                        }
+                        else {
+                            props.append(@propNameStr, @labelName, @propName, @domainName);
+                        }
                     }
                 }
             };

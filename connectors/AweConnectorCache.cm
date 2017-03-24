@@ -37,7 +37,6 @@
 package custom.awesome.connectors;
 
 public class AweConnectorCache {
-    
     private str->Connector _cache();
     private Connector[] _buffer();
     
@@ -45,28 +44,36 @@ public class AweConnectorCache {
     }   
 
     extend public Connector get(str key, Snapper owner, point position, orientation direction, ConnectRule rule=ctNever, bool realign=false) {
-        Connector c = _cache.get(key);
-        if(!c) {
-            c = AweConnectPoint(owner);
-            _cache.put(key, c);
+        Connector c = this._cache.get(key);
+
+        if (!c) {
+            c = new AweConnectPoint(owner);
+            
+            this._cache.put(key, c);
         }
 
-        if(c as AweConnectPoint) {
+        if (c as AweConnectPoint) {
             c.realign = realign;
         }
 
-        return setupConnector(c, position, direction, rule);
+        return this.setupConnector(c, position, direction, rule);
     }
 
     extend public Connector makePoint(str key, Snapper owner, point position, orientation direction, ConnectRule rule=ctNever, bool realign=false) {
-        return get(..);
+        return this.get(..);
+    }
+
+    extend public Connector makeLine(str key, Snapper snapper, line l, angle roll=0deg, ConnectRule rule= null, bool realign=false) {
+        return this.makeLine(key, snapper, l.p0, l.p1, roll, rule, realign);
     }
 
     extend public Connector makeLine(str key, Snapper snapper, point p0, point p1, angle roll=0deg, ConnectRule rule= null, bool realign=false) {
-        Connector c = _cache.get(key);
-        if(!c) {
-            c = AweConnectLine(snapper, p0, p1, roll, rule);
-            _cache.put(key, c);
+        Connector c = this._cache.get(key);
+
+        if (!c) {
+            c = new AweConnectLine(snapper, p0, p1, roll, rule);
+
+            this._cache.put(key, c);
         } 
         
         if (c as AweConnectLine) {
@@ -78,7 +85,8 @@ public class AweConnectorCache {
             c.realign = realign;
         }
         
-        _buffer << c;
+        this._buffer << c;
+        
         return c;
     }
 
@@ -86,7 +94,9 @@ public class AweConnectorCache {
         c.setPos(position);
         c.setRot(direction);
         c.setRule(rule);
-        _buffer << c;
+        
+        this._buffer << c;
+        
         return c;
     }
 
@@ -102,6 +112,18 @@ public class AweConnectorCache {
         this._buffer << this.get(key);
     }
 
+    extend public void addToBuffer(rest: str[] keys) {
+        for (key in keys) {
+            this.addToBuffer(key);
+        }
+    }
+
+    extend public void addToBuffer(str[] keys) {
+        for (key in keys) {
+            this.addToBuffer(key);
+        }
+    }
+
     extend public void removeFromBuffer(str key) {
         var c = this.get(key);
 
@@ -110,8 +132,20 @@ public class AweConnectorCache {
         }
     }
 
+    extend public void removeFromBuffer(rest: str[] keys) {
+        for (key in keys) {
+            this.removeFromBuffer(key);
+        }
+    }
+
+    extend public void removeFromBuffer(str[] keys) {
+        for (key in keys) {
+            this.removeFromBuffer(key);
+        } 
+    }
+
     extend public void addToConnectors(ConnectorCollection coll) {
-        for( c in _buffer) {
+        for (c in this._buffer) {
             coll << c;
         }
     }
