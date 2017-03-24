@@ -104,7 +104,7 @@ public class AweStorageCore {
         for(c in columns) {
             x += c.leftPadding;
             if(c.septumWidth > 0) {
-                AweBox3D septum(box((x - c.septumWidth, localBound.p0.y, localBound.p0.z),(x, localBound.p1.y, localBound.p1.z)), randomColorLWMaterial());
+                AweBox3D septum(box((x - c.septumWidth, localBound.p0.y, localBound.p0.z),(x, localBound.p1.y, localBound.p1.z)), getMaterial("septum"));
                 septum.move((localBound.p0.x, 0, 0));
                 prim << septum;
             }
