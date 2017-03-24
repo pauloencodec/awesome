@@ -50,3 +50,11 @@ public Graph applyMaterial(Graph g, Material material) {
 
     return g;
 }
+
+public void center(GInstance gi, double width, double depth) {
+    gi.move(-width/2, -depth/2, 0);
+}
+
+public void center(Graph g, double width, double depth) {
+    g.move(-width/2, -depth/2, 0);
+}

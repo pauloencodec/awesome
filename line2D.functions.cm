@@ -37,9 +37,7 @@
 package custom.awesome;
 
 public orientation orientation(line2D l2d) {
-    vector lineVector = l2d.p1.point - l2d.p0.point;
-    vector lineNormal = (0,0,1);
-    return orientation(lineVector, lineNormal);
+    return orientation(l2d.direction.point);
 } 
 
 public line2D offset(line2D l, double offsetDistance) {
