@@ -187,9 +187,14 @@ public class AweStorageChassis3D extends Awe3D {
     AweStorageCore front(chassis.frontBox);
     front.addColumn(12inch);
     front.addColumn(12inch);
-    front.addPiece(AweStorageCorePiece(),0, 12inch);
-    front.addPiece(AweStorageCorePiece(),1, 12inch);
-    front.addPiece(AweStorageCorePiece(), 0, 36inch, 2);
+    front.addPiece(AweStorageDoor((6inch, 10inch)),0, 12inch);
+    front.addPiece(AweStorageDoor((6inch, 10inch)),0, 12inch);
+    front.addPiece(AweStorageDoor((6inch, 10inch)),1, 12inch);
+    front.addPiece(AweStorageDoor((6inch, 10inch)),1, 12inch);
+    front.addPiece(AweStorageDoor((6inch, 10inch)),0, 12inch);
+    front.addPiece(AweStorageDoor((6inch, 10inch)),0, 12inch);
+    front.addPiece(AweStorageDoor((6inch, 10inch)),1, 12inch);
+    front.addPiece(AweStorageDoor((6inch, 10inch)),1, 12inch);
 
     test(front.get3D());
 

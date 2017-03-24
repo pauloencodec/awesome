@@ -36,7 +36,7 @@
 
 package custom.awesome;
 
-private AweCm3DLoader aweCm3DLoader();
+public AweCm3DLoader aweCm3DLoader();
 
 public class AweExtrusion {
     public APath2D profile = null;
