@@ -75,6 +75,10 @@ public class AweStorageChassis3D extends Awe3D {
         }
     }
     
+    extend public Primitive3D get3D() {
+        return this;
+    }
+    
     extend public AweStorageChassis3D addTop(double thickness=0.75inch) {
         box laminate((spaceLeft.p0.x, spaceLeft.p0.y, spaceLeft.p1.z-thickness), spaceLeft.p1);
         box temp = spaceLeft.moved(point(0, 0, -thickness));
@@ -88,7 +92,7 @@ public class AweStorageChassis3D extends Awe3D {
         this << prim;
         return this;
     }
-
+    
     extend public AweStorageChassis3D addBottom(double thickness=0.75inch) {
         box laminate(spaceLeft.p0, (spaceLeft.p1.x, spaceLeft.p1.y, spaceLeft.p0.z + thickness));
         box temp = spaceLeft.moved(point(0, 0, thickness));
@@ -182,15 +186,20 @@ public class AweStorageChassis3D extends Awe3D {
     // chassis.setMaterial(randomColorLWMaterial());
     // chassis.setMaterial("internal", randomColorLWMaterial());
     // chassis.setMaterial("front", randomColorLWMaterial());
-    test(chassis);
+    test(chassis.get3D());
 
     AweStorageCore front(chassis.frontBox);
+    front.setMaterial("door", beechMaterial3D);
     front.addColumn(12inch);
     front.addColumn(12inch);
-    front.addPiece(AweStorageCorePiece(),0, 12inch);
-    front.addPiece(AweStorageCorePiece(),1, 12inch);
-    front.addPiece(AweStorageCorePiece(), 0, 36inch, 2);
-
+    front.addPiece(AweStorageDoor((6inch, 10inch)),0, 12inch);
+    front.addPiece(AweStorageDoor((6inch, 10inch)),0, 12inch);
+    front.addPiece(AweStorageDoor((6inch, 10inch)),1, 12inch);
+    front.addPiece(AweStorageDoor((6inch, 10inch)),1, 12inch);
+    front.addPiece(AweStorageDoor((6inch, 10inch)),0, 12inch);
+    front.addPiece(AweStorageDoor((6inch, 10inch)),0, 12inch);
+    front.addPiece(AweStorageDoor((6inch, 10inch)),1, 12inch);
+    front.addPiece(AweStorageDoor((6inch, 10inch)),1, 12inch);
     test(front.get3D());
 
     AweStorageCore miolin(chassis.coreBox);

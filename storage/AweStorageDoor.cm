@@ -36,18 +36,24 @@
 
 package custom.awesome.storage;
 
-use custom.awesome;
-use custom.awesome.basic3D;
-use custom.awesome.product;
+public class AweStorageDoor extends AweStorageCorePiece {
+    public str pullType;
+    public point2D pullPosition;
 
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.geometry;
-use cm.geometry2D.advanced;
-use cm.core3D;
-use cm.draw;
-use cm.win;
-use cm.os;
+    public constructor(point2D pullPosition = (0, 0), str pullType = "square-pull") {
+        this.pullType = pullType;
+        this.pullPosition = pullPosition;
+    }   
 
-public const str storageCm3DFolder = "custom/awesome/data/cm3d/storage";
+    public Awe3D get3D() {
+        Awe3D prims();
+
+        Primitive3D pull = aweCm3DLoader.get3D(pullType, storageCm3DFolder);
+        
+        pull.setMaterial(owner.getMaterial("pull"));
+        prims << pull.setPos((pullPosition.x, 0, pullPosition.y));
+
+        prims << AweBox3D(box((0, 0, 0), (width, depth, height)), owner.getMaterial("door"));
+        return Awe3D(prims);
+    }
+}
