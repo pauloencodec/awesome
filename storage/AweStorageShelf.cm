@@ -36,7 +36,7 @@
 
 package custom.awesome.storage;
 
-public class AweStorageShelf extends AweStorageCorePiece {
+public class AweStorageShelf extends AweStorageGridPiece {
     public double thickness;
     public double indent;
 

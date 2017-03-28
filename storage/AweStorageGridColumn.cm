@@ -36,18 +36,27 @@
 
 package custom.awesome.storage;
 
-public class AweStorageCorePiece {
+public class AweStorageGridColumn {
+    public double cursor = 0;
+    public double leftPadding = 0;
+    public double rightPadding = 0;
     public double width;
-    public double depth;
-    public double height;
-    public double z;
-    public AweStorageCore owner;
-
+    public double septumWidth;
+    
+    public AweStorageGridPiece[] pieces();
+    
     public constructor() {
     }   
 
-    extend public Awe3D get3D() {
-        AweBox3D aweBox(box(point(),width,depth,height), randomColorLWMaterial());
-        return aweBox;
+    extend public AweStorageGridColumn addPiece(AweStorageGridPiece piece) {
+        piece.z = cursor;
+        cursor += piece.height;
+        pieces << piece;
+        return this;
+    }
+
+    extend public AweStorageGridColumn addSpace(double height) {
+        cursor += height;
+        return this;
     }
 }
