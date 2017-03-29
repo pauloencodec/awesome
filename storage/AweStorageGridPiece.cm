@@ -34,61 +34,20 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package custom.awesome.storage;
 
-public void orientBy(Primitive3D p, line2D l) {
-    orientation o = l.orientation();
-    p.rotate(o);
-    p.move((0,0,0));
-    p.move(l.p0.point);
-}
+public class AweStorageGridPiece {
+    public double width;
+    public double depth;
+    public double height;
+    public double z;
+    public AweStorageGrid owner;
 
-public void standUp(Primitive3D p) {
-    orientation o();
-    orientation up(o.direction, o.perpendicular * -1);
-    p.rotate(up);
-}
+    public constructor() {
+    }   
 
-public Primitive3D applyMaterial(Primitive3D p, Material material) {
-    if (material) {
-        material.apply(p, new FetchEnv3D());
+    extend public Awe3D get3D() {
+        AweBox3D aweBox(box(point(),width,depth,height), randomColorLWMaterial());
+        return aweBox;
     }
-
-    return p;
-}
-
-private void outlinePrims(Primitive3D thisPrim, Primitive3D[] processed, TransformF[] transformStack=null, Material3D currentMaterial=null) {
-    if(!transformStack) {
-        transformStack = new (TransformF[])();
-    }
-   
-    transformStack << thisPrim.transform;
-     if(thisPrim.material) {
-        currentMaterial = thisPrim.material;
-    }
-    for(s in thisPrim.subPrims) {
-        outlinePrims(s, processed, transformStack.copy, currentMaterial.copy);
-    }
-    var env = MeshEnv3D();
-    env.transformStack2 = transformStack;
-    var mesh = thisPrim.mesh(env);
-    if(mesh as ATriMeshF) {
-        mesh.put("REDHiddenLines", true);
-        mesh.put("REDHiddenLines_width", 2);
-        mesh.repairBrokenUV("merge");
-        mesh.autoNormals();
-        TriMeshF3D t(mesh);
-        if(currentMaterial) {
-            t.setMaterial(ColorMaterial3D(currentMaterial.getAverageColor));
-        }
-        //t.setDoubleSided(true);
-        
-        processed << t;
-    }
-}
-
-public Primitive3D outlinedPrim(Primitive3D prim) {
-    Primitive3D[] processed();
-    outlinePrims(prim, processed);
-    return safeSet3D(processed);
 }

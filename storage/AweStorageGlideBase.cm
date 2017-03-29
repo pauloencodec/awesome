@@ -34,61 +34,47 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package custom.awesome.storage;
 
-public void orientBy(Primitive3D p, line2D l) {
-    orientation o = l.orientation();
-    p.rotate(o);
-    p.move((0,0,0));
-    p.move(l.p0.point);
-}
+public class AweStorageGlideBase extends AweStorageBase {
+    public double xOffset;
+    public double yOffset;
 
-public void standUp(Primitive3D p) {
-    orientation o();
-    orientation up(o.direction, o.perpendicular * -1);
-    p.rotate(up);
-}
+    public constructor(double xOffset = 0, double yOffset = 0) {
+        this.xOffset = xOffset;
+        this.yOffset = yOffset;
+        this.height = 0.545inch;
+    }   
 
-public Primitive3D applyMaterial(Primitive3D p, Material material) {
-    if (material) {
-        material.apply(p, new FetchEnv3D());
+    public Awe3D get3D() {
+        Awe3D prims();
+
+        prims << addGlide((owner.localBound.p0.x + xOffset, owner.localBound.p0.y + yOffset));
+        prims << addGlide((owner.localBound.p0.x + xOffset, owner.localBound.p1.y - yOffset));
+        prims << addGlide((owner.localBound.p1.x - xOffset, owner.localBound.p1.y - yOffset));
+        prims << addGlide((owner.localBound.p1.x - xOffset, owner.localBound.p0.y + yOffset));
+
+        return Awe3D(prims);
     }
 
-    return p;
-}
-
-private void outlinePrims(Primitive3D thisPrim, Primitive3D[] processed, TransformF[] transformStack=null, Material3D currentMaterial=null) {
-    if(!transformStack) {
-        transformStack = new (TransformF[])();
-    }
-   
-    transformStack << thisPrim.transform;
-     if(thisPrim.material) {
-        currentMaterial = thisPrim.material;
-    }
-    for(s in thisPrim.subPrims) {
-        outlinePrims(s, processed, transformStack.copy, currentMaterial.copy);
-    }
-    var env = MeshEnv3D();
-    env.transformStack2 = transformStack;
-    var mesh = thisPrim.mesh(env);
-    if(mesh as ATriMeshF) {
-        mesh.put("REDHiddenLines", true);
-        mesh.put("REDHiddenLines_width", 2);
-        mesh.repairBrokenUV("merge");
-        mesh.autoNormals();
-        TriMeshF3D t(mesh);
-        if(currentMaterial) {
-            t.setMaterial(ColorMaterial3D(currentMaterial.getAverageColor));
-        }
-        //t.setDoubleSided(true);
+    extend public Awe3D addGlide(point2D position) {
+        Awe3D prims();
         
-        processed << t;
-    }
-}
+        double d = 0.625inch;
+        double w = 2.125inch;
+        double t = 0.135inch;
 
-public Primitive3D outlinedPrim(Primitive3D prim) {
-    Primitive3D[] processed();
-    outlinePrims(prim, processed);
-    return safeSet3D(processed);
+        Box3D glideBracket ((-d/2, -w/2, 0), (d/2, w/2, t));
+        glideBracket.move ((0, 0, 0.41inch));
+
+        ClosedCylinder3D nut (0.150inch, 0.25inch);
+        nut.move((0, 0, 0.26inch));
+
+        ClosedCylinder3D glide (0.26inch, 0.375inch);
+        glide.setRefinement(64);
+
+        prims << Awe3D(glideBracket, nut, glide).move((position.x, position.y, 0));
+
+        return Awe3D(prims);
+    }
 }
