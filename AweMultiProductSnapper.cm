@@ -102,10 +102,15 @@ public class AweMultiProductSnapper extends AweSnapper : abstract {
 
     public Primitive3D get3D(FetchEnv3D env) {
         Awe3D all();
-        AweProduct[] products = allProducts();
-        for(p in products) {
-            if(p)
-                all << p.get3D(env);
+        for(m in allModels) {
+            Object product = aweDynamicCall m.product();
+            if(product as AweProduct) {
+                var prim = product.get3D(env);
+                AweMultiProductSnapperPickSurface pick(this, prim, m.class.name);
+                pick.configurator = m;
+                prim.setOwner(pick);
+                all << prim;
+            }
         }
         return all;
     }   
@@ -130,6 +135,20 @@ public class AweMultiProductSnapper extends AweSnapper : abstract {
     }
 
 
+    /**
+     * Return desired click animation. 
+     */
+    public Animation clickAnimation(StartClickAnimationEnv env) {
+        if (space and this in env.snappers) {
+            return AweMultiProductSnapperPickSurfaceClickAnimation(env, this);
+        }
+        return super(..);
+    }
+
 
 }
 
+
+public class AweMultiProductSnapperPickSurface extends PickSurface {
+    public AweObject configurator;
+}

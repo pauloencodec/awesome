@@ -64,6 +64,12 @@ public aweObject TestPanelTileModel {
     );
 }
 
+public class TestPanelTileConfigurator extends TestPanelTileModel{
+     public aweObjectDomain(
+        Material3D tileMaterial = ObjectSubSet([Object: blueFabricMaterial3D, redFabricMaterial3D])
+    );
+}
+
 public class TestPanelGeometry extends AweGeometry {
     public TestPanelModel model;
     public constructor(TestPanelModel model) {
@@ -107,7 +113,7 @@ public class TestPanelTileProduct extends AweProduct {
 }
 
 private aweBinder<TestPanelConfigurator, TestPanelProduct> Panel;
-private aweBinder<TestPanelTileModel, TestPanelTileProduct> Tile;
+private aweBinder<TestPanelTileConfigurator, TestPanelTileProduct> Tile;
 
 public class TestPanelSnapper extends AweMultiProductSnapper {
 
