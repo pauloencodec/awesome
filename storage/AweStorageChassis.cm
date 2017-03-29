@@ -49,16 +49,20 @@ public class AweStorageChassis3D extends Awe3D {
     private str->Rect3D[] index();
     private Rect3D[] allFaces();
     public box localBound;
-    private box spaceLeft;
+    public box spaceLeft;
     public box frontBox;
     extend public box gridBox() {
         return spaceLeft;
+    }
+
+    public constructor () {
     }
 
     public constructor(box localBound) {
         this.localBound = localBound;
         this.spaceLeft = localBound;
     }   
+
 
     extend private void addToIndex(str name, Rect3D r) {
         if(!index.get(name)) {
@@ -187,19 +191,6 @@ public class AweStorageChassis3D extends Awe3D {
         return this;
     }
 
-    extend public AweStorageChassis3D addTroughChassis(double thickness = 0.75inch) {
-        AweStorageSideLaminateWTrough sideL(this.gridBox, thickness);
-        AweStorageSideLaminateWTrough sideR(this.gridBox, thickness);
-        
-        this.addLeft(thickness, prim = sideL);
-        this.addRight(thickness, prim = sideR);
-        this.addTop(thickness, indent = sideL.xCutAxis);
-        this.addBack(thickness, indent = sideL.yCutAxis - thickness);
-        this.addBottom(thickness);
-
-        return this;
-    }
-
     extend public void setMaterial(str indexKey, Material3D material) {
         var faces = index.get(indexKey);
         for(f in faces) {
@@ -215,56 +206,28 @@ public class AweStorageChassis3D extends Awe3D {
 }
 
 {
-    // AweStorageChassis3D chassis(box((0, 0, 0),(48inch, 18inch, 18inch)));
-    // chassis.addBase(AweStorageGlideBase(.375inch, 3inch));
-    // chassis.addFront().addLeft().addTop().addRight().addBack();
-    // chassis.setMaterial(beechMaterial3D);
-    // chassis.setMaterial(randomColorLWMaterial());
-    // chassis.setMaterial("internal", randomColorLWMaterial());
-    // chassis.setMaterial("front", randomColorLWMaterial());
-    // test(chassis.get3D());
-
-    // AweStorageGrid front(chassis.frontBox);
-    // front.setMaterial("door", mahognyMaterial3D);
-    // front.addColumn(24.375inch);
-    // front.addPiece(AweStorageDoor((12inch, 2inch), 90deg),0, 8.75inch);
-    // front.addPiece(AweStorageDoor((12inch, 2inch)),0, 8.70inch);
-    // test(front.get3D());
-
-    // AweStorageGrid miolin(chassis.gridBox);
-    // miolin.setMaterial("shelves", mahognyMaterial3D);
-    // miolin.setMaterial("septum", beechMaterial3D);
-    // miolin.addColumn(23.25inch);
-    // miolin.addColumn(23.25inch, 0.75inch);
-    // miolin.addPiece(AweStorageShelf(0.75inch), 1, 8.625inch);
-    // miolin.addPiece(AweStorageShelf(0.75inch), 1, 8.625inch);
-    // test(miolin.get3D());
-
-    // showWireFrame = false;
 
     double d = 15inch;
     double w = 36inch;
-    double h = 27.125inch;
+    double h = 240inch;
     double t = 0.75inch;
 
     AweStorageChassis3D chassis(box((-w/2,-d/2,0),(w/2,d/2,h)));
-    // chassis.addFront().addLeft(prim=AweStorageLaminateWTrough(chassis.gridBox)).addRight(prim=AweStorageLaminateWTrough(chassis.gridBox)).addTop().addBack();
-    chassis.addFront().addTroughChassis(2inch);
+    chassis.addFront().addTop().addLeft().addRight().addBack();
     chassis.setMaterial(mahognyMaterial3D);
     test(chassis.get3D());
 
     AweStorageGrid front(chassis.frontBox);
-    front.addColumn(w/2);
-    front.addColumn(w/2);
-    front.addPiece(AweStorageDoor((w/2 - 5inch, 2inch), pullType = "straight-pull"), 0, h);
+    front.addColumn(w);
+    front.fillWithPieces(AweStorageDrawer(), 0, 20inch, 240inch);
     test(front.get3D());
 
-    AweStorageGrid miolo(chassis.gridBox);
-    miolo.addColumn(w/2-t/2);
-    miolo.addColumn(w/2-1.5*t, 0.75inch);
-    miolo.addPiece(AweStorageShelf(0.75inch), 1, h/2);
-    miolo.addPiece(AweStorageShelf(0.75inch), 0, h/2);
-    miolo.addPiece(AweStorageShelf(0.75inch), 1, h/2);
-    test(miolo.get3D());
+    // AweStorageGrid miolo(chassis.gridBox);
+    // miolo.addColumn(w-2*t);
+    // miolo.addColumn(w/2-1.5*t, 0.75inch);
+    // miolo.addPiece(AweStorageShelf(0.75inch), 1, h/2);
+    // miolo.addPiece(AweStorageShelf(0.75inch), 1, h/2);
+    // miolo.fillWithPieces(AweStorageShelf(0.75inch, 0, 5inch, h));
+    // test(miolo.get3D());
 
 }

@@ -36,31 +36,35 @@
 
 package custom.awesome.storage;
 
-public class AweStorageSideLaminateWTrough extends Awe3D {
+public class AweStorageChassisTrough extends AweStorageChassis3D { 
     public double thickness;
-    public box chassis;
-    public double xCutAxis = 2.764inch;
-    public double yCutAxis = 3.295inch;
+    public double xCutAxis;
+    public double yCutAxis;
 
-    public constructor(box chassis, double thickness = 0.75inch, double xCutAxis = 2.764inch, double yCutAxis = 3.295inch) {
-        this.chassis = chassis;
+    public constructor(box localBound, double thickness = 0.75inch, double xCutAxis = 2.764inch, double yCutAxis = 3.295inch) {
+        this.localBound = localBound;
+        this.spaceLeft = localBound;
         this.thickness = thickness;
         this.xCutAxis = xCutAxis;
         this.yCutAxis = yCutAxis;
-        this << endPanel(thickness);
-    }   
 
-    extend public Primitive3D endPanel(double thickness = 0.75inch) {
-        AweExtrusion endPanelEx(endPanelProfile());
-        Primitive3D p = endPanelEx.horizontal(line2D((0,0),(thickness,0)),0);
-        p.setMaterial(material);
-        return p;
+        this.addTroughChassis(thickness);
     }
 
-    extend public AwePath2D endPanelProfile() {
-        AwePath2D path();
-        path.up(chassis.h).left(chassis.d-xCutAxis).down(yCutAxis).left(xCutAxis).down(chassis.h-yCutAxis).close;
+    extend public AweStorageChassisTrough addTroughChassis(double thickness = 0.75inch) {
+        AweStorageSideLaminateWTrough sideL(this.gridBox, thickness, this.xCutAxis, this.yCutAxis);
+        AweStorageSideLaminateWTrough sideR(this.gridBox, thickness, this.xCutAxis, this.yCutAxis);
 
-        return path;
+        this.addLeft(thickness, prim = sideL);
+        this.addRight(thickness, prim = sideR);
+        this.addTop(thickness, indent = this.xCutAxis);
+        this.addBack(thickness, indent = this.yCutAxis - thickness);
+        this.addBottom(thickness);
+        return this;
     }
+}
+
+{
+AweStorageChassisTrough c(box((0,0,0),(1,1,1)), 1inch, 5inch, 20inch);
+test(c.get3D());
 }

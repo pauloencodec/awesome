@@ -98,6 +98,14 @@ public class AweStorageGrid {
         return this;
     }
 
+    extend public AweStorageGrid fillWithPieces(AweStorageGridPiece piece, int column, double height, double columnHeight){
+        int pieces = (columnHeight/height).int;
+        for (i in 1..pieces) {
+            this.addPiece(piece.copy, column, height);
+        }
+        return this;
+    }
+
     extend public Awe3D get3D() {
         Awe3D prim();
         double x = 0;
@@ -110,6 +118,7 @@ public class AweStorageGrid {
             }
             for(p in c.pieces) {
                 point origin(x,0,p.z);
+                pln(#p.z);
                 var aweBox = p.get3D();
                 aweBox.move(origin + localBound.p0);
                 prim << aweBox;
@@ -118,15 +127,4 @@ public class AweStorageGrid {
         }
         return prim;
     }
-}
-
-{
-    AweStorageGrid grid(box((0,0,0),(36inch,24inch,48inch)));
-    grid.addColumn(12inch);
-    grid.addColumn(24inch, 1inch);
-    grid.addPiece(AweStorageGridPiece(), 0, 24inch);
-    grid.addPiece(AweStorageGridPiece(), 1, 24inch);
-    grid.addPiece(AweStorageGridPiece(), 0, 24inch);
-    grid.addPiece(AweStorageGridPiece(), 1, 24inch);
-    test(grid.get3D());
 }
