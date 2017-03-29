@@ -51,6 +51,7 @@ public class AweMultiProductSnapper extends AweSnapper : abstract {
 
     extend public void refresh(bool hard=false) {
         if(hard) {
+            flushCache();
             for(p in allProducts) {
                 p.refresh();
             }
@@ -75,6 +76,7 @@ public class AweMultiProductSnapper extends AweSnapper : abstract {
         }
         return list;
     }
+
 
     extend private void addModels(AweObject[] list, AweObject parentModel) {
         if(parentModel) {
@@ -108,4 +110,27 @@ public class AweMultiProductSnapper extends AweSnapper : abstract {
         }
         return all;
     }   
+
+    extend private void flushCache() {
+        _localBound = null;
+    }
+
+
+    private Box _localBound;
+    public box localBound() {
+        
+        if(_localBound) return _localBound.v;
+
+        box b;
+        for(p in allProducts) {
+            if(p)
+                b += p.localBound;
+        }
+        _localBound = b;
+        return b;
+    }
+
+
+
 }
+
