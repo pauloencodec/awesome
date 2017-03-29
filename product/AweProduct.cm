@@ -36,7 +36,7 @@
 
 package custom.awesome.product;
 
-public class AweProduct extends Snapper {
+public class AweProduct {
 
     public Object _model;
     private str->Point2D poi() : public readable;
@@ -138,7 +138,7 @@ public class AweProduct extends Snapper {
         }
     }
 
-    public Primitive3D get3D(FetchEnv3D env) {
+    extend public Primitive3D get3D(FetchEnv3D env) {
         //for rendering
         if(env.detail == detailLevel3D.super) return getSuper3D();
 
@@ -160,7 +160,7 @@ public class AweProduct extends Snapper {
         return graph;
     }
 
-    public box localBound() {
+    extend public box localBound() {
         box result();
 
         if(geometries and geometries.count > 0) {
