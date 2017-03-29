@@ -49,6 +49,12 @@ public aweObject TestPanelModel {
     );
 }
 
+public class TestPanelConfigurator extends TestPanelModel{
+     public aweObjectDomain(
+        distance width = DistanceEnum(30inch, 42inch, 48inch)
+    );
+}
+
 public aweObject TestPanelTileModel {
     props(
         Material3D tileMaterial = blueFabricMaterial3D,
@@ -100,7 +106,7 @@ public class TestPanelTileProduct extends AweProduct {
     }
 }
 
-private aweBinder<TestPanelModel, TestPanelProduct> Panel;
+private aweBinder<TestPanelConfigurator, TestPanelProduct> Panel;
 private aweBinder<TestPanelTileModel, TestPanelTileProduct> Tile;
 
 public class TestPanelSnapper extends AweMultiProductSnapper {

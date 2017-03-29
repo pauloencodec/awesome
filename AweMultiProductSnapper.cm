@@ -47,16 +47,15 @@ public class AweMultiProductSnapper extends AweSnapper : abstract {
      public constructor() {
         super(..);
         root = initRoot();
+        this.activeConfigurator = root;
     }
 
-    extend public void refresh(bool hard=false) {
-        if(hard) {
-            flushCache();
-            for(p in allProducts) {
-                p.refresh();
-            }
+    public void refresh(bool updateConnectors=false, bool tryAlignAllSnapped=false) {
+        flushCache();
+        for(p in allProducts) {
+            p.refresh();
         }
-        refresh(true, true);
+        super(..);
     }
 
 
