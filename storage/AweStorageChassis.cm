@@ -51,6 +51,7 @@ public class AweStorageChassis3D extends Awe3D {
     public box localBound;
     public box spaceLeft;
     public box frontBox;
+    public AweStorageBase base;
     extend public box gridBox() {
         return spaceLeft;
     }
@@ -161,8 +162,11 @@ public class AweStorageChassis3D extends Awe3D {
         return this;
     }
 
-    extend public AweStorageChassis3D addFront(double thickness=0.75inch, Awe3D prim=null, bool laminate = false) {
-        box laminate(spaceLeft.p0, spaceLeft.p0 + (spaceLeft.p1.x, thickness, spaceLeft.p1.z));
+    extend public AweStorageChassis3D addFront(double thickness=0.75inch, Awe3D prim=null, bool addLaminate = false) {
+        double laminateH = spaceLeft.p1.z;
+        if(base) laminateH += base.height;
+
+        box laminate(spaceLeft.p0, (spaceLeft.p1.x, spaceLeft.p0.y + thickness, spaceLeft.p1.z));
         frontBox = laminate;
         box temp = spaceLeft.moved(point(0, thickness, 0));
         spaceLeft = spaceLeft * temp;
@@ -171,7 +175,7 @@ public class AweStorageChassis3D extends Awe3D {
             prim.move(laminate.p0);
             this << prim;
         }
-        if (laminate) {
+        if (addLaminate) {
             AweBox3D prim(laminate, randomColorLWMaterial());
             allFaces += prim.allFaces;
             this << prim;
@@ -184,7 +188,7 @@ public class AweStorageChassis3D extends Awe3D {
         box laminate(spaceLeft.p0, (spaceLeft.p1.x, spaceLeft.p1.y, spaceLeft.p0.z + base.height));
         box temp = spaceLeft.moved(point(0, 0, base.height));
         spaceLeft = spaceLeft * temp;
-            
+        this.base = base;
         base.owner = this;
 
         this << base.get3D();
@@ -214,14 +218,14 @@ public class AweStorageChassis3D extends Awe3D {
     double t = 0.75inch;
 
     AweStorageChassis3D chassis(box((-w/2,-d/2,0),(w/2,d/2,h)));
-    chassis.addFront().addTop().addLeft().addRight().addBack();
+    chassis.addBase(AweStorageGlideBase(0,0)).addFront(addLaminate=true).addTop().addLeft().addRight().addBack();
     chassis.setMaterial(mahognyMaterial3D);
     test(chassis.get3D());
 
-    AweStorageGrid front(chassis.frontBox);
-    front.addColumn(w);
-    front.evenlyDistPieces(AweStorageDrawer(), 0, 3);
-    test(front.get3D());
+    // AweStorageGrid front(chassis.frontBox);
+    // front.addColumn(w);
+    // front.evenlyDistPieces(AweStorageDrawer(), 0, 3);
+    // test(front.get3D());
 
     // AweStorageGrid miolo(chassis.gridBox);
     // miolo.addColumn(w-2*t);
