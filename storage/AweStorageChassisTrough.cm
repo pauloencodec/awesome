@@ -47,14 +47,11 @@ public class AweStorageChassisTrough extends AweStorageChassis3D {
         this.thickness = thickness;
         this.xCutAxis = xCutAxis;
         this.yCutAxis = yCutAxis;
-
-        this.addTroughChassis(thickness);
     }
 
     extend public AweStorageChassisTrough addTroughChassis(double thickness = 0.75inch) {
         AweStorageSideLaminateWTrough sideL(this.gridBox, thickness, this.xCutAxis, this.yCutAxis);
         AweStorageSideLaminateWTrough sideR(this.gridBox, thickness, this.xCutAxis, this.yCutAxis);
-
         this.addLeft(thickness, prim = sideL);
         this.addRight(thickness, prim = sideR);
         this.addTop(thickness, indent = this.xCutAxis);
