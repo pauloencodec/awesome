@@ -111,7 +111,7 @@ public class AweProduct extends AweGeometry {
         Primitive3D[] prims();
 
         for(g in geometries) {
-            var p = outlinedPrim(g.medium3D());
+            var p = g.medium3D();
             prims << p;
         }
 
