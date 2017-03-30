@@ -35,6 +35,7 @@
 */
 
 package custom.awesome.product;
+use cm.geometry.advanced;
 
 public class AweProduct extends AweGeometry {
 
@@ -110,7 +111,8 @@ public class AweProduct extends AweGeometry {
         Primitive3D[] prims();
 
         for(g in geometries) {
-            prims << g.medium3D();
+            var p = outlinedPrim(g.medium3D());
+            prims << p;
         }
 
         medium3D = safeSet3D(prims);

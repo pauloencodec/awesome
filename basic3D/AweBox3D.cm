@@ -34,61 +34,59 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package custom.awesome.basic3D;
 
-public void orientBy(Primitive3D p, line2D l) {
-    orientation o = l.orientation();
-    p.rotate(o);
-    p.move((0,0,0));
-    p.move(l.p0.point);
-}
+public class AweBox3D extends Awe3D {
+    public Rect3D front;
+    public Rect3D back;
+    public Rect3D top;
+    public Rect3D bottom;
+    public Rect3D left;
+    public Rect3D right;
 
-public void standUp(Primitive3D p) {
-    orientation o();
-    orientation up(o.direction, o.perpendicular * -1);
-    p.rotate(up);
-}
+    public constructor(
+        box b, 
+        Material3D frontMaterial,
+        Material3D backMaterial,
+        Material3D leftMaterial,
+        Material3D rightMaterial,
+        Material3D topMaterial,
+        Material3D bottomMaterial
+        ) {
 
-public Primitive3D applyMaterial(Primitive3D p, Material material) {
-    if (material) {
-        material.apply(p, new FetchEnv3D());
+        front = Rect3D(1, point(), b.w, b.h, reversed=true);
+        back = Rect3D(1, (0,b.d,0), b.w, b.h, reversed=false);
+        left = Rect3D(2, point(), b.d, b.h, reversed=true);
+        right = Rect3D(2, (b.w,0,0), b.d, b.h, reversed=false);
+        top = Rect3D(0, (0,0,b.h), b.w, b.d, reversed=false);
+        bottom = Rect3D(0, point(), b.w, b.d, reversed=true);
+
+        this << bottom << top << left << right << front << back;
+
+        front.setMaterial(frontMaterial);
+        back.setMaterial(backMaterial);
+        left.setMaterial(leftMaterial);
+        right.setMaterial(rightMaterial);
+        top.setMaterial(topMaterial);
+        bottom.setMaterial(bottomMaterial);
+
+        this.move(b.p0);
+    }   
+    public constructor(box b, Material3D material) {
+        this(b, material, material, material, material, material, material);
     }
 
-    return p;
-}
-
-private void outlinePrims(Primitive3D thisPrim, Primitive3D[] processed, TransformF[] transformStack=null, Material3D currentMaterial=null) {
-    if(!transformStack) {
-        transformStack = new (TransformF[])();
-    }
-   
-    transformStack << thisPrim.transform;
-     if(thisPrim.material) {
-        currentMaterial = thisPrim.material;
-    }
-    for(s in thisPrim.subPrims) {
-        outlinePrims(s, processed, transformStack.copy, currentMaterial.copy);
-    }
-    var env = MeshEnv3D();
-    env.transformStack2 = transformStack;
-    var mesh = thisPrim.mesh(env);
-    if(mesh as ATriMeshF) {
-        mesh.put("REDHiddenLines", true);
-        mesh.put("REDHiddenLines_width", 2);
-        mesh.repairBrokenUV("merge");
-        mesh.autoNormals();
-        TriMeshF3D t(mesh);
-        if(currentMaterial) {
-            t.setMaterial(ColorMaterial3D(currentMaterial.getAverageColor));
-        }
-        //t.setDoubleSided(true);
-        
-        processed << t;
+    extend public Rect3D[] allFaces() {
+        return [Rect3D: front, back, top, bottom, right, left];
     }
 }
 
-public Primitive3D outlinedPrim(Primitive3D prim) {
-    Primitive3D[] processed();
-    outlinePrims(prim, processed);
-    return safeSet3D(processed);
+{
+    box b((0,0,0), (1,2,3));
+    box xuprega = b.moved(point(0,0,-1inch));
+    box sobra = b * xuprega;
+    box tampinha((0,0,b.p1.z-1inch), b.p1);
+
+    test(AweBox3D(xuprega, plainRedMaterial3D));
+    test(AweBox3D(tampinha, plainGrayMaterial3D));
 }

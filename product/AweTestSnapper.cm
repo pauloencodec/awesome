@@ -64,11 +64,22 @@ public class AweTestSnapper extends Snapper {
     }
 
     public Primitive3D get3D(FetchEnv3D env) {
-        if(product) return product.get3D(env);
-        if(primitive3D) return primitive3D;
-        Primitive3D prim = Box3D(localBound);
-        prim.setMaterial(plainGreenMaterial3D);
-        return prim;
+
+        Awe3D result();
+        Sphere3D origin(point(), 3inch);
+        origin.setMaterial(plainRedMaterial3D);
+        result << origin;
+        
+
+        if(product) result << product.get3D(env);
+        else if(primitive3D) result << primitive3D;
+        else {
+            Primitive3D prim = Box3D(localBound);
+            prim.setMaterial(plainGreenMaterial3D);
+            result << prim;
+        }
+
+        return result;
     }
 
     public bool buildQuickProperties(QuickProperties props) { 
@@ -101,7 +112,7 @@ public void test(Graph g) {
 }
 
 public void test(Primitive3D p) {
-    AweTestSnapper(primitive3D=p).launch();
+    activeSpace.put(AweTestSnapper(primitive3D=p.?outlinedPrim));
 }
 
 public void test(AweProduct p) {
@@ -109,7 +120,7 @@ public void test(AweProduct p) {
 }
 
 public void test(AweGeometry p) {
-    AweTestSnapper(primitive3D=p.medium3D(), graph=p.graph()).launch();
+    AweTestSnapper(primitive3D=p.medium3D().?outlinedPrim, graph=p.graph()).launch();
 }
 
 public void test(AweObject c) {
