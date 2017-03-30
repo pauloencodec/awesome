@@ -36,11 +36,9 @@
 
 package custom.awesome.product;
 
-public class AweProduct {
+public class AweProduct extends AweGeometry {
 
     public Object _model;
-    private str->Point2D poi() : public readable;
-    private str->Line2D loi() : public readable;
 
     private Primitive3D medium3D;
     private Primitive3D super3D;
@@ -50,13 +48,6 @@ public class AweProduct {
     extend public AweProduct operator<<(AweGeometry geometry) {
         geometries << geometry;
 
-        return this;
-    }
-
-    extend public AweProduct operator<<(AweProduct product) {
-        if(product and product.geometries) {
-            geometries += product.geometries;
-        }
         return this;
     }
 
@@ -101,9 +92,9 @@ public class AweProduct {
         build();
     }
 
-    //abstract?
     extend public void build() {
-
+        //autotrofo canibalismo
+        this << this;
     }
 
     extend public void buildSuper3D() {
@@ -160,7 +151,7 @@ public class AweProduct {
         return graph;
     }
 
-    extend public box localBound() {
+    public box localBound() {
         box result();
 
         if(geometries and geometries.count > 0) {
