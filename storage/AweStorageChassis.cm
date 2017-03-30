@@ -161,11 +161,7 @@ public class AweStorageChassis3D extends Awe3D {
         return this;
     }
 
-    // extend public AweStorageChassis3D addFront(AweStorageFront front) {
-    //     return addFront(front.thickness, front.get3D());
-    // }
-
-    extend public AweStorageChassis3D addFront(double thickness=0.75inch, Awe3D prim=null) {
+    extend public AweStorageChassis3D addFront(double thickness=0.75inch, Awe3D prim=null, bool laminate = false) {
         box laminate(spaceLeft.p0, spaceLeft.p0 + (spaceLeft.p1.x, thickness, spaceLeft.p1.z));
         frontBox = laminate;
         box temp = spaceLeft.moved(point(0, thickness, 0));
@@ -173,6 +169,11 @@ public class AweStorageChassis3D extends Awe3D {
 
         if(prim) {
             prim.move(laminate.p0);
+            this << prim;
+        }
+        if (laminate) {
+            AweBox3D prim(laminate, randomColorLWMaterial());
+            allFaces += prim.allFaces;
             this << prim;
         }
         
@@ -209,7 +210,7 @@ public class AweStorageChassis3D extends Awe3D {
 
     double d = 15inch;
     double w = 36inch;
-    double h = 80inch;
+    double h = 30inch;
     double t = 0.75inch;
 
     AweStorageChassis3D chassis(box((-w/2,-d/2,0),(w/2,d/2,h)));
