@@ -47,8 +47,7 @@ public class AweProduct extends AweGeometry {
 
     private AweGeometry[] geometries;
     extend public AweProduct operator<<(AweGeometry geometry) {
-        geometries << geometry;
-
+        geometries <<? geometry;
         return this;
     }
 
@@ -90,12 +89,12 @@ public class AweProduct extends AweGeometry {
         super3D = null;
         graph = null;
         geometries = new AweGeometry[]();
+        //adding self to list of geometries
+        this << this;
         build();
     }
 
     extend public void build() {
-        //autotrofo canibalismo
-        this << this;
     }
 
     extend public void buildSuper3D() {
@@ -103,39 +102,34 @@ public class AweProduct extends AweGeometry {
         for(g in geometries) {
             if (g as AweProduct) { 
                 if (g != this) { 
-                    prims << g.super3D();
+                    prims <<? g.super3D();
                 }
             }
-            prims << g.super3D();
+            prims <<? g.super3D();
         }
         super3D = safeSet3D(prims);
     }
 
     extend public void buildMedium3D() {
-        
         Primitive3D[] prims();
-
         for(g in geometries) {
             if (g as AweProduct) { 
                 if (g != this) { 
-                    prims << g.getMedium3D();
+                    prims <<? g.getMedium3D();
                 }
             }
             var p = g.medium3D();
-            prims << p;
+            prims <<? p;
         }
-
         medium3D = safeSet3D(prims);
     }
 
     extend public void buildGraph() {
-        
         graph = new AweGraph();
-
         for(geometry in geometries) {
              if (geometry as AweProduct) { 
                 if (geometry != this) { 
-                    graph << geometry.graph();
+                    graph <<? geometry.graph();
                 }
             }
             Graph gr = geometry.graph();
@@ -149,7 +143,6 @@ public class AweProduct extends AweGeometry {
     extend public Primitive3D get3D(FetchEnv3D env) {
         //for rendering
         if(env.detail == detailLevel3D.super) return getSuper3D();
-
         return getMedium3D;
     }
 
@@ -170,13 +163,12 @@ public class AweProduct extends AweGeometry {
 
     public box localBound() {
         box result();
-
         if(geometries and geometries.count > 0) {
             for (g in geometries) { 
-                result += g.localBound;
+                if(g != this)
+                    result += g.localBound;
             }
         }
-
         return result;
     }
 }

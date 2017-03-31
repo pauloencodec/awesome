@@ -36,7 +36,7 @@
 
 package custom.awesome;
 
-public class AweMultiProductSnapper extends AweSnapper : abstract {
+public class AweBindingSnapper extends AweSnapper : abstract {
 
     //the data root
     public AweObject root;
@@ -114,7 +114,7 @@ public class AweMultiProductSnapper extends AweSnapper : abstract {
             Object product = aweDynamicCall m.product();
             if(product as AweProduct) {
                 var prim = product.get3D(env);
-                AweMultiProductSnapperPickSurface pick(this, prim, m.class.name);
+                AweBindingSnapperPickSurface pick(this, prim, m.class.name);
                 pick.configurator = m;
                 prim.setOwner(pick);
                 //selection highlight
@@ -153,7 +153,7 @@ public class AweMultiProductSnapper extends AweSnapper : abstract {
      */
     public Animation clickAnimation(StartClickAnimationEnv env) {
         if (space and this in env.snappers) {
-            return AweMultiProductSnapperPickSurfaceClickAnimation(env, this);
+            return AweBindingSnapperPickSurfaceClickAnimation(env, this);
         }
         return super(..);
     }
@@ -162,6 +162,6 @@ public class AweMultiProductSnapper extends AweSnapper : abstract {
 }
 
 
-public class AweMultiProductSnapperPickSurface extends PickSurface {
+public class AweBindingSnapperPickSurface extends PickSurface {
     public AweObject configurator;
 }

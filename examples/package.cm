@@ -34,42 +34,16 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package custom.awesome.examples;
 
-public class AweMultiProductSnapperPickSurfaceClickAnimation extends SnapperClickAnimation {
-
-    public AweMultiProductSnapper snapper;
-
-    public constructor(StartClickAnimationEnv env, AweMultiProductSnapper snapper) {
-        this.snapper = snapper;
-        super(env);
-    }
-
-    public void click2(AnimationMouseInfo mi) {
-        super(..);
-        this.handleClick(mi, true);
-    }
-
-    public void click(AnimationMouseInfo mi) {
-        super(..);
-        this.handleClick(mi);
-    }
-
-    final private void handleClick(AnimationMouseInfo mi, bool rightClick = false) { 
-        WindowView owner = mi.ownerView;
-
-        if (owner as View3D) {
-            PickIntersection3D[] picked = owner.pick(mi.windowViewMouseInfo.pos);
-            for (p in picked) {
-                if(p.owner.AweMultiProductSnapperPickSurface) {
-                    var configurator = p.owner.AweMultiProductSnapperPickSurface.configurator;
-                    if(configurator) {
-                        snapper.activeConfigurator = configurator;
-                        invalidateQuickPropertiesFor(snapper);
-                        snapper.invalidate();
-                    }
-                }
-            }
-        }
-    }
-}
+use custom.awesome.product;
+use custom.awesome;
+use cm.format.cm3D;
+use cm.geometry.advanced;
+use cm.application;
+use cm.basic;
+use cm.core;
+use cm.core3D;
+use cm.draw;
+use cm.win;
+use cm.io;
