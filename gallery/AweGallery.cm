@@ -157,7 +157,7 @@ public class AweGallery : abstract {
 
     extend public AweGalleryItem[] getItems() {
         Space space = this.drawingSpace ?? mainSpace();
-        var fromWorld = space.getAuxillary(this.class.name);
+        var fromWorld = space.getAuxillaryObject(this.class.name);
 
         if (fromWorld as AweGalleryItem[]) {
             if(fromWorld.any()) {
@@ -283,7 +283,7 @@ public class AweGallery : abstract {
     extend private void save(AweGalleryItem[] items) {
         var space = this.drawingSpace ?? mainSpace();
 
-        space.putAuxillary(this.class.name, items);
+        space.putAuxillaryObject(this.class.name, items);
     }
 
     extend public void save(str name, Object data) {

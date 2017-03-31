@@ -75,12 +75,6 @@ public class AweStorageChassis3D extends Awe3D {
         }
     }
 
-    extend private void addToIndex(str name, Rect3D[] rs) {
-        for(r in rs) {
-            addToIndex(name, r);
-        }
-    }
-    
     extend public Primitive3D get3D() {
         return this;
     }
@@ -214,33 +208,35 @@ public class AweStorageChassis3D extends Awe3D {
 }
 
 {
-
-    double d = 15inch;
-    double w = 36inch;
-    double h = 30inch;
-    double t = 0.75inch;
-
-    // AweStorageChassis3D chassis(box((-w/2,-d/2,0),(w/2,d/2,h)));
-    // chassis.addBase(AweStorageGlideBase(0,0)).addFront(addLaminate=true).addTop().addLeft().addRight().addBack();
-    // chassis.setMaterial(mahognyMaterial3D);
+    // AweStorageChassis3D chassis(box((0,0,0),(36inch,18inch,48inch)));
+    // chassis.addFront().addTop().addLeft().addRight().addBottom().addBack();
+    // // chassis.setMaterial(randomColorLWMaterial());
+    // // chassis.setMaterial("internal", randomColorLWMaterial());
+    // // chassis.setMaterial("front", randomColorLWMaterial());
     // test(chassis.get3D());
 
-    // AweStorageGrid front(chassis.frontBox);
-    // front.addColumn(w);
-    // front.evenlyDistPieces(AweStorageDrawer(), 0, 3);
+    // AweStorageCore front(chassis.frontBox);
+    // front.setMaterial("door", beechMaterial3D);
+    // front.addColumn(12inch);
+    // front.addColumn(12inch);
+    // front.addPiece(AweStorageDoor((6inch, 10inch)),0, 12inch);
+    // front.addPiece(AweStorageDoor((6inch, 10inch)),0, 12inch);
+    // front.addPiece(AweStorageDoor((6inch, 10inch)),1, 12inch);
+    // front.addPiece(AweStorageDoor((6inch, 10inch)),1, 12inch);
+    // front.addPiece(AweStorageDoor((6inch, 10inch)),0, 12inch);
+    // front.addPiece(AweStorageDoor((6inch, 10inch)),0, 12inch);
+    // front.addPiece(AweStorageDoor((6inch, 10inch)),1, 12inch);
+    // front.addPiece(AweStorageDoor((6inch, 10inch)),1, 12inch);
     // test(front.get3D());
 
-    // AweStorageGrid miolo(chassis.gridBox);
-    // miolo.addColumn(w-2*t);
-    // miolo.addColumn(w/2-1.5*t, 0.75inch);
-    // miolo.addPiece(AweStorageShelf(0.75inch), 1, h/2);
-    // miolo.addPiece(AweStorageShelf(0.75inch), 1, h/2);
-    // miolo.fillWithPieces(AweStorageShelf(0.75inch, 0, 5inch, h));
-    // test(miolo.get3D());
+    // AweStorageCore miolin(chassis.coreBox);
+    // miolin.addColumn(23.25inch);
+    // miolin.addColumn(11.25inch, 0.75inch);
+    // miolin.addPiece(AweStorageShelf(0.75inch, 0.5inch), 1, 10.5inch);
+    // miolin.addPiece(AweStorageShelf(0.75inch, 0.5inch), 1, 12inch);
+    // miolin.addPiece(AweStorageShelf(0.75inch, 0.5inch), 1, 12inch);
+    // miolin.addPiece(AweStorageShelf(0.75inch, 0.5inch), 1, 12inch);
+    // test(miolin.get3D());
 
-AweStorageChassisTrough c(box((0,0,0),(1,1,1)), 1inch, 5inch, 20inch);
-c.setMaterial(mahognyMaterial3D);
-test(c.get3D());
-
-
+    // showWireFrame = false;
 }

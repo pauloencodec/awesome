@@ -37,7 +37,6 @@
 package custom.awesome.product;
 
 use custom.awesome;
-use custom.awesome.product;
 use custom.awesome.connectors;
 use custom.awesome.gallery;
 

@@ -36,7 +36,7 @@
 
 package custom.awesome.product;
 
-use cm.syntax, cm.runtime;
+use cm.syntax;
 
 public member @visibility AweModel '<' @type=type '>' @id=id ';' {
     return member {
