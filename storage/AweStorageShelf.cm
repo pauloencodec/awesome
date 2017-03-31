@@ -36,7 +36,7 @@
 
 package custom.awesome.storage;
 
-public class AweStorageShelf extends AweStorageCorePiece {
+public class AweStorageShelf extends AweStorageGridPiece {
     public double thickness;
     public double indent;
 
@@ -46,7 +46,7 @@ public class AweStorageShelf extends AweStorageCorePiece {
     }   
 
     public Awe3D get3D() {
-        AweBox3D aweBox(box((0, indent, 0), (width, depth, thickness)), randomColorLWMaterial());
+        AweBox3D aweBox(box((0, indent, 0), (width, depth, thickness)), owner.getMaterial("shelves"));
         return aweBox;
     }
 }

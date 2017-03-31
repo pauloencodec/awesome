@@ -36,12 +36,12 @@
 
 package custom.awesome.storage;
 
-public class AweStorageCorePiece {
+public class AweStorageGridPiece {
     public double width;
     public double depth;
     public double height;
     public double z;
-    public AweStorageCore owner;
+    public AweStorageGrid owner;
 
     public constructor() {
     }   

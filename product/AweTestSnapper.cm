@@ -67,8 +67,8 @@ public class AweTestSnapper extends Snapper {
 
         Awe3D result();
         Sphere3D origin(point(), 3inch);
-        origin.setMaterial(plainRedMaterial3D);
-        result << origin;
+        // origin.setMaterial(plainRedMaterial3D);
+        // result << origin;
         
 
         if(product) result << product.get3D(env);

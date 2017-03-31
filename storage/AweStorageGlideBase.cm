@@ -36,42 +36,45 @@
 
 package custom.awesome.storage;
 
-public class AweStorageDoor extends AweStorageGridPiece {
-    public str pullType;
-    public angle pullRotation;
-    private Point2D _pullPosition;
+public class AweStorageGlideBase extends AweStorageBase {
+    public double xOffset;
+    public double yOffset;
 
-    public constructor(str pullType = "square-pull") {
-        this.pullType = pullType;
-    }   
-
-    public constructor(point2D pullPosition, angle pullRotation = 0deg, str pullType = "square-pull") {
-        this.pullPosition = pullPosition;
-        this.pullRotation = pullRotation;
-        this.pullType = pullType;
+    public constructor(double xOffset = 0, double yOffset = 0) {
+        this.xOffset = xOffset;
+        this.yOffset = yOffset;
+        this.height = 0.545inch;
     }   
 
     public Awe3D get3D() {
         Awe3D prims();
 
-        Primitive3D pull = aweCm3DLoader.get3D(pullType, storageCm3DFolder);
-        
-        pull.setMaterial(owner.getMaterial("pull"));
-        prims << pull.setPosRot((pullPosition.x, 0, pullPosition.y), (0deg, pullRotation, 0deg));
+        prims << addGlide((owner.localBound.p0.x + xOffset, owner.localBound.p0.y + yOffset));
+        prims << addGlide((owner.localBound.p0.x + xOffset, owner.localBound.p1.y - yOffset));
+        prims << addGlide((owner.localBound.p1.x - xOffset, owner.localBound.p1.y - yOffset));
+        prims << addGlide((owner.localBound.p1.x - xOffset, owner.localBound.p0.y + yOffset));
 
-        prims << AweBox3D(box((0, 0, 0), (width, depth, height)), owner.getMaterial("door"));
         return Awe3D(prims);
     }
 
-    extend public point2D pullPosition() {
-        if (_pullPosition == null) {
-            return (width/2, height - 1inch);
-        }
-        return _pullPosition.v;
-    }
+    extend public Awe3D addGlide(point2D position) {
+        Awe3D prims();
+        
+        double d = 0.625inch;
+        double w = 2.125inch;
+        double t = 0.135inch;
 
-    extend public point2D pullPosition=(point2D value){
-        this._pullPosition = new Point2D (value); 
-        return this._pullPosition.v;
+        Box3D glideBracket ((-d/2, -w/2, 0), (d/2, w/2, t));
+        glideBracket.move ((0, 0, 0.41inch));
+
+        ClosedCylinder3D nut (0.150inch, 0.25inch);
+        nut.move((0, 0, 0.26inch));
+
+        ClosedCylinder3D glide (0.26inch, 0.375inch);
+        glide.setRefinement(64);
+
+        prims << Awe3D(glideBracket, nut, glide).move((position.x, position.y, 0));
+
+        return Awe3D(prims);
     }
 }

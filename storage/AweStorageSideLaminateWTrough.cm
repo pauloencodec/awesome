@@ -36,27 +36,30 @@
 
 package custom.awesome.storage;
 
-public class AweStorageCoreColumn {
-    public double cursor = 0;
-    public double leftPadding = 0;
-    public double rightPadding = 0;
-    public double width;
-    public double septumWidth;
-    
-    public AweStorageCorePiece[] pieces();
-    
-    public constructor() {
+public class AweStorageSideLaminateWTrough extends Awe3D {
+    public double thickness;
+    public box chassis;
+    public double xCutAxis = 2.764inch;
+    public double yCutAxis = 3.295inch;
+
+    public constructor(box chassis, double thickness = 0.75inch, double xCutAxis = 2.764inch, double yCutAxis = 3.295inch) {
+        this.chassis = chassis;
+        this.thickness = thickness;
+        this.xCutAxis = xCutAxis;
+        this.yCutAxis = yCutAxis;
+        this << endPanel(thickness);
     }   
 
-    extend public AweStorageCoreColumn addPiece(AweStorageCorePiece piece) {
-        piece.z = cursor;
-        cursor += piece.height;
-        pieces << piece;
-        return this;
+    extend public Primitive3D endPanel(double thickness = 0.75inch) {
+        AweExtrusion endPanelEx(endPanelProfile());
+        Primitive3D p = endPanelEx.horizontal(line2D((0,0),(thickness,0)),0);
+        return p;
     }
 
-    extend public AweStorageCoreColumn addSpace(double height) {
-        cursor += height;
-        return this;
+    extend public AwePath2D endPanelProfile() {
+        AwePath2D path();
+        path.up(chassis.h).left(chassis.d-xCutAxis).down(yCutAxis).left(xCutAxis).down(chassis.h-yCutAxis).close;
+
+        return path;
     }
 }

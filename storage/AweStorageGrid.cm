@@ -36,9 +36,9 @@
 
 package custom.awesome.storage;
 
-public class AweStorageCore {
+public class AweStorageGrid {
     public box localBound;
-    private AweStorageCoreColumn[] columns();
+    private AweStorageGridColumn[] columns();
     private str->Material3D materials();
 
     public constructor(box localBound) {
@@ -58,8 +58,8 @@ public class AweStorageCore {
         }
     }
 
-    extend public AweStorageCore addColumn(double width, double septumWidth = 0) {
-        AweStorageCoreColumn column();
+    extend public AweStorageGrid addColumn(double width, double septumWidth = 0) {
+        AweStorageGridColumn column();
         column.width = width - septumWidth/2;
         column.septumWidth = septumWidth;
         if (columns.count > 0) {
@@ -72,7 +72,7 @@ public class AweStorageCore {
         return this;
     }
 
-    extend public AweStorageCore addPiece(AweStorageCorePiece piece, int column, double height, int columnSpan=1) {
+    extend public AweStorageGrid addPiece(AweStorageGridPiece piece, int column, double height, int columnSpan=1) {
         if(columns.count <= column) {
             bug("invalid column index");
         }
@@ -98,18 +98,35 @@ public class AweStorageCore {
         return this;
     }
 
+    extend public AweStorageGrid fillWithPieces(AweStorageGridPiece piece, int column, double height, double columnHeight){
+        int pieces = (localBound.h/height).int;
+        
+        for (i in 1..pieces) {
+            this.addPiece(piece.copy, column, height);
+        }
+        return this;
+    }
+
+    extend public AweStorageGrid evenlyDistPieces(AweStorageGridPiece piece, int column, int pieces){        
+        for (i in 1..pieces) {
+            this.addPiece(piece.copy, column, localBound.h/pieces);
+        }
+        return this;
+    }
+
     extend public Awe3D get3D() {
         Awe3D prim();
         double x = 0;
         for(c in columns) {
             x += c.leftPadding;
             if(c.septumWidth > 0) {
-                AweBox3D septum(box((x - c.septumWidth, localBound.p0.y, localBound.p0.z),(x, localBound.p1.y, localBound.p1.z)), randomColorLWMaterial());
+                AweBox3D septum(box((x - c.septumWidth, localBound.p0.y, localBound.p0.z),(x, localBound.p1.y, localBound.p1.z)), getMaterial("septum"));
                 septum.move((localBound.p0.x, 0, 0));
                 prim << septum;
             }
             for(p in c.pieces) {
                 point origin(x,0,p.z);
+                pln(#p.z);
                 var aweBox = p.get3D();
                 aweBox.move(origin + localBound.p0);
                 prim << aweBox;
@@ -118,15 +135,4 @@ public class AweStorageCore {
         }
         return prim;
     }
-}
-
-{
-    AweStorageCore core(box((0,0,0),(36inch,24inch,48inch)));
-    core.addColumn(12inch);
-    core.addColumn(24inch, 1inch);
-    core.addPiece(AweStorageCorePiece(), 0, 24inch);
-    core.addPiece(AweStorageCorePiece(), 1, 24inch);
-    core.addPiece(AweStorageCorePiece(), 0, 24inch);
-    core.addPiece(AweStorageCorePiece(), 1, 24inch);
-    test(core.get3D());
 }
