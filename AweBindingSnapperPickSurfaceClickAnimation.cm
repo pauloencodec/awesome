@@ -36,11 +36,11 @@
 
 package custom.awesome;
 
-public class AweMultiProductSnapperPickSurfaceClickAnimation extends SnapperClickAnimation {
+public class AweBindingSnapperPickSurfaceClickAnimation extends SnapperClickAnimation {
 
-    public AweMultiProductSnapper snapper;
+    public AweBindingSnapper snapper;
 
-    public constructor(StartClickAnimationEnv env, AweMultiProductSnapper snapper) {
+    public constructor(StartClickAnimationEnv env, AweBindingSnapper snapper) {
         this.snapper = snapper;
         super(env);
     }
@@ -61,8 +61,8 @@ public class AweMultiProductSnapperPickSurfaceClickAnimation extends SnapperClic
         if (owner as View3D) {
             PickIntersection3D[] picked = owner.pick(mi.windowViewMouseInfo.pos);
             for (p in picked) {
-                if(p.owner.AweMultiProductSnapperPickSurface) {
-                    var configurator = p.owner.AweMultiProductSnapperPickSurface.configurator;
+                if(p.owner.AweBindingSnapperPickSurface) {
+                    var configurator = p.owner.AweBindingSnapperPickSurface.configurator;
                     if(configurator) {
                         snapper.activeConfigurator = configurator;
                         invalidateQuickPropertiesFor(snapper);
