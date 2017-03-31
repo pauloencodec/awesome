@@ -49,10 +49,10 @@ public class AweEasySnapper extends AweSnapper : abstract {
         this.refresh();
     }
 
-    public AweProduct product;
+    public AweProduct product : copy=reference;
     extend public AweProduct createProduct(AweObject configurator) : abstract { }
 
-    public AweObject configurator;
+    public AweObject configurator : copy=reference;
     extend public AweObject createConfigurator() : abstract { }
 
     public void drawGraphs(LayerBuffer lb, View view, GeometricFinder finder=null) {
