@@ -59,7 +59,7 @@ public class AweStorageDoor extends AweStorageGridPiece {
         pull.setMaterial(owner.getMaterial("pull"));
         prims << pull.setPosRot((pullPosition.x, 0, pullPosition.y), (0deg, pullRotation, 0deg));
 
-        prims << AweBox3D(box((0, 0, 0), (width, depth, height)), owner.getMaterial("door"));
+        prims << AweBox3D(box((0, 0, 0), (width, depth, height)), owner.getMaterial("front"));
         return Awe3D(prims);
     }
 
