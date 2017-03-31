@@ -1,0 +1,132 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.storage;
+
+public class AweStorageCore {
+    public box localBound;
+    private AweStorageCoreColumn[] columns();
+    private str->Material3D materials();
+
+    public constructor(box localBound) {
+        this.localBound = localBound;
+    }   
+
+    extend public void setMaterial(str key, Material3D material) {
+        materials.put(key, material);
+    }
+
+    extend public Material3D getMaterial(str key){
+        var material = materials.get(key);
+        if(material) {
+            return material;
+        } else {
+            return randomColorLWMaterial;
+        }
+    }
+
+    extend public AweStorageCore addColumn(double width, double septumWidth = 0) {
+        AweStorageCoreColumn column();
+        column.width = width - septumWidth/2;
+        column.septumWidth = septumWidth;
+        if (columns.count > 0) {
+            columns[columns.count-1].width -= septumWidth/2;
+            columns[columns.count-1].rightPadding = septumWidth/2;
+        } 
+        column.leftPadding = septumWidth/2;
+        columns << column;
+        
+        return this;
+    }
+
+    extend public AweStorageCore addPiece(AweStorageCorePiece piece, int column, double height, int columnSpan=1) {
+        if(columns.count <= column) {
+            bug("invalid column index");
+        }
+        piece.height = height;
+        columns[column].addPiece(piece);
+
+        double width = columns[column].width;
+
+        if(columnSpan > 1) {
+            for(i in 2..columnSpan) {
+                if(columns.count <= column + i-1) {
+                    bug("invalid column span index");
+                }
+                columns[column + i-1].addSpace(height);
+                width += columns[column + i-1].width + columns[column + i-1].leftPadding + columns[column].rightPadding;
+            }
+        }
+        
+        piece.width = width;
+        piece.depth = localBound.d;
+        piece.owner = this;
+
+        return this;
+    }
+
+    extend public Awe3D get3D() {
+        Awe3D prim();
+        double x = 0;
+        for(c in columns) {
+            x += c.leftPadding;
+            if(c.septumWidth > 0) {
+                AweBox3D septum(box((x - c.septumWidth, localBound.p0.y, localBound.p0.z),(x, localBound.p1.y, localBound.p1.z)), randomColorLWMaterial());
+                septum.move((localBound.p0.x, 0, 0));
+                prim << septum;
+            }
+            for(p in c.pieces) {
+                point origin(x,0,p.z);
+                var aweBox = p.get3D();
+                aweBox.move(origin + localBound.p0);
+                prim << aweBox;
+            }
+            x += c.width + c.rightPadding;
+        }
+        return prim;
+    }
+}
+
+{
+    AweStorageCore core(box((0,0,0),(36inch,24inch,48inch)));
+    core.addColumn(12inch);
+    core.addColumn(24inch, 1inch);
+    core.addPiece(AweStorageCorePiece(), 0, 24inch);
+    core.addPiece(AweStorageCorePiece(), 1, 24inch);
+    core.addPiece(AweStorageCorePiece(), 0, 24inch);
+    core.addPiece(AweStorageCorePiece(), 1, 24inch);
+    test(core.get3D());
+}

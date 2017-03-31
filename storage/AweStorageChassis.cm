@@ -1,0 +1,215 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.storage;
+
+public enum aweStorageChassisSide : field access {
+    front;
+    back;
+    left;
+    right;
+    top;
+    bottom;
+}
+
+public class AweStorageChassis3D extends Awe3D {
+    private str->Rect3D[] index();
+    private Rect3D[] allFaces();
+    public box localBound;
+    private box spaceLeft;
+    public box frontBox;
+    extend public box coreBox() {
+        return spaceLeft;
+    }
+
+    public constructor(box localBound) {
+        this.localBound = localBound;
+        this.spaceLeft = localBound;
+    }   
+
+    extend private void addToIndex(str name, Rect3D r) {
+        if(!index.get(name)) {
+            index.put(name, [Rect3D: r]);
+        }
+        else {
+            index.get(name) << r;
+        }
+    }
+
+    extend private void addToIndex(str name, Rect3D[] rs) {
+        for(r in rs) {
+            addToIndex(name, r);
+        }
+    }
+    
+    extend public Primitive3D get3D() {
+        return this;
+    }
+    
+    extend public AweStorageChassis3D addTop(double thickness=0.75inch) {
+        box laminate((spaceLeft.p0.x, spaceLeft.p0.y, spaceLeft.p1.z-thickness), spaceLeft.p1);
+        box temp = spaceLeft.moved(point(0, 0, -thickness));
+        spaceLeft = spaceLeft * temp;
+
+        AweBox3D prim(laminate, randomColorLWMaterial());
+        addToIndex("front", prim.front);
+        addToIndex("internal", prim.bottom);
+        allFaces += prim.allFaces;
+        
+        this << prim;
+        return this;
+    }
+    
+    extend public AweStorageChassis3D addBottom(double thickness=0.75inch) {
+        box laminate(spaceLeft.p0, (spaceLeft.p1.x, spaceLeft.p1.y, spaceLeft.p0.z + thickness));
+        box temp = spaceLeft.moved(point(0, 0, thickness));
+        spaceLeft = spaceLeft * temp;
+
+        AweBox3D prim(laminate, randomColorLWMaterial());
+        addToIndex("front", prim.front);
+        addToIndex("internal", prim.top);
+        allFaces += prim.allFaces;
+        
+        this << prim;
+        return this;
+    }
+
+    extend public AweStorageChassis3D addLeft(double thickness=0.75inch) {
+        box laminate(spaceLeft.p0, (spaceLeft.p0.x + thickness, spaceLeft.p1.y, spaceLeft.p1.z));
+        box temp = spaceLeft.moved(point(thickness, 0, 0));
+        spaceLeft = spaceLeft * temp;
+
+        AweBox3D prim(laminate, randomColorLWMaterial());
+        addToIndex("front", prim.front);
+        addToIndex("internal", prim.right);
+        allFaces += prim.allFaces;
+        
+        this << prim;
+        return this;
+    }
+
+    extend public AweStorageChassis3D addRight(double thickness=0.75inch) {
+        box laminate((spaceLeft.p1.x - thickness, spaceLeft.p0.y, spaceLeft.p0.z), spaceLeft.p1);
+        box temp = spaceLeft.moved(point(-thickness, 0, 0));
+        spaceLeft = spaceLeft * temp;
+
+        AweBox3D prim(laminate, randomColorLWMaterial());
+        addToIndex("front", prim.front);
+        addToIndex("internal", prim.left);
+        allFaces += prim.allFaces;
+        
+        this << prim;
+        return this;
+    }
+
+    extend public AweStorageChassis3D addBack(double thickness=0.75inch) {
+        box laminate((spaceLeft.p0.x, spaceLeft.p1.y - thickness, spaceLeft.p0.z), spaceLeft.p1);
+        box temp = spaceLeft.moved(point(0, -thickness, 0));
+        spaceLeft = spaceLeft * temp;
+
+        AweBox3D prim(laminate, randomColorLWMaterial());
+        addToIndex("internal", prim.front);
+        allFaces += prim.allFaces;
+        
+        this << prim;
+        return this;
+    }
+
+    // extend public AweStorageChassis3D addFront(AweStorageFront front) {
+    //     return addFront(front.thickness, front.get3D());
+    // }
+
+    extend public AweStorageChassis3D addFront(double thickness=0.75inch, Awe3D prim=null) {
+        box laminate(spaceLeft.p0, spaceLeft.p0 + (spaceLeft.p1.x, thickness, spaceLeft.p1.z));
+        frontBox = laminate;
+        box temp = spaceLeft.moved(point(0, thickness, 0));
+        spaceLeft = spaceLeft * temp;
+
+        if(prim) {
+            prim.move(laminate.p0);
+            this << prim;
+        }
+        
+        return this;
+    }
+
+    extend public void setMaterial(str indexKey, Material3D material) {
+        var faces = index.get(indexKey);
+        for(f in faces) {
+            f.setMaterial(material);
+        }
+    }
+
+    public void setMaterial(Material3D material) {
+        for(f in allFaces) {
+            f.setMaterial(material);
+        }
+    }
+}
+
+{
+    AweStorageChassis3D chassis(box((0,0,0),(36inch,18inch,48inch)));
+    chassis.addFront().addTop().addLeft().addRight().addBottom().addBack();
+    // chassis.setMaterial(randomColorLWMaterial());
+    // chassis.setMaterial("internal", randomColorLWMaterial());
+    // chassis.setMaterial("front", randomColorLWMaterial());
+    test(chassis.get3D());
+
+    AweStorageCore front(chassis.frontBox);
+    front.setMaterial("door", beechMaterial3D);
+    front.addColumn(12inch);
+    front.addColumn(12inch);
+    front.addPiece(AweStorageDoor((6inch, 10inch)),0, 12inch);
+    front.addPiece(AweStorageDoor((6inch, 10inch)),0, 12inch);
+    front.addPiece(AweStorageDoor((6inch, 10inch)),1, 12inch);
+    front.addPiece(AweStorageDoor((6inch, 10inch)),1, 12inch);
+    front.addPiece(AweStorageDoor((6inch, 10inch)),0, 12inch);
+    front.addPiece(AweStorageDoor((6inch, 10inch)),0, 12inch);
+    front.addPiece(AweStorageDoor((6inch, 10inch)),1, 12inch);
+    front.addPiece(AweStorageDoor((6inch, 10inch)),1, 12inch);
+    test(front.get3D());
+
+    AweStorageCore miolin(chassis.coreBox);
+    miolin.addColumn(23.25inch);
+    miolin.addColumn(11.25inch, 0.75inch);
+    miolin.addPiece(AweStorageShelf(0.75inch, 0.5inch), 1, 10.5inch);
+    miolin.addPiece(AweStorageShelf(0.75inch, 0.5inch), 1, 12inch);
+    miolin.addPiece(AweStorageShelf(0.75inch, 0.5inch), 1, 12inch);
+    miolin.addPiece(AweStorageShelf(0.75inch, 0.5inch), 1, 12inch);
+    test(miolin.get3D());
+
+    showWireFrame = false;
+}

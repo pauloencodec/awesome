@@ -34,25 +34,19 @@
    END OF CETSC
 */
 
-package custom.awesome.product;
+package custom.awesome.storage;
 
-use custom.awesome;
-use custom.awesome.connectors;
-use custom.awesome.gallery;
+public class AweStorageShelf extends AweStorageCorePiece {
+    public double thickness;
+    public double indent;
 
-use custom.acs.materials;
-use custom.acs.snappers;
+    public constructor(double thickness, double indent = 0) {
+        this.thickness = thickness;
+        this.indent = indent;
+    }   
 
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.format.json;
-use cm.geometry;
-use cm.geometry2D.advanced;
-use cm.internet;
-use cm.io;
-use cm.io.util;
-use cm.subset;
-use cm.win;
+    public Awe3D get3D() {
+        AweBox3D aweBox(box((0, indent, 0), (width, depth, thickness)), randomColorLWMaterial());
+        return aweBox;
+    }
+}

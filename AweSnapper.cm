@@ -109,16 +109,19 @@ public class AweSnapper  extends Snapper {
         }
 
         for (attach in this.connectors()) {
-            var realign = aweDynamicCall attach.shouldRealign();
-            var connections = attach.connections() ? attach.connections() : {Connector: attach.connection()};
+            if(attach) {
+                var realign = aweDynamicCall attach.shouldRealign();
+                var connections = attach.connections() ? attach.connections() : {Connector: attach.connection()};
 
-            if (realign.bool and connections != null) {
-                for (connection in connections) if(connection) {
-                    alignConnectors(connection, attach, visited=null, invalidate3D=false, removeFromBsp=false, tryRealign=true, forcePropagate=false);
-                    
-                    var snapper = connection.snapper;
-                    
-                    aweDynamicCall snapper.realign(visited);
+                if (realign.?bool and connections != null) {
+                    for (connection in connections) if(connection) {
+                        alignConnectors(connection, attach, visited=null, invalidate3D=false, removeFromBsp=false, tryRealign=true, forcePropagate=false);
+                        
+                        var snapper = connection.snapper;
+                        if(snapper) {
+                            aweDynamicCall snapper.realign(visited);
+                        }
+                    }
                 }
             }
         }

@@ -34,42 +34,59 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package custom.awesome.basic3D;
 
-public class AweMultiProductSnapperPickSurfaceClickAnimation extends SnapperClickAnimation {
+public class AweBox3D extends Awe3D {
+    public Rect3D front;
+    public Rect3D back;
+    public Rect3D top;
+    public Rect3D bottom;
+    public Rect3D left;
+    public Rect3D right;
 
-    public AweMultiProductSnapper snapper;
+    public constructor(
+        box b, 
+        Material3D frontMaterial,
+        Material3D backMaterial,
+        Material3D leftMaterial,
+        Material3D rightMaterial,
+        Material3D topMaterial,
+        Material3D bottomMaterial
+        ) {
 
-    public constructor(StartClickAnimationEnv env, AweMultiProductSnapper snapper) {
-        this.snapper = snapper;
-        super(env);
+        front = Rect3D(1, point(), b.w, b.h, reversed=true);
+        back = Rect3D(1, (0,b.d,0), b.w, b.h, reversed=false);
+        left = Rect3D(2, point(), b.d, b.h, reversed=true);
+        right = Rect3D(2, (b.w,0,0), b.d, b.h, reversed=false);
+        top = Rect3D(0, (0,0,b.h), b.w, b.d, reversed=false);
+        bottom = Rect3D(0, point(), b.w, b.d, reversed=true);
+
+        this << bottom << top << left << right << front << back;
+
+        front.setMaterial(frontMaterial);
+        back.setMaterial(backMaterial);
+        left.setMaterial(leftMaterial);
+        right.setMaterial(rightMaterial);
+        top.setMaterial(topMaterial);
+        bottom.setMaterial(bottomMaterial);
+
+        this.move(b.p0);
+    }   
+    public constructor(box b, Material3D material) {
+        this(b, material, material, material, material, material, material);
     }
 
-    public void click2(AnimationMouseInfo mi) {
-        super(..);
-        this.handleClick(mi, true);
+    extend public Rect3D[] allFaces() {
+        return [Rect3D: front, back, top, bottom, right, left];
     }
+}
 
-    public void click(AnimationMouseInfo mi) {
-        super(..);
-        this.handleClick(mi);
-    }
+{
+    box b((0,0,0), (1,2,3));
+    box xuprega = b.moved(point(0,0,-1inch));
+    box sobra = b * xuprega;
+    box tampinha((0,0,b.p1.z-1inch), b.p1);
 
-    final private void handleClick(AnimationMouseInfo mi, bool rightClick = false) { 
-        WindowView owner = mi.ownerView;
-
-        if (owner as View3D) {
-            PickIntersection3D[] picked = owner.pick(mi.windowViewMouseInfo.pos);
-            for (p in picked) {
-                if(p.owner.AweMultiProductSnapperPickSurface) {
-                    var configurator = p.owner.AweMultiProductSnapperPickSurface.configurator;
-                    if(configurator) {
-                        snapper.activeConfigurator = configurator;
-                        invalidateQuickPropertiesFor(snapper);
-                        snapper.invalidate();
-                    }
-                }
-            }
-        }
-    }
+    test(AweBox3D(xuprega, plainRedMaterial3D));
+    test(AweBox3D(tampinha, plainGrayMaterial3D));
 }

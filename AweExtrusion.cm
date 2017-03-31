@@ -36,7 +36,7 @@
 
 package custom.awesome;
 
-private AweCm3DLoader aweCm3DLoader();
+public AweCm3DLoader aweCm3DLoader();
 
 public class AweExtrusion {
     public APath2D profile = null;
@@ -79,10 +79,11 @@ public class AweExtrusion {
         return prim;
     }
     
-    extend public Primitive3D simple(double length) {
+    extend public Primitive3D simple(double length, bool doubleSided=true) {
        var mesh = PolygonMesh3D(this.profile, length);
 
-       mesh.setDoubleSided(true);
+       if(doubleSided)
+        mesh.setDoubleSided(doubleSided);
 
        return mesh;
     }

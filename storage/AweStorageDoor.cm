@@ -34,25 +34,26 @@
    END OF CETSC
 */
 
-package custom.awesome.product;
+package custom.awesome.storage;
 
-use custom.awesome;
-use custom.awesome.connectors;
-use custom.awesome.gallery;
+public class AweStorageDoor extends AweStorageCorePiece {
+    public str pullType;
+    public point2D pullPosition;
 
-use custom.acs.materials;
-use custom.acs.snappers;
+    public constructor(point2D pullPosition = (0, 0), str pullType = "square-pull") {
+        this.pullType = pullType;
+        this.pullPosition = pullPosition;
+    }   
 
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.format.json;
-use cm.geometry;
-use cm.geometry2D.advanced;
-use cm.internet;
-use cm.io;
-use cm.io.util;
-use cm.subset;
-use cm.win;
+    public Awe3D get3D() {
+        Awe3D prims();
+
+        Primitive3D pull = aweCm3DLoader.get3D(pullType, storageCm3DFolder);
+        
+        pull.setMaterial(owner.getMaterial("pull"));
+        prims << pull.setPos((pullPosition.x, 0, pullPosition.y));
+
+        prims << AweBox3D(box((0, 0, 0), (width, depth, height)), owner.getMaterial("door"));
+        return Awe3D(prims);
+    }
+}

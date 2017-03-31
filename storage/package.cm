@@ -34,25 +34,20 @@
    END OF CETSC
 */
 
-package custom.awesome.product;
+package custom.awesome.storage;
 
 use custom.awesome;
-use custom.awesome.connectors;
-use custom.awesome.gallery;
-
-use custom.acs.materials;
-use custom.acs.snappers;
+use custom.awesome.basic3D;
+use custom.awesome.product;
 
 use cm.application;
 use cm.basic;
 use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.format.json;
 use cm.geometry;
 use cm.geometry2D.advanced;
-use cm.internet;
-use cm.io;
-use cm.io.util;
-use cm.subset;
+use cm.core3D;
+use cm.draw;
 use cm.win;
+use cm.os;
+
+public const str storageCm3DFolder = "custom/awesome/data/cm3d/storage";
