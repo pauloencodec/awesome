@@ -42,12 +42,13 @@ public class AweStorageGridPiece {
     public double height;
     public double z;
     public AweStorageGrid owner;
+    public Material3D material;
 
     public constructor() {
     }   
 
     extend public Awe3D get3D() {
-        AweBox3D aweBox(box(point(),width,depth,height), randomColorLWMaterial());
+        AweBox3D aweBox(box(point(),width,depth,height), this.material??randomColorLWMaterial);
         return aweBox;
     }
 }
