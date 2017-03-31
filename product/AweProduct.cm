@@ -101,6 +101,11 @@ public class AweProduct extends AweGeometry {
     extend public void buildSuper3D() {
         Primitive3D[] prims();
         for(g in geometries) {
+            if (g as AweProduct) { 
+                if (g != this) { 
+                    prims << g.super3D();
+                }
+            }
             prims << g.super3D();
         }
         super3D = safeSet3D(prims);
@@ -111,6 +116,11 @@ public class AweProduct extends AweGeometry {
         Primitive3D[] prims();
 
         for(g in geometries) {
+            if (g as AweProduct) { 
+                if (g != this) { 
+                    prims << g.getMedium3D();
+                }
+            }
             var p = g.medium3D();
             prims << p;
         }
@@ -123,6 +133,11 @@ public class AweProduct extends AweGeometry {
         graph = new AweGraph();
 
         for(geometry in geometries) {
+             if (geometry as AweProduct) { 
+                if (geometry != this) { 
+                    graph << geometry.graph();
+                }
+            }
             Graph gr = geometry.graph();
             if(gr) {
                 this.appendLinesAndPointsOfInterest(geometry);
