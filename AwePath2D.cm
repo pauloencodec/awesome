@@ -47,6 +47,11 @@ public class AwePath2D extends APath2D {
         super(origin);
     }
     
+    public void lineTo(point2D p) { 
+        this.lastLine = line2D(endPoint, p);
+        super(..);
+    }
+
     extend public AwePath2D to(point2D target) {
         this.lastLine = line2D(endPoint, target);
         lineTo(target);
