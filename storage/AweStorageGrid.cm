@@ -38,7 +38,7 @@ package custom.awesome.storage;
 
 public class AweStorageGrid {
     public box localBound;
-    private AweStorageGridColumn[] columns();
+    public AweStorageGridColumn[] columns();
     private str->Material3D materials();
 
     public constructor(box localBound) {
