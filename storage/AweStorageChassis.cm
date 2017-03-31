@@ -52,6 +52,7 @@ public class AweStorageChassis3D extends Awe3D {
     public box spaceLeft;
     public box frontBox;
     public AweStorageBase base;
+    public Awe3D[] specialPrims();
     extend public box gridBox() {
         return spaceLeft;
     }
@@ -120,6 +121,7 @@ public class AweStorageChassis3D extends Awe3D {
         
         if(prim) {
             prim.move(laminate.p0);
+            specialPrims << prim;
             this << prim;
         } else {
             AweBox3D prim(laminate, randomColorLWMaterial());
@@ -138,6 +140,7 @@ public class AweStorageChassis3D extends Awe3D {
         
         if(prim) {
             prim.move(laminate.p0);
+            specialPrims << prim;
             this << prim;
         } else {
             AweBox3D prim(laminate, randomColorLWMaterial());
@@ -201,6 +204,9 @@ public class AweStorageChassis3D extends Awe3D {
     }
 
     public void setMaterial(Material3D material) {
+        for (p in specialPrims) {
+            p.setMaterial(material);
+        }
         for(f in allFaces) {
             f.setMaterial(material);
         }
@@ -214,10 +220,10 @@ public class AweStorageChassis3D extends Awe3D {
     double h = 30inch;
     double t = 0.75inch;
 
-    AweStorageChassis3D chassis(box((-w/2,-d/2,0),(w/2,d/2,h)));
-    chassis.addBase(AweStorageGlideBase(0,0)).addFront(addLaminate=true).addTop().addLeft().addRight().addBack();
-    chassis.setMaterial(mahognyMaterial3D);
-    test(chassis.get3D());
+    // AweStorageChassis3D chassis(box((-w/2,-d/2,0),(w/2,d/2,h)));
+    // chassis.addBase(AweStorageGlideBase(0,0)).addFront(addLaminate=true).addTop().addLeft().addRight().addBack();
+    // chassis.setMaterial(mahognyMaterial3D);
+    // test(chassis.get3D());
 
     // AweStorageGrid front(chassis.frontBox);
     // front.addColumn(w);
@@ -231,5 +237,10 @@ public class AweStorageChassis3D extends Awe3D {
     // miolo.addPiece(AweStorageShelf(0.75inch), 1, h/2);
     // miolo.fillWithPieces(AweStorageShelf(0.75inch, 0, 5inch, h));
     // test(miolo.get3D());
+
+AweStorageChassisTrough c(box((0,0,0),(1,1,1)), 1inch, 5inch, 20inch);
+c.setMaterial(mahognyMaterial3D);
+test(c.get3D());
+
 
 }
