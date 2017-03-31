@@ -102,7 +102,7 @@ public class AweProduct extends AweGeometry {
         for(g in geometries) {
             if (g as AweProduct) { 
                 if (g != this) { 
-                    prims <<? g.super3D();
+                    prims <<? g.getSuper3D();
                 }
             }
             prims <<? g.super3D();
@@ -129,7 +129,7 @@ public class AweProduct extends AweGeometry {
         for(geometry in geometries) {
              if (geometry as AweProduct) { 
                 if (geometry != this) { 
-                    graph <<? geometry.graph();
+                    graph <<? geometry.get2D();
                 }
             }
             Graph gr = geometry.graph();
