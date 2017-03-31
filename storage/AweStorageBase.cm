@@ -44,7 +44,6 @@ public class AweStorageBase {
     }   
 
     extend public Awe3D get3D() {
-        // AweBox3D b(box(owner.localBound.p0, owner.localBound.p1));
         return null;
     }
 }
