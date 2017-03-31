@@ -37,11 +37,9 @@
 package custom.awesome.product;
 use cm.geometry.advanced;
 
-public class AweProduct extends Snapper {
+public class AweProduct extends AweGeometry {
 
     public Object _model;
-    private str->Point2D poi() : public readable;
-    private str->Line2D loi() : public readable;
 
     private Primitive3D medium3D;
     private Primitive3D super3D;
@@ -49,15 +47,7 @@ public class AweProduct extends Snapper {
 
     private AweGeometry[] geometries;
     extend public AweProduct operator<<(AweGeometry geometry) {
-        geometries << geometry;
-
-        return this;
-    }
-
-    extend public AweProduct operator<<(AweProduct product) {
-        if(product and product.geometries) {
-            geometries += product.geometries;
-        }
+        geometries <<? geometry;
         return this;
     }
 
@@ -99,38 +89,33 @@ public class AweProduct extends Snapper {
         super3D = null;
         graph = null;
         geometries = new AweGeometry[]();
+        //adding self to list of geometries
+        this << this;
         build();
     }
 
-    //abstract?
     extend public void build() {
-
     }
 
     extend public void buildSuper3D() {
         Primitive3D[] prims();
         for(g in geometries) {
-            prims << g.super3D();
+            prims <<? g.super3D();
         }
         super3D = safeSet3D(prims);
     }
 
     extend public void buildMedium3D() {
-        
         Primitive3D[] prims();
-
         for(g in geometries) {
-            var p = outlinedPrim(g.medium3D());
-            prims << p;
+            var p = g.medium3D();
+            prims <<? p;
         }
-
         medium3D = safeSet3D(prims);
     }
 
     extend public void buildGraph() {
-        
         graph = new AweGraph();
-
         for(geometry in geometries) {
             Graph gr = geometry.graph();
             if(gr) {
@@ -140,10 +125,9 @@ public class AweProduct extends Snapper {
         }
     }
 
-    public Primitive3D get3D(FetchEnv3D env) {
+    extend public Primitive3D get3D(FetchEnv3D env) {
         //for rendering
         if(env.detail == detailLevel3D.super) return getSuper3D();
-
         return getMedium3D;
     }
 
@@ -164,13 +148,12 @@ public class AweProduct extends Snapper {
 
     public box localBound() {
         box result();
-
         if(geometries and geometries.count > 0) {
             for (g in geometries) { 
-                result += g.localBound;
+                if(g != this)
+                    result += g.localBound;
             }
         }
-
         return result;
     }
 }

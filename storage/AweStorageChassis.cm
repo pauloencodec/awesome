@@ -75,12 +75,6 @@ public class AweStorageChassis3D extends Awe3D {
         }
     }
 
-    extend private void addToIndex(str name, Rect3D[] rs) {
-        for(r in rs) {
-            addToIndex(name, r);
-        }
-    }
-    
     extend public Primitive3D get3D() {
         return this;
     }
