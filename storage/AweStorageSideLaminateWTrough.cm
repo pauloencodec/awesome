@@ -53,7 +53,6 @@ public class AweStorageSideLaminateWTrough extends Awe3D {
     extend public Primitive3D endPanel(double thickness = 0.75inch) {
         AweExtrusion endPanelEx(endPanelProfile());
         Primitive3D p = endPanelEx.horizontal(line2D((0,0),(thickness,0)),0);
-        p.setMaterial(material);
         return p;
     }
 
