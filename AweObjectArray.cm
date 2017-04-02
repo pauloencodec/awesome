@@ -34,21 +34,19 @@
    END OF CETSC
 */
 
-package custom.awesome.storage;
+package custom.awesome;
 
-use custom.awesome;
-use custom.awesome.basic3D;
-use custom.awesome.product;
+private alias AweObjectArrayAlias = AweObject[];
 
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.geometry;
-use cm.geometry2D.advanced;
-use cm.core3D;
-use cm.draw;
-use cm.win;
-use cm.os;
+/* used to bundle an array of aweObjects into a single object which can be used as a snapper root */
+public aweObject AweObjectArray {
+    props(AweObjectArrayAlias objects = AweObjectArrayAlias());
+    extend public AweObjectArray operator << (AweObject o) {
+        this.objects << o;
+        return this;
+    }
 
-public const str storageCm3DFolder = "custom/awesome/data/cm3d/storage";
-public str storageProfilesFolder = "custom/panels/assets/cm3D/profiles/stride/";
+    public constructor(rest: AweObject[] objects) {
+        this.objects = objects;
+    }
+}

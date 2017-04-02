@@ -38,7 +38,7 @@ package custom.awesome.storage;
 
 public class AweStorageGrid {
     public box localBound;
-    private AweStorageGridColumn[] columns();
+    public AweStorageGridColumn[] columns();
     private str->Material3D materials();
 
     public constructor(box localBound) {
@@ -49,7 +49,11 @@ public class AweStorageGrid {
         materials.put(key, material);
     }
 
-    extend public Material3D getMaterial(str key){
+    extend public void setMaterial(Material3D material) {
+        materials.put("default", material);
+    }
+
+    extend public Material3D getMaterial(str key = "default"){
         var material = materials.get(key);
         if(material) {
             return material;
@@ -126,7 +130,6 @@ public class AweStorageGrid {
             }
             for(p in c.pieces) {
                 point origin(x,0,p.z);
-                pln(#p.z);
                 var aweBox = p.get3D();
                 aweBox.move(origin + localBound.p0);
                 prim << aweBox;

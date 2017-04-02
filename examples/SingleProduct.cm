@@ -34,21 +34,50 @@
    END OF CETSC
 */
 
-package custom.awesome.storage;
+package custom.awesome.examples;
 
-use custom.awesome;
-use custom.awesome.basic3D;
-use custom.awesome.product;
+/* just one product */
 
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.geometry;
-use cm.geometry2D.advanced;
-use cm.core3D;
-use cm.draw;
-use cm.win;
-use cm.os;
+//the cube model
+public aweObject MyCubeModel {
+    props(
+        double size = 1,
+        point origin = point()
+    );
 
-public const str storageCm3DFolder = "custom/awesome/data/cm3d/storage";
-public str storageProfilesFolder = "custom/panels/assets/cm3D/profiles/stride/";
+    public aweObjectDomain(
+        distance size = DistanceEnum(1,2,3,4,5,6,7,8)
+    );
+}
+
+//the product
+public class MyCubeProduct extends AweProduct {
+    public AweModel<MyCubeModel> model;
+    public box localBound() {
+        box b(point(), this.model.size, this.model.size, this.model.size);
+        b.move(this.model.origin);
+        return b;
+    }
+    public Primitive3D medium3D() {
+        Box3D b(this.localBound());
+        b.setMaterial(plainGreenMaterial3D);
+        return b;
+    }
+}
+
+
+//bind them
+//keeping binder private, you can give them simple names without being concerned about uniqueness across you extension.
+private aweBinder<MyCubeModel, MyCubeProduct> Cube;
+
+//the snapper. just init root with your data.
+public class SingleCubeSnapper extends AweBindingSnapper {
+    public AweObject initRoot() {
+       return Cube();
+    }
+    
+}
+
+{
+    SingleCubeSnapper().launch();
+}

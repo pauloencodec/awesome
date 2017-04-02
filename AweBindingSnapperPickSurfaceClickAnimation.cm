@@ -34,21 +34,42 @@
    END OF CETSC
 */
 
-package custom.awesome.storage;
+package custom.awesome;
 
-use custom.awesome;
-use custom.awesome.basic3D;
-use custom.awesome.product;
+public class AweBindingSnapperPickSurfaceClickAnimation extends SnapperClickAnimation {
 
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.geometry;
-use cm.geometry2D.advanced;
-use cm.core3D;
-use cm.draw;
-use cm.win;
-use cm.os;
+    public AweBindingSnapper snapper;
 
-public const str storageCm3DFolder = "custom/awesome/data/cm3d/storage";
-public str storageProfilesFolder = "custom/panels/assets/cm3D/profiles/stride/";
+    public constructor(StartClickAnimationEnv env, AweBindingSnapper snapper) {
+        this.snapper = snapper;
+        super(env);
+    }
+
+    public void click2(AnimationMouseInfo mi) {
+        super(..);
+        this.handleClick(mi, true);
+    }
+
+    public void click(AnimationMouseInfo mi) {
+        super(..);
+        this.handleClick(mi);
+    }
+
+    final private void handleClick(AnimationMouseInfo mi, bool rightClick = false) { 
+        WindowView owner = mi.ownerView;
+
+        if (owner as View3D) {
+            PickIntersection3D[] picked = owner.pick(mi.windowViewMouseInfo.pos);
+            for (p in picked) {
+                if(p.owner.AweBindingSnapperPickSurface) {
+                    var configurator = p.owner.AweBindingSnapperPickSurface.configurator;
+                    if(configurator) {
+                        snapper.activeConfigurator = configurator;
+                        invalidateQuickPropertiesFor(snapper);
+                        snapper.invalidate();
+                    }
+                }
+            }
+        }
+    }
+}

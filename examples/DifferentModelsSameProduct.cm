@@ -1,0 +1,101 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.examples;
+
+/* example showing how to render two different models with the same product definition. 
+code makes two cubes with similar but different data models, but binds them to the same product */
+
+
+//base class for models
+public aweObject BasicCubeModel {
+    props(
+        double size = 0,
+        point origin = point()
+    );
+}
+
+//cube with big size options
+public class BigCubeModel extends BasicCubeModel {
+    public aweObjectDomain(
+        distance size = DistanceEnum(2,3,4)
+    );
+}
+
+//cube with small size options
+public class SmallCubeModel extends BasicCubeModel {
+    public aweObjectDomain(
+        distance size = DistanceEnum(.5,1)
+    );
+}
+
+//a product that fits both
+public class AnySizeCubeProduct extends AweProduct {
+    public AweModel<BasicCubeModel> model;
+    public box localBound() {
+        box b(point(), this.model.size, this.model.size, this.model.size);
+        b.move(this.model.origin);
+        return b;
+    }
+    public Primitive3D medium3D() {
+        Box3D b(this.localBound());
+        b.setMaterial(plainBlueMaterial3D);
+        return b;
+    }
+}
+
+//bind them 
+//keeping binder private, you can give them simple names without being concerned about uniqueness across you extension.
+
+private aweBinder<BigCubeModel, AnySizeCubeProduct> BigOne;
+private aweBinder<SmallCubeModel, AnySizeCubeProduct> SmallOne;
+
+//the snapper. just init root with your data.
+public class SmallAndBigCubesSnapper extends AweBindingSnapper {
+    public AweObject initRoot() {
+        //shove them in a collection
+        return AweObjectArray(
+            BigOne(size=2),
+            //put this one far away
+            SmallOne(size=.5, origin=(5,5,0))
+        );
+    }
+    
+}
+
+{
+    SmallAndBigCubesSnapper().launch();
+}

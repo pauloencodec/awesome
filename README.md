@@ -38,7 +38,7 @@ public class CubeProduct extends AweProduct {
 }
 
 private aweBinder<CubeModel, CubeProduct> Cube;
-public class CubeSnapper extends AweMultiProductSnapper {
+public class CubeSnapper extends AweBindingSnapper {
     public AweObject initRoot() {
         CubeCollectionModel collection();
         bool on = false;
