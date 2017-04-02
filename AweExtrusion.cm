@@ -43,6 +43,8 @@ public class AweExtrusion {
 
     public constructor(str profileName, str profileDir) {
         this.profile = aweCm3DLoader.getProfile(profileName, profileDir);
+
+        if(!this.profile) pln("ERROR: Could not found profile \"" # profileName # "\" at \"" # profileDir # "\"");
     }
 
     public constructor(AwePath2D profile) {

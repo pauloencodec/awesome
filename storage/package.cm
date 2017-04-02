@@ -51,4 +51,3 @@ use cm.win;
 use cm.os;
 
 public const str storageCm3DFolder = "custom/awesome/data/cm3d/storage";
-public str storageProfilesFolder = "custom/panels/assets/cm3D/profiles/stride/";
