@@ -60,11 +60,20 @@ public class CubeProduct extends AweProduct {
         b.move(this.model.origin);
         return b;
     }
+    
     public Primitive3D medium3D() {
         Box3D b(this.localBound());
         b.setMaterial(model.on ? plainBlueMaterial3D : plainWhiteMaterial3D);
         return b;
     }
+
+    public Graph graph() { 
+        var c = model.on ? blue : white;
+        var g = GRect(rect(point2D(), (1, 1)), c);
+        g.move(this.model.origin);
+        return g;
+    }
+    
 }
 
 //the bindings

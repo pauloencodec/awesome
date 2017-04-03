@@ -107,6 +107,17 @@ public class AweBindingSnapper extends AweSnapper : abstract {
         }
     }
 
+    public void drawGraphs(LayerBuffer lb, View view, GeometricFinder finder=null) {
+        var allP = this.allProducts();
+        if (allP) {
+            for (p in allP) { 
+                if (Graph graph = p.get2D()) { 
+                    graph.draw(lb);
+                }
+            }
+        }
+        super(..);
+    }
 
     public Primitive3D get3D(FetchEnv3D env) {
         Awe3D all();
