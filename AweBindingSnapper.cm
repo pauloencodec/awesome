@@ -67,7 +67,7 @@ public class AweBindingSnapper extends AweSnapper : abstract {
     }
 
 
-    extend private AweObject[] allModels() {
+    extend public AweObject[] allModels() {
         AweObject[] list();
         addModels(list, this.root);
         return list;
