@@ -87,19 +87,31 @@ public class AweBindingSnapper extends AweSnapper : abstract {
 
     extend private void addModels(AweObject[] list, AweObject parentModel) {
         if(parentModel) {
+            
             if(parentModel in list) return;
+
             list << parentModel;
             for (key, propValue in parentModel.props) {
+                
+                if (propValue == null) { continue; }
+                
                 if(propValue as AweObject) {
                     addModels(list, propValue);
                 } else {
-
-                    SeqIterator iterator = propValue.class.iterator.instantiate().SeqIterator;
-                    if(iterator) {
+                    var iteratorBase = propValue.class.iterator.instantiate();
+                    aweTryCast (iteratorBase as iterator to SeqIterator, SetIterator) {
                         iterator.init(propValue);
                         while (iterator.step()) {
                             AweObject obj = iterator.get.AweObject;
                             addModels(list, obj);
+                        }
+                    } else { 
+                        if (iteratorBase as MapIterator) { 
+                            iteratorBase.init(propValue);
+                            while (iteratorBase.step()) {
+                                AweObject obj = iteratorBase.v.AweObject;
+                                addModels(list, obj);
+                            } 
                         }
                     }
                 }
@@ -171,7 +183,6 @@ public class AweBindingSnapper extends AweSnapper : abstract {
 
 
 }
-
 
 public class AweBindingSnapperPickSurface extends PickSurface {
     public AweObject configurator;
