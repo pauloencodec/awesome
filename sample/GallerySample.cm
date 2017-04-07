@@ -47,7 +47,7 @@ public class AweSampleGallery extends AweGallery {
         return snapper;
     }
 
-    public Object defaultItem() {
+    public AweObject defaultItem() {
         return new GalleryCaixildoConfigurator();
     }
 
@@ -57,7 +57,7 @@ public class AweSampleGallery extends AweGallery {
 }
 
 public class AweSampleGallerySnapper extends AweGallerySnapper {
-    public Object getGalleryData() {
+    public AweObject getGalleryData() {
         return this.configurator;
     }
 
