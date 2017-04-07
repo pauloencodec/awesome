@@ -92,6 +92,10 @@ public class AweSnapper  extends Snapper {
         this.refresh(true);
     }
 
+    public Animation insertAnimation(StartInsertAnimationEnv env) {
+        return new AweInsertAnimation(env);
+    }
+
     /**
      * Loops through all connected snappers and try to realign them just like 
      * (re)alignAllSnapped would do except it will check individually if that
