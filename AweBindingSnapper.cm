@@ -88,13 +88,15 @@ public class AweBindingSnapper extends AweSnapper : abstract {
     extend private void addModels(AweObject[] list, AweObject parentModel) {
         if(parentModel) {
             if(parentModel in list) return;
+            
             list << parentModel;
+            
             for (key, propValue in parentModel.props) {
                 if(propValue as AweObject) {
                     addModels(list, propValue);
                 } else {
 
-                    SeqIterator iterator = propValue.class.iterator.instantiate().SeqIterator;
+                    SeqIterator iterator = propValue.?class.?iterator.?instantiate().SeqIterator;
                     if(iterator) {
                         iterator.init(propValue);
                         while (iterator.step()) {
