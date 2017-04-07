@@ -36,55 +36,53 @@
 
 package custom.awesome.storage;
 
-public class AweStorageDoor extends AweStorageGridPiece {
-    public angle pullRotation;
-    public bool writeable;
-    public double leftOffset;
-    public double rightOffset;
-    public str pullType;
-    private Point2D _pullPosition;
+public class AweStorageDoorGlass extends AweStorageGridPiece {
 
-    public constructor(str pullType = "square-pull", bool writeable = false, double leftOffset = 0, double rightOffset = 0) {
-        this.pullType = pullType;
-        this.writeable = writeable;
-        this.leftOffset = leftOffset;
-        this.rightOffset = rightOffset;
-    }   
-
-    public constructor(point2D pullPosition, angle pullRotation = 0deg, str pullType = "square-pull") {
-        this.pullPosition = pullPosition;
-        this.pullRotation = pullRotation;
-        this.pullType = pullType;
-    }   
+    public constructor() { }   
 
     public Awe3D get3D() {
         Awe3D prims();
-
-        if (pullType) {
-            Primitive3D pull = aweCm3DLoader.get3D(pullType, storageCm3DFolder);
-            pull.setMaterial(owner.getMaterial("pull"));
-            prims << pull.setPosRot((pullPosition.x, 0, pullPosition.y), (0deg, pullRotation, 0deg));
-        }
-
-        if (writeable) {
-            Primitive3D writeableFront = AweBox3D(box((0, -0.01inch, 0), (width, 0, height)), owner.getMaterial("front"));
-            writeableFront.setMaterial(owner.getMaterial("writeableFront"));
-            prims << writeableFront;
-        }
-
-        prims << AweBox3D(box((0 + leftOffset, 0, 0), (width - rightOffset, depth, height)), owner.getMaterial("front"));
+        prims << addFrame();
+        prims << addGlass();
         return Awe3D(prims);
     }
 
-    extend public point2D pullPosition() {
-        if (_pullPosition == null) {
-            return (width/2, height - 1inch);
-        }
-        return _pullPosition.v;
+    extend private Primitive3D addGlass() {
+        double offset = 0.045inch;
+        Box3D glass((offset, -0.049inch, offset), (width - offset, 0.15inch, height - offset));
+        glass.setMaterial(owner.getMaterial("glass"));
+        return glass;
     }
 
-    extend public point2D pullPosition=(point2D value){
-        this._pullPosition = new Point2D (value); 
-        return this._pullPosition.v;
+    extend private Primitive3D addFrame() {
+        Primitive3D[] prims();
+        prims << frameSegment((width/2, depth), 0deg, width/2);
+        prims << frameSegment((width/2, height - depth), 180deg, width/2);
+        prims << frameSegment((depth, height/2), 90deg, height/2);
+        prims << frameSegment((width - depth, height/2), 270deg, height/2);
+        return Instance3D(prims);
+    }
+
+    extend private Primitive3D frameSegment(point2D pos, angle rot, double side) {
+        AweExtrusion ex(frameSegmentProfile());
+        Primitive3D p = ex.horizontal(line2D((-side, -0.75inch), (side, -0.75inch)), 0,  startAngle = 45deg, endAngle = 45deg);
+        p.setPosRot((pos.x, depth, pos.y), orientation(0deg, rot, 90deg));
+        p.setMaterial(owner.getMaterial("frameMaterial"));
+        return p;
+    }
+
+    extend private AwePath2D frameSegmentProfile() {
+        AwePath2D p();
+        p.lineTo(0, 1.766inch);
+        p.lineTo(0.6inch, 1.766inch);
+        p.lineTo(0.6inch, 0.045inch);
+        p.lineTo(0.799inch, 0.045inch);
+        p.lineTo(0.799inch, 0.312inch);
+        p.lineTo(0.844inch, 0.312inch);
+        p.lineTo(0.844inch, 0);
+        p.close;
+        p.rotate(90deg);
+        return p;
     }
 }
+
