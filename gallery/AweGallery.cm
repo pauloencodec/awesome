@@ -49,9 +49,9 @@ public class AweGallery : abstract {
     }
 
     extend public AweGallerySnapper createSnapper(Object dataItem) : abstract {}
-    extend public Object defaultItem() : abstract {}
+    extend public AweObject defaultItem() : abstract {}
     
-    extend public Object save(AweGallerySnapper snapper) {
+    extend public AweObject save(AweGallerySnapper snapper) {
         return snapper.getGalleryData();
     }
 
@@ -178,7 +178,7 @@ public class AweGallery : abstract {
         return items; 
     }
 
-    extend public Object getData(str id) {
+    extend public AweObject getData(str id) {
         var items = this.getItems();
 
         for (item in items) if (item.id == id) {
@@ -271,7 +271,7 @@ public class AweGallery : abstract {
 
         for (s in this.gallerySpace.snappers) {
             if (s as AweGallerySnapper) {
-                if (Object item = this.save(s)) {
+                if (AweObject item = this.save(s)) {
                     gallery << new AweGalleryItem(s.galleryItemId, s.galleryItemName, item, s.pos);
                 }                
             }
@@ -286,7 +286,7 @@ public class AweGallery : abstract {
         space.putAuxillaryObject(this.class.name, items);
     }
 
-    extend public void save(str name, Object data) {
+    extend public void save(str name, AweObject data) {
         var items = this.getItems();
         AweGalleryItem match;
 
@@ -377,11 +377,11 @@ public class AweGallery : abstract {
 
         for (item in items) {
             if (!id or item.id == id) {
-                return item;
+                return item.copy();
             }
         }
 
-        return items.first();
+        return items.first().copy();
     }
     
     extend private bool validateSnappers() {

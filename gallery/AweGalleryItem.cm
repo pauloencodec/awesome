@@ -36,20 +36,22 @@
 
 package custom.awesome.gallery;
 
-public class AweGalleryItem {
-    public str id;
-    public str name;
-    public Object data;
+public aweObject AweGalleryItem {
+    props(
+        str id = null,
+        str name = null,
+        AweObject data = null
+    );
     public point pos;
     
-    public constructor(str id, str name, Object data, point pos) {
+    public constructor(str id, str name, AweObject data, point pos) {
         this.id = id;
         this.name = name;
         this.data = data;
         this.pos = pos;
     }
 
-    public constructor(str name, Object data, point pos) {
+    public constructor(str name, AweObject data, point pos) {
         this(getNewGalleryItemId(), name, data, pos);
     }
 

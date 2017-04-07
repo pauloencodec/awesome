@@ -50,7 +50,7 @@ public class AweGalleryDomain extends ObjectSubSet {
     extend public QuickProperty customQuickProperty(str key, str label, Object value) {
         this.refresh();
         
-        return new AweGalleryQuickProperty(key, label, value.AweGalleryItem, this, this.isEditing);
+        return new AweGalleryQuickProperty(key, label, value.AweGalleryItem.copy, this, this.isEditing);
     }
 
     extend private void refresh() {
