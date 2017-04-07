@@ -92,10 +92,10 @@ public class AweBindingSnapper extends AweSnapper : abstract {
             list << parentModel;
             
             for (key, propValue in parentModel.props) {
+                if (propValue == null) continue;
                 if(propValue as AweObject) {
                     addModels(list, propValue);
                 } else {
-
                     SeqIterator iterator = propValue.?class.?iterator.?instantiate().SeqIterator;
                     if(iterator) {
                         iterator.init(propValue);
