@@ -34,40 +34,36 @@
    END OF CETSC
 */
 
-package custom.awesome.gallery;
+package custom.awesome;
 
-public aweObject AweGalleryItem {
-    props(
-        str id = null,
-        str name = null,
-        AweObject data = null
-    );
-    public point pos;
-    
-    public constructor(str id, str name, AweObject data, point pos) {
-        this.id = id;
-        this.name = name;
-        this.data = data;
-        this.pos = pos;
+public class AweInsertAnimation extends InsertAnimation {
+    public AweSnapper snapper;
+
+    public constructor(StartInsertAnimationEnv env) {
+        super(env);
+
+        this.snapper = env.selection.main.AweSnapper;
+
+        assert(this.snapper);
     }
 
-    public constructor(str name, AweObject data, point pos) {
-        this(getNewGalleryItemId(), name, data, pos);
-    }
-
-    public str toS() {
-        return this.name;
-    }
-
-    public bool equal(Object other, EqualEnv env=EqualEnv()) {
-        if (other as AweGalleryItem) {
-            return other.id == this.id;
+    public void buildProperties() {
+        this.destroyAnimationProperties();
+        this.createAnimationProperties();
+        
+        if (this.snapper.activeConfigurator) {
+            this.snapper.activeConfigurator.buildAnimationProperties(this.animationProperties);
         }
 
-        return false;
+        this.animationProperties.finalize();
     }
-}
 
-public str getNewGalleryItemId() {
-    return guid().hex;
+    public void propertyChange(str key, Object value) {
+        super(..);
+
+        if (this.snapper.activeConfigurator) {
+            this.snapper.activeConfigurator.animationPropertyChanged(..);
+            this.snapper.refresh(true, true);
+        }
+    }
 }

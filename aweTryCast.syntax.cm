@@ -34,40 +34,25 @@
    END OF CETSC
 */
 
-package custom.awesome.gallery;
+package custom.awesome;
+use cm.syntax;
 
-public aweObject AweGalleryItem {
-    props(
-        str id = null,
-        str name = null,
-        AweObject data = null
-    );
-    public point pos;
-    
-    public constructor(str id, str name, AweObject data, point pos) {
-        this.id = id;
-        this.name = name;
-        this.data = data;
-        this.pos = pos;
+public statement aweTryCast '(' @what=id "as" @name=id "to" @types=list[type, ',']* ')' @doWhat=statement @else=["else" statement]? { 
+    SStatements s = statement { var found = false; };
+    for (t in types) { 
+        var tType = t.type;
+        s << block { 
+            if (@what.@tType) { 
+                found = true;
+                @tType @name = @what.@tType;
+                @doWhat;
+            }
+        };
     }
-
-    public constructor(str name, AweObject data, point pos) {
-        this(getNewGalleryItemId(), name, data, pos);
-    }
-
-    public str toS() {
-        return this.name;
-    }
-
-    public bool equal(Object other, EqualEnv env=EqualEnv()) {
-        if (other as AweGalleryItem) {
-            return other.id == this.id;
+     s << block { 
+        if(!found) { 
+            @else;
         }
-
-        return false;
-    }
-}
-
-public str getNewGalleryItemId() {
-    return guid().hex;
-}
+    };
+    return s;
+} 
