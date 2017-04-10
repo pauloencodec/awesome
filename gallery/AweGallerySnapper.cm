@@ -43,7 +43,7 @@ public class AweGallerySnapper extends AweEasySnapper : abstract {
     public str galleryItemName;
     public int galleryItemIndex;
     
-    extend public Object getGalleryData() : abstract {}
+    extend public AweObject getGalleryData() : abstract {}
     extend public void applyGalleryData(Object params) : abstract {}
 
     extend public bool readOnly() { return false; }
