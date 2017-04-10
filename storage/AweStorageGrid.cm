@@ -102,6 +102,11 @@ public class AweStorageGrid {
         return this;
     }
 
+    extend public AweStorageGrid addSpace(int column, double height) {
+        columns[column].addSpace(height);
+        return this;
+    }
+
     extend public AweStorageGrid fillWithPieces(AweStorageGridPiece piece, int column, double height, double columnHeight){
         int pieces = (localBound.h/height).int;
         
