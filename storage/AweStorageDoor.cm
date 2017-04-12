@@ -37,12 +37,18 @@
 package custom.awesome.storage;
 
 public class AweStorageDoor extends AweStorageGridPiece {
-    public str pullType;
     public angle pullRotation;
+    public bool writeable;
+    public double leftOffset;
+    public double rightOffset;
+    public str pullType;
     private Point2D _pullPosition;
 
-    public constructor(str pullType = "square-pull") {
+    public constructor(str pullType = "square-pull", bool writeable = false, double leftOffset = 0, double rightOffset = 0) {
         this.pullType = pullType;
+        this.writeable = writeable;
+        this.leftOffset = leftOffset;
+        this.rightOffset = rightOffset;
     }   
 
     public constructor(point2D pullPosition, angle pullRotation = 0deg, str pullType = "square-pull") {
@@ -54,12 +60,19 @@ public class AweStorageDoor extends AweStorageGridPiece {
     public Awe3D get3D() {
         Awe3D prims();
 
-        Primitive3D pull = aweCm3DLoader.get3D(pullType, storageCm3DFolder);
-        
-        pull.setMaterial(owner.getMaterial("pull"));
-        prims << pull.setPosRot((pullPosition.x, 0, pullPosition.y), (0deg, pullRotation, 0deg));
+        if (pullType) {
+            Primitive3D pull = aweCm3DLoader.get3D(pullType, storageCm3DFolder);
+            pull.setMaterial(owner.getMaterial("pull"));
+            prims << pull.setPosRot((pullPosition.x, 0, pullPosition.y), (0deg, pullRotation, 0deg));
+        }
 
-        prims << AweBox3D(box((0, 0, 0), (width, depth, height)), owner.getMaterial("front"));
+        if (writeable) {
+            Primitive3D writeableFront = AweBox3D(box((0, -0.01inch, 0), (width, 0, height)), owner.getMaterial("front"));
+            writeableFront.setMaterial(owner.getMaterial("writeableFront"));
+            prims << writeableFront;
+        }
+
+        prims << AweBox3D(box((0 + leftOffset, 0, 0), (width - rightOffset, depth, height)), owner.getMaterial("front"));
         return Awe3D(prims);
     }
 
