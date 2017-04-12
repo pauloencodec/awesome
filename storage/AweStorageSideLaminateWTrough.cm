@@ -42,7 +42,7 @@ public class AweStorageSideLaminateWTrough extends Awe3D {
     public double xCutAxis = 2.764inch;
     public double yCutAxis = 3.295inch;
 
-    public constructor(box chassis, double thickness = 0.75inch, double xCutAxis = 2.764inch, double yCutAxis = 3.295inch) {
+    public constructor(box chassis, double thickness = 0.75inch, double xCutAxis = 2.764inch, double yCutAxis = 2.264inch) {
         this.chassis = chassis;
         this.thickness = thickness;
         this.xCutAxis = xCutAxis;
@@ -62,4 +62,5 @@ public class AweStorageSideLaminateWTrough extends Awe3D {
 
         return path;
     }
+    
 }
