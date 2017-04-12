@@ -100,6 +100,10 @@ public class AweConnectorCache {
         return c;
     }
 
+    extend public Connector[] buffer() {
+        return this._buffer;
+    }
+
     extend public Connector get(str key) {
         return this._cache.get(key);
     }
