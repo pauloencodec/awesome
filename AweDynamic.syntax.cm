@@ -63,6 +63,9 @@ public member @visibility aweDynamicContract '{' @contractItems=[statement]+ '}'
                 Object result = null;
                 @ifs;
                 env.result = result;
+
+                if (result) return false;
+
                 return super(..);
             }
             else return super(..);
