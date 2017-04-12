@@ -69,6 +69,7 @@ public class AweBindingSnapperPickSurfaceClickAnimation extends SnapperClickAnim
                         snapper.invalidate();
                     }
                 }
+                return;
             }
         }
     }
