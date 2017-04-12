@@ -1,0 +1,98 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.electrical;
+
+public class AweElectricalConnectLine extends AweConnectPoint {
+    public AweElectricalRoute route;
+    public bool selected;
+
+    public constructor(AweElectricalRoute route) {
+        super(route.owner);
+
+        this.setPos(route.path.p0);
+
+        this.route = route;
+    }
+
+    public Primitive3D get3D(FetchEnv3D env) {
+        var connectorP0 = this.snapperToConnector(this.route.p0);
+        var connectorP1 = this.snapperToConnector(this.route.p1);
+        
+        Primitive3D prim;
+
+        if (this.route.infeed) {
+            prim = new Arrow3D(connectorP0, connectorP1, 2.5inch, 1inch, 8inch);
+        }
+        else {
+            prim = new ClosedCylinder3D(connectorP0, connectorP1, 1.5inch, doubleSided=true);
+        }
+
+        var material = this.route.active ? plainGreenMaterial3D : plainGrayMaterial3D;
+
+        if (this.selected) {
+            material = plainBlueMaterial3D;
+        }
+
+        prim.setMaterial(material);
+
+        return prim;
+    }
+}
+
+public bool contains(AweElectricalConnectLine[] all, AweElectricalRoute route) {
+    for (item in all) {
+        if (item.route.pathToSpace() == route.pathToSpace()) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+public AweElectricalConnectLine get(AweElectricalConnectLine[] all, line l) {
+    var bounds = [l.p0, l.p1];
+
+    for (item in all) {
+        var pathToSpace = item.route.pathToSpace();
+
+        if (pathToSpace.p0 in bounds and pathToSpace.p1 in bounds) {
+            return item;
+        }
+    }
+
+    return null;
+}
