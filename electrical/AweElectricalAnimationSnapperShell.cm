@@ -38,7 +38,7 @@ package custom.awesome.electrical;
 
 private alias AweElectricalRouteArray = AweElectricalRoute[];
 
-public class AweElectricalShell extends AweDynamicShell {
+public class AweElectricalAnimationSnapperShell extends AweDynamicShell {
     public aweShellMethod AweElectricalRouteArray getInfeeds();
     public aweShellMethod AweElectricalRouteArray getRoutes();
 }

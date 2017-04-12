@@ -71,7 +71,7 @@ public class AweElectricalAnimation extends SpaceAnimation {
 
     extend private void loadInfeeds() {
         for (snapper in this.space.snappers) {
-            AweElectricalShell shell(snapper);
+            AweElectricalAnimationSnapperShell shell(snapper);
 
             var infeedLines = shell.getInfeeds();
 
@@ -113,7 +113,7 @@ public class AweElectricalAnimation extends SpaceAnimation {
 
             visited << neighbor;
 
-            AweElectricalShell shell(neighbor);
+            AweElectricalAnimationSnapperShell shell(neighbor);
 
             var routes = shell.getRoutes();
 
