@@ -34,22 +34,13 @@
    END OF CETSC
 */
 
-package custom.awesome.product;
+package custom.awesome.electrical;
 
-use custom.awesome;
-use custom.awesome.connectors;
-use custom.awesome.gallery;
+public class AweLineRoute {
+   public point[] points();
+   public line[] lines();
+   public double cost;
 
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.format.json;
-use cm.geometry;
-use cm.geometry2D.advanced;
-use cm.internet;
-use cm.io;
-use cm.io.util;
-use cm.subset;
-use cm.win;
+   public constructor() {
+   }
+}

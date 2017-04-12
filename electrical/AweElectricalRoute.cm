@@ -34,22 +34,38 @@
    END OF CETSC
 */
 
-package custom.awesome.product;
+package custom.awesome.electrical;
 
-use custom.awesome;
-use custom.awesome.connectors;
-use custom.awesome.gallery;
+public class AweElectricalRoute {
+    public Snapper owner;
+    public line path;
+    public bool infeed;
+    public bool active;
+    
+    public constructor(Snapper owner, line path, bool infeed=false, bool active=false) {
+        this.owner = owner;
+        this.path = path;
+        this.infeed = infeed;
+        this.active = active;
+    }
 
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.format.json;
-use cm.geometry;
-use cm.geometry2D.advanced;
-use cm.internet;
-use cm.io;
-use cm.io.util;
-use cm.subset;
-use cm.win;
+    public constructor(Snapper owner, point p0, point p1, bool infeed=false, bool active=false) {
+        this(owner, line(p0, p1), infeed, active);
+    }
+
+    extend public point p0() {
+        return this.path.p0;
+    }
+
+    extend public point p1() {
+        return this.path.p1;
+    }
+
+    extend public double length() {
+        return this.path.length;
+    }
+
+    extend public line pathToSpace() {
+        return this.owner.toSpace(this.path);
+    }
+}

@@ -34,22 +34,65 @@
    END OF CETSC
 */
 
-package custom.awesome.product;
+package custom.awesome.electrical;
 
-use custom.awesome;
-use custom.awesome.connectors;
-use custom.awesome.gallery;
+public class AweElectricalConnectLine extends AweConnectPoint {
+    public AweElectricalRoute route;
+    public bool selected;
 
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.format.json;
-use cm.geometry;
-use cm.geometry2D.advanced;
-use cm.internet;
-use cm.io;
-use cm.io.util;
-use cm.subset;
-use cm.win;
+    public constructor(AweElectricalRoute route) {
+        super(route.owner);
+
+        this.setPos(route.path.p0);
+
+        this.route = route;
+    }
+
+    public Primitive3D get3D(FetchEnv3D env) {
+        var connectorP0 = this.snapperToConnector(this.route.p0);
+        var connectorP1 = this.snapperToConnector(this.route.p1);
+        
+        Primitive3D prim;
+
+        if (this.route.infeed) {
+            prim = new Arrow3D(connectorP0, connectorP1, 2.5inch, 1inch, 8inch);
+        }
+        else {
+            prim = new ClosedCylinder3D(connectorP0, connectorP1, 1.5inch, doubleSided=true);
+        }
+
+        var material = this.route.active ? plainGreenMaterial3D : plainGrayMaterial3D;
+
+        if (this.selected) {
+            material = plainBlueMaterial3D;
+        }
+
+        prim.setMaterial(material);
+
+        return prim;
+    }
+}
+
+public bool contains(AweElectricalConnectLine[] all, AweElectricalRoute route) {
+    for (item in all) {
+        if (item.route.pathToSpace() == route.pathToSpace()) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+public AweElectricalConnectLine get(AweElectricalConnectLine[] all, line l) {
+    var bounds = [l.p0, l.p1];
+
+    for (item in all) {
+        var pathToSpace = item.route.pathToSpace();
+
+        if (pathToSpace.p0 in bounds and pathToSpace.p1 in bounds) {
+            return item;
+        }
+    }
+
+    return null;
+}
