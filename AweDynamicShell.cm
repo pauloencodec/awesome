@@ -42,7 +42,8 @@ use cm.syntax;
  ***********************************************************************/
 
 public class AweDynamicShell {
-    private Object core;
+    public Object core;
+    
     public constructor(Object core) {
         this.core = core;
     }
