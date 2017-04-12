@@ -1,0 +1,126 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.electrical;
+
+public class AweLineNetwork {
+   private line[] lines;
+   private str->point[] connections();
+
+   public constructor(line[] lines) {
+       this.lines = lines;
+
+       this.indexLines();
+   }   
+
+   extend private void indexLines() {
+       for (cableLine in this.lines) {
+           this.index(cableLine.p0, cableLine.p1);
+           this.index(cableLine.p1, cableLine.p0);
+       }
+   }
+
+   extend private void index(point p0, point p1) {
+       var key = p0.toS();
+       
+       if (key !in this.connections) {
+           this.connections.put(key, new point[]());
+       }
+
+       if (p1 !in this.connections.get(key)) {
+           this.connections.get(key) << p1;
+       }
+   }
+
+   //lists possible next moves for a point in the network
+   extend private point[] connectables(point p) {
+       return this.connections.get(p.toS());
+   }
+
+   extend public AweLineRoute shortestRoute(point start, point end) {
+       int attempts = 1000;
+       double bestCost = maxDouble;
+       AweLineRoute bestRoute;
+
+       for (i in 1..attempts) {
+           var route = this.aRoute(..);
+           
+           if (route.cost < bestCost) {
+               bestCost = route.cost;
+               bestRoute = route;
+           }
+       }
+
+       return bestRoute;
+   }
+
+   extend public AweLineRoute shortestRoute(point start, line l) {
+       AweLineRoute route = this.shortestRoute(start, l.p0);
+       
+       if (l !in route.lines) {
+           route.lines << l;
+       }
+
+       return route;
+   }
+
+   extend private point randomConnectable(point currentPoint) {
+       point[] possibilities = this.connectables(currentPoint);
+
+       int randomIndex = randD(possibilities.count).int;
+       
+       return possibilities[randomIndex];
+   }
+
+   extend private AweLineRoute aRoute(point start, point end) {
+       point current = start;
+       AweLineRoute route();
+
+       route.points << current;
+       
+       while (current != end) {
+           var next = randomConnectable(current);
+
+           route.cost += current.distance(next);
+           route.lines << line(current, next);
+           route.points << next;
+           
+           current = next;
+       }
+       
+       return route;
+   }
+}
