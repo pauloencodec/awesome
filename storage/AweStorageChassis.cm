@@ -182,12 +182,13 @@ public class AweStorageChassis3D extends Awe3D {
         return this;
     }
 
-    extend public AweStorageChassis3D addBase(AweStorageBase base) {
+    extend public AweStorageChassis3D addBase(AweStorageBase base, Material3D material) {
         box laminate(spaceLeft.p0, (spaceLeft.p1.x, spaceLeft.p1.y, spaceLeft.p0.z + base.height));
         box temp = spaceLeft.moved(point(0, 0, base.height));
         spaceLeft = spaceLeft * temp;
         this.base = base;
         base.owner = this;
+        base.material = material;
 
         this << base.get3D();
 

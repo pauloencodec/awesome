@@ -55,6 +55,7 @@ public class AweStorageGlideBase extends AweStorageBase {
         prims << addGlide((owner.localBound.p1.x - xOffset, owner.localBound.p1.y - yOffset));
         prims << addGlide((owner.localBound.p1.x - xOffset, owner.localBound.p0.y + yOffset));
         prims.setMaterial(material);
+
         return Awe3D(prims);
     }
 
