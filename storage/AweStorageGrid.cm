@@ -116,7 +116,17 @@ public class AweStorageGrid {
         return this;
     }
 
-    extend public AweStorageGrid evenlyDistPieces(AweStorageGridPiece piece, int column, int pieces, double height = localBound.h){        
+    //Evely Distributed Pieces
+    // Will use local bound height.
+    extend public AweStorageGrid evenlyDistPieces(AweStorageGridPiece piece, int column, int pieces){        
+        for (i in 1..pieces) {
+            this.addPiece(piece.copy, column, localBound.h/pieces);
+        }
+        return this;
+    }
+    
+    //Will use given height
+    extend public AweStorageGrid evenlyDistPieces(AweStorageGridPiece piece, int column, int pieces, double height){        
         for (i in 1..pieces) {
             this.addPiece(piece.copy, column, height/pieces);
         }
