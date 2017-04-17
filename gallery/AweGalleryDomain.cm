@@ -37,7 +37,7 @@
 package custom.awesome.gallery;
 
 public class AweGalleryDomain extends ObjectSubSet {
-    public AweGallery gallery;
+    public AweGallery gallery : copy=reference;
     private Bool isEditing;
 
     public constructor(AweGallery gallery, Bool isEditing=null) {
@@ -49,16 +49,32 @@ public class AweGalleryDomain extends ObjectSubSet {
 
     extend public QuickProperty customQuickProperty(str key, str label, Object value) {
         this.refresh();
-        
-        return new AweGalleryQuickProperty(key, label, value.AweGalleryItem.copy, this, this.isEditing);
+
+        return new AweGalleryQuickProperty(key, label, value, this, this.isEditing);
     }
 
     extend private void refresh() {
         this._members.clear();
 
         for (item in this.gallery.getItems()) {
-            this._members << item;
+            this._members << item.data.copy;
         }
+    }
+
+    extend public int indexOf(AweGalleryItem o) {
+        int i = this._members.indexOf(o);
+
+        if(i > -1) return i;
+
+        for (item in this._members, index=i2) {
+            if (item as AweGalleryItem) {
+                if (item.equal(o)) {
+                    return i2;
+                }
+            }
+        }
+
+        return -1;
     }
 
     public bool contains(Object o) {
@@ -67,16 +83,21 @@ public class AweGalleryDomain extends ObjectSubSet {
         }
 
         if (o as AweGalleryItem) {
-            for (item in this._members) {
-                if (item as AweGalleryItem) {
-                    if (item.equal(o)) {
-                        return true;
-                    }
-                }
-            }
+            return this.indexOf(o) > -1;
         }
 
         return false;
+    }
+
+    public Object next(Object o) {
+        if(o as AweGalleryItem) {
+            if (_members) {
+                int i = this.indexOf(o);
+                if (i != -1 and i + 1 < _members.count) return _members[i + 1];
+            }
+        }
+
+        return super(..);
     }
 
     public aweDynamicContract {

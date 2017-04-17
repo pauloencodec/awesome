@@ -40,19 +40,19 @@ public class AweGalleryQuickProperty extends ComboQuickProperty {
     private AweGallery gallery;
     private Bool isEditing;
     
-    public constructor(str key, str label, AweGalleryItem value, AweGalleryDomain domain, Bool isEditing=null) {
+    public constructor(str key, str label, Object value, AweGalleryDomain domain, Bool isEditing=null) {
         this.gallery = domain.gallery;
         this.isEditing = isEditing;
 
         if (!value or !domain.contains(value)) {
             if (domain.any()) {
-                value = domain.first().AweGalleryItem;
+                value = domain.first();
             }
         }
         
         super(key, label, value, value.class, domain, isEditing.?v);
     }
-    
+
     extend public bool editable() {
         return this.isEditing != null;
     }
