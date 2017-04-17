@@ -66,26 +66,28 @@ public class AweGalleryQuickProperty extends ComboQuickProperty {
         }
 
         if (!this.editable or !this.isEditing.?v) {
-            controls << new AweGalleryLaunchButton(props, this.gallery, this.value.AweGalleryItem);
+            if(this.value in AweObject) {
+                controls << new AweGalleryLaunchButton(props, this.gallery, this.value.AweObject._galleryId);
+            }
         }
     }
 }
 
 private class AweGalleryLaunchButton extends Button {
     private AweGallery gallery;
-    private AweGalleryItem selectedItem;
+    private str selectedGalleryId;
 
-    public constructor(Window parentWindow, AweGallery gallery, AweGalleryItem selectedItem=null) {
+    public constructor(Window parentWindow, AweGallery gallery, str selectedGalleryId=null) {
         this.gallery = gallery;
-        this.selectedItem = selectedItem;
+        this.selectedGalleryId = selectedGalleryId;
         
         super(parentWindow, label="Go to gallery", margins=(2, 1));
     }
 
     public void release(pointI p) {
-        if (this.selectedItem) {
+        if (this.selectedGalleryId) {
             waitCursorUI {
-                this.gallery.launch(this.selectedItem.id);
+                this.gallery.launch(this.selectedGalleryId);
             }
         }
     }
