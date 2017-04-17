@@ -140,8 +140,8 @@ public class AweOptimizedLineNetwork {
     extend public point[] shortestRoute(point start, point end) {
 
         Path root();
-        pln("------------------------------------------------------------------------");
-        pln(#start; #end);
+        // pln("------------------------------------------------------------------------");
+        // pln(#start; #end);
         if (this.navigate(start, end, root)) { 
             var r = root.points(end);
             // pln("FOUND!!!"; #r);
