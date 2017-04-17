@@ -143,18 +143,13 @@ public class AweGallery : abstract {
         // If no items are found for this gallery, save the initial items to the space to avoid 
         // unnecessary processing 
         var items = this.initialItems();
-
+        
         this.save(items);
 
         if (!items or items.empty()) {
             return new AweGalleryItem[]();
         }
 
-        for(item in items) {
-            item.data._galleryId = item.id;
-            item.data._label = item.name;
-        }
-        
         return items; 
     }
 
