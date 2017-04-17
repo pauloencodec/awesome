@@ -43,13 +43,22 @@ public class AweConnectPoint extends ConnectPoint {
 
     public AweConnector;
     public bool realign = false;
+    public bool hidden = false;
+    public bool hiddenWhenDisconnected = false;
+
     extend public bool shouldRealign() {
         return this.realign;
     }
-
-    public bool hidden = false;
-    public bool hiddenWhenDisconnected = false;
+    
     public bool isVisible() {
         return !hidden and !((hiddenWhenDisconnected and !this.isConnected()));
+    }
+
+    public constructor(Snapper snapper, point pos=point(), orientation rot=orientation(), ConnectRule rule=null) {
+        super(snapper);
+
+        this.setPos(pos);
+	    this.setRot(rot);
+        this.setRule(rule);
     }
 }

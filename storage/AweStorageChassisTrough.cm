@@ -41,7 +41,7 @@ public class AweStorageChassisTrough extends AweStorageChassis3D {
     public double xCutAxis;
     public double yCutAxis;
 
-    public constructor(box localBound, double thickness = 0.75inch, double xCutAxis = 2.764inch, double yCutAxis = 3.295inch) {
+    public constructor(box localBound, double thickness = 0.75inch, double xCutAxis = 2.764inch, double yCutAxis = 2.264inch) {
         this.localBound = localBound;
         this.spaceLeft = localBound;
         this.thickness = thickness;

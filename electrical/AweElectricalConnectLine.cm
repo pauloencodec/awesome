@@ -34,61 +34,65 @@
    END OF CETSC
 */
 
-package custom.awesome.gallery;
+package custom.awesome.electrical;
 
-public class AweGalleryQuickProperty extends ComboQuickProperty {
-    private AweGallery gallery;
-    private Bool isEditing;
-    
-    public constructor(str key, str label, Object value, AweGalleryDomain domain, Bool isEditing=null) {
-        this.gallery = domain.gallery;
-        this.isEditing = isEditing;
+public class AweElectricalConnectLine extends AweConnectPoint {
+    public AweElectricalRoute route;
+    public bool selected;
 
-        if (!value or !domain.contains(value)) {
-            if (domain.any()) {
-                value = domain.first();
-            }
-        }
+    public constructor(AweElectricalRoute route) {
+        super(route.owner);
+
+        this.setPos(route.path.p0);
+
+        this.route = route;
+    }
+
+    public Primitive3D get3D(FetchEnv3D env) {
+        var connectorP0 = this.snapperToConnector(this.route.p0);
+        var connectorP1 = this.snapperToConnector(this.route.p1);
         
-        super(key, label, value, value.class, domain, isEditing.?v);
-    }
+        Primitive3D prim;
 
-    extend public bool editable() {
-        return this.isEditing != null;
-    }
-
-    public void build(QuickProperties props) {
-        if (this.editable) {
-            super(..);
+        if (this.route.infeed) {
+            prim = new Arrow3D(connectorP0, connectorP1, 2.5inch, 1inch, 8inch);
         }
         else {
-            ListQuickProperty.build(this, props);
+            prim = new ClosedCylinder3D(connectorP0, connectorP1, 1.5inch, doubleSided=true);
         }
 
-        if (!this.editable or !this.isEditing.?v) {
-            if(this.value in AweObject) {
-                controls << new AweGalleryLaunchButton(props, this.gallery, this.value.AweObject._galleryId);
-            }
+        var material = this.route.active ? plainGreenMaterial3D : plainGrayMaterial3D;
+
+        if (this.selected) {
+            material = plainBlueMaterial3D;
         }
+
+        prim.setMaterial(material);
+
+        return prim;
     }
 }
 
-private class AweGalleryLaunchButton extends Button {
-    private AweGallery gallery;
-    private str selectedGalleryId;
-
-    public constructor(Window parentWindow, AweGallery gallery, str selectedGalleryId=null) {
-        this.gallery = gallery;
-        this.selectedGalleryId = selectedGalleryId;
-        
-        super(parentWindow, label="Go to gallery", margins=(2, 1));
-    }
-
-    public void release(pointI p) {
-        if (this.selectedGalleryId) {
-            waitCursorUI {
-                this.gallery.launch(this.selectedGalleryId);
-            }
+public bool contains(AweElectricalConnectLine[] all, AweElectricalRoute route) {
+    for (item in all) {
+        if (item.route.pathToSpace() == route.pathToSpace()) {
+            return true;
         }
     }
+
+    return false;
+}
+
+public AweElectricalConnectLine get(AweElectricalConnectLine[] all, line l) {
+    var bounds = [l.p0, l.p1];
+
+    for (item in all) {
+        var pathToSpace = item.route.pathToSpace();
+
+        if (pathToSpace.p0 in bounds and pathToSpace.p1 in bounds) {
+            return item;
+        }
+    }
+
+    return null;
 }

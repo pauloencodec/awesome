@@ -1,0 +1,261 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.electrical;
+
+public class AweElectricalAnimation extends SpaceAnimation {
+    private bool initialized = false;
+    private AweElectricalConnectLine[] infeeds();
+    private AweElectricalConnectLine[] routes();
+
+    private AweElectricalConnectLine infeed;
+    
+    public constructor() {
+        abortAllAnimations();
+        
+        super();
+
+        this.buildCustomProperties();
+    }
+
+    public void enterView(AnimationMouseInfo mouseInfo) {
+        super(mouseInfo);
+
+        if (this.space) {
+            this.space.clearSelection();
+        }
+
+        this._initialize();
+    }
+
+    extend private void _initialize() {
+        if (this.initialized) return;
+        
+        this.initialize();
+        
+        this.initialized = true;
+    }
+
+    extend private void loadInfeeds() {
+        for (snapper in this.space.snappers) {
+            AweElectricalAnimationSnapperShell shell(snapper);
+
+            var infeedLines = shell.getInfeeds();
+
+            if (!infeedLines or infeedLines.empty()) continue;
+
+            for (infeed in infeedLines) {
+                var c = new AweElectricalConnectLine(infeed);
+                
+                this.infeeds << c;
+
+                this.space.show(c);
+
+                if (infeed.active) {
+                    this.infeed = c;
+                    this.loadRoutes(true);
+                    this.infeed = null;
+                }
+            }
+        }
+    }
+
+    extend private void loadRoutes(bool initing=false) {
+        if (!this.infeed) {
+            this.clear();
+            this.loadInfeeds();
+            return;
+        }
+
+        if (!initing) {
+            this.clearInfeeds(true);
+        }
+
+        var neighbors = this.infeed.route.owner.allGroupSelect(true);
+
+        Snapper{} visited();
+
+        for (neighbor in neighbors) {
+            if (neighbor in visited) continue;
+
+            visited << neighbor;
+
+            AweElectricalAnimationSnapperShell shell(neighbor);
+
+            var routes = shell.getRoutes();
+
+            if (!routes or routes.empty()) continue;
+
+            for (l in routes) {
+                if (initing and !l.active) continue;
+                if (this.routes.contains(l)) continue;
+                
+                var c = new AweElectricalConnectLine(l);
+
+                this.routes << c;
+
+                this.space.show(c);
+            }
+        }
+    }
+
+    extend public void initialize() {
+        this.createAnimationProperties();
+
+        this.loadInfeeds();
+    }
+
+    extend public void buildCustomProperties() {
+        this.createAnimationProperties();
+    }
+
+    extend public void rebuildAnimationProperties() {
+        this.destroyAnimationProperties();
+        this.createAnimationProperties();
+    }
+
+    extend public void onRelease(AnimationMouseInfo mouseInfo, bool isRightClick=false) {
+        if (View3D view = mouseInfo.currentView.View3D) {
+            pointI mousePosition = mouseInfo.windowViewMouseInfo.pos;
+            Object[] matches = view.objectsAt(mousePosition);
+
+            if (matches and matches.any()) {
+                for (match in matches) {
+                    if (match as AweElectricalConnectLine) {
+                        this.onConnectorClick(match, mouseInfo, isRightClick);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    public void release(AnimationMouseInfo mouseInfo) {
+        this.onRelease(mouseInfo);
+    }
+
+    public void rightRelease(AnimationMouseInfo mouseInfo) {
+        this.onRelease(mouseInfo, true);
+    }
+
+    extend public void onConnectorClick(AweElectricalConnectLine connector, AnimationMouseInfo mouseInfo, bool isRightClick=false) {
+        if (isShiftKeyDown()) {
+            if (!this.infeed) return;
+
+            line[] lines();
+            var neighbors = connector.route.owner.allGroupSelect(true);
+
+            for (r in this.routes) {
+                if (r.route.owner !in neighbors) continue;
+
+                lines << r.route.pathToSpace();
+            }
+
+            AweLineNetwork network(lines);
+
+            var shortestRoute = network.shortestRoute(this.infeed.route.pathToSpace().p1, connector.route.pathToSpace());
+
+            for (l in shortestRoute.lines) {
+                var item = this.routes.get(l);
+
+                if (item) {
+                    item.route.active = true;
+                    this.space.invalidate(item);
+                }
+            }
+        }
+        else {
+            connector.route.active = !isControlKeyDown();
+
+            if (isRightClick) {
+                if (this.infeed == connector) {
+                    this.infeed.selected = false;
+                    
+                    this.clear();
+                    this.loadInfeeds();
+                }
+            }
+            else {
+                if (connector.route.infeed) {
+                    this.infeed = connector.route.active ? connector : null;
+                    this.loadRoutes();
+                }
+
+                connector.selected = this.infeed == connector;
+            }
+
+            this.space.invalidate(connector);
+        }
+    }
+
+    extend private void clearInfeeds(bool keepSelected=false) {
+        for (c in this.infeeds) {
+            if (keepSelected and c.route.active) continue;
+            
+            this.space.hide(c);
+            this.infeeds.exclude(c);
+        }
+    }
+
+    extend private void clearRoutes(bool keepSelected=false) {
+        for (c in this.routes) {
+            if (keepSelected and c.route.active) continue;
+            
+            this.space.hide(c);
+            this.routes.exclude(c);
+        }
+    }
+
+    extend public void clear() {
+        this.clearInfeeds();
+        this.clearRoutes();
+    }
+
+    public void end() {
+        this.clear();
+        super(..);
+    }
+    
+    public void abort() {
+        this.clear();
+        super(..);
+    }
+}
+
+{
+    abortAllAnimations();
+    animate(new AweElectricalAnimation());
+}

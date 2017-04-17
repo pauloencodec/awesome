@@ -34,61 +34,18 @@
    END OF CETSC
 */
 
-package custom.awesome.gallery;
+package custom.awesome.electrical;
 
-public class AweGalleryQuickProperty extends ComboQuickProperty {
-    private AweGallery gallery;
-    private Bool isEditing;
-    
-    public constructor(str key, str label, Object value, AweGalleryDomain domain, Bool isEditing=null) {
-        this.gallery = domain.gallery;
-        this.isEditing = isEditing;
+use custom.awesome;
+use custom.awesome.connectors;
+use custom.awesome.product;
 
-        if (!value or !domain.contains(value)) {
-            if (domain.any()) {
-                value = domain.first();
-            }
-        }
-        
-        super(key, label, value, value.class, domain, isEditing.?v);
-    }
-
-    extend public bool editable() {
-        return this.isEditing != null;
-    }
-
-    public void build(QuickProperties props) {
-        if (this.editable) {
-            super(..);
-        }
-        else {
-            ListQuickProperty.build(this, props);
-        }
-
-        if (!this.editable or !this.isEditing.?v) {
-            if(this.value in AweObject) {
-                controls << new AweGalleryLaunchButton(props, this.gallery, this.value.AweObject._galleryId);
-            }
-        }
-    }
-}
-
-private class AweGalleryLaunchButton extends Button {
-    private AweGallery gallery;
-    private str selectedGalleryId;
-
-    public constructor(Window parentWindow, AweGallery gallery, str selectedGalleryId=null) {
-        this.gallery = gallery;
-        this.selectedGalleryId = selectedGalleryId;
-        
-        super(parentWindow, label="Go to gallery", margins=(2, 1));
-    }
-
-    public void release(pointI p) {
-        if (this.selectedGalleryId) {
-            waitCursorUI {
-                this.gallery.launch(this.selectedGalleryId);
-            }
-        }
-    }
-}
+use cm.application;
+use cm.basic;
+use cm.core;
+use cm.core3D;
+use cm.draw;
+use cm.geometry;
+use cm.geometry2D.advanced;
+use cm.win;
+use cm.io;
