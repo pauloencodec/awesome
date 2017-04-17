@@ -53,26 +53,41 @@ public class Path {
     public constructor() { }
     public constructor auto(route, parent);
     public constructor auto(route);
-    private point{} failedRoutes();
 
     extend public Path newPath(line r) { 
-        if (this.child and this.child.route) { 
-            this.failedRoutes << this.child.route.v.p1;
-        }
-        if (r.p1 in this.failedRoutes) { 
-            return null; 
-        }
         this.child = new Path(r, this);
         return this.child;
     }
 
-    extend public point[] points() { 
+    extend public Path lastChild() { 
+        if (!this.child) { 
+            return this;
+        }
+        return this.child.lastChild();
+    }
+
+    extend public Path root() { 
+        if (!this.parent) { 
+            return this;
+        }
+        return this.parent.root();
+    }
+
+    extend public point[] points(point end) { 
         point[] result();
         if (this.route) { 
+            if (this.route.v.p0 == end) { 
+                result << this.route.v.p0;
+                return result;
+            }
+            if (this.route.v.p1 == end) { 
+                result << this.route.v.p1;
+                return result;
+            }
             result << this.route.v.p0 << this.route.v.p1;
         }
         if (this.child) { 
-            var innerPs = this.child.points();
+            var innerPs = this.child.points(end);
             if (innerPs) { 
                 for (p in innerPs) { 
                     result << p;
@@ -128,7 +143,7 @@ public class AweOptimizedLineNetwork {
         pln("------------------------------------------------------------------------");
         pln(#start; #end);
         if (this.navigate(start, end, root)) { 
-            var r = root.points();
+            var r = root.points(end);
             // pln("FOUND!!!"; #r);
             return r;
         }
@@ -152,19 +167,16 @@ public class AweOptimizedLineNetwork {
         }
 
         /// Traverse the tree hopefully finding the best solution
-        // pln("?????????????????????????????????????????????");
         if (!rawDistances.any) { 
+            root.parent = null;
             return false;
         }
-        // pln(#rawDistances);
+
         for (cost, l in rawDistances) if (!l.visited) { 
             var newPath = root.newPath(l.l);
-            if (!newPath) { 
-                continue; 
-            }
             l.visited = true;
-            if ((l.l.p1 == end) or this.navigate(l.l.p1, end, newPath)
-                or (l.l.p0 == end) or this.navigate(l.l.p0, end, newPath)) {
+            if ((l.l.p1 == end) or (l.l.p0 == end) 
+                or this.navigate(l.l.p1, end, newPath) or this.navigate(l.l.p0, end, newPath)) {
                 return true;
             }
         }
