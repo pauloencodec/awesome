@@ -48,7 +48,7 @@ public class AweConnectorCache {
 
         if (!c) {
             c = new AweConnectPoint(owner);
-            
+            c.AweConnectPoint.name = key;
             this._cache.put(key, c);
         }
 

@@ -36,6 +36,147 @@
 
 package custom.awesome.electrical;
 
+public class NodeInfo { 
+    
+    private double g : public readable;
+    private double h : public readable;
+    public constructor auto();
+    extend public double f() { 
+        return g + h;
+    }
+}
+
+public class Path { 
+    public Line route;
+    public Path parent;
+    private Path child : public readable;
+    public constructor() { }
+    public constructor auto(route, parent);
+    public constructor auto(route);
+    private point{} failedRoutes();
+
+    extend public Path newPath(line r) { 
+        if (this.child and this.child.route) { 
+            this.failedRoutes << this.child.route.v.p1;
+        }
+        if (r.p1 in this.failedRoutes) { 
+            return null; 
+        }
+        this.child = new Path(r, this);
+        return this.child;
+    }
+
+    extend public point[] points() { 
+        point[] result();
+        if (this.route) { 
+            result << this.route.v.p0 << this.route.v.p1;
+        }
+        if (this.child) { 
+            var innerPs = this.child.points();
+            if (innerPs) { 
+                for (p in innerPs) { 
+                    result << p;
+                }
+            }
+        }
+        return result;
+    }
+}
+
+public class ClusterInfo { 
+    public line l;
+    public bool visited;
+    public constructor auto(l);
+}
+
+public class LineCluster { 
+    private ClusterInfo[] lines() : public readable;
+    public constructor(line firstLine) { 
+        lines << ClusterInfo(firstLine);
+    }
+    extend public LineCluster operator<<(line l) {
+        this.lines << ClusterInfo(l);
+        return this;
+    }
+}
+
+public class AweOptimizedLineNetwork { 
+    private str->LineCluster lineIndex() : public readable;
+    public constructor(line[] lines) { 
+        for (l in lines) { 
+            adjustClusterFor(l, l.p0);
+            adjustClusterFor(line(l.p1, l.p0), l.p1);
+        }
+    }
+
+    final private void adjustClusterFor(line l, point p) { 
+        var cluster = this.lineIndex.get(getKeyFor(p));
+        if (cluster) { 
+            cluster << l;
+        } else { 
+            lineIndex.put(getKeyFor(p), LineCluster(l));
+        }
+    }
+
+    final private str getKeyFor(point p) { 
+        return p.x # p.y # p.z;
+    }
+
+    extend public point[] shortestRoute(point start, point end) {
+
+        Path root();
+        pln("------------------------------------------------------------------------");
+        pln(#start; #end);
+        if (this.navigate(start, end, root)) { 
+            var r = root.points();
+            // pln("FOUND!!!"; #r);
+            return r;
+        }
+        return null;
+    }
+
+    final private bool navigate(point start, point end, Path root) { 
+
+        /// Find all possible routes from the start point
+        var cluster = this.lineIndex.get(getKeyFor(start));
+        if (!cluster) { 
+            return false; 
+        }
+
+        /// Calculate and sort the distances from the possible routes towards the endpoint
+        sorted double->ClusterInfo rawDistances();
+        for (l in cluster.lines) { 
+            if (l.visited) { continue; }
+            var cost = this.getCost(l.l.p0, l.l.p1, end);
+            rawDistances.put(cost.f, l);
+        }
+
+        /// Traverse the tree hopefully finding the best solution
+        // pln("?????????????????????????????????????????????");
+        if (!rawDistances.any) { 
+            return false;
+        }
+        // pln(#rawDistances);
+        for (cost, l in rawDistances) if (!l.visited) { 
+            var newPath = root.newPath(l.l);
+            if (!newPath) { 
+                continue; 
+            }
+            l.visited = true;
+            if ((l.l.p1 == end) or this.navigate(l.l.p1, end, newPath)
+                or (l.l.p0 == end) or this.navigate(l.l.p0, end, newPath)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    final private NodeInfo getCost(point from, point to, point end) { 
+        return new NodeInfo(from.distance(to), to.distance(end));
+    }
+}
+
 public class AweLineNetwork {
    private line[] lines;
    private str->point[] connections();
