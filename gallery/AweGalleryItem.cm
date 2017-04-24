@@ -49,6 +49,9 @@ public aweObject AweGalleryItem {
         this.name = name;
         this.data = data;
         this.pos = pos;
+
+        this.data._galleryId = id;
+        this.data._label = name;
     }
 
     public constructor(str name, AweObject data, point pos) {

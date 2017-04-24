@@ -40,8 +40,20 @@ use cm.syntax;
 
 public class AweObject {
     public str->Object props();
+    public str _galleryId;
+    public str _label;
 
     public constructor() {
+    }
+
+    public str toS() {
+        return this._label ? this._label : super();
+    }
+
+    extend public void applyFrom(AweObject o) {
+        for(k,v in o.props) {
+            this.set(k, v.copy);
+        }
     }
 
     extend public Object get(str propName) {

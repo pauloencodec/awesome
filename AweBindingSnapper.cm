@@ -37,7 +37,6 @@
 package custom.awesome;
 
 public class AweBindingSnapper extends AweSnapper : abstract {
-
     //the data root
     public AweObject root;
 
@@ -66,10 +65,10 @@ public class AweBindingSnapper extends AweSnapper : abstract {
         super(..);
     }
 
-
-    extend public AweObject[] allModels() {
+    public AweObject[] allModels() {
         AweObject[] list();
         addModels(list, this.root);
+        
         return list;
     }
 
@@ -81,6 +80,7 @@ public class AweBindingSnapper extends AweSnapper : abstract {
                 list << product; 
             }
         }
+
         return list;
     }
 
@@ -93,6 +93,7 @@ public class AweBindingSnapper extends AweSnapper : abstract {
             list << parentModel;
             
             for (key, propValue in parentModel.props) {
+
                 if (propValue == null) { continue; }
                 
                 if(propValue as AweObject) {

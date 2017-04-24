@@ -58,36 +58,11 @@ public class AweGallery : abstract {
     extend public void onExit(Space drawingSpace) {
         if (!drawingSpace) return;
 
-        var matchingTypes = this.getMatchingTypes();
-
-        if (!matchingTypes or matchingTypes.empty()) return;
-
         for (snapper in drawingSpace.snappers) {
-            if (this.typeMatches(snapper)) {
-                if (snapper as AweEasySnapper) {
-                    snapper.refresh(true, true);
-                }
-                else {
-                    snapper.invalidate();
-                }
-            }
+            aweDynamicCall snapper.galleryChanged(this);
         }
     }
 
-    extend public Class[] getMatchingTypes() {
-        return null;
-    }
-
-    extend public bool typeMatches(Snapper snapper) {
-        for (type in this.getMatchingTypes()) {
-            if (snapper in type) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-     
     extend public void launch(str selectedId=null) {
         if (activeAweGallery) {
             activeAweGallery.quit();
@@ -168,13 +143,13 @@ public class AweGallery : abstract {
         // If no items are found for this gallery, save the initial items to the space to avoid 
         // unnecessary processing 
         var items = this.initialItems();
-
+        
         this.save(items);
 
         if (!items or items.empty()) {
             return new AweGalleryItem[]();
         }
-        
+
         return items; 
     }
 
@@ -182,10 +157,10 @@ public class AweGallery : abstract {
         var items = this.getItems();
 
         for (item in items) if (item.id == id) {
-            return item.data.copy();
+            return item.data;
         }
 
-        return items[0].data.copy();
+        return items[0].data;
     }
     
     extend private void appendButtons(Window window) {
@@ -377,11 +352,11 @@ public class AweGallery : abstract {
 
         for (item in items) {
             if (!id or item.id == id) {
-                return item.copy();
+                return item;
             }
         }
 
-        return items.first().copy();
+        return items.first();
     }
     
     extend private bool validateSnappers() {

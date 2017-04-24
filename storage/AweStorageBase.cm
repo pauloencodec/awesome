@@ -38,6 +38,7 @@ package custom.awesome.storage;
 
 public class AweStorageBase {
     public double height;
+    public Material3D material;
     public AweStorageChassis3D owner;
 
     public constructor() {
