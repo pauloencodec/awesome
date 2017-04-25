@@ -38,7 +38,6 @@ package custom.awesome.product;
 use cm.geometry.advanced;
 
 public class AweProduct extends AweGeometry {
-
     public Object _model;
 
     private Primitive3D medium3D;
@@ -46,52 +45,58 @@ public class AweProduct extends AweGeometry {
     private AweGraph graph;
 
     private AweGeometry[] geometries;
+
     extend public AweProduct operator<<(AweGeometry geometry) {
-        geometries <<? geometry;
+        this.geometries <<? geometry;
+
         return this;
     }
 
     extend private void appendLinesAndPointsOfInterest(AweGeometry geometry) {
-        for(k,v in geometry.poi) {
-            this.poi.put(k,v);
+        for (k,v in geometry.poi) {
+            this.poi.put(k, v);
         }
 
-        for(k,v in geometry.loi) {
-            this.loi.put(k,v);
+        for (k,v in geometry.loi) {
+            this.loi.put(k, v);
         }
     }
 
     public constructor(Object model) {
-        updateModel(model);
+        this.updateModel(model);
     }   
 
     extend public Line2D getLoi(str key) {
-        if(!graph) buildGraph();
+        if (!this.graph) this.buildGraph();
+        
         return this.loi.get(key);
     }
 
     extend public Point2D getPoi(str key) {
-        if(!graph) buildGraph();
+        if (!this.graph) this.buildGraph();
+
         return this.poi.get(key);
     }
 
     extend public void updateModel(Object model) {
         this._model = model;
-        modelChanged();
+        
+        this.modelChanged();
     }
 
     extend public void modelChanged() {
-        refresh();
+        this.refresh();
     }
 
     extend public void refresh() {
-        medium3D = null;
-        super3D = null;
-        graph = null;
-        geometries = new AweGeometry[]();
+        this.medium3D = null;
+        this.super3D = null;
+        this.graph = null;
+        this.geometries = new AweGeometry[]();
         //adding self to list of geometries
         this << this;
-        build();
+        
+        this.build();
     }
 
     extend public void build() {
@@ -99,61 +104,82 @@ public class AweProduct extends AweGeometry {
 
     extend public void buildSuper3D() {
         Primitive3D[] prims();
-        for(g in geometries) {
+
+        for (g in this.geometries) {
             prims <<? g.super3D();
         }
-        super3D = safeSet3D(prims);
+
+        this.super3D = safeSet3D(prims);
     }
 
     extend public void buildMedium3D() {
         Primitive3D[] prims();
-        for(g in geometries) {
-            var p = g.medium3D();
-            prims <<? p;
+
+        for (g in this.geometries) {
+            prims <<? g.medium3D();
         }
-        medium3D = safeSet3D(prims);
+
+        this.medium3D = safeSet3D(prims);
     }
 
     extend public void buildGraph() {
-        graph = new AweGraph();
-        for(geometry in geometries) {
-            Graph gr = geometry.graph();
-            if(gr) {
+        this.graph = new AweGraph();
+
+        for (geometry in this.geometries) {
+            if (Graph g = geometry.graph()) {
                 this.appendLinesAndPointsOfInterest(geometry);
-                graph << gr;
+                
+                this.graph << g;
             }
         }
     }
 
     extend public Primitive3D get3D(FetchEnv3D env) {
         //for rendering
-        if(env.detail == detailLevel3D.super) return getSuper3D();
-        return getMedium3D;
+        if (env.detail == detailLevel3D.super) return this.getSuper3D();
+
+        return this.getMedium3D();
     }
 
     extend private Primitive3D getSuper3D() {
-        if(!super3D) buildSuper3D();
-        return super3D;
+        if (!this.super3D) this.buildSuper3D();
+
+        return this.super3D;
     }
 
     extend private Primitive3D getMedium3D() {
-        if(!medium3D) buildMedium3D();
-        return medium3D;
+        if (!this.medium3D) this.buildMedium3D();
+
+        return this.medium3D;
     }
 
     extend public Graph get2D() {
-        if(!graph) buildGraph();
-        return graph;
+        if (!this.graph) this.buildGraph();
+        
+        return this.graph;
     }
 
     public box localBound() {
         box result();
-        if(geometries and geometries.count > 0) {
-            for (g in geometries) { 
-                if(g != this)
-                    result += g.localBound;
+
+        if (this.geometries and this.geometries.any()) {
+            for (g in this.geometries) if (g != this) {
+                result += g.localBound;
             }
         }
+
+        return result;
+    }
+
+    public AwePart[] getParts() {
+        AwePart[] result();
+
+        if (this.geometries and this.geometries.any()) {
+            for (g in this.geometries) {
+                result += g.parts;
+            }
+        }
+
         return result;
     }
 }

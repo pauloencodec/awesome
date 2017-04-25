@@ -39,6 +39,7 @@ package custom.awesome.product;
 public class AweGeometry {
     private str->Point2D poi() : public readable;
     private str->Line2D loi() : public readable;
+    private AwePart[] parts() : public readable;
 
     public constructor() {
     }   
@@ -57,5 +58,17 @@ public class AweGeometry {
 
     extend public box localBound() {
         return box();
+    }
+
+    extend public void addPart(AwePart part) {
+        this.parts << part;
+    }
+
+    extend public void addPart(str catalog, str sku) {
+        this.parts << new AwePart(catalog, sku);
+    }
+
+    extend public AwePart[] getParts() {
+        return this.parts;
     }
 }

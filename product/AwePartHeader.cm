@@ -36,22 +36,27 @@
 
 package custom.awesome.product;
 
-use custom.awesome;
-use custom.awesome.connectors;
-use custom.awesome.gallery;
+public class AwePartHeader {
+    public str ct2;
+    public double wt;
+    public str gc;
+    public str vo;
+    public str tg;
+    public double pl;
+    
+    public constructor() {
+    }
 
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.format.json;
-use cm.geometry;
-use cm.geometry2D.advanced;
-use cm.internet;
-use cm.io;
-use cm.io.util;
-use cm.subset;
-use cm.win;
+    extend public str[] getCatalogHeaderRows() { 
+        str[] res();
 
-use cm.abstract.office;
+        res << spnn("CT2=", this.ct2 ?? "");
+        res << spnn("GC=", this.gc ?? "");
+        res << spnn("VO=", this.vo ?? "");
+        res << spnn("TG=", this.tg ?? "");
+        res << spnn("WT=", this.wt.formatted(precision=2));
+        res << spnn("PL=", this.pl.formatted(precision=2));
+        
+        return res;    
+    }
+}

@@ -41,8 +41,7 @@ use custom.awesome.connectors;
 private alias SnapperArray = Snapper{};
 
 public class AweEasySnapper extends AweSnapper : abstract {
-
-    public constructor() { 
+    public constructor() {
         this.configurator = this.createConfigurator();
         this.activeConfigurator = this.configurator;
         this.product = this.createProduct(this.configurator);
@@ -67,8 +66,11 @@ public class AweEasySnapper extends AweSnapper : abstract {
         if (this.product) {
             return this.product.get3D(env);
         }
+
         Box3D prim(this.localBound());
+        
         prim.setMaterial(plainGreenMaterial3D);
+        
         return prim;
     }
 
@@ -77,9 +79,27 @@ public class AweEasySnapper extends AweSnapper : abstract {
         if (this.product) {
             return this.product.localBound();
         }
+
         return box();
     }
 
+    public void getParts(PartsEnv env, Snapper{} visited) {
+        if (!this.product or this in visited) return;
+        
+        visited << this;
+
+        var parts = this.product.getParts();
+
+        for (part in parts) {
+            part.data.setOwner(this);
+            
+            env << part;
+        }
+    }
+
+    public bool denyParts() {
+        return this.product == null;
+    }
 
     public void refresh(bool updateConnectors=false, bool tryAlignAllSnapped=false) {
         this.product.?refresh();

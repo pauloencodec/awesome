@@ -63,16 +63,17 @@ public class AweSnapper  extends Snapper {
         bool shouldRefresh = false;
         var items = gallery.getItems();
         
-        for(model in this.allModels()) {
-            for(galleryItem in items) {
-                if(model._galleryId == galleryItem.id) {
+        for (model in this.allModels()) {
+            for (galleryItem in items) {
+                if (model._galleryId == galleryItem.id) {
                     model.applyFrom(galleryItem.data);
+                    
                     shouldRefresh = true;
                 }
             }
         }
 
-        if(shouldRefresh) {
+        if (shouldRefresh) {
             this.refresh(true, true);
         }
     }
@@ -90,15 +91,19 @@ public class AweSnapper  extends Snapper {
         if (this.activeConfigurator) {
             return this.activeConfigurator.buildQuickProperties(..);
         }
+
         return super(..);
     }
 
     public bool quickPropertyChanged(QuickProperties props, str key, Object value, bool testChangeOnly) {
         if (this.activeConfigurator and !testChangeOnly) {
             bool changed = this.activeConfigurator.quickPropertyChanged(..);
+            
             this.refresh(true, true);
+            
             return changed;
         }
+
         return super(..);
     }
 
@@ -158,9 +163,11 @@ public class AweSnapper  extends Snapper {
 
     extend public void refresh(bool updateConnectors=false, bool tryAlignAllSnapped=false) {
         if (updateConnectors)  this.updateConnectors();
-        if (tryAlignAllSnapped) this.realign(null);        
+        if (tryAlignAllSnapped) this.realign(null);
+
         invalidateQuickPropertiesFor(this);
         invalidate();
-        space.invalidateSelection();
+        
+        this.space.invalidateSelection();
     }  
 }
