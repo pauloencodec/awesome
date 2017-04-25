@@ -1,0 +1,157 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.product;
+
+private const str notFoundInSifErrorMessage = " * Not found in SIF";
+
+public class AwePart extends OfficePart {
+    public str sku;
+    public str catalog;
+    private AwePartOption[] options : public readable;
+    public AwePartHeader header();
+
+    public constructor(str catalog, str sku) {
+        super();
+
+        this.catalog = catalog;
+        this.sku = sku;
+
+        this.data.setArticleCode(this.basemodel);
+    }
+
+    public constructor(Snapper snapper, str catalog, str sku) {
+        this.catalog = catalog;
+        this.sku = sku;
+        
+        super(snapper, this.basemodel, this.sku, 0);
+    }
+
+    extend private str basemodel() {
+        return this.sku.split('.').v0;
+    }
+
+    public PartInfoTree[] infoTrees() {
+        PartInfoTree[] tree();
+
+        if (!this.options) return tree;
+        
+        for (option in this.options) {
+            tree << option;
+        }
+
+        return tree;
+    }
+
+    extend public void appendOption(AwePartOption option) {
+        if (!option) return;
+        if (!this.options) init this.options();
+        
+        option.owner = this;
+        
+        this.options << option;
+    }
+
+    extend public void appendOption(str code, str name=null, str description=null, double price=0) {
+        this.appendOption(new AwePartOption(this, code, name, description, price));
+    }
+
+    extend public void appendOptions(AwePartOption[] options) {
+        if (!options or options.empty()) return;
+        
+        for (option in options) {
+            this.appendOption(option);
+        }
+    }
+
+    extend public bool isValid() {
+        for (option in this.options) {
+            if (!option.isValid()) return false;
+        }
+
+        return true;
+    }
+
+    public str flattenableKey() {
+        return this.sku # this.header.tg;
+    }
+
+    public str[] generatePmSifRows(Space space) {
+	    str[] res();
+
+        // PN= Part Number
+        res << spnn("PN=", this.data.articleCode);        
+        // PD= Part Description (Can be adjusted from the Calculation Window)
+        res << spnn("PD=", this.description(space));      
+        // MC= Master Catalog
+        res << spnn("MC=", this.catalog ?? "");
+        // QT= Quantity (Can be adjusted from the Calculation Window)
+        res << spnn("QT=", this.visibleQuantity(space));
+        // S-= Discount
+        res << spnn("S-=", this.discount(space) * 100);
+        // SP= Sell Price
+        res << spnn("SP=", this.sellPrice(true, space).formatted(precision=2));
+
+        //Catalog specific header rows
+        for (row in this.header.getCatalogHeaderRows()) {
+            res << row;
+        }
+
+        this.generateOptionRows(res, this.options);
+
+        return res;
+    }
+
+    extend private void generateOptionRows(str[] res, AwePartOption[] options) {
+        for (option in this.options) {
+            str code = option.code;
+            str description = option.description;
+
+            // if (code == ".NA" and this.priceIdentifier != "") {
+            //     code = "." # this.priceIdentifier;
+            //     description = this.priceIdentifier;
+            // }
+
+            // Remove error message from description when exporting to SIF
+            description = description.replaceAll(notFoundInSifErrorMessage, "");
+
+            // ON= Option Code
+            res << spnn("ON=", code);
+            // OD= Option Description
+            res << spnn("OD=", description);
+        }
+    }
+}

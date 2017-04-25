@@ -40,9 +40,12 @@ use custom.awesome.connectors;
 
 private alias SnapperArray = Snapper{};
 
+use custom.awesome.gallery;
+
 public class AweSnapper  extends Snapper {
     public aweDynamicContract {
-        aweDynamic void realign(SnapperArray visited=null);
+        aweDynamic void realign(SnapperArray visited=null);        
+        aweDynamic void galleryChanged(AweGallery gallery);
     }
 
     public AweConnectorCache connectorCache();
@@ -51,6 +54,29 @@ public class AweSnapper  extends Snapper {
     }
 
     public AweObject activeConfigurator : copy=reference;
+
+    extend public AweObject[] allModels() {
+        return new AweObject[]();
+    }
+
+    extend public void galleryChanged(AweGallery gallery) {
+        bool shouldRefresh = false;
+        var items = gallery.getItems();
+        
+        for (model in this.allModels()) {
+            for (galleryItem in items) {
+                if (model._galleryId == galleryItem.id) {
+                    model.applyFrom(galleryItem.data);
+                    
+                    shouldRefresh = true;
+                }
+            }
+        }
+
+        if (shouldRefresh) {
+            this.refresh(true, true);
+        }
+    }
 
     extend public void connectors(AweConnectorCache cc) { }
 
@@ -65,15 +91,19 @@ public class AweSnapper  extends Snapper {
         if (this.activeConfigurator) {
             return this.activeConfigurator.buildQuickProperties(..);
         }
+
         return super(..);
     }
 
     public bool quickPropertyChanged(QuickProperties props, str key, Object value, bool testChangeOnly) {
         if (this.activeConfigurator and !testChangeOnly) {
             bool changed = this.activeConfigurator.quickPropertyChanged(..);
+            
             this.refresh(true, true);
+            
             return changed;
         }
+
         return super(..);
     }
 
@@ -133,9 +163,11 @@ public class AweSnapper  extends Snapper {
 
     extend public void refresh(bool updateConnectors=false, bool tryAlignAllSnapped=false) {
         if (updateConnectors)  this.updateConnectors();
-        if (tryAlignAllSnapped) this.realign(null);        
+        if (tryAlignAllSnapped) this.realign(null);
+
         invalidateQuickPropertiesFor(this);
         invalidate();
-        space.invalidateSelection();
+        
+        this.space.invalidateSelection();
     }  
 }

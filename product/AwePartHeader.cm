@@ -34,43 +34,29 @@
    END OF CETSC
 */
 
-package custom.awesome.gallery;
+package custom.awesome.product;
 
-public aweObject AweGalleryItem {
-    props(
-        str id = null,
-        str name = null,
-        AweObject data = null
-    );
-    public point pos;
+public class AwePartHeader {
+    public str ct2;
+    public double wt;
+    public str gc;
+    public str vo;
+    public str tg;
+    public double pl;
     
-    public constructor(str id, str name, AweObject data, point pos) {
-        this.id = id;
-        this.name = name;
-        this.data = data;
-        this.pos = pos;
-
-        this.data._galleryId = id;
-        this.data._label = name;
+    public constructor() {
     }
 
-    public constructor(str name, AweObject data, point pos) {
-        this(getNewGalleryItemId(), name, data, pos);
+    extend public str[] getCatalogHeaderRows() { 
+        str[] res();
+
+        res << spnn("CT2=", this.ct2 ?? "");
+        res << spnn("GC=", this.gc ?? "");
+        res << spnn("VO=", this.vo ?? "");
+        res << spnn("TG=", this.tg ?? "");
+        res << spnn("WT=", this.wt.formatted(precision=2));
+        res << spnn("PL=", this.pl.formatted(precision=2));
+        
+        return res;    
     }
-
-    public str toS() {
-        return this.name;
-    }
-
-    public bool equal(Object other, EqualEnv env=EqualEnv()) {
-        if (other as AweGalleryItem) {
-            return other.id == this.id;
-        }
-
-        return false;
-    }
-}
-
-public str getNewGalleryItemId() {
-    return guid().hex;
 }

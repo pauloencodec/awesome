@@ -71,6 +71,41 @@ public class AweElectricalConnectLine extends AweConnectPoint {
 
         return prim;
     }
+
+    public Graph get2D(View2D view) {
+        GInstance g();
+
+        var connectorP0 = this.snapperToConnector(this.route.p0).point2D;
+        var connectorP1 = this.snapperToConnector(this.route.p1).point2D;
+
+        var color = this.route.active ? plainGreenMaterial3D.getAverageColor() : plainGrayMaterial3D.getAverageColor();
+
+        if (this.selected) {
+            color = plainBlueMaterial3D.getAverageColor();
+        }
+
+        if (this.route.infeed) {
+            g << new GArrow(connectorP0, connectorP1, new LineType(color, lineStyle.veryThick), headSize=0.2);
+        }
+        else {
+            var r = line2D(connectorP0, connectorP1).rect(1.5inch);
+
+            g << new GRect(r, color, lineType=noLineType);
+        }
+
+        return g;
+    }
+
+    public bool contains(point2D p, View v) {
+        var connectorP0 = this.snapperToConnector(this.route.p0).point2D;
+        var connectorP1 = this.snapperToConnector(this.route.p1).point2D;
+        var d = this.route.infeed ? 5inch : 2inch;
+        var bound = line2D(connectorP0, connectorP1).rect(d);
+        
+        return bound.contains(this.spaceToConnector2DGraph(p));
+    }
+
+    public bool autoScale2D() { return false; }
 }
 
 public bool contains(AweElectricalConnectLine[] all, AweElectricalRoute route) {

@@ -71,6 +71,8 @@ public class AweElectricalAnimation extends SpaceAnimation {
 
     extend private void loadInfeeds() {
         for (snapper in this.space.snappers) {
+            if (!this.accepts(snapper)) continue;
+
             AweElectricalAnimationSnapperShell shell(snapper);
 
             var infeedLines = shell.getInfeeds();
@@ -93,6 +95,14 @@ public class AweElectricalAnimation extends SpaceAnimation {
         }
     }
 
+    extend public bool accepts(Snapper snapper) {
+        return true;
+    }
+
+    extend public Snapper{} getNeighbors(Snapper snapper) {
+        return snapper.allGroupSelect(true);
+    }
+
     extend private void loadRoutes(bool initing=false) {
         if (!this.infeed) {
             this.clear();
@@ -104,7 +114,7 @@ public class AweElectricalAnimation extends SpaceAnimation {
             this.clearInfeeds(true);
         }
 
-        var neighbors = this.infeed.route.owner.allGroupSelect(true);
+        var neighbors = this.getNeighbors(this.infeed.route.owner);
 
         Snapper{} visited();
 
@@ -148,8 +158,9 @@ public class AweElectricalAnimation extends SpaceAnimation {
     }
 
     extend public void onRelease(AnimationMouseInfo mouseInfo, bool isRightClick=false) {
+        pointI mousePosition = mouseInfo.windowViewMouseInfo.pos;
+
         if (View3D view = mouseInfo.currentView.View3D) {
-            pointI mousePosition = mouseInfo.windowViewMouseInfo.pos;
             Object[] matches = view.objectsAt(mousePosition);
 
             if (matches and matches.any()) {
@@ -159,6 +170,15 @@ public class AweElectricalAnimation extends SpaceAnimation {
                         break;
                     }
                 }
+            }
+        }
+        else if (View2D view = mouseInfo.currentView.View2D) {
+            var pos = view.toSpace(mousePosition);
+            var connectors = this.infeeds + this.routes;
+        
+            for (c in connectors) if (c.contains(pos, view)) { 
+                this.onConnectorClick(c, mouseInfo, isRightClick);
+                break;
             }
         }
     }
@@ -176,7 +196,7 @@ public class AweElectricalAnimation extends SpaceAnimation {
             if (!this.infeed) return;
 
             line[] lines();
-            var neighbors = connector.route.owner.allGroupSelect(true);
+            var neighbors = this.getNeighbors(connector.route.owner);
 
             for (r in this.routes) {
                 if (r.route.owner !in neighbors) continue;
@@ -236,6 +256,12 @@ public class AweElectricalAnimation extends SpaceAnimation {
             
             this.space.hide(c);
             this.routes.exclude(c);
+        }
+    }
+
+    extend public void setViewMode(ViewMode viewMode) {
+        if (World w = session.?mainWorld) {
+            w.setViewMode(viewMode);
         }
     }
 

@@ -40,10 +40,11 @@ public class AweStorageGlideBase extends AweStorageBase {
     public double xOffset;
     public double yOffset;
 
-    public constructor(double xOffset = 0, double yOffset = 0) {
+    public constructor(double xOffset = 0, double yOffset = 0, Material3D material = randomColorLWMaterial) {
         this.xOffset = xOffset;
         this.yOffset = yOffset;
         this.height = 0.545inch;
+        this.material = material;
     }   
 
     public Awe3D get3D() {
@@ -53,6 +54,7 @@ public class AweStorageGlideBase extends AweStorageBase {
         prims << addGlide((owner.localBound.p0.x + xOffset, owner.localBound.p1.y - yOffset));
         prims << addGlide((owner.localBound.p1.x - xOffset, owner.localBound.p1.y - yOffset));
         prims << addGlide((owner.localBound.p1.x - xOffset, owner.localBound.p0.y + yOffset));
+        prims.setMaterial(material);
 
         return Awe3D(prims);
     }
