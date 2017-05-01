@@ -80,13 +80,13 @@ public class AwePanelJunctionController extends Snapper {
     }
 
 
-    private AweConnectorCache _cc();
+    private AweConnectorCache _cc(this);
 
     public void connectors(ConnectorCollection coll) {
         for(c in model.connections, index=i) {
             if(!c) break;
             point2D faceCenter = point2D(c.angle, c.radius);
-            coll << _cc.get(i.toS, this, faceCenter.point, orientation(c.angle), ctAlways);
+            coll << _cc.get(i.toS, faceCenter.point, orientation(c.angle), ctAlways);
         }
     }
 

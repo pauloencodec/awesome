@@ -78,11 +78,11 @@ public class AweHubSnapper extends AweEasySnapper {
     public void connectors(AweConnectorCache cc) { 
         var model = this.configurator.AweElectricalModel;
 
-        cc.makePoint("x0", this, point(0, model.d / 2, model.z), 180deg, ctAlways, false);
-        cc.makePoint("x1", this, point(model.w, model.d / 2, model.z), 0deg, ctAlways, false);
+        cc.makePoint("x0", point(0, model.d / 2, model.z), 180deg, ctAlways, false);
+        cc.makePoint("x1", point(model.w, model.d / 2, model.z), 0deg, ctAlways, false);
 
-        cc.makePoint("y0", this, point(model.w / 2, model.d, model.z), 90deg, ctAlways, false);
-        cc.makePoint("y1", this, point(model.w / 2, 0, model.z), 270deg, ctAlways, false);
+        cc.makePoint("y0", point(model.w / 2, model.d, model.z), 90deg, ctAlways, false);
+        cc.makePoint("y1", point(model.w / 2, 0, model.z), 270deg, ctAlways, false);
     }
     
     public AweObject createConfigurator() {
@@ -126,8 +126,8 @@ public class AweBeamSnapper extends AweEasySnapper {
     public void connectors(AweConnectorCache cc) { 
         var model = this.configurator.AweElectricalModel;
 
-        cc.makePoint("p0", this, (0, model.d / 2, model.z), 180deg, ctAlways, false);
-        cc.makePoint("p1", this, (model.w, model.d / 2, model.z), 0deg, ctAlways, false);
+        cc.makePoint("p0", (0, model.d / 2, model.z), 180deg, ctAlways, false);
+        cc.makePoint("p1", (model.w, model.d / 2, model.z), 0deg, ctAlways, false);
     }
 
     public AweObject createConfigurator() {
