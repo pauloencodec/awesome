@@ -137,21 +137,13 @@ public class AwePart extends OfficePart {
 
     extend private void generateOptionRows(str[] res, AwePartOption[] options) {
         for (option in this.options) {
-            str code = option.code;
-            str description = option.description;
-
-            // if (code == ".NA" and this.priceIdentifier != "") {
-            //     code = "." # this.priceIdentifier;
-            //     description = this.priceIdentifier;
-            // }
-
             // Remove error message from description when exporting to SIF
-            description = description.replaceAll(notFoundInSifErrorMessage, "");
+            str desc = description.replaceAll(notFoundInSifErrorMessage, "");
 
             // ON= Option Code
-            res << spnn("ON=", code);
+            res << spnn("ON=", option.code);
             // OD= Option Description
-            res << spnn("OD=", description);
+            res << spnn("OD=", desc);
         }
     }
 }
