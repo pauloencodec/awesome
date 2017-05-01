@@ -80,11 +80,11 @@ public class AwePanelController extends Snapper {
         }
 
 
-        private AweConnectorCache _cc();
+        private AweConnectorCache _cc(this);
 
         public void connectors(ConnectorCollection coll) {
-            coll << _cc.get("p0", this, model.centerline.p0.point, orientation(180deg), ctAlways);
-            coll << _cc.get("p1", this, model.centerline.p1.point, orientation(0deg), ctAlways);
+            coll << _cc.get("p0", model.centerline.p0.point, orientation(180deg), ctAlways);
+            coll << _cc.get("p1", model.centerline.p1.point, orientation(0deg), ctAlways);
         }
 
         public box localBound() {

@@ -47,9 +47,9 @@ public class Caixildo extends AweEasySnapper {
         var p1 = point(model.width, 0, model.height);
         var d = point(0, model.width, 0);
 
-        cc.makeLine("l", this, p0, p1, 180deg, ctAlways, true);
-        cc.makeLine("sjsj", this, p1 + d, p0 + d, 180deg, ctAlways, false);
-        // cc.makePoint("p", this, (model.width / 2, 0, model.height), 90deg, ctAlways, false);
+        cc.makeLine("l", p0, p1, 180deg, ctAlways, true);
+        cc.makeLine("sjsj", p1 + d, p0 + d, 180deg, ctAlways, false);
+        // cc.makePoint("p", (model.width / 2, 0, model.height), 90deg, ctAlways, false);
     }
 
     public AweObject createConfigurator() {
