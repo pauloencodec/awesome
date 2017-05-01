@@ -138,7 +138,7 @@ public class AwePart extends OfficePart {
     extend private void generateOptionRows(str[] res, AwePartOption[] options) {
         for (option in this.options) {
             // Remove error message from description when exporting to SIF
-            str desc = description.replaceAll(notFoundInSifErrorMessage, "");
+            str desc = option.description.replaceAll(notFoundInSifErrorMessage, "");
 
             // ON= Option Code
             res << spnn("ON=", option.code);
