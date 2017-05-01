@@ -36,20 +36,26 @@
 
 package custom.awesome.connectors;
 
+use custom.awesome.product;
+
 public class AweConnectorCache {
     private str->Connector _cache();
     private Connector[] _buffer();
+    private Snapper snapper;
+
+    public AweProduct currentProduct;
     
-    public constructor() {
+    public constructor(Snapper snapper) {
+        this.snapper = snapper;
     }   
 
-    extend public Connector get(str key, Snapper owner, point position, orientation direction, ConnectRule rule=ctNever, bool realign=false) {
-        Connector c = this._cache.get(key);
+    extend public Connector get(str key, point position, orientation direction, ConnectRule rule=ctNever, bool realign=false) {
+        Connector c = this.get(key);
 
         if (!c) {
-            c = new AweConnectPoint(owner);
+            c = new AweConnectPoint(this.snapper);
             
-            this._cache.put(key, c);
+            this._cache.put(this.getCacheKey(key), c);
         }
 
         if (c as AweConnectPoint) {
@@ -59,21 +65,21 @@ public class AweConnectorCache {
         return this.setupConnector(c, position, direction, rule);
     }
 
-    extend public Connector makePoint(str key, Snapper owner, point position, orientation direction, ConnectRule rule=ctNever, bool realign=false) {
+    extend public Connector makePoint(str key, point position, orientation direction, ConnectRule rule=ctNever, bool realign=false) {
         return this.get(..);
     }
 
-    extend public Connector makeLine(str key, Snapper snapper, line l, angle roll=0deg, ConnectRule rule= null, bool realign=false) {
-        return this.makeLine(key, snapper, l.p0, l.p1, roll, rule, realign);
+    extend public Connector makeLine(str key, line l, angle roll=0deg, ConnectRule rule= null, bool realign=false) {
+        return this.makeLine(key, l.p0, l.p1, roll, rule, realign);
     }
 
-    extend public Connector makeLine(str key, Snapper snapper, point p0, point p1, angle roll=0deg, ConnectRule rule= null, bool realign=false) {
-        Connector c = this._cache.get(key);
+    extend public Connector makeLine(str key, point p0, point p1, angle roll=0deg, ConnectRule rule= null, bool realign=false) {
+        Connector c = this.get(key);
 
         if (!c) {
-            c = new AweConnectLine(snapper, p0, p1, roll, rule);
+            c = new AweConnectLine(this.snapper, p0, p1, roll, rule);
 
-            this._cache.put(key, c);
+            this._cache.put(this.getCacheKey(key), c);
         } 
         
         if (c as AweConnectLine) {
@@ -100,12 +106,20 @@ public class AweConnectorCache {
         return c;
     }
 
+    extend private str getCacheKey(str key) {
+        if (this.currentProduct) {
+            return key # "_" # this.currentProduct.class.toS();
+        }
+
+        return key;
+    }
+
     extend public Connector[] buffer() {
         return this._buffer;
     }
 
     extend public Connector get(str key) {
-        return this._cache.get(key);
+        return this._cache.get(this.getCacheKey(key));
     }
 
     extend public void clearBuffer() {

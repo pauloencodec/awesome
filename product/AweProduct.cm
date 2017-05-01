@@ -182,4 +182,15 @@ public class AweProduct extends AweGeometry {
 
         return result;
     }
+
+    extend public void createConnectors(AweConnectorCache cache) {
+        cache.currentProduct = this;
+
+        this.connectors(cache);
+
+        cache.currentProduct = null;
+    }
+
+    extend public void connectors(AweConnectorCache cache) {
+    }
 }
