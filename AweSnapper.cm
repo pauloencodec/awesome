@@ -37,10 +37,9 @@
 package custom.awesome;
 
 use custom.awesome.connectors;
+use custom.awesome.gallery;
 
 private alias SnapperArray = Snapper{};
-
-use custom.awesome.gallery;
 
 public class AweSnapper  extends Snapper {
     public aweDynamicContract {
@@ -48,7 +47,7 @@ public class AweSnapper  extends Snapper {
         aweDynamic void galleryChanged(AweGallery gallery);
     }
 
-    public AweConnectorCache connectorCache();
+    public AweConnectorCache connectorCache(this) : stream=null;
 
     public constructor() { 
     }
@@ -57,6 +56,10 @@ public class AweSnapper  extends Snapper {
 
     extend public AweObject[] allModels() {
         return new AweObject[]();
+    }
+
+    extend public AweProduct[] allProducts() {
+        return new AweProduct[]();
     }
 
     extend public void galleryChanged(AweGallery gallery) {
@@ -78,12 +81,18 @@ public class AweSnapper  extends Snapper {
         }
     }
 
-    extend public void connectors(AweConnectorCache cc) { }
+    extend public void connectors(AweConnectorCache cc) {
+    }
 
     public void connectors(ConnectorCollection collection) { 
         this.connectorCache.clearBuffer();
-        this.connectors(connectorCache);
+        this.connectors(this.connectorCache);
         this.connectorCache.addToConnectors(collection);
+
+        for (product in this.allProducts()) {
+            product.createConnectors(this.connectorCache);
+        }
+
         super(collection);
     }
 
