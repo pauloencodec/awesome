@@ -54,6 +54,14 @@ public class AweEasySnapper extends AweSnapper : abstract {
     public AweObject configurator : copy=reference;
     extend public AweObject createConfigurator() : abstract { }
 
+    public AweProduct[] allProducts() {
+        if (this.product) {
+            return [this.product];
+        }
+        
+        return super();
+    }
+
     public void drawGraphs(LayerBuffer lb, View view, GeometricFinder finder=null) {
         if (this.product) {
             if (Graph graph = this.product.get2D()) { 
@@ -73,7 +81,6 @@ public class AweEasySnapper extends AweSnapper : abstract {
         
         return prim;
     }
-
 
     public box localBound() {
         if (this.product) {
