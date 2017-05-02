@@ -41,7 +41,7 @@ use custom.awesome.product;
 public class AweConnectorCache {
     private str->Connector _cache();
     private Connector[] _buffer();
-    private Snapper snapper;
+    private Snapper snapper : public readable;
 
     public AweProduct currentProduct;
     
@@ -91,8 +91,22 @@ public class AweConnectorCache {
             c.realign = realign;
         }
         
-        this._buffer << c;
+        this.addToBuffer(c);
         
+        return c;
+    }
+
+    extend public Connector add(str key, Connector connector) {
+        Connector c = this.get(key);
+
+        if (!c) {
+            c = connector;
+
+            this._cache.put(this.getCacheKey(key), c);
+        }
+
+        this.addToBuffer(c);
+
         return c;
     }
 
@@ -101,7 +115,7 @@ public class AweConnectorCache {
         c.setRot(direction);
         c.setRule(rule);
         
-        this._buffer << c;
+        this.addToBuffer(c);
         
         return c;
     }
@@ -126,8 +140,14 @@ public class AweConnectorCache {
         this._buffer.clear();
     }
 
+    extend public void addToBuffer(Connector connector) {
+        if (connector !in this._buffer) {
+            this._buffer << connector;
+        }
+    }
+
     extend public void addToBuffer(str key) {
-        this._buffer << this.get(key);
+        this.addToBuffer(this.get(key));
     }
 
     extend public void addToBuffer(rest: str[] keys) {

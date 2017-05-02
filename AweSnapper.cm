@@ -87,11 +87,12 @@ public class AweSnapper  extends Snapper {
     public void connectors(ConnectorCollection collection) { 
         this.connectorCache.clearBuffer();
         this.connectors(this.connectorCache);
-        this.connectorCache.addToConnectors(collection);
 
         for (product in this.allProducts()) {
             product.createConnectors(this.connectorCache);
         }
+        
+        this.connectorCache.addToConnectors(collection);
 
         super(collection);
     }
