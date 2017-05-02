@@ -1,0 +1,218 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.electrical;
+
+public class AweOptimizedLineNetwork { 
+    private str->LineCluster lineIndex() : public readable;
+    public constructor(line[] lines) { 
+        for (l in lines) { 
+            adjustClusterFor(l, l.p0);
+            adjustClusterFor(line(l.p1, l.p0), l.p1, true);
+        }
+    }
+
+    final private void adjustClusterFor(line l, point p, bool reverse = false) { 
+        var cluster = this.lineIndex.get(getKeyFor(p));
+        if (cluster) { 
+            cluster << ClusterInfo(l, reverse);
+        } else { 
+            lineIndex.put(getKeyFor(p), LineCluster(l, reverse));
+        }
+    }
+
+    final private str getKeyFor(point p) { 
+        return p.x # p.y # p.z;
+    }
+
+    extend public point[] shortestRoute(point start, point end) {
+
+        Path root();
+        if (this.navigate(start, end, root)) { 
+            return root.points(end);
+        }
+        return null;
+    }
+
+    final private bool navigate(point start, point end, Path root) { 
+
+        /// Find all possible routes from the start point
+        var cluster = this.lineIndex.get(getKeyFor(start));
+        if (!cluster) { 
+            return false; 
+        }
+
+        /// Calculate and sort the distances from the possible routes towards the endpoint
+        sorted double->ClusterInfo rawDistances();
+        for (l in cluster.lines) { 
+            if (l.visited or l.l.p1 == start) { 
+                l.visited = true;
+                continue; 
+            }
+            var cost = this.getCost(l.rl.p0, l.rl.p1, end);
+            rawDistances.put(cost.f, l);
+        }
+
+        /// Traverse the tree hopefully finding the best solution
+        if (!rawDistances.any) { 
+            root.parent = null;
+            return false;
+        }
+
+        for (cost, l in rawDistances) if (!l.visited) { 
+            var newPath = root.newPath(l.rl);
+            l.visited = true;
+            if ((l.l.p1 == end) or (l.l.p0 == end) 
+                or this.navigate(l.l.p1, end, newPath) or this.navigate(l.l.p0, end, newPath)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    final private NodeInfo getCost(point from, point to, point end) { 
+        return new NodeInfo(from.distance(to), to.distance(end));
+    }
+}
+
+
+public class NodeInfo { 
+    
+    private double g : public readable;
+    private double h : public readable;
+    public constructor auto();
+    extend public double f() { 
+        return g + h;
+    }
+}
+
+public class Path { 
+    public Line route;
+    public Path parent;
+    private Path child : public readable;
+    public constructor() { }
+    public constructor auto(route, parent);
+    public constructor auto(route);
+
+    extend public Path newPath(line r) { 
+        if (this.parent) { 
+            var up = findP(r.p0);
+            if (!up) { up = findP(r.p1); }
+            if (up) { 
+                up.route = r;
+                return up;
+            }
+        }
+        this.child = new Path(r, this);
+        return this.child;
+    }
+
+    extend public Path findP(point p) { 
+        if (this.route) { 
+            if ((this.route.v.p1 == p) or (this.route.v.p0 == p)) { 
+                return this;
+            }
+            if (this.parent) { 
+                return this.parent.findP(p);
+            }
+        }
+        return null;
+    }
+
+    extend public Path lastChild() { 
+        if (!this.child) { 
+            return this;
+        }
+        return this.child.lastChild();
+    }
+
+    extend public Path root() { 
+        if (!this.parent) { 
+            return this;
+        }
+        return this.parent.root();
+    }
+
+    extend public point[] points(point end) { 
+        point[] result();
+        if (this.route) { 
+            if (this.route.v.p0 == end) { 
+                result << this.route.v.p0;
+                return result;
+            }
+            if (this.route.v.p1 == end) { 
+                result << this.route.v.p1;
+                return result;
+            }
+            result << this.route.v.p0 << this.route.v.p1;
+        }
+        if (this.child) { 
+            var innerPs = this.child.points(end);
+            if (innerPs) { 
+                for (p in innerPs) { 
+                    result << p;
+                }
+            }
+        }
+        return result;
+    }
+}
+
+public class ClusterInfo { 
+    public line l;
+    public bool visited;
+    public bool reverse;
+    public constructor auto(l);
+    public constructor auto(l, reverse);
+    extend public line rl() { 
+        if (this.reverse) { 
+            return line(l.p1, l.p0);
+        }
+        return l;
+    }
+}
+
+public class LineCluster { 
+    private ClusterInfo[] lines() : public readable;
+    public constructor(line firstLine, bool reverse) { 
+        lines << ClusterInfo(firstLine, reverse);
+    }
+    extend public LineCluster operator<<(ClusterInfo l) {
+        this.lines << l;
+        return this;
+    }
+}

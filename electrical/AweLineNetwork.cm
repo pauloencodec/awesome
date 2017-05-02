@@ -59,7 +59,6 @@ public class Path {
             var up = findP(r.p0);
             if (!up) { up = findP(r.p1); }
             if (up) { 
-                // pln(#up);
                 up.route = r;
                 return up;
             }
@@ -169,12 +168,8 @@ public class AweOptimizedLineNetwork {
     extend public point[] shortestRoute(point start, point end) {
 
         Path root();
-        // pln("------------------------------------------------------------------------");
-        // pln(#start; #end);
         if (this.navigate(start, end, root)) { 
-            var r = root.points(end);
-            // pln("FOUND!!!"; #r);
-            return r;
+            return root.points(end);
         }
         return null;
     }
