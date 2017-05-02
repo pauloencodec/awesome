@@ -45,7 +45,6 @@ public class AweConnectPoint extends ConnectPoint {
     public bool realign = false;
     public bool hidden = false;
     public bool hiddenWhenDisconnected = false;
-    public str name;
 
     extend public bool shouldRealign() {
         return this.realign;
