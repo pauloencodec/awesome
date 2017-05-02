@@ -44,6 +44,7 @@ public class AweConnectLine extends ConnectLine {
     public bool hidden = false;
     public bool hiddenWhenDisconnected = false;
     public bool realign = false;
+
     extend public bool shouldRealign() {
         return this.realign;
     }
@@ -52,8 +53,9 @@ public class AweConnectLine extends ConnectLine {
         return !hidden and !((hiddenWhenDisconnected and !this.isConnected()));
     }
 
-    public constructor(Snapper snapper, point p0, point p1, angle roll=0deg, ConnectRule rule= null) {
+    public constructor(Snapper snapper, point p0, point p1, angle roll=0deg, ConnectRule rule=null, bool realign=false) {
         super(snapper);
+
         this.setPos(p0);
         this.setEndPos(p1);
 
@@ -61,6 +63,7 @@ public class AweConnectLine extends ConnectLine {
 	    setRot(orientation(point(0, -_length, 0).transformed(o)));
 
         this.setRule(rule);
+        
+        this.realign = realign;
     }
-
 }
