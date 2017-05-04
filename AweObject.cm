@@ -89,7 +89,7 @@ public class AweObject {
         for (k,v in this.props) { 
             format = format.replaceAll("{" # k # "}", v.toS);
         }
-        
+
         return format;
     }
 }
@@ -304,19 +304,4 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
             @animationPropertiesChanged;
         }
     };
-}
-
-public aweObject Testando {
-    props (
-        str teste = "minha mensagem",
-        double valor = 123.4567,
-        bool verdade = true,
-        int quanto = 3
-    );
-}
-
-{
-    str aaa(1);
-    Testando t();
-    pln(t.toS("Olá [{teste}], {valor} {verdade} {quanto}}{bola"));
 }
