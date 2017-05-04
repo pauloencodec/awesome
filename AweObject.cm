@@ -82,6 +82,16 @@ public class AweObject {
 
     extend public void animationPropertyChanged(str key, Object value) {
     }
+
+    extend public str toS(str format) { 
+        if (!format or !this.props and !this.props.any) { return format; }
+
+        for (k,v in this.props) { 
+            format = format.replaceAll("{" # k # "}", v.toS);
+        }
+        
+        return format;
+    }
 }
 
 public definition @visibility aweObject @name=id @parentClass=["extends" type]? '{'  @props=["props" formalArgList ';']? @members=[classMember]* '}' {
@@ -294,4 +304,19 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
             @animationPropertiesChanged;
         }
     };
+}
+
+public aweObject Testando {
+    props (
+        str teste = "minha mensagem",
+        double valor = 123.4567,
+        bool verdade = true,
+        int quanto = 3
+    );
+}
+
+{
+    str aaa(1);
+    Testando t();
+    pln(t.toS("Olá [{teste}], {valor} {verdade} {quanto}}{bola"));
 }
