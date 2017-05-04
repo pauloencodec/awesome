@@ -361,25 +361,3 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         }
     };
 }
-
-public aweObject Testando { 
-    props(
-        str nominho = "Felipe",
-        double valor = .789012,
-        double valor1 = 1.789012,
-        double valor2 = 12.789012,
-        double valor3 = 123.789012,
-        double valor4 = 1234.789012,
-        double valor5 = 1,
-        double valor6 = 123456.789012
-    );
-}
-
-{
-    Testando t();
-    var format = "Olá {nominho}! Tome {valor} {valor1} {valor2:1} {valor3} {valor4} {valor5:inch:7} {valor6:7} .";
-    pln(#format);
-    pln(#t.toS(format));
-    // double v = 123456.789012;
-    // pln(#v.toS(); #v.toS(7));
-}
