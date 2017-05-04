@@ -86,8 +86,64 @@ public class AweObject {
     extend public str toS(str format) { 
         if (!format or !this.props and !this.props.any) { return format; }
 
-        for (k,v in this.props) { 
-            format = format.replaceAll("{" # k # "}", v.toS);
+        str->str formattedData(); 
+        bool capture = false;
+        str token = "";
+        for (s in format) { 
+
+            if (s == '{') { 
+                capture = true;
+                continue;
+            } 
+            
+            else if (s == '}') { 
+                capture = false;
+
+                Int precision;
+                var originalToken = token;
+                var toInches = false;
+                if (token.indexOf(":") > -1) { 
+                    var data = token.split(':');
+                    token = data.v0;
+                    toInches = (data.v1.toLower().indexOf("inch") > -1);
+                    if (toInches) { 
+                        var extraInfo = data.v1.split(':');
+                        if (extraInfo.v1) { 
+                            precision = extraInfo.v1.toInt;
+                        }
+                    } else { 
+                        precision = data.v1.toInt;
+                    }
+                }
+
+                var target = this.props.get(token);
+                if (target as Double) { 
+                    if (target) { 
+                        var targetValue = target.v;
+                        if (toInches) {
+                            targetValue /= 1inch;
+                        }
+                        formattedData.put(token, (precision) ? targetValue.toS(precision.v) : targetValue.toS());
+                    } else { 
+                        formattedData.put(token, "");
+                    }
+                } else { 
+                    formattedData.put(token, target ? target.toS : "");
+                }
+
+                format = format.replaceAll("{" # originalToken # "}",  "{" # token # "}");
+                token = "";
+                continue;
+            }
+
+            if (capture) { 
+                token #= s;
+            }
+
+        }
+
+        for (k,v in formattedData) { 
+            format = format.replaceAll("{" # k # "}", v);
         }
 
         return format;
@@ -304,4 +360,26 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
             @animationPropertiesChanged;
         }
     };
+}
+
+public aweObject Testando { 
+    props(
+        str nominho = "Felipe",
+        double valor = .789012,
+        double valor1 = 1.789012,
+        double valor2 = 12.789012,
+        double valor3 = 123.789012,
+        double valor4 = 1234.789012,
+        double valor5 = 1,
+        double valor6 = 123456.789012
+    );
+}
+
+{
+    Testando t();
+    var format = "Olá {nominho}! Tome {valor} {valor1} {valor2:1} {valor3} {valor4} {valor5:inch:7} {valor6:7} .";
+    pln(#format);
+    pln(#t.toS(format));
+    // double v = 123456.789012;
+    // pln(#v.toS(); #v.toS(7));
 }
