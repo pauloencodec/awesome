@@ -82,6 +82,72 @@ public class AweObject {
 
     extend public void animationPropertyChanged(str key, Object value) {
     }
+
+    extend public str toS(str format) { 
+        if (!format or !this.props and !this.props.any) { return format; }
+
+        str->str formattedData(); 
+        bool capture = false;
+        str token = "";
+        for (s in format) { 
+
+            if (s == '{') { 
+                capture = true;
+                continue;
+            } 
+            
+            else if (s == '}') { 
+                capture = false;
+
+                Int precision;
+                var originalToken = token;
+                var toInches = false;
+                if (token.indexOf(":") > -1) { 
+                    var data = token.split(':');
+                    token = data.v0;
+                    toInches = (data.v1.toLower().indexOf("inch") > -1);
+                    if (toInches) { 
+                        var extraInfo = data.v1.split(':');
+                        if (extraInfo.v1) { 
+                            precision = extraInfo.v1.toInt;
+                        }
+                    } else { 
+                        precision = data.v1.toInt;
+                    }
+                }
+
+                var target = this.props.get(token);
+                if (target as Double) { 
+                    if (target) { 
+                        var targetValue = target.v;
+                        if (toInches) {
+                            targetValue /= 1inch;
+                        }
+                        formattedData.put(token, (precision) ? targetValue.toS(precision.v) : targetValue.toS());
+                    } else { 
+                        formattedData.put(token, "");
+                    }
+                } else { 
+                    formattedData.put(token, target ? target.toS : "");
+                }
+
+                format = format.replaceAll("{" # originalToken # "}",  "{" # token # "}");
+                token = "";
+                continue;
+            }
+
+            if (capture) { 
+                token #= s;
+            }
+
+        }
+
+        for (k,v in formattedData) { 
+            format = format.replaceAll("{" # k # "}", v);
+        }
+
+        return format;
+    }
 }
 
 public definition @visibility aweObject @name=id @parentClass=["extends" type]? '{'  @props=["props" formalArgList ';']? @members=[classMember]* '}' {
