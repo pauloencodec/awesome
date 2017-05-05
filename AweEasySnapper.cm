@@ -48,10 +48,10 @@ public class AweEasySnapper extends AweSnapper : abstract {
         this.refresh();
     }
 
-    public AweProduct product : copy=reference;
+    public AweProduct product;
     extend public AweProduct createProduct(AweObject configurator) : abstract { }
 
-    public AweObject configurator : copy=reference;
+    public AweObject configurator;
     extend public AweObject createConfigurator() : abstract { }
 
     public AweProduct[] allProducts() {

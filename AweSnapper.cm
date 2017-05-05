@@ -52,7 +52,7 @@ public class AweSnapper  extends Snapper {
     public constructor() { 
     }
 
-    public AweObject activeConfigurator : copy=reference;
+    public AweObject activeConfigurator;
 
     extend public AweObject[] allModels() {
         return new AweObject[]();
