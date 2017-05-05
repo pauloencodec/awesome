@@ -64,7 +64,10 @@ public class AweGeometry {
         this.parts << part;
     }
 
+    extend public void createParts() { }
+
     extend public void addPart(str catalog, str sku) {
+        this.createParts();
         this.parts << new AwePart(catalog, sku);
     }
 
