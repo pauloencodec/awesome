@@ -168,6 +168,7 @@ public class AwePointsAnimation extends Animation {
     public void abort() {
         if (space) {
             space.abortAnimateDraw(this);
+            space.hide(this);
         }
         super(..);
     }

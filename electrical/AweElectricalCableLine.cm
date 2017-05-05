@@ -36,11 +36,11 @@
 
 package custom.awesome.electrical;
 
-public class AweLineRoute {
-   public point[] points();
-   public line[] lines();
-   public double cost;
-
-   public constructor() {
-   }
+public class AweElectricalCableLine extends Line {
+    public bool active;  
+    public Snapper snapper : copy=null;
+    extend public Line spaceLine() {
+        if(!snapper) return null;
+        return Line(snapper.toSpace(this.line));
+    }
 }

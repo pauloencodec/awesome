@@ -36,9 +36,12 @@
 
 package custom.awesome.electrical;
 
-private alias AweElectricalRouteArray = AweElectricalRoute[];
 
-public class AweElectricalAnimationSnapperShell extends AweDynamicShell {
-    public aweShellMethod AweElectricalRouteArray getInfeeds();
-    public aweShellMethod AweElectricalRouteArray getRoutes();
+public class AweElectricalInfeedPoint extends Point {
+    public bool active;  
+    public Snapper snapper : copy=null;
+    extend public Point spacePoint() {
+        if(!snapper) return null;
+        return Point(snapper.toSpace(this.point));
+    }
 }
