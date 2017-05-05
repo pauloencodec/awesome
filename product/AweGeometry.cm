@@ -60,11 +60,12 @@ public class AweGeometry {
         return box();
     }
 
+    extend public void createParts() {
+    }
+
     extend public void addPart(AwePart part) {
         this.parts << part;
     }
-
-    extend public void createParts() { }
 
     extend public void addPart(str catalog, str sku) {
         this.parts << new AwePart(catalog, sku);
@@ -72,6 +73,7 @@ public class AweGeometry {
 
     extend public AwePart[] getParts() {
         this.createParts();
+        
         return this.parts;
     }
 }
