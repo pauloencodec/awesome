@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <extension-info>
   <main>custom.awesome</main>
-  <name>Awesome library</name>
-  <type>catalog</type>
-  <version>0.4</version>
+  <name>Awesome Library</name>
+  <type>code</type>
+  <version>0.5</version>
   <packages>
-    <package id="custom.awesome" />
-    <package id="custom.awesome.product" />
+    <package id="custom.awesome.basic3D" />
     <package id="custom.awesome.connectors" />
+    <package id="custom.awesome.electrical" />
+    <package id="custom.awesome.examples" />
+    <package id="custom.awesome.gallery" />
     <package id="custom.awesome.panelSystem" />
+    <package id="custom.awesome.product" />
+    <package id="custom.awesome.sample" />
+    <package id="custom.awesome.storage" />
+    <package id="custom.awesome" />
   </packages>
   <extension-dependencies>
     <dependency id="cet.designer"/>
