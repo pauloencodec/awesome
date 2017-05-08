@@ -176,7 +176,10 @@ public class AweProduct extends AweGeometry {
 
         if (this.geometries and this.geometries.any()) {
             for (g in this.geometries) {
-                result += g.parts;
+                if ( g != this ) {
+                    g.createParts();
+                    result += g.parts;
+                }
             }
         }
 
