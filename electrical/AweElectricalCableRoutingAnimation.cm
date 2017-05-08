@@ -47,11 +47,15 @@ public class AweElectricalCableRoutingAnimation extends AwePointsAnimation {
     private point[] allVertices();
     private str->AweElectricalCableLine[] pointLineIndex();
 
+    private point[] availableConnections();
+    private line[] suggestedRoute;
+
     public constructor(AweElectricalInfeedPoint infeed) {
         this.infeed = infeed;
         //scanForInfeeds();
         scanForCables();
         indexPointLine();
+        availableConnections = identifyAvailableConnections();
 
         infeedNetwork = identifyNetwork(infeed.spacePoint.v);
         for(cable in infeedNetwork) {
@@ -61,6 +65,25 @@ public class AweElectricalCableRoutingAnimation extends AwePointsAnimation {
 
         super(maxInt);
     }   
+
+    extend private point[] identifyAvailableConnections() {
+        point[] points();
+        for(p in allVertices) {
+            var lines = pointLineIndex.get(p.toS);
+            if(lines) {
+                int activeLineCount = 0;
+                for(l in lines) {
+                    if(l.active)
+                        activeLineCount ++;
+                }
+
+                if(activeLineCount > 0 and activeLineCount < lines.count) {
+                    points << p;
+                }
+            }
+        }
+        return points;
+    }
 
     extend private void indexPointLine() {
         for(cable in allCables) {
@@ -111,42 +134,45 @@ public class AweElectricalCableRoutingAnimation extends AwePointsAnimation {
     }
 
     public Primitive3D get3D(FetchEnv3D env) {
-        var radius = 3inch;
+        var radius = 1inch;
         Awe3D stuff();
 
         stuff << super(env);
 
-        if(optimizedNetwork) {
-            var suggestedRoute = optimizedNetwork.shortestRoute(infeed.spacePoint.v, currentPoint.v);
-            Point lastPoint = null;
-            for(p in suggestedRoute) {
-                if(lastPoint) {
-                    Cylinder3D l(lastPoint.v, p, 2inch);
-                    l.setMaterial( plainBlueMaterial3D );
-                    stuff << l;
-                }
-                lastPoint = p;
-            }
+        for(routeLine in suggestedRoute) {
+            Cylinder3D l(routeLine.p0, routeLine.p1, .75inch);
+            l.setMaterial( plainBlueMaterial3D );
+            stuff << l;
         }
-        Sphere3D infeedSphere(infeed.spacePoint.v, radius * 1.5);
+
+        Sphere3D infeedSphere(infeed.spacePoint.v, radius);
         infeedSphere.setMaterial(plainYellowMaterial3D);
         stuff << infeedSphere;
 
-        for(l in infeedNetworkLines) {
-            Cylinder3D l(l.p0, l.p1, 1inch);
-            // l.setMaterial(cable.active ? plainYellowMaterial3D : plainGrayMaterial3D);
-            l.setMaterial( plainYellowMaterial3D );
+        for(cable in allCables) {
+            var cableLine = cable.spaceLine.v;
+            Cylinder3D l(cableLine.p0, cableLine.p1, .5inch);
+            l.setMaterial(cable.active ? plainYellowMaterial3D : plainGrayMaterial3D);
             stuff << l;
+        }
+
+        for(c in availableConnections) {
+            Sphere3D x(c, radius);
+            x.setMaterial(plainRedMaterial3D);
+            stuff << x;
         }
         
         return stuff;
     }
 
     public point savePoint(int pointIndex, point mousePoint) {
+        activateRoute(suggestedRoute, infeedNetwork);
+        availableConnections = identifyAvailableConnections();
         return mousePoint;
     }
 
     public Point adjustPoint(int pointIndex, point mousePoint, AnimationMouseInfo mi) {
+        suggestedRoute = routeToLines(optimizedNetwork.shortestRoute(infeed.spacePoint.v, currentPoint.v));
         return closestVertice(mi.mouseLine);
     }
  
@@ -163,6 +189,42 @@ public class AweElectricalCableRoutingAnimation extends AwePointsAnimation {
         }
     }
 
-   
+    extend private line[] routeToLines(point[] route) {
+        line[] lines();
+        Point previous = null;
+        for(p in route) {
+            if(previous) {
+                lines << line(previous.v, p);
+            }
+            previous = p;
+        }
+        return lines;
+    }
 
+   extend private void activateRoute(line[] route, AweElectricalCableLine[] network) {
+       str[] signatures();
+
+       for(l in route) {
+           //one way
+           signatures << l.p0.toS # "-" # l.p1.toS;
+           //other way
+           signatures << l.p1.toS # "-" # l.p0.toS;
+       }
+
+       for(cable in network) {
+           str signature = cable.spaceLine.v.p0.toS # "-" # cable.spaceLine.v.p1.toS;
+           if(signature in signatures) {
+               cable.active = true;
+           }
+       }
+
+   }
+
+}
+
+
+{
+    str[] linhas();
+    linhas << line(point(), (1,1,1)).toS;
+    pln(line(point(), (1,1,1)).toS in linhas);
 }
