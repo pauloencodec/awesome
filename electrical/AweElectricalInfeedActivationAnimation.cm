@@ -37,18 +37,19 @@
 package custom.awesome.electrical;
 
 
-public class AweElectricalInfeeActivationAnimation extends AwePointsAnimation {
-
+public class AweElectricalInfeedActivationAnimation extends AwePointsAnimation {
     private AweElectricalInfeedPoint[] allInfeeds();
     private AweElectricalInfeedPoint closestInfeed = null;
 
     public constructor() {
-        scanForInfeeds();
+        this.scanForInfeeds();
+
         super(maxInt);
     }   
 
     public void rightClick(AnimationMouseInfo mi) {
     }
+
     public void rightRelease(AnimationMouseInfo mi) {
 	    end();
         animate(AweElectricalCableRoutingAnimation(closestInfeed));
@@ -56,39 +57,49 @@ public class AweElectricalInfeeActivationAnimation extends AwePointsAnimation {
 
     public Primitive3D get3D(FetchEnv3D env) {
         var radius = 3inch;
+
         Awe3D balls();
-        for(infeed in allInfeeds) {
+        
+        for (infeed in this.allInfeeds) {
             Sphere3D ball(infeed.spacePoint.point, radius);
             ball.setMaterial(infeed.active ? plainYellowMaterial3D : plainGrayMaterial3D);
             balls << ball; 
         }
-        if(currentPoint) {
+
+        if (this.currentPoint) {
             Sphere3D current(currentPoint.v, radius * 1.5);
             current.setMaterial(glassMaterial3D);
             balls << current;
         }
+
         return balls;
     }
 
     public point savePoint(int pointIndex, point mousePoint) {
-        if(closestInfeed) {
-            closestInfeed.active = !closestInfeed.active;
-            refresh();
+        if (this.closestInfeed) {
+            this.closestInfeed.active = !closestInfeed.active;
+            
+            this.refresh();
         }
+
         return mousePoint;
     }
 
     public Point adjustPoint(int pointIndex, point mousePoint, AnimationMouseInfo mi) {
-        calculateClosestInfeedTo(mi.mouseLine);
-        return closestInfeed.?spacePoint;
+        this.calculateClosestInfeedTo(mi.mouseLine);
+        
+        return this.closestInfeed.?spacePoint;
     }
+
     extend private void scanForInfeeds() {
         for (snapper in this.space.snappers) {
             Object infeeds = aweDynamicCall snapper.getAweElectricalInfeedPoints();
-            if(infeeds as AweElectricalInfeedPoint[]) {
-                for(infeed in infeeds) {
+            
+            if (infeeds as AweElectricalInfeedPoint[]) {
+                for (infeed in infeeds) {
                     infeed.snapper = snapper;
-                    allInfeeds << infeed;
+                    
+                    this.allInfeeds << infeed;
                 }
             }
         }
@@ -96,16 +107,18 @@ public class AweElectricalInfeeActivationAnimation extends AwePointsAnimation {
 
     extend private void calculateClosestInfeedTo(line l) {
         double closestDistance = maxDouble;
-        for(infeed in allInfeeds) {
+
+        for (infeed in this.allInfeeds) {
             var thisDistance = l.normalIntersect(infeed.spacePoint.point).dSquare;
-            if(thisDistance < closestDistance) {
+
+            if (thisDistance < closestDistance) {
                 closestDistance = thisDistance;
                 closestInfeed = infeed;
             }
         }
     }
-
 }
+
 {
-    animate(AweElectricalInfeeActivationAnimation());
+    animate(AweElectricalInfeedActivationAnimation());
 }
