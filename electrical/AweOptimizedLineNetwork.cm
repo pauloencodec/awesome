@@ -45,20 +45,42 @@ public class AweOptimizedLineNetwork {
     }
 
     extend public point[] shortestRoute(point start, point end) {
-        var found = this.navigation.search(..);
+
+        pln("################################################");
+        var found = this.navigation.copy().search(..);
 
         if (found) { 
             
             point[] result();
 
             var node = found;
-            result << node.end;
+            
+            if (!node.parentNode) { 
+                result << node.end;
+            }
+
             while (node.parentNode != null)
             {
-                result << node.end;
+                var handled = false;
+                
+                if (node.realEnd == end) { 
+                    result << node.end;
+                    handled = true;
+                } 
+                
+                if (node.location == start) { 
+                    result << node.realEnd << node.start;
+                    break;
+                }
+
+                if (!handled) { 
+                    result << node.end << node.location;
+                }
+
                 node = node.parentNode;
             }
 
+            result << node.end;
             result.reverse();
             return result;
         
@@ -81,8 +103,9 @@ public class AweLineNavigation {
     extend public AwePathNode search(point start, point end) { 
         
         this.calculateFor(end);
-        
-        var lines = this.lines.get(this.getKeyFor(start));
+        var key = this.getKeyFor(start);
+        var lines = this.lines.get(key);
+
         if (!lines) { 
             pln("No lines found for " #start);
             return null;
@@ -106,7 +129,7 @@ public class AweLineNavigation {
             }
 
             for (d, no in rawDistances) { 
-                if ((no.location == end) or (no.end == end)) { 
+                if (no.endsAt(end)) { 
                     return no;
                 } else { 
                     var r = this.search(no.location, end);
@@ -137,7 +160,7 @@ public class AweLineNavigation {
             }
 
             if (node.state == aweNodeState.open) {
-                var traversalCost = node.getTraversalCost(node.location, node.parentNode.location);
+                var traversalCost = node.getTraversalCost(node.start, node.parentNode.start);
                 var gTemp = fromNode.g + traversalCost;
                 if (gTemp < node.g)
                 {
@@ -147,7 +170,6 @@ public class AweLineNavigation {
             }
             else
             {
-                // If it's untested, set the parent and flag it as 'Open' for consideration
                 node.parentNode = fromNode;
                 node.state = aweNodeState.open;
                 expanded << node;
@@ -201,8 +223,24 @@ public class AwePathNode {
         this.reverse = reverse;
     }
 
+    extend public bool endsAt(point p) { 
+        return this.realEnd == p;
+    }
+
+    extend public line l() { 
+        return line(location, end);
+    }
+
+    extend public point start() { 
+        return this.reverse ? this.end : this.location;
+    }
+
+    extend public point realEnd() { 
+        return this.reverse ? this.location : this.end;
+    }
+
     extend public AwePathNode initialize(point endLocation) { 
-        this.h = getTraversalCost(this.location, endLocation);
+        this.h = getTraversalCost(this.start, endLocation);
         this.g = 0;
         return this;
     }
@@ -213,7 +251,7 @@ public class AwePathNode {
 
     extend public AwePathNode setParentNode(AwePathNode parent) {
         this.parentNode = parent;
-        this.g = this.parentNode.g + this.getTraversalCost(this.location, this.parentNode.location);
+        this.g = this.parentNode.g + this.getTraversalCost(this.start, this.parentNode.start);
         return this;
     }
 
@@ -222,7 +260,7 @@ public class AwePathNode {
     }
 
     public str toS() {
-        return this.location # " - " # this.state;
+        return this.l # " - " # this.l.length # " - " # (this.l.p0.z == this.l.p1.z);
     }
 }
 
@@ -231,7 +269,6 @@ public enum aweNodeState {
     open;
     closed;
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -248,7 +285,7 @@ private const double maxLine = .5;
 
 public line[] makeRandonNetwork() {
    line[] network();
-   for(i in 1..1000) {
+   for(i in 1..800) {
        network << addRandomLine(network);
    }
    return network;
@@ -280,44 +317,12 @@ public point getRandomPoint(line[] network) {
 public class CaixeiroSnapper extends Snapper {
    public Primitive3D get3D(FetchEnv3D env) {
        Awe3D prims();
-       line[] lines = makeRandonNetwork();
-        // line[] lines();
-        // lines << line(p0=(-0.965328, -1.67588, ~0), p1=(-0.965328, -1.67588, 0.9144));
-        // lines << line(p0=(-0.965328, -1.67588, 2), p1=(-0.965328, -1.67588, 0.9144));
-        // lines << line(p0=(-0.965328, -1.67588, 0.9144), p1=(-0.965328, -1.59968, 0.9144));
-        // lines << line(p0=(-0.965328, -1.67588, 0.9144), p1=(-0.899337, -1.71398, 0.9144));
-        // lines << line(p0=(-0.965328, -1.67588, 0.9144), p1=(-1.03132, -1.71398, 0.9144));
-        // lines << line(p0=(-2.21916, -2.39978, 0.9144), p1=(-1.03132, -1.71398, 0.9144));
-        // lines << line(p0=(0.288503, -2.39978, 0.9144), p1=(-0.899337, -1.71398, 0.9144));
-        // lines << line(p0=(-0.965328, -0.228078, 0.9144), p1=(-0.965328, -1.59968, 0.9144));
-        // lines << line(p0=(-0.965328, -0.151878, 0.9144), p1=(-0.965328, -0.228078, 0.9144));
-        // lines << line(p0=(-0.965328, -0.151878, 2), p1=(-0.965328, -0.151878, 0.9144));
-        // lines << line(p0=(-0.965328, -0.151878, ~0), p1=(-0.965328, -0.151878, 0.9144));
-        // lines << line(p0=(-0.965328, -0.151878, 0.9144), p1=(-0.899337, -0.113778, 0.9144));
-        // lines << line(p0=(-0.965328, -0.151878, 0.9144), p1=(-1.03132, -0.113778, 0.9144));
-        // lines << line(p0=(-1.03132, -0.113778, 0.9144), p1=(-2.21916, 0.572022, 0.9144));
-        // lines << line(p0=(-2.28515, 0.610122, 0.9144), p1=(-2.21916, 0.572022, 0.9144));
-        // lines << line(p0=(-2.28515, 0.610122, 2), p1=(-2.28515, 0.610122, 0.9144));
-        // lines << line(p0=(-2.28515, 0.610122, ~0), p1=(-2.28515, 0.610122, 0.9144));
-        // lines << line(p0=(-2.28515, 0.610122, 0.9144), p1=(-2.28515, 0.686322, 0.9144));
-        // lines << line(p0=(-2.28515, 0.610122, 0.9144), p1=(-2.35114, 0.572022, 0.9144));
-        // lines << line(p0=(-3.53898, -0.113778, 0.9144), p1=(-2.35114, 0.572022, 0.9144));
-        // lines << line(p0=(-2.28515, 0.686322, 0.9144), p1=(-2.28515, 2.05792, 0.9144));
-        // lines << line(p0=(-0.899337, -0.113778, 0.9144), p1=(0.288503, 0.572022, 0.9144));
-        // lines << line(p0=(0.354494, 0.610122, 0.9144), p1=(0.288503, 0.572022, 0.9144));
-        // lines << line(p0=(0.354494, 0.610122, 2), p1=(0.354494, 0.610122, 0.9144));
-        // lines << line(p0=(0.354494, 0.610122, ~0), p1=(0.354494, 0.610122, 0.9144));
-        // lines << line(p0=(0.354494, 0.610122, 0.9144), p1=(0.420485, 0.572022, 0.9144));
-        // lines << line(p0=(0.354494, 0.610122, 0.9144), p1=(0.354494, 0.686322, 0.9144));
-        // lines << line(p0=(0.354494, 2.05792, 0.9144), p1=(0.354494, 0.686322, 0.9144));
-        // lines << line(p0=(0.354494, 2.13412, 0.9144), p1=(0.354494, 2.05792, 0.9144));
-        // lines << line(p0=(0.354494, 2.13412, 2), p1=(0.354494, 2.13412, 0.9144));
-        // lines << line(p0=(0.354494, 2.13412, ~0), p1=(0.354494, 2.13412, 0.9144));
-        // lines << line(p0=(0.354494, 2.13412, 0.9144), p1=(0.420485, 2.17222, 0.9144));
-        // lines << line(p0=(0.354494, 2.13412, 0.9144), p1=(0.288503, 2.17222, 0.9144));
-        // lines << line(p0=(-0.899337, 2.85802, 0.9144), p1=(0.288503, 2.17222, 0.9144));
-        // lines << line(p0=(0.420485, 2.17222, 0.9144), p1=(1.60833, 2.85802, 0.9144));
-        // lines << line(p0=(1.60833, -0.113778, 0.9144), p1=(0.420485, 0.572022, 0.9144));
+    //    line[] lines = makeRandonNetwork();
+        line[] lines();
+lines << line(p0=(-0.408947, -0.104268, 0), p1=(-0.408947, -0.104268, 0.9144));
+lines << line(p0=(-0.408947, -0.104268, 2), p1=(-0.408947, -0.104268, 0.9144));
+lines << line(p0=(-0.408947, -0.104268, 0.9144), p1=(-0.332747, -0.104268, 0.9144));
+lines << line(p0=(-0.332747, -0.104268, 0.9144), p1=(1.03885, -0.104268, 0.9144));
 
        custom.awesome.electrical.AweOptimizedLineNetwork network(lines);
        point start = getRandomPoint(lines);
@@ -326,17 +331,17 @@ public class CaixeiroSnapper extends Snapper {
            end = getRandomPoint(lines);
        }
 
-    //    start = (-0.965328, -1.67588, ~0);
-    //    end = (-2.21916, -2.39978, 0.9144);
+// start=(-0.408947, -0.104268, 0.9144);
+// end=(-0.408947, -0.104268, 2);
        var bestRoute = network.shortestRoute(start, end);
        point current = start;
-       for(p in bestRoute) {
-           if(current.distance(p) > 0) {
-               Cylinder3D c(current, p, 1inch);
-               c.setMaterial(plainGreenMaterial3D);
+       for(p in bestRoute, index=i) {
+        //    if(current.distance(p) > 0) {
+               Cylinder3D c(current, p, .25inch);
+               c.setMaterial(plainRandomColorMaterial3D(500));
                prims << c;
                current = p;
-           }
+        //    }
        }
 
        for(l in lines) {
@@ -345,10 +350,10 @@ public class CaixeiroSnapper extends Snapper {
            prims << c;
        }
 
-       Sphere3D startBall(start, 3inch);
+       Sphere3D startBall(start, 1inch);
        startBall.setMaterial(plainBlueMaterial3D);
        prims << startBall;
-       Sphere3D endBall(end, 3inch);
+       Sphere3D endBall(end, 1inch);
        endBall.setMaterial(plainGreenMaterial3D);
        prims << endBall;
 
