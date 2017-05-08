@@ -101,7 +101,33 @@ package ExtensionInfo getExtensionInfo() : referred {
 
     Url[] files();
 
+    for (f in getFiles(cmNative("custom/awesome/data/cm3d/"), "cm3d")) {
+        files << f;
+    }
+
     info.filesToInclude = files;
 
     return info;
+}
+
+package Url[] getFiles(Url directory, str ext, Url[] files=new Url[]()) {
+    Url[] urls = directoriesIn(directory);
+
+    for (url in urls) {
+        getFiles(url, ext, files);
+    }
+    
+    Url[] dirFiles = filesIn(directory, "*." # ext);
+    
+    for (f in dirFiles) {
+        files << f;
+    }
+    
+    return files;
+}
+
+{
+    // generateHardExtensionId(#:package, name).dumpAsCode();
+    autoBuildExtension(#:package);
+    // generateFreeExtensionId(#:package, name).dumpAsCode();
 }

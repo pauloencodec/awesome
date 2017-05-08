@@ -38,13 +38,12 @@ package custom.awesome;
 
 public class AwePointsAnimation extends Animation {
     public constructor(int count=1) {
-        StartAnimationEnv env(count);
-        super(env);
+        super(new StartAnimationEnv(count));
     }   
 
-    public double z=0;
+    public double z = 0;
     public point[] points();
-    public Point currentPoint=point();
+    public Point currentPoint = point();
 
     //return null if you don't want it.
     extend public Point adjustPoint(int pointIndex, point mousePoint, AnimationMouseInfo mi) {
@@ -57,37 +56,35 @@ public class AwePointsAnimation extends Animation {
     }
 
     public void move(AnimationMouseInfo mi) {
-        updateCurrentPoint(mi);
+        this.updateCurrentPoint(mi);
     }
 
     public void click(AnimationMouseInfo mi) {
 	    super(..);
 
-        if(currentPoint) {
-            Point pointToSave = savePoint(points.count, currentPoint.v);
-            if(pointToSave) {
-                points << pointToSave.v;
+        if (this.currentPoint) {
+            if (Point pointToSave = this.savePoint(points.count(), this.currentPoint.v)) {
+                this.points << pointToSave.v;
             }
         }
-
     }
 
     extend public plane referencePlane() {
-        plane pl(vector(0,0,1), z);
-        return pl;
+        return plane(vector(0, 0, 1), this.z);
     }
 
     extend public void updateCurrentPoint(AnimationMouseInfo mi) {
         line ml = mi.mouseLine;
-        point mp = ml.intersect(referencePlane).ip;
-        Point newPoint = adjustPoint(points.count, mp, mi);
-        if(!newPoint) {
-            currentPoint = null;
-            refresh();
+        point mp = ml.intersect(this.referencePlane()).ip;
+        Point newPoint = adjustPoint(this.points.count(), mp, mi);
+        
+        if (!newPoint) {
+            this.currentPoint = null;
+            this.refresh();
         }
-        else if(newPoint != currentPoint) {
-            currentPoint = newPoint;
-            refresh();
+        else if (newPoint != currentPoint) {
+            this.currentPoint = newPoint;
+            this.refresh();
         }
     }
 
@@ -101,6 +98,12 @@ public class AwePointsAnimation extends Animation {
         }
     }
 
+    extend public void setViewMode(ViewMode viewMode) {
+        if (World w = session.?mainWorld) {
+            w.setViewMode(viewMode);
+        }
+    }
+
     public bool deny3D() {
 	    return false;
     }
@@ -109,7 +112,7 @@ public class AwePointsAnimation extends Animation {
      * Get 2D.
      */
     public void drawGraphs(LayerBuffer lb) {
-        get2D().draw(lb);
+        this.get2D().draw(lb);
     }
 
     /**
@@ -118,50 +121,74 @@ public class AwePointsAnimation extends Animation {
     public Graph get2D() {
         AweGraph graph();
 
-        if(currentPoint)
-            graph << GDot(currentPoint.v);
-        for(p in points) {
-            graph << GDot(p);
+        if (this.currentPoint)
+            graph << new GDot(this.currentPoint.v);
+        
+        for (p in this.points) {
+            graph << new GDot(p);
         }
+
         return graph;
     }
 
     public Primitive3D get3D(FetchEnv3D env) {
-        if(currentPoint) {
-            Sphere3D current(currentPoint.v, 3inch);
+        if (this.currentPoint) {
+            Sphere3D current(this.currentPoint.v, 3inch);
+            
             current.setMaterial(glassMaterial3D);
-            return Awe3D(current);
+            
+            return new Awe3D(current);
         }
+
         return null;
     }
 
-
     private Space _space;
+
     public Space space() {
-        if(!_space) _space = activeSpace;
-        return _space;
+        if (!this._space) this._space = activeSpace();
+
+        return this._space;
     }
 
     public void increaseState() {
-        if(currentPoint) {
+        if (this.currentPoint) {
             super(..);
+        }
+    }
+
+    public void enterView(AnimationMouseInfo mouseInfo) {
+        super(mouseInfo);
+ 
+        if (this.space) {
+            this.space.clearSelection();
+        }
+
+        if (World w = session.?mainWorld) {
+            for (viewMode in w.viewModes) {
+                if (viewMode.key == #electrical) {
+                    this.setViewMode(viewMode);
+                    break;
+                }
+            }
         }
     }
 
     public void begin() {
         super();
+
         if (space) {
             space.beginAnimateDrawSequence(this);
             space.show(this);
         }
     }
 
-
     public void end() {
         if (space) {
             space.endAnimateDrawSequence(this);
             space.hide(this);
         }
+
         super(..);
     }
 
@@ -170,6 +197,9 @@ public class AwePointsAnimation extends Animation {
             space.abortAnimateDraw(this);
             space.hide(this);
         }
+
+        this.setViewMode(normalViewMode);
+
         super(..);
     }
 }

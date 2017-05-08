@@ -172,11 +172,13 @@ public class AweProduct extends AweGeometry {
     }
 
     public AwePart[] getParts() {
-        AwePart[] result();
+        AwePart[] result = super();
 
         if (this.geometries and this.geometries.any()) {
             for (g in this.geometries) {
-                result += g.parts;
+                if ( g != this ) {
+                    result += g.getParts();
+                }
             }
         }
 
