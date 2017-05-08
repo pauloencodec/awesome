@@ -83,8 +83,23 @@ public class AweObject {
     extend public void animationPropertyChanged(str key, Object value) {
     }
 
-    extend public str toS(str format) { 
-        if (!format or !this.props and !this.props.any) { return format; }
+    extend public str toS(str format, rest: Object[] extraParams) {
+        str->Object props();
+        for(obj in extraParams, index=i) {
+            props.put(i.toS, obj);
+        }
+        return toS(format, props);
+    }
+
+    extend public str toS(str format, str->Object extraParams=null) { 
+        str->Object props = this.props.copy();
+        if(extraParams) {
+            for(k,v in extraParams) {
+                props.put(k,v);
+            }
+        }
+
+        if (!format or !props and !props.any) { return format; }
 
         str->str formattedData(); 
         bool capture = false;
@@ -116,7 +131,7 @@ public class AweObject {
                     }
                 }
 
-                var target = this.props.get(token);
+                var target = props.get(token);
                 if (target as Double) { 
                     if (target) { 
                         var targetValue = target.v;
