@@ -46,11 +46,10 @@ public class AweOptimizedLineNetwork {
 
     extend public point[] shortestRoute(point start, point end) {
 
-        pln("################################################");
         var found = this.navigation.copy().search(..);
 
         if (found) { 
-            
+        
             point[] result();
 
             var node = found;
@@ -64,6 +63,10 @@ public class AweOptimizedLineNetwork {
                 var handled = false;
                 
                 if (node.realEnd == end) { 
+                    if (node.location == start) { 
+                        result << node.location;
+                        break;
+                    }
                     result << node.end;
                     handled = true;
                 } 
@@ -81,16 +84,32 @@ public class AweOptimizedLineNetwork {
             }
 
             result << node.end;
+            result << start;
             result.reverse();
-            return result;
-        
-    }
+            return reduce(result);
+
+        }
 
         return null;
     }
+
+    extend public point[] reduce(point[] ps) { 
+        for (p in ps, index=i) { 
+            var uBound = ps.count-1;
+            var x = i + 1;
+            while (x <= uBound) { 
+                if (ps[x] == p) {
+                    ps.remove(x);
+                    uBound--;
+                }
+                x++;
+            }
+        }
+        return ps;
+    }
 }
 
-public class AweLineNavigation { 
+private class AweLineNavigation { 
 
     private str->AwePathNode[] lines() : public readable;
 
@@ -206,7 +225,7 @@ public class AweLineNavigation {
     }
 }
 
-public class AwePathNode {
+private class AwePathNode {
 
     private AwePathNode parentNode : public readable;
     public point location;
@@ -264,103 +283,8 @@ public class AwePathNode {
     }
 }
 
-public enum aweNodeState {
+private enum aweNodeState {
     untested;
     open;
     closed;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-use custom.awesome.product;
-
-private const double maxLine = .5;
-
-public line[] makeRandonNetwork() {
-   line[] network();
-   for(i in 1..800) {
-       network << addRandomLine(network);
-   }
-   return network;
-}
-
-public line addRandomLine(line[] network) {
-   point p0();
-   if(!network or network.count == 0) {
-       p0 = randomPoint(maxLine);
-   } else {
-       p0 = getRandomPoint(network);
-   }
-
-   return line(p0, p0 + randomPoint(maxLine));
-}
-
-public point getRandomPoint(line[] network) {
-   int randomIndex = randD(network.count).int;
-   bool useP0 = randD(2).int == 0;
-   if(useP0) {
-       return network[randomIndex].p0;
-   } else {
-       return network[randomIndex].p1;
-   }
-}
-
-
-
-public class CaixeiroSnapper extends Snapper {
-   public Primitive3D get3D(FetchEnv3D env) {
-       Awe3D prims();
-    //    line[] lines = makeRandonNetwork();
-        line[] lines();
-lines << line(p0=(-0.408947, -0.104268, 0), p1=(-0.408947, -0.104268, 0.9144));
-lines << line(p0=(-0.408947, -0.104268, 2), p1=(-0.408947, -0.104268, 0.9144));
-lines << line(p0=(-0.408947, -0.104268, 0.9144), p1=(-0.332747, -0.104268, 0.9144));
-lines << line(p0=(-0.332747, -0.104268, 0.9144), p1=(1.03885, -0.104268, 0.9144));
-
-       custom.awesome.electrical.AweOptimizedLineNetwork network(lines);
-       point start = getRandomPoint(lines);
-       point end = start;
-       while(end == start) {
-           end = getRandomPoint(lines);
-       }
-
-// start=(-0.408947, -0.104268, 0.9144);
-// end=(-0.408947, -0.104268, 2);
-       var bestRoute = network.shortestRoute(start, end);
-       point current = start;
-       for(p in bestRoute, index=i) {
-        //    if(current.distance(p) > 0) {
-               Cylinder3D c(current, p, .25inch);
-               c.setMaterial(plainRandomColorMaterial3D(500));
-               prims << c;
-               current = p;
-        //    }
-       }
-
-       for(l in lines) {
-           Cylinder3D c(l.p0, l.p1, 1inch);
-           c.setMaterial(glassMaterial3D);
-           prims << c;
-       }
-
-       Sphere3D startBall(start, 1inch);
-       startBall.setMaterial(plainBlueMaterial3D);
-       prims << startBall;
-       Sphere3D endBall(end, 1inch);
-       endBall.setMaterial(plainGreenMaterial3D);
-       prims << endBall;
-
-       return prims;
-   }
-}
-
-{
-   CaixeiroSnapper().launch();
 }
