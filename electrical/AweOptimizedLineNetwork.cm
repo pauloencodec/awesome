@@ -38,15 +38,15 @@ package custom.awesome.electrical;
 
 public class AweOptimizedLineNetwork { 
 
-    private AweLineNavigation navigation;
+    private AweLineNavigator navigator;
 
     public constructor(line[] lines) { 
-        this.navigation = new AweLineNavigation(lines);
+        this.navigator = new AweLineNavigator(lines);
     }
 
     extend public point[] shortestRoute(point start, point end) {
 
-        var found = this.navigation.copy().search(..);
+        var found = this.navigator.copy().search(..);
 
         if (found) { 
         
@@ -63,21 +63,21 @@ public class AweOptimizedLineNetwork {
                 var handled = false;
                 
                 if (node.realEnd == end) { 
-                    if (node.location == start) { 
-                        result << node.location;
+                    if (node.root == start) { 
+                        result << node.root;
                         break;
                     }
                     result << node.end;
                     handled = true;
                 } 
                 
-                if (node.location == start) { 
+                if (node.root == start) { 
                     result << node.realEnd << node.start;
                     break;
                 }
 
                 if (!handled) { 
-                    result << node.end << node.location;
+                    result << node.end << node.root;
                 }
 
                 node = node.parentNode;
@@ -109,7 +109,7 @@ public class AweOptimizedLineNetwork {
     }
 }
 
-private class AweLineNavigation { 
+private class AweLineNavigator { 
 
     private str->AwePathNode[] lines() : public readable;
 
@@ -132,7 +132,7 @@ private class AweLineNavigation {
         
         for (n in lines) {
 
-            n.state = aweNodeState.closed;
+            n.state = aweNodeState.done;
             if (n.end == end) { 
                 return n;
             }
@@ -151,7 +151,7 @@ private class AweLineNavigation {
                 if (no.endsAt(end)) { 
                     return no;
                 } else { 
-                    var r = this.search(no.location, end);
+                    var r = this.search(no.root, end);
                     if (r) { 
                         return r;
                     }
@@ -162,35 +162,33 @@ private class AweLineNavigation {
         return null;
     }
 
-    extend public AwePathNode[] expandFrom(AwePathNode fromNode)  { 
+    extend public AwePathNode[] expandFrom(AwePathNode baseNode)  { 
 
         AwePathNode[] expanded();
 
-        var lines = this.lines.get(this.getKeyFor(fromNode.end));
+        var lines = this.lines.get(this.getKeyFor(baseNode.end));
         if (!lines) { 
-            pln("No lines found for " #fromNode);
+            pln("No lines found for " #baseNode);
             return expanded;
         }
 
         for (node in lines) {
 
-            if (node.state == aweNodeState.closed) { 
+            if (node.state == aweNodeState.done) { 
                 continue;
             }
 
-            if (node.state == aweNodeState.open) {
-                var traversalCost = node.getTraversalCost(node.start, node.parentNode.start);
-                var gTemp = fromNode.g + traversalCost;
-                if (gTemp < node.g)
+            if (node.state == aweNodeState.traversing) {
+                if ((node.getCost(node.start, node.parentNode.start) + node.g) < node.g)
                 {
-                    node.parentNode = fromNode;
+                    node.parentNode = baseNode;
                     expanded << node;
                 }
             }
             else
             {
-                node.parentNode = fromNode;
-                node.state = aweNodeState.open;
+                node.parentNode = baseNode;
+                node.state = aweNodeState.traversing;
                 expanded << node;
             }
         }
@@ -226,19 +224,19 @@ private class AweLineNavigation {
 }
 
 private class AwePathNode {
-
-    private AwePathNode parentNode : public readable;
-    public point location;
+    
+    public point root;
     public point end;
     public double g;
     public double h;
     public aweNodeState state;
     public bool reverse;
+    private AwePathNode parentNode;
 
     public constructor(point start, point end, bool reverse) {
-        this.location = start;
+        this.root = start;
         this.end = end;
-        this.state = aweNodeState.untested;
+        this.state = aweNodeState.pending;
         this.reverse = reverse;
     }
 
@@ -247,19 +245,19 @@ private class AwePathNode {
     }
 
     extend public line l() { 
-        return line(location, end);
+        return line(root, end);
     }
 
     extend public point start() { 
-        return this.reverse ? this.end : this.location;
+        return this.reverse ? this.end : this.root;
     }
 
     extend public point realEnd() { 
-        return this.reverse ? this.location : this.end;
+        return this.reverse ? this.root : this.end;
     }
 
-    extend public AwePathNode initialize(point endLocation) { 
-        this.h = getTraversalCost(this.start, endLocation);
+    extend public AwePathNode initialize(point target) { 
+        this.h = getCost(this.start, target);
         this.g = 0;
         return this;
     }
@@ -270,12 +268,12 @@ private class AwePathNode {
 
     extend public AwePathNode setParentNode(AwePathNode parent) {
         this.parentNode = parent;
-        this.g = this.parentNode.g + this.getTraversalCost(this.start, this.parentNode.start);
+        this.g = this.parentNode.g + this.getCost(this.start, this.parentNode.start);
         return this;
     }
 
-    extend public double getTraversalCost(point location, point otherLocation) {
-        return location.distance(otherLocation);
+    extend public double getCost(point base, point target) {
+        return base.distance(target);
     }
 
     public str toS() {
@@ -284,7 +282,7 @@ private class AwePathNode {
 }
 
 private enum aweNodeState {
-    untested;
-    open;
-    closed;
+    pending;
+    traversing;
+    done;
 }
