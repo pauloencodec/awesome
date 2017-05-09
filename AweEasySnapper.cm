@@ -90,24 +90,6 @@ public class AweEasySnapper extends AweSnapper : abstract {
         return box();
     }
 
-    public void getParts(PartsEnv env, Snapper{} visited) {
-        if (!this.product or this in visited) return;
-        
-        visited << this;
-
-        var parts = this.product.getParts();
-
-        for (part in parts) {
-            part.data.setOwner(this);
-            
-            env << part;
-        }
-    }
-
-    public bool denyParts() {
-        return this.product == null;
-    }
-
     public void refresh(bool updateConnectors=false, bool tryAlignAllSnapped=false) {
         this.product.?refresh();
         super(..);
