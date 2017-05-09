@@ -410,6 +410,10 @@ public class MyClass {
 
     }
 
+    public str toS() { 
+        return "Ops";
+    }
+
     extend public str toStr(str extraInfo) { 
         return "Okdok: " # value # "[" # extraInfo # "]";
     }
@@ -417,6 +421,6 @@ public class MyClass {
 
 { 
     Testing t();
-    var f = "Hi from {myClass:bolinha verde}.";
+    var f = "Hi from {myClass:something important!}.";
     pln(#t.toS(f));
 }
