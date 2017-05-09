@@ -299,7 +299,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                             // props.append(customQuickProperty.QuickProperty);
                         }
                         else {
-                            props.append2(@propNameStr, @labelName, distance(@propName), @domainName);
+                            props.append2(@propNameStr, @labelName, distance(@propName), @domainName, lockable=false);
                         }
                     }
                 }
@@ -330,7 +330,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                             // props.append(customQuickProperty.QuickProperty);
                         }
                         else {
-                            props.append2(@propNameStr, @labelName, @propName, @domainName);
+                            props.append2(@propNameStr, @labelName, @propName, @domainName, lockable=false);
                         }
                     }
                 }
