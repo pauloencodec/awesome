@@ -142,8 +142,17 @@ public class AweObject {
                     } else { 
                         formattedData.put(token, "");
                     }
-                } else { 
-                    formattedData.put(token, target ? target.toS : "");
+                } else {
+                    str value = ""; 
+                    if (target) { 
+                        var formattedValue = aweDynamicCall target.toStr();
+                        if (formattedValue and (formattedValue.str)) { 
+                            value = formattedValue.str;
+                        } else { 
+                            value = target.toS();
+                        }
+                    }
+                    formattedData.put(token, value);
                 }
 
                 format = format.replaceAll("{" # originalToken # "}",  "{" # token # "}");
@@ -375,4 +384,40 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
             @animationPropertiesChanged;
         }
     };
+}
+
+
+public aweObject Testing { 
+    props (
+        str test = "",
+        MyClass myClass = MyClass()
+    );
+}
+
+public class MyClass { 
+    
+    public aweDynamicContract {
+        aweDynamic str toStr();
+    }
+
+    public double value = 123.123455;
+    public str something;
+    
+    public constructor() { 
+
+    }
+
+    // public str toS() { 
+    //     return "Ops..";
+    // }
+
+    extend public str toStr() { 
+        return "Okdok: " # value;
+    }
+}
+
+{ 
+    Testing t();
+    var f = "Hi from {myClass}.";
+    pln(#t.toS(f));
 }
