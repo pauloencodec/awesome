@@ -44,20 +44,21 @@ public class AwePart extends OfficePart {
     private AwePartOption[] options : public readable;
     public AwePartHeader header();
 
-    public constructor(str catalog, str sku) {
+    public constructor(str catalog, str sku, int quantity=1) {
         super();
 
         this.catalog = catalog;
         this.sku = sku;
 
         this.data.setArticleCode(this.basemodel);
+        this.data.setQuantity(quantity);
     }
 
-    public constructor(Snapper snapper, str catalog, str sku) {
+    public constructor(Snapper snapper, str catalog, str sku, int quantity=1) {
         this.catalog = catalog;
         this.sku = sku;
         
-        super(snapper, this.basemodel, this.sku, 0);
+        super(snapper, this.basemodel, this.sku, 0, quantity=quantity);
     }
 
     extend private str basemodel() {
