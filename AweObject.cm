@@ -121,6 +121,11 @@ public class AweObject {
                 Int precision;
                 str extraParam;
                 var originalToken = token;
+
+                if ( extraParams and extraParams.get(token) != null ) {
+                    props.set( token, this.toS( extraParams.get(token).str ));
+                } 
+
                 var toInches = false;
                 if (token.indexOf(":") > -1) { 
                     var data = token.split(':');
@@ -138,6 +143,7 @@ public class AweObject {
                         }
                     }
                 }
+                
 
                 var target = props.get(token);
                 if (target as Double) { 
@@ -316,7 +322,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                             // props.append(customQuickProperty.QuickProperty);
                         }
                         else {
-                            props.append2(@propNameStr, @labelName, distance(@propName), @domainName);
+                            props.append2(@propNameStr, @labelName, distance(@propName), @domainName, lockable=false);
                         }
                     }
                 }
@@ -347,7 +353,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                             // props.append(customQuickProperty.QuickProperty);
                         }
                         else {
-                            props.append2(@propNameStr, @labelName, @propName, @domainName);
+                            props.append2(@propNameStr, @labelName, @propName, @domainName, lockable=false);
                         }
                     }
                 }

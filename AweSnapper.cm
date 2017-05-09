@@ -180,4 +180,30 @@ public class AweSnapper  extends Snapper {
         
         this.space.invalidateSelection();
     }  
+
+    /***********************************************************************
+     * Parts
+     ***********************************************************************/
+    
+    public void getParts(PartsEnv env, Snapper{} visited) {
+        var products = allProducts();
+
+        if (products.count == 0 or this in visited) return;
+        
+        visited << this;
+
+        for( product in products ) {
+            var parts = product.getParts();
+
+            for (part in parts) {
+                part.data.setOwner(this);
+                
+                env << part;
+            }
+        }
+    }
+
+    public bool denyParts() {
+        return this.allProducts.count == 0;
+    }
 }
