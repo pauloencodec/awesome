@@ -38,6 +38,10 @@ package custom.awesome;
 
 use cm.syntax;
 
+public class ToStrShell extends AweDynamicShell {
+    public aweShellMethod str toStr(str extraInfo);
+}
+
 public class AweObject {
     public str->Object props();
     public str _galleryId;
@@ -115,7 +119,13 @@ public class AweObject {
                 capture = false;
 
                 Int precision;
+                str extraParam;
                 var originalToken = token;
+
+                if ( extraParams and extraParams.get(token) != null ) {
+                    props.set( token, this.toS( extraParams.get(token).str ));
+                } 
+
                 var toInches = false;
                 if (token.indexOf(":") > -1) { 
                     var data = token.split(':');
@@ -128,8 +138,12 @@ public class AweObject {
                         }
                     } else { 
                         precision = data.v1.toInt;
+                        if (!precision) { 
+                            extraParam = data.v1.toS;
+                        }
                     }
                 }
+                
 
                 var target = props.get(token);
                 if (target as Double) { 
@@ -142,8 +156,17 @@ public class AweObject {
                     } else { 
                         formattedData.put(token, "");
                     }
-                } else { 
-                    formattedData.put(token, target ? target.toS : "");
+                } else {
+                    str value = ""; 
+                    if (target) { 
+                        var formattedValue = ToStrShell(target).toStr(extraParam);
+                        if (formattedValue != null) { 
+                            value = formattedValue;
+                        } else { 
+                            value = target.toS();
+                        }
+                    }
+                    formattedData.put(token, value);
                 }
 
                 format = format.replaceAll("{" # originalToken # "}",  "{" # token # "}");
