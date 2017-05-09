@@ -152,7 +152,7 @@ public class AweElectricalCableRoutingAnimation extends AwePointsAnimation {
         for(cable in allCables) {
             var cableLine = cable.spaceLine.v;
             Cylinder3D l(cableLine.p0, cableLine.p1, .5inch);
-            l.setMaterial(cable.active ? plainYellowMaterial3D : plainGrayMaterial3D);
+            l.setMaterial(cable.active ? plainYellowMaterial3D : glassMaterial3D);
             stuff << l;
         }
 

@@ -56,23 +56,28 @@ public class AweElectricalInfeedActivationAnimation extends AwePointsAnimation {
     }
 
     public Primitive3D get3D(FetchEnv3D env) {
-        var radius = 3inch;
-
-        Awe3D balls();
+        Awe3D prims();
         
-        for (infeed in this.allInfeeds) {
-            Sphere3D ball(infeed.spacePoint.point, radius);
-            ball.setMaterial(infeed.active ? plainYellowMaterial3D : plainGrayMaterial3D);
-            balls << ball; 
+        prims << super(..);
+        for(infeed in allInfeeds) {
+            prims << infeedGeometry(infeed);
         }
 
-        if (this.currentPoint) {
-            Sphere3D current(currentPoint.v, radius * 1.5);
-            current.setMaterial(glassMaterial3D);
-            balls << current;
-        }
+        return prims;
+    }
 
-        return balls;
+    extend private Primitive3D infeedGeometry(AweElectricalInfeedPoint infeed) {
+        Awe3D prims();
+
+        //cone
+        point origin = infeed.spacePoint.v;
+        point tip = origin + point(infeed.spaceOrientation, 3inch);
+        Cone3D cone(origin, tip, 2inch, 0);
+        cone.doubleSided = true;
+        cone.setMaterial(infeed.active ? plainYellowMaterial3D : plainGrayMaterial3D);
+        prims << cone;
+
+        return prims;
     }
 
     public point savePoint(int pointIndex, point mousePoint) {
