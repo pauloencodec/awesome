@@ -38,6 +38,10 @@ package custom.awesome;
 
 use cm.syntax;
 
+public class ToStrShell extends AweDynamicShell {
+    public aweShellMethod str toStr(str extraInfo);
+}
+
 public class AweObject {
     public str->Object props();
     public str _galleryId;
@@ -149,9 +153,9 @@ public class AweObject {
                 } else {
                     str value = ""; 
                     if (target) { 
-                        var formattedValue = aweDynamicCall target.toStr(extraParam);
-                        if (formattedValue and (formattedValue.str)) { 
-                            value = formattedValue.str;
+                        var formattedValue = ToStrShell(target).toStr(extraParam);
+                        if (formattedValue != null) { 
+                            value = formattedValue;
                         } else { 
                             value = target.toS();
                         }
@@ -388,39 +392,4 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
             @animationPropertiesChanged;
         }
     };
-}
-
-public aweObject Testing { 
-    props (
-        str test = "",
-        MyClass myClass = MyClass()
-    );
-}
-
-public class MyClass { 
-    
-    public aweDynamicContract {
-        aweDynamic str toStr(str extraInfo);
-    }
-
-    public double value = 123.123455;
-    public str something;
-    
-    public constructor() { 
-
-    }
-
-    public str toS() { 
-        return "Ops";
-    }
-
-    extend public str toStr(str extraInfo) { 
-        return "Okdok: " # value # "[" # extraInfo # "]";
-    }
-}
-
-{ 
-    Testing t();
-    var f = "Hi from {myClass:something important!}.";
-    pln(#t.toS(f));
 }
