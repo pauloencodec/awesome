@@ -115,6 +115,7 @@ public class AweObject {
                 capture = false;
 
                 Int precision;
+                str extraParam;
                 var originalToken = token;
                 var toInches = false;
                 if (token.indexOf(":") > -1) { 
@@ -128,6 +129,9 @@ public class AweObject {
                         }
                     } else { 
                         precision = data.v1.toInt;
+                        if (!precision) { 
+                            extraParam = data.v1.toS;
+                        }
                     }
                 }
 
@@ -145,7 +149,7 @@ public class AweObject {
                 } else {
                     str value = ""; 
                     if (target) { 
-                        var formattedValue = aweDynamicCall target.toStr();
+                        var formattedValue = aweDynamicCall target.toStr(extraParam);
                         if (formattedValue and (formattedValue.str)) { 
                             value = formattedValue.str;
                         } else { 
@@ -386,7 +390,6 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
     };
 }
 
-
 public aweObject Testing { 
     props (
         str test = "",
@@ -397,7 +400,7 @@ public aweObject Testing {
 public class MyClass { 
     
     public aweDynamicContract {
-        aweDynamic str toStr();
+        aweDynamic str toStr(str extraInfo);
     }
 
     public double value = 123.123455;
@@ -407,17 +410,13 @@ public class MyClass {
 
     }
 
-    // public str toS() { 
-    //     return "Ops..";
-    // }
-
-    extend public str toStr() { 
-        return "Okdok: " # value;
+    extend public str toStr(str extraInfo) { 
+        return "Okdok: " # value # "[" # extraInfo # "]";
     }
 }
 
 { 
     Testing t();
-    var f = "Hi from {myClass}.";
+    var f = "Hi from {myClass:bolinha verde}.";
     pln(#t.toS(f));
 }
