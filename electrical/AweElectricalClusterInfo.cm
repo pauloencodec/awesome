@@ -43,6 +43,9 @@ public class AweElectricalClusterInfo {
 
     public AweElectricalCluster[] clusters();
     private str->AweElectricalCluster pointsToClusters();
+    
+    //no infeed
+    private AweElectricalCableLine[] orphanCables();
 
     public constructor(AweElectricalMap map, bool forRouting=false) {
         this.map = map;
@@ -69,6 +72,14 @@ public class AweElectricalClusterInfo {
             cluster3D.setMaterial(cluster.infeeds.count != 1 ? plainRedMaterial3D : plainGreenMaterial3D);
             all3D << cluster3D;
         }
+
+        for(cable in orphanCables) {
+            var cableLine = cable.spaceLine.v;
+            Cylinder3D l(cableLine.p0, cableLine.p1, .5inch);
+            l.setMaterial(plainRedMaterial3D);
+            all3D << l;
+        }
+        
         return all3D;
     }
 
@@ -94,12 +105,20 @@ public class AweElectricalClusterInfo {
 
         clusters.clear();
         pointsToClusters.clear();
+        orphanCables.clear();
         point[] visitedPoints();
 
         var index = indexPointsToLines(cables);
 
         for(infeed in infeeds) {
             identifyAndAddInfeedCluster(clusters, infeed, visitedPoints, index);
+        }
+
+        //loose cables out there, no infeed
+        for(cable in map.allCables) {
+            if(cable.active and !pointsToClusters.get(cable.spaceLine.v.p0.toS) and !pointsToClusters.get(cable.spaceLine.v.p1.toS)) {
+                orphanCables << cable;
+            }
         }
     }
 
