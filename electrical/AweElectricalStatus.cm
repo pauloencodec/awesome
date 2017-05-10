@@ -42,6 +42,7 @@ public class AweElectricalStatus {
     public bool activeOnly = true;
 
     public AweElectricalCluster[] clusters();
+    private str->AweElectricalCluster pointsToClusters();
 
     public constructor(AweElectricalMap map, bool activeOnly=true) {
         this.map = map;
@@ -85,6 +86,7 @@ public class AweElectricalStatus {
         }
 
         clusters.clear();
+        pointsToClusters.clear();
         point[] visitedPoints();
 
         var index = indexPointsToLines(cables);
@@ -97,14 +99,22 @@ public class AweElectricalStatus {
     extend private void identifyAndAddInfeedCluster(AweElectricalCluster[] clusters, AweElectricalInfeedPoint infeed, point[] visitedPoints, str->AweElectricalCableLine[] pointLineIndex) {
         point p = infeed.spacePoint.v;
 
-        //aready in someone else's cluster
-        if(p in visitedPoints) {
+        //aready in someone else's cluster?
+        var someoneElsesCluster = pointsToClusters.get(p.toS);
+        if(someoneElsesCluster) {
+            someoneElsesCluster.infeeds << infeed;
             return;
         }
-
+        
         var cables = identifyCluster(p, visitedPoints, pointLineIndex);
         AweElectricalCluster cluster();
         cluster.cables = cables;
+        cluster.infeeds << infeed;
+
+        for(c in cables) {
+            pointsToClusters.put(c.spaceLine.v.p0.toS, cluster);
+            pointsToClusters.put(c.spaceLine.v.p1.toS, cluster);
+        }
 
         clusters << cluster;
 

@@ -38,9 +38,9 @@ package custom.awesome.electrical;
 
 public class AweElectricalCluster {
     
-    public AweElectricalInfeedPoint[] infeeds;
-    public AweElectricalCableLine[] cables;
-    
+    public AweElectricalInfeedPoint[] infeeds();
+    public AweElectricalCableLine[] cables();
+
     public constructor() {
     }   
 }
