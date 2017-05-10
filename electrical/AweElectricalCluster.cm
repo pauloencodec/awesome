@@ -43,4 +43,22 @@ public class AweElectricalCluster {
 
     public constructor() {
     }   
+
+    extend public point{} allVertices() {
+        point{} allVertices();
+        for(l in spaceLines()) {
+            allVertices << l.p0;
+            allVertices << l.p1;
+        }
+
+        return allVertices;
+    }
+
+    extend public line[] spaceLines() {
+        line[] lines();
+        for(c in cables) {
+            lines << c.spaceLine.v;
+        }
+        return lines;
+    }
 }

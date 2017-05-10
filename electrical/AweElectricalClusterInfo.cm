@@ -36,17 +36,17 @@
 
 package custom.awesome.electrical;
 
-public class AweElectricalStatus {
+public class AweElectricalClusterInfo {
     
     private AweElectricalMap map;
-    public bool activeOnly = true;
+    public bool forRouting = false;
 
     public AweElectricalCluster[] clusters();
     private str->AweElectricalCluster pointsToClusters();
 
-    public constructor(AweElectricalMap map, bool activeOnly=true) {
+    public constructor(AweElectricalMap map, bool forRouting=false) {
         this.map = map;
-        this.activeOnly = activeOnly;
+        this.forRouting = forRouting;
         updateStatus();
     }   
 
@@ -63,16 +63,23 @@ public class AweElectricalStatus {
                 Cylinder3D l(cableLine.p0, cableLine.p1, .5inch);
                 cluster3D << l;
             }
+            for(infeed in cluster.infeeds) {
+                cluster3D << infeedGeometry(infeed);
+            }
             cluster3D.setMaterial(cluster.infeeds.count != 1 ? plainRedMaterial3D : plainGreenMaterial3D);
             all3D << cluster3D;
         }
         return all3D;
     }
 
+    extend public AweElectricalCluster clusterAt(point p) {
+        return pointsToClusters.get(p.toS);
+    }
+
     extend private void identifyClusters(AweElectricalMap map) {
         AweElectricalInfeedPoint[] infeeds();
         AweElectricalCableLine[] cables();
-        if(activeOnly) {
+        if(!forRouting) {
             for(i in map.allInfeeds) {
                 if(i.active) infeeds << i;
             }
@@ -107,6 +114,17 @@ public class AweElectricalStatus {
         }
         
         var cables = identifyCluster(p, visitedPoints, pointLineIndex);
+
+        //exclude infeed cables if cluster will be used for routing
+        if(forRouting) {
+            AweElectricalCableLine[] routingCables();
+            for(c in cables) {
+                if (!c.infeedCable) {
+                    routingCables << c;
+                }
+            }
+            cables = routingCables;
+        }
         AweElectricalCluster cluster();
         cluster.cables = cables;
         cluster.infeeds << infeed;
@@ -157,4 +175,16 @@ public class AweElectricalStatus {
 
         return pointLineIndex;
     }
+}
+
+public Primitive3D infeedGeometry(AweElectricalInfeedPoint infeed) {
+
+    //cone
+    point origin = infeed.spacePoint.v;
+    point tip = origin + point(infeed.spaceOrientation, 3inch);
+    Cone3D cone(origin, tip, 2inch, 0);
+    cone.doubleSided = true;
+    
+    return cone;
+
 }

@@ -38,19 +38,18 @@ package custom.awesome.electrical;
 
 public class AweOptimizedLineNetwork { 
 
-    private AweLineNavigation navigation;
+    private AweLineNavigator navigator;
 
     public constructor(line[] lines) { 
-        this.navigation = new AweLineNavigation(lines);
+        this.navigator = new AweLineNavigator(lines);
     }
 
     extend public point[] shortestRoute(point start, point end) {
 
-        pln("################################################");
-        var found = this.navigation.copy().search(..);
+        var found = this.navigator.copy().search(..);
 
         if (found) { 
-            
+        
             point[] result();
 
             var node = found;
@@ -64,33 +63,53 @@ public class AweOptimizedLineNetwork {
                 var handled = false;
                 
                 if (node.realEnd == end) { 
+                    if (node.root == start) { 
+                        result << node.root;
+                        break;
+                    }
                     result << node.end;
                     handled = true;
                 } 
                 
-                if (node.location == start) { 
+                if (node.root == start) { 
                     result << node.realEnd << node.start;
                     break;
                 }
 
                 if (!handled) { 
-                    result << node.end << node.location;
+                    result << node.end << node.root;
                 }
 
                 node = node.parentNode;
             }
 
             result << node.end;
+            result << start;
             result.reverse();
-            return result;
-        
-    }
+            return reduce(result);
+
+        }
 
         return null;
     }
+
+    extend public point[] reduce(point[] ps) { 
+        for (p in ps, index=i) { 
+            var uBound = ps.count-1;
+            var x = i + 1;
+            while (x <= uBound) { 
+                if (ps[x] == p) {
+                    ps.remove(x);
+                    uBound--;
+                }
+                x++;
+            }
+        }
+        return ps;
+    }
 }
 
-public class AweLineNavigation { 
+private class AweLineNavigator { 
 
     private str->AwePathNode[] lines() : public readable;
 
@@ -113,7 +132,7 @@ public class AweLineNavigation {
         
         for (n in lines) {
 
-            n.state = aweNodeState.closed;
+            n.state = aweNodeState.done;
             if (n.end == end) { 
                 return n;
             }
@@ -132,7 +151,7 @@ public class AweLineNavigation {
                 if (no.endsAt(end)) { 
                     return no;
                 } else { 
-                    var r = this.search(no.location, end);
+                    var r = this.search(no.root, end);
                     if (r) { 
                         return r;
                     }
@@ -143,35 +162,33 @@ public class AweLineNavigation {
         return null;
     }
 
-    extend public AwePathNode[] expandFrom(AwePathNode fromNode)  { 
+    extend public AwePathNode[] expandFrom(AwePathNode baseNode)  { 
 
         AwePathNode[] expanded();
 
-        var lines = this.lines.get(this.getKeyFor(fromNode.end));
+        var lines = this.lines.get(this.getKeyFor(baseNode.end));
         if (!lines) { 
-            pln("No lines found for " #fromNode);
+            pln("No lines found for " #baseNode);
             return expanded;
         }
 
         for (node in lines) {
 
-            if (node.state == aweNodeState.closed) { 
+            if (node.state == aweNodeState.done) { 
                 continue;
             }
 
-            if (node.state == aweNodeState.open) {
-                var traversalCost = node.getTraversalCost(node.start, node.parentNode.start);
-                var gTemp = fromNode.g + traversalCost;
-                if (gTemp < node.g)
+            if (node.state == aweNodeState.traversing) {
+                if ((node.getCost(node.start, node.parentNode.start) + node.g) < node.g)
                 {
-                    node.parentNode = fromNode;
+                    node.parentNode = baseNode;
                     expanded << node;
                 }
             }
             else
             {
-                node.parentNode = fromNode;
-                node.state = aweNodeState.open;
+                node.parentNode = baseNode;
+                node.state = aweNodeState.traversing;
                 expanded << node;
             }
         }
@@ -206,20 +223,20 @@ public class AweLineNavigation {
     }
 }
 
-public class AwePathNode {
-
-    private AwePathNode parentNode : public readable;
-    public point location;
+private class AwePathNode {
+    
+    public point root;
     public point end;
     public double g;
     public double h;
     public aweNodeState state;
     public bool reverse;
+    private AwePathNode parentNode;
 
     public constructor(point start, point end, bool reverse) {
-        this.location = start;
+        this.root = start;
         this.end = end;
-        this.state = aweNodeState.untested;
+        this.state = aweNodeState.pending;
         this.reverse = reverse;
     }
 
@@ -228,19 +245,19 @@ public class AwePathNode {
     }
 
     extend public line l() { 
-        return line(location, end);
+        return line(root, end);
     }
 
     extend public point start() { 
-        return this.reverse ? this.end : this.location;
+        return this.reverse ? this.end : this.root;
     }
 
     extend public point realEnd() { 
-        return this.reverse ? this.location : this.end;
+        return this.reverse ? this.root : this.end;
     }
 
-    extend public AwePathNode initialize(point endLocation) { 
-        this.h = getTraversalCost(this.start, endLocation);
+    extend public AwePathNode initialize(point target) { 
+        this.h = getCost(this.start, target);
         this.g = 0;
         return this;
     }
@@ -251,12 +268,12 @@ public class AwePathNode {
 
     extend public AwePathNode setParentNode(AwePathNode parent) {
         this.parentNode = parent;
-        this.g = this.parentNode.g + this.getTraversalCost(this.start, this.parentNode.start);
+        this.g = this.parentNode.g + this.getCost(this.start, this.parentNode.start);
         return this;
     }
 
-    extend public double getTraversalCost(point location, point otherLocation) {
-        return location.distance(otherLocation);
+    extend public double getCost(point base, point target) {
+        return base.distance(target);
     }
 
     public str toS() {
@@ -264,103 +281,8 @@ public class AwePathNode {
     }
 }
 
-public enum aweNodeState {
-    untested;
-    open;
-    closed;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-use custom.awesome.product;
-
-private const double maxLine = .5;
-
-public line[] makeRandonNetwork() {
-   line[] network();
-   for(i in 1..800) {
-       network << addRandomLine(network);
-   }
-   return network;
-}
-
-public line addRandomLine(line[] network) {
-   point p0();
-   if(!network or network.count == 0) {
-       p0 = randomPoint(maxLine);
-   } else {
-       p0 = getRandomPoint(network);
-   }
-
-   return line(p0, p0 + randomPoint(maxLine));
-}
-
-public point getRandomPoint(line[] network) {
-   int randomIndex = randD(network.count).int;
-   bool useP0 = randD(2).int == 0;
-   if(useP0) {
-       return network[randomIndex].p0;
-   } else {
-       return network[randomIndex].p1;
-   }
-}
-
-
-
-public class CaixeiroSnapper extends Snapper {
-   public Primitive3D get3D(FetchEnv3D env) {
-       Awe3D prims();
-    //    line[] lines = makeRandonNetwork();
-        line[] lines();
-lines << line(p0=(-0.408947, -0.104268, 0), p1=(-0.408947, -0.104268, 0.9144));
-lines << line(p0=(-0.408947, -0.104268, 2), p1=(-0.408947, -0.104268, 0.9144));
-lines << line(p0=(-0.408947, -0.104268, 0.9144), p1=(-0.332747, -0.104268, 0.9144));
-lines << line(p0=(-0.332747, -0.104268, 0.9144), p1=(1.03885, -0.104268, 0.9144));
-
-       custom.awesome.electrical.AweOptimizedLineNetwork network(lines);
-       point start = getRandomPoint(lines);
-       point end = start;
-       while(end == start) {
-           end = getRandomPoint(lines);
-       }
-
-// start=(-0.408947, -0.104268, 0.9144);
-// end=(-0.408947, -0.104268, 2);
-       var bestRoute = network.shortestRoute(start, end);
-       point current = start;
-       for(p in bestRoute, index=i) {
-        //    if(current.distance(p) > 0) {
-               Cylinder3D c(current, p, .25inch);
-               c.setMaterial(plainRandomColorMaterial3D(500));
-               prims << c;
-               current = p;
-        //    }
-       }
-
-       for(l in lines) {
-           Cylinder3D c(l.p0, l.p1, 1inch);
-           c.setMaterial(glassMaterial3D);
-           prims << c;
-       }
-
-       Sphere3D startBall(start, 1inch);
-       startBall.setMaterial(plainBlueMaterial3D);
-       prims << startBall;
-       Sphere3D endBall(end, 1inch);
-       endBall.setMaterial(plainGreenMaterial3D);
-       prims << endBall;
-
-       return prims;
-   }
-}
-
-{
-   CaixeiroSnapper().launch();
+private enum aweNodeState {
+    pending;
+    traversing;
+    done;
 }

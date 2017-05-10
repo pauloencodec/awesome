@@ -1,0 +1,137 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.electrical;
+
+public class AweElectricalAnimationRoutingMode extends AweElectricalAnimationMode {
+    
+    public Point startPoint;
+    public point{} endPoints();
+    private AweOptimizedLineNetwork optimizedNetwork;
+    private AweElectricalCluster currentCluster;
+    private line[] suggestedRoute;
+
+    extend public Material3D routeMaterial() {
+        return transparencyMaterial3D(color(255, 255, 0), 0.2);
+    }
+
+    extend public void routeSelected(AweElectricalCableLine[] route) {
+    }
+
+    public point{} clickablePoints() {
+        if(!startPoint) {
+            return animation.?map.?notInfeedCableVertices;
+        }
+        else {
+            return endPoints;
+        }
+    }
+
+    public void hoveredPointChanged(Point target) {
+        if(target and startPoint) {
+            suggestedRoute = routeToLines(optimizedNetwork.shortestRoute(startPoint.v, target.v));
+        }
+    }
+
+    public void clicked(point p) {
+        if(!startPoint) {
+            startPoint = p;
+            currentCluster = animation.?map.?networkInfo.?clusterAt(p);
+            pln(#currentCluster);
+            endPoints = currentCluster.?allVertices;
+
+            if(currentCluster) {
+                optimizedNetwork = AweOptimizedLineNetwork(currentCluster.spaceLines);
+            }
+        } else {
+            startPoint = null;
+            if(currentCluster) {
+                routeSelected(findCablesForRoute(suggestedRoute, currentCluster));
+            }
+            suggestedRoute = null;
+        }
+    }
+
+    public Primitive3D get3D() {
+        Awe3D prims();
+        if(animation.?currentPoint) {
+            prims << super(..);
+            prims << Sphere3D(animation.currentPoint.v, 2inch);
+            if(startPoint) {
+                prims << Sphere3D(startPoint.v, 2inch);
+            }
+            for(routeLine in suggestedRoute) {
+                Cylinder3D l(routeLine.p0, routeLine.p1, .75inch);
+                prims << l;
+            }
+            prims.setMaterial(routeMaterial());
+        }
+        return prims;
+    }
+
+    extend private line[] routeToLines(point[] route) {
+        line[] lines();
+        Point previous = null;
+        for(p in route) {
+            if(previous) {
+                lines << line(previous.v, p);
+            }
+            previous = p;
+        }
+        return lines;
+    }
+
+    extend private AweElectricalCableLine[] findCablesForRoute(line[] route, AweElectricalCluster cluster) {
+        AweElectricalCableLine[] cables();
+        str[] signatures();
+
+        for(l in route) {
+            //one way
+            signatures << l.p0.toS # "-" # l.p1.toS;
+            //other way
+            signatures << l.p1.toS # "-" # l.p0.toS;
+        }
+
+        for(cable in cluster.?cables) {
+            str signature = cable.spaceLine.v.p0.toS # "-" # cable.spaceLine.v.p1.toS;
+            if(signature in signatures) {
+                cables << cable;
+            }
+        }
+
+        return cables;
+   }
+}

@@ -41,13 +41,27 @@ public class AweElectricalMap {
     private Space space;
     public AweElectricalInfeedPoint[] allInfeeds();
     public AweElectricalCableLine[] allCables();
+    public AweElectricalCableLine[] infeedCables();
+    public AweElectricalCableLine[] notInfeedCables();
+    public AweElectricalClusterInfo networkInfo;
+    private str->AweElectricalInfeedPoint pointToInfeedIndex();
+    public point{} notInfeedCableVertices();
 
     public constructor(Space space) {
         this.space = space;
-        scan();
+        scan(space);
     }   
 
-    extend private void scan() {
+    extend public AweElectricalInfeedPoint infeedAt(point p) {
+        return pointToInfeedIndex.get(p.toS);
+    }
+
+    extend private void scan(Space space) {
+
+        allInfeeds.clear();
+        allCables.clear();
+        notInfeedCableVertices.clear();
+
         for(snapper in space.?snappers) {
             Object points = aweDynamicCall snapper.getAweElectricalInfeedPoints();
             if(points as AweElectricalInfeedPoint[]) {
@@ -55,20 +69,32 @@ public class AweElectricalMap {
                     p.snapper = snapper;
                     allInfeeds << p;
                     for(l in p.cables) {
+                        l.infeedCable = true;
                         l.snapper = snapper;
                         allCables << l;
+                        infeedCables << l;
                     }
+                    pointToInfeedIndex.put(p.spacePoint.v.toS, p);
                 }
             }
 
             Object lines = aweDynamicCall snapper.getAweElectricalCableLines();
             if(lines as AweElectricalCableLine[]) {
                 for(l in lines) {
+                    l.infeedCable = false;
                     l.snapper = snapper;
                     allCables << l;
+                    notInfeedCables << l;
                 }
             }
         }
+
+        for(c in notInfeedCables) {
+            notInfeedCableVertices << c.spaceLine.v.p0;
+            notInfeedCableVertices << c.spaceLine.v.p1;
+        }
+
+        networkInfo = new AweElectricalClusterInfo(this, forRouting=true);
     }
 
     

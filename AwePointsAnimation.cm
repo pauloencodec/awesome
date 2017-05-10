@@ -36,7 +36,7 @@
 
 package custom.awesome;
 
-public class AwePointsAnimation extends Animation {
+public class AwePointsAnimation extends AweAnimation {
     public constructor(int count=1) {
         super(new StartAnimationEnv(count));
     }   
