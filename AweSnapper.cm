@@ -41,13 +41,13 @@ use custom.awesome.gallery;
 
 private alias SnapperArray = Snapper{};
 
-public class AweSnapper  extends Snapper {
+public class AweSnapper extends Snapper {
     public aweDynamicContract {
         aweDynamic void realign(SnapperArray visited=null);        
         aweDynamic void galleryChanged(AweGallery gallery);
     }
 
-    public AweConnectorCache connectorCache(this) : stream=null;
+    public AweConnectorCache connectorCache(this);
 
     public constructor() { 
     }
