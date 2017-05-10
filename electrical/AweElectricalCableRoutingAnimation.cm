@@ -58,6 +58,7 @@ public class AweElectricalCableRoutingAnimation extends AwePointsAnimation {
         availableConnections = identifyAvailableConnections();
 
         infeedNetwork = identifyNetwork(infeed.spacePoint.v);
+
         for(cable in infeedNetwork) {
             infeedNetworkLines << cable.spaceLine.v;
         }
@@ -141,7 +142,7 @@ public class AweElectricalCableRoutingAnimation extends AwePointsAnimation {
 
         for(routeLine in suggestedRoute) {
             Cylinder3D l(routeLine.p0, routeLine.p1, .75inch);
-            l.setMaterial( plainBlueMaterial3D );
+            l.setMaterial( transparencyMaterial3D(color(0, 255, 0), 0.6) );
             stuff << l;
         }
 
@@ -165,6 +166,8 @@ public class AweElectricalCableRoutingAnimation extends AwePointsAnimation {
         return stuff;
     }
 
+
+
     public point savePoint(int pointIndex, point mousePoint) {
         activateRoute(suggestedRoute, infeedNetwork);
         availableConnections = identifyAvailableConnections();
@@ -172,12 +175,17 @@ public class AweElectricalCableRoutingAnimation extends AwePointsAnimation {
     }
 
     public Point adjustPoint(int pointIndex, point mousePoint, AnimationMouseInfo mi) {
-        suggestedRoute = routeToLines(optimizedNetwork.shortestRoute(infeed.spacePoint.v, currentPoint.v));
+        if(currentPoint)
+            suggestedRoute = routeToLines(optimizedNetwork.shortestRoute(infeed.spacePoint.v, currentPoint.v));
         return closestVertice(mi.mouseLine);
     }
  
 
     extend private void scanForCables() {
+        for(cable in infeed.cables) {
+            allCables << cable;
+        }
+
         for (snapper in this.space.snappers) {
             Object lines = aweDynamicCall snapper.getAweElectricalCableLines();
             if(lines as AweElectricalCableLine[]) {
@@ -187,6 +195,7 @@ public class AweElectricalCableRoutingAnimation extends AwePointsAnimation {
                 }
             }
         }
+
     }
 
     extend private line[] routeToLines(point[] route) {

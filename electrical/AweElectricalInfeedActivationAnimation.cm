@@ -105,6 +105,10 @@ public class AweElectricalInfeedActivationAnimation extends AwePointsAnimation {
                     infeed.snapper = snapper;
                     
                     this.allInfeeds << infeed;
+
+                    for(cable in infeed.cables) {
+                        cable.snapper = snapper;
+                    }
                 }
             }
         }
