@@ -52,16 +52,6 @@ public class AweProduct extends AweGeometry {
         return this;
     }
 
-    extend private void appendLinesAndPointsOfInterest(AweGeometry geometry) {
-        for (k,v in geometry.poi) {
-            this.poi.put(k, v);
-        }
-
-        for (k,v in geometry.loi) {
-            this.loi.put(k, v);
-        }
-    }
-
     public constructor(Object model) {
         this.updateModel(model);
     }   
@@ -76,6 +66,12 @@ public class AweProduct extends AweGeometry {
         if (!this.graph) this.buildGraph();
 
         return this.poi.get(key);
+    }
+
+    extend public Graph getGoi(str key) {
+        if (!this.graph) this.buildGraph();
+
+        return this.goi.get(key);
     }
 
     extend public void updateModel(Object model) {
@@ -127,7 +123,7 @@ public class AweProduct extends AweGeometry {
 
         for (geometry in this.geometries) {
             if (Graph g = geometry.graph()) {
-                this.appendLinesAndPointsOfInterest(geometry);
+                this.appendInterests(geometry);
                 
                 this.graph << g;
             }
@@ -194,5 +190,19 @@ public class AweProduct extends AweGeometry {
     }
 
     extend public void connectors(AweConnectorCache cache) {
+    }
+
+    extend private void appendInterests(AweGeometry geometry) {
+        for (k, v in geometry.poi) {
+            this.poi.put(k, v);
+        }
+
+        for (k, v in geometry.loi) {
+            this.loi.put(k, v);
+        }
+
+        for (k, v in geometry.goi) {
+            this.goi.put(k, v);
+        }
     }
 }
