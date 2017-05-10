@@ -34,16 +34,33 @@
    END OF CETSC
 */
 
-package custom.awesome.electrical;
+package custom.awesome;
 
-public class AweElectricalCableLine extends Line {
-    public bool active;  
-    public Snapper snapper : copy=null;
-    public bool powered;
-    public bool infeedCable = false;
+public class AweAnimation extends Animation {
     
-    extend public Line spaceLine() {
-        if(!snapper) return null;
-        return Line(snapper.toSpace(this.line));
+    public AweObject configurator;
+
+    extend public void configuratorChanged() {
+
+    }
+
+    public void buildProperties() {
+        if (configurator) {
+            this.destroyAnimationProperties();
+            this.createAnimationProperties();
+            
+            this.configurator.buildAnimationProperties(this.animationProperties);
+
+            this.animationProperties.finalize();
+        } else super(..);
+    }
+
+    public void propertyChange(str key, Object value) {
+        super(..);
+
+        if (configurator) {
+            configurator.animationPropertyChanged(..);
+            configuratorChanged();
+        }
     }
 }

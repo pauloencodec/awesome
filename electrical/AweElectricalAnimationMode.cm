@@ -36,14 +36,26 @@
 
 package custom.awesome.electrical;
 
-public class AweElectricalCableLine extends Line {
-    public bool active;  
-    public Snapper snapper : copy=null;
-    public bool powered;
-    public bool infeedCable = false;
-    
-    extend public Line spaceLine() {
-        if(!snapper) return null;
-        return Line(snapper.toSpace(this.line));
+public class AweElectricalAnimationMode {
+    public AweElectricalAnimation animation;
+
+    public constructor(AweElectricalAnimation animation) {
+        this.animation = animation;
+    }   
+
+    extend public point{} clickablePoints() {
+        return null;
+    } 
+
+    extend public void clicked(point p) {
+
+    }
+
+    extend public void hoveredPointChanged(Point target) {
+        
+    }
+
+    extend public Primitive3D get3D() {
+        return null;
     }
 }
