@@ -39,6 +39,8 @@ package custom.awesome.electrical;
 
 public class AweElectricalInfeedActivationAnimation extends AwePointsAnimation {
     private AweElectricalInfeedPoint[] allInfeeds();
+    private AweElectricalMap map;
+    private AweElectricalStatus status;
     private AweElectricalInfeedPoint closestInfeed = null;
 
     public constructor() {
@@ -63,6 +65,10 @@ public class AweElectricalInfeedActivationAnimation extends AwePointsAnimation {
             prims << infeedGeometry(infeed);
         }
 
+        if(status) {
+            prims << status.get3D();
+        }
+
         return prims;
     }
 
@@ -83,11 +89,18 @@ public class AweElectricalInfeedActivationAnimation extends AwePointsAnimation {
     public point savePoint(int pointIndex, point mousePoint) {
         if (this.closestInfeed) {
             this.closestInfeed.active = !closestInfeed.active;
-            
+            updateCables(this.closestInfeed);
+            this.status.?updateStatus();
             this.refresh();
         }
 
         return mousePoint;
+    }
+
+    extend private void updateCables(AweElectricalInfeedPoint infeed) {
+        for(c in infeed.cables) {
+            c.active = infeed.active;
+        }
     }
 
     public Point adjustPoint(int pointIndex, point mousePoint, AnimationMouseInfo mi) {
@@ -97,21 +110,9 @@ public class AweElectricalInfeedActivationAnimation extends AwePointsAnimation {
     }
 
     extend private void scanForInfeeds() {
-        for (snapper in this.space.snappers) {
-            Object infeeds = aweDynamicCall snapper.getAweElectricalInfeedPoints();
-            
-            if (infeeds as AweElectricalInfeedPoint[]) {
-                for (infeed in infeeds) {
-                    infeed.snapper = snapper;
-                    
-                    this.allInfeeds << infeed;
-
-                    for(cable in infeed.cables) {
-                        cable.snapper = snapper;
-                    }
-                }
-            }
-        }
+        map = new AweElectricalMap(this.space);
+        status = new AweElectricalStatus(map);
+        this.allInfeeds = map.allInfeeds;
     }
 
     extend private void calculateClosestInfeedTo(line l) {

@@ -36,24 +36,40 @@
 
 package custom.awesome.electrical;
 
+public class AweElectricalMap {
 
-public class AweElectricalInfeedPoint extends Point {
-    public bool active;  
-    public orientation orientation;
-    public AweElectricalCableLine[] cables();
-    public AweElectricalCableLine[] activeNetwork();
-    public Snapper snapper : copy=null;
-    extend public Point spacePoint() {
-        if(!snapper) return null;
-        return Point(snapper.toSpace(this.point));
-    }
-    extend public orientation spaceOrientation() {
-        if(!snapper) return orientation();
-        return snapper.toSpace(this.orientation);
+    private Space space;
+    public AweElectricalInfeedPoint[] allInfeeds();
+    public AweElectricalCableLine[] allCables();
+
+    public constructor(Space space) {
+        this.space = space;
+        scan();
+    }   
+
+    extend private void scan() {
+        for(snapper in space.?snappers) {
+            Object points = aweDynamicCall snapper.getAweElectricalInfeedPoints();
+            if(points as AweElectricalInfeedPoint[]) {
+                for(p in points) {
+                    p.snapper = snapper;
+                    allInfeeds << p;
+                    for(l in p.cables) {
+                        l.snapper = snapper;
+                        allCables << l;
+                    }
+                }
+            }
+
+            Object lines = aweDynamicCall snapper.getAweElectricalCableLines();
+            if(lines as AweElectricalCableLine[]) {
+                for(l in lines) {
+                    l.snapper = snapper;
+                    allCables << l;
+                }
+            }
+        }
     }
 
-    public constructor(point origin, orientation orientation, Snapper snapper, AweElectricalCableLine[] cables=null) {
-        super(origin);
-        set*(this: orientation, snapper, cables);
-    }
+    
 }
