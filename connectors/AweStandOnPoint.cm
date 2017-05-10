@@ -34,48 +34,8 @@
    END OF CETSC
 */
 
-package custom.awesome.product;
+package custom.awesome.connectors;
 
-public class AweGeometry {
-    private str->Point2D poi() : public readable;
-    private str->Line2D loi() : public readable;
-    private str->Graph goi() : public readable;
-    private AwePart[] parts() : public readable;
-
-    public constructor() {
-    }   
-
-    extend public Primitive3D medium3D() {
-        return null;
-    }
-
-    extend public Primitive3D super3D() {
-        return medium3D();
-    }
-
-    extend public Graph graph() {
-        return null;
-    }
-
-    extend public box localBound() {
-        return box();
-    }
-
-    extend public void createParts() {
-    }
-
-    extend public void addPart(AwePart part) {
-        this.parts << part;        
-    }
-
-    extend public void addPart(str catalog, str sku) {
-        this.parts << new AwePart(catalog, sku);
-    }
-
-    extend public AwePart[] getParts() {
-        this.parts.clear();
-        this.createParts();
-        
-        return this.parts;
-    }
+public class AweStandOnPoint extends TransformStandOnPoint {
+    public bool isVisible() { return false; }
 }
