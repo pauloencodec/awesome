@@ -38,6 +38,7 @@ package custom.awesome;
 
 public class AweInsertAnimation extends InsertAnimation {
     public AweSnapper snapper;
+    private str currentKey;
 
     public constructor(StartInsertAnimationEnv env) {
         super(env);
@@ -53,6 +54,10 @@ public class AweInsertAnimation extends InsertAnimation {
         
         if (this.snapper.activeConfigurator) {
             this.snapper.activeConfigurator.buildAnimationProperties(this.animationProperties);
+
+            if (this.currentKey) {
+                this.animationProperties.setCurrent(this.currentKey);
+            }
         }
 
         this.animationProperties.finalize();
@@ -64,6 +69,10 @@ public class AweInsertAnimation extends InsertAnimation {
         if (this.snapper.activeConfigurator) {
             this.snapper.activeConfigurator.animationPropertyChanged(..);
             this.snapper.refresh(true, true);
+
+            this.currentKey = key;
+
+            this.buildProperties();
         }
     }
 }
