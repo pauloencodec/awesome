@@ -34,48 +34,29 @@
    END OF CETSC
 */
 
-package custom.awesome.product;
+package custom.awesome.connectors;
 
-public class AweGeometry {
-    private str->Point2D poi() : public readable;
-    private str->Line2D loi() : public readable;
-    private str->Graph goi() : public readable;
-    private AwePart[] parts() : public readable;
+public class AweSupportSurface extends SupportSurface {
+    public constructor(Snapper snapper, double w, double d, double z, ConnectRule rule=null) {
+        super(snapper, z);
 
-    public constructor() {
-    }   
-
-    extend public Primitive3D medium3D() {
-        return null;
+        this.update(w, d, z);
+        this.setRule(rule);
     }
 
-    extend public Primitive3D super3D() {
-        return medium3D();
+    public constructor(Snapper snapper, point pos, Graph g, ConnectRule rule=null) {
+        super(snapper, pos.z);
     }
 
-    extend public Graph graph() {
-        return null;
+    extend public void update(double w, double d, double z) {
+        this.setPos((-w / 2, -d / 2, z));
+        this.setGraph(new GRect(rect(point2D(), w, d)));
     }
 
-    extend public box localBound() {
-        return box();
+    extend public void update(point pos, Graph g) {
+        this.setPos(pos);
+        this.setGraph(g);
     }
 
-    extend public void createParts() {
-    }
-
-    extend public void addPart(AwePart part) {
-        this.parts << part;        
-    }
-
-    extend public void addPart(str catalog, str sku) {
-        this.parts << new AwePart(catalog, sku);
-    }
-
-    extend public AwePart[] getParts() {
-        this.parts.clear();
-        this.createParts();
-        
-        return this.parts;
-    }
+    public bool isVisible() { return false; }
 }
