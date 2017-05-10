@@ -70,7 +70,6 @@ public class AweElectricalAnimationRoutingMode extends AweElectricalAnimationMod
         if(!startPoint) {
             startPoint = p;
             currentCluster = animation.?map.?networkInfo.?clusterAt(p);
-            pln(#currentCluster);
             endPoints = currentCluster.?allVertices;
 
             if(currentCluster) {
