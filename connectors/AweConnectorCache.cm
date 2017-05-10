@@ -98,6 +98,61 @@ public class AweConnectorCache {
         return c;
     }
 
+    extend public Connector makeFace(str key, double w, double d, double z, ConnectRule rule=null) {
+        Connector c = this.get(key);
+
+        if (!c) {
+            c = new AweSupportSurface(this.snapper, w, d, z, rule);
+
+            this._cache.put(this.getCacheKey(key), c);
+        } 
+        
+        if (c as AweSupportSurface) {
+            c.update(w, d, z);
+            c.setRule(rule);
+        }
+        
+        this.addToBuffer(c);
+        
+        return c;
+    }
+
+    extend public Connector makeFace(str key, point pos, Graph g, ConnectRule rule=null) {
+        Connector c = this.get(key);
+
+        if (!c) {
+            c = new AweSupportSurface(this.snapper, pos, g, rule);
+
+            this._cache.put(this.getCacheKey(key), c);
+        } 
+        
+        if (c as AweSupportSurface) {
+            c.update(pos, g);
+            c.setRule(rule);
+        }
+        
+        this.addToBuffer(c);
+        
+        return c;
+    }
+
+    extend public Connector makeStandOn(str key, point pos, ConnectRule rule=null) {
+        Connector c = this.get(key);
+
+        if (!c) {
+            c = new AweStandOnPoint(this.snapper, pos);
+
+            this._cache.put(this.getCacheKey(key), c);
+        } 
+        
+        c.setPos(pos);
+        c.setRule(rule);
+        
+        this.addToBuffer(c);
+        
+        return c;
+    }
+
     extend public Connector add(str key, Connector connector) {
         Connector c = this.get(key);
 
