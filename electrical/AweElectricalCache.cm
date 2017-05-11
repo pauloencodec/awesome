@@ -42,8 +42,8 @@ public class AweElectricalCache {
 
     }
 
-    private str->AweElectricalInfeedPoint infeeds();
-    private str->AweElectricalCableLine cables();
+    private str->AweElectricalInfeedPoint infeeds() : public readable;
+    private str->AweElectricalCableLine cables() : public readable;
 
     extend public AweElectricalCableLine cable(str id, point start, point end) {
         var cable = cables.get(id);
