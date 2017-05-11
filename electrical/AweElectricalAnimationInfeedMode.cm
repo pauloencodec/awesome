@@ -36,14 +36,52 @@
 
 package custom.awesome.electrical;
 
-public class AweElectricalCableLine extends Line {
-    public bool active;  
-    public Snapper snapper : copy=null;
-    public bool powered;
-    public bool infeedCable = false;
-    
-    extend public Line spaceLine() {
-        if(!snapper) return null;
-        return Line(snapper.toSpace(this.line));
+public class AweElectricalAnimationInfeedMode extends AweElectricalAnimationMode {
+    public point{} clickablePoints() {
+        point{} points();
+        for(infeed in animation.?map.?allInfeeds) {
+            points << infeed.spacePoint.v;
+        }
+        return points;
+    } 
+
+    public void clicked(point p) {
+        var infeed = animation.?map.?infeedAt(p);
+        if(infeed) {
+            infeed.active = !infeed.active;
+            updateCables(infeed);
+        }
     }
+
+    public void hoveredPointChanged(Point target) {
+        
+    }
+
+    public Primitive3D get3D() {
+        Awe3D prims();
+
+        for(infeed in animation.?map.?allInfeeds) {
+            if(!infeed.active) {
+                var cone = infeedGeometry(infeed);
+                cone.setMaterial(plainGrayMaterial3D);
+                prims << cone;
+            }
+        }
+
+        if(animation.currentPoint) {
+            Sphere3D sphere(animation.currentPoint.v, 4inch);
+            sphere.setMaterial(transparencyMaterial3D(color(255, 255, 0), 0.2));
+            prims << sphere;
+        } 
+
+        return prims;
+    }
+
+    extend private void updateCables(AweElectricalInfeedPoint infeed) {
+        for(c in infeed.cables) {
+            c.active = infeed.active;
+        }
+    }
+
+    
 }
