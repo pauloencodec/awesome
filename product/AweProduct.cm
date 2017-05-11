@@ -137,13 +137,13 @@ public class AweProduct extends AweGeometry {
         return this.getMedium3D();
     }
 
-    extend private Primitive3D getSuper3D() {
+    extend public Primitive3D getSuper3D() {
         if (!this.super3D) this.buildSuper3D();
 
         return this.super3D;
     }
 
-    extend private Primitive3D getMedium3D() {
+    extend public Primitive3D getMedium3D() {
         if (!this.medium3D) this.buildMedium3D();
 
         return this.medium3D;
