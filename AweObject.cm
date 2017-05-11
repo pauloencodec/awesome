@@ -186,6 +186,10 @@ public class AweObject {
 
         return format;
     }
+
+    extend public Anonymous Anonymous() {
+        return this.props;
+    }
 }
 
 public definition @visibility aweObject @name=id @parentClass=["extends" type]? '{'  @props=["props" formalArgList ';']? @members=[classMember]* '}' {
