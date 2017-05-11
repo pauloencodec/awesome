@@ -89,10 +89,12 @@ public class AweProduct extends AweGeometry {
         this.super3D = null;
         this.graph = null;
         this.geometries = new AweGeometry[]();
+        this.parts.clear();
         //adding self to list of geometries
         this << this;
         
         this.build();
+        this.createParts();
     }
 
     extend public void build() {
