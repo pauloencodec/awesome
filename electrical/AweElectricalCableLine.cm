@@ -37,7 +37,14 @@
 package custom.awesome.electrical;
 
 public class AweElectricalCableLine extends Line {
-    public bool active;  
+    public AweNotifyProp bool active {
+        if(snapper) {
+            aweDynamicCall snapper.aweElectricalCableLineChanged(this);
+        }
+    }
+
+    public str id;
+
     public Snapper snapper : copy=null;
     public bool powered;
     public bool infeedCable = false;
