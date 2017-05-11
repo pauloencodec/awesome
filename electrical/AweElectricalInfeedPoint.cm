@@ -39,9 +39,21 @@ package custom.awesome.electrical;
 
 public class AweElectricalInfeedPoint extends Point {
     public bool active;  
+    public orientation orientation;
+    public AweElectricalCableLine[] cables();
+    public AweElectricalCableLine[] activeNetwork();
     public Snapper snapper : copy=null;
     extend public Point spacePoint() {
         if(!snapper) return null;
         return Point(snapper.toSpace(this.point));
+    }
+    extend public orientation spaceOrientation() {
+        if(!snapper) return orientation();
+        return snapper.toSpace(this.orientation);
+    }
+
+    public constructor(point origin, orientation orientation, Snapper snapper, AweElectricalCableLine[] cables=null) {
+        super(origin);
+        set*(this: orientation, snapper, cables);
     }
 }

@@ -34,16 +34,38 @@
    END OF CETSC
 */
 
-package custom.awesome.electrical;
+package custom.awesome;
 
-public class AweElectricalCableLine extends Line {
-    public bool active;  
-    public Snapper snapper : copy=null;
-    public bool powered;
-    public bool infeedCable = false;
-    
-    extend public Line spaceLine() {
-        if(!snapper) return null;
-        return Line(snapper.toSpace(this.line));
+public class AwePointsListAnimation extends AwePointsAnimation {
+
+    private Point lastHoveredPoint;
+
+    extend public point{} clickablePoints() {
+        return null;
+    }
+
+    extend public void hoveredPointChanged(Point target) {
+
+    }
+
+    public Point adjustPoint(int pointIndex, point mousePoint, AnimationMouseInfo mi) {
+        var newPoint = closestPoint(mi.mouseLine);
+        if(newPoint !=  lastHoveredPoint) {
+            hoveredPointChanged(newPoint);
+        }
+        return newPoint;
+    }
+
+    extend private Point closestPoint(line l) {
+        Point closest = null;
+        double bestDistance = maxDouble;
+        for(p in clickablePoints) {
+            var thisDistance = l.normalIntersect(p).dSquare;
+            if(thisDistance < bestDistance) {
+                bestDistance = thisDistance;
+                closest = p;
+            }
+        }
+        return closest;
     }
 }

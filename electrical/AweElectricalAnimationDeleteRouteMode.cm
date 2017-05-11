@@ -36,14 +36,11 @@
 
 package custom.awesome.electrical;
 
-public class AweElectricalCableLine extends Line {
-    public bool active;  
-    public Snapper snapper : copy=null;
-    public bool powered;
-    public bool infeedCable = false;
+public class AweElectricalAnimationDeleteRouteMode extends AweElectricalAnimationRoutingMode {
     
-    extend public Line spaceLine() {
-        if(!snapper) return null;
-        return Line(snapper.toSpace(this.line));
-    }
+    public void routeSelected(AweElectricalCableLine[] route) {
+        for(cable in route) {
+            cable.active = false;
+        }
+    }    
 }

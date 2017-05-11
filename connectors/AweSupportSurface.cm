@@ -34,16 +34,29 @@
    END OF CETSC
 */
 
-package custom.awesome.electrical;
+package custom.awesome.connectors;
 
-public class AweElectricalCableLine extends Line {
-    public bool active;  
-    public Snapper snapper : copy=null;
-    public bool powered;
-    public bool infeedCable = false;
-    
-    extend public Line spaceLine() {
-        if(!snapper) return null;
-        return Line(snapper.toSpace(this.line));
+public class AweSupportSurface extends SupportSurface {
+    public constructor(Snapper snapper, double w, double d, double z, ConnectRule rule=null) {
+        super(snapper, z);
+
+        this.update(w, d, z);
+        this.setRule(rule);
     }
+
+    public constructor(Snapper snapper, point pos, Graph g, ConnectRule rule=null) {
+        super(snapper, pos.z);
+    }
+
+    extend public void update(double w, double d, double z) {
+        this.setPos((-w / 2, -d / 2, z));
+        this.setGraph(new GRect(rect(point2D(), w, d)));
+    }
+
+    extend public void update(point pos, Graph g) {
+        this.setPos(pos);
+        this.setGraph(g);
+    }
+
+    public bool isVisible() { return false; }
 }
