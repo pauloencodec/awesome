@@ -39,7 +39,11 @@ package custom.awesome.electrical;
 
 public class AweElectricalInfeedPoint extends Point {
     public str id;
-    public bool active;  
+    public AweNotifyProp bool active {
+        if(snapper) {
+            aweDynamicCall snapper.aweElectricalInfeedChanged(this);
+        }
+    } 
     public orientation orientation;
     public AweElectricalCableLine[] cables();
     public AweElectricalCableLine[] activeNetwork();
