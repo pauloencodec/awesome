@@ -36,18 +36,58 @@
 
 package custom.awesome;
 
-use cm.syntax;
+use custom.genericOffice;
+use cm.abstract.tools.queryDialog;
 
-public member @visibility AweNotifyProp @type=type @name=id @notify=statement {
-    SId privateName("_"#name.name);
-    return member {
-        @visibility @type @privateName;
-        extend @visibility @type @name() { return this.@privateName; }
-        extend @visibility @type @name=(@type value) {
-            bool changed = this.@privateName != value;
-            this.@privateName = value;
-            if(changed) @notify;
-            return this.@privateName;
+private const str queryDialogKey = "awe-query-dialog";
+
+public class AweQueryDialog extends GoQueryDialog {
+    public str dialogCaption() {
+        return "Query";
+    }
+
+    public bool useSpecialButtons() {
+        return false;
+    }
+
+    public void selectCell() {
+    }
+
+    public Part[] getRawParts() {
+        var parts = super();
+
+	    if (World w = session.mainWorld()) {
+            parts = parts.finalize(w.mainSpace);
+            parts = parts.merge(env=NativeFetchEnv(getPartTagCategories(w.mainSpace)));
+            parts = parts.finalizeAfterMerge();
+	    }
+
+        return parts;
+    }
+
+    public void buildOptions(Part part) {
+        if (part as AwePart) {
+            for (option in part.options) {
+                buildRowContents([" ", option.code, option.description, "", "",
+				"", "", "", "",  "", "", "",
+				"", "", "", ""]);
+            }
         }
-    };
+    }
+}
+
+public TreeViewItem getAweQueryDialogItem(Snapper z, View view, DropDownMenu ddm) {
+    return new ImageTreeViewItem(queryDialogKey, "Query", icon("quotationList"));
+}
+
+public bool aweQueryDialogItemClicked(Snapper z, View view, MenuCallbackEnv env) {
+    if (env.key == queryDialogKey) {
+        Window win = anyFrameWindow();
+        
+        new AweQueryDialog(win, z);
+        
+        return true;
+    }
+
+    return false;
 }

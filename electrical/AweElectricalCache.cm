@@ -34,20 +34,38 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package custom.awesome.electrical;
 
-use cm.syntax;
+public class AweElectricalCache {
+    
+    public constructor() {
 
-public member @visibility AweNotifyProp @type=type @name=id @notify=statement {
-    SId privateName("_"#name.name);
-    return member {
-        @visibility @type @privateName;
-        extend @visibility @type @name() { return this.@privateName; }
-        extend @visibility @type @name=(@type value) {
-            bool changed = this.@privateName != value;
-            this.@privateName = value;
-            if(changed) @notify;
-            return this.@privateName;
+    }
+
+    private str->AweElectricalInfeedPoint infeeds() : public readable;
+    private str->AweElectricalCableLine cables() : public readable;
+
+    extend public AweElectricalCableLine cable(str id, point start, point end) {
+        var cable = cables.get(id);
+        if(!cable) {
+            cable = new AweElectricalCableLine(line());
+            cable.id = id;
+            cables.put(id, cable);
         }
-    };
+        cable.v.p0 = start;
+        cable.v.p1 = end;
+        return cable;
+    }
+
+    extend public AweElectricalInfeedPoint infeed(str id, point position, orientation orientation, AweElectricalCableLine[] cables=null) {
+        var infeed = infeeds.get(id);
+        if(!infeed) {
+            infeed = new AweElectricalInfeedPoint(point());
+            infeed.id = id;
+            infeeds.put(id, infeed);
+        }
+        infeed.v = position;
+        set*(infeed: orientation, cables);
+        return infeed;
+    }
 }
