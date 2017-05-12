@@ -37,6 +37,8 @@ package custom.awesome : 7.5.0;
 
 use custom.awesome.product;
 
+use cm.abstract.surface;
+
 use cm.format.cm3D;
 use cm.geometry.advanced;
 use cm.application;

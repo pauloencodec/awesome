@@ -1,0 +1,110 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome;
+
+public class AweEdgedPath2D extends EdgedPath {
+    private line2D lastLine : public readable;
+    private point2D endpoint();
+
+    private Material edgeMaterial : copy=reference;
+    
+    public constructor(double height, point2D origin=(0, 0)) {
+        super(origin);
+        var ed = this.getDefaultEdge(height);
+        this.defaultEdge = ed;
+    }
+    
+    extend public AweEdgedPath2D to(point2D target) {
+        this.lastLine = line2D(endPoint, target);
+        lineTo(target);
+        return this;
+    }
+    
+    extend public AweEdgedPath2D go(point2D increment) {
+        return to(endPoint + increment);
+    }
+    
+    extend public AweEdgedPath2D go(double x, double y) {
+        return go((x,y));
+    }
+    
+    extend public AweEdgedPath2D up(double distance) {
+        return go(0, distance);
+    }
+
+    extend public AweEdgedPath2D down(double distance) {
+        return up(-distance);
+    }
+    
+    extend public AweEdgedPath2D right(double distance) {
+        return go(distance, 0);
+    }
+    
+    extend public AweEdgedPath2D left(double distance) {
+        return right(-distance);
+    }
+
+    extend public Primitive3D get3D(Snapper owner, double thickness, angle res,
+				    FetchEnv3D env,
+				    bool flatEdges = false,
+				    Material surfaceMaterial=null,
+                    Material edgeMaterial=null,
+				    TextureSpace3D surfaceTextureSpace=null,
+				    vector edgeTextureUp=(0, 1, 0), double scale=1.0,
+				    bool surface=true, bool edge=true) {
+        this.edgeMaterial = edgeMaterial;
+        return get3D(owner, thickness, res, env, flatEdges, surfaceMaterial, surfaceTextureSpace, edgeTextureUp, scale, surface, edge);
+    }
+
+    public Primitive3D[] buildFullEdge3D(Snapper owner, double thickness, angle res, FetchEnv3D env, bool flatEdges) {
+        EdgeEnv edgeEnv = getEdgeEnv(owner, env, thickness, res);
+        Primitive3D[] prims();
+
+        Primitive3D prim = edgeEnv.buildEdge3D();
+
+        if ( prim ) {
+            prims << applyMaterial(prim, edgeMaterial);
+        }
+        return prims;
+    }
+
+    public void setEdge(PathEdge e) {
+        for( m in members ) {
+            setEdge(m, e);
+        }
+    }
+}
