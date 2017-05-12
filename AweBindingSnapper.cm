@@ -78,10 +78,8 @@ public class AweBindingSnapper extends AweSnapper : abstract {
         AweProduct[] list();
 
         for (m in this.allModels()) {
-            Object product = aweDynamicCall m.product();
-
-            if (product as AweProduct) {
-                list << product; 
+            if (AweProduct product = m.getProduct()) {
+                list << product;
             }
         }
 
@@ -144,9 +142,7 @@ public class AweBindingSnapper extends AweSnapper : abstract {
         Awe3D all();
 
         for (m in allModels) {
-            Object product = aweDynamicCall m.product();
-
-            if (product as AweProduct) {
+            if (AweProduct product = m.getProduct()) {
                 var prim = product.get3D(env);
 
                 AweBindingSnapperPickSurface pick(this, prim, m.class.name);

@@ -87,6 +87,20 @@ public class AweObject {
     extend public void animationPropertyChanged(str key, Object value) {
     }
 
+    private AweProduct _product : stream=null, copy=null;
+
+    extend public AweProduct getProduct() {
+        if (!this._product) {
+            this._product = this.createProduct();
+        }
+
+        return this._product;
+    }
+
+    extend public AweProduct createProduct() {
+        return null;
+    }
+
     extend public str toS(str format, rest: Object[] extraParams) {
         str->Object props();
         for(obj in extraParams, index=i) {
