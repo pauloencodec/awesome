@@ -206,4 +206,46 @@ public class AweSnapper extends Snapper {
     public bool denyParts() {
         return this.allProducts.count == 0;
     }
+
+    /***********************************************************************
+     * Parts Query Dialog
+     ***********************************************************************/
+
+    public TreeViewItem[] popupMenuItems(View view, DropDownMenu ddm) {
+        var items = super(..);
+        
+        items << this.getAweQueryDialogItem(view, ddm);
+        
+        return items;
+    }
+
+    public bool popupMenuItemClicked(View view, MenuCallbackEnv env) {
+        if (this.aweQueryDialogItemClicked(view, env)) {
+            return true;
+        }
+
+        return super(view, env);
+    }
+
+    /************ validation ***************/
+    public void appendInvalidation(InvalidList invalidList) {
+        
+        AweValidationIssues issues({Snapper: this});
+
+        validate(issues);
+        for(model in allModels()) {
+            model.validate(issues);
+        }
+        for(product in allProducts()) {
+            product.validate(issues);
+            product.validateGeometries(issues);
+        }
+
+        issues.feed(invalidList);
+    }
+
+    extend public void validate(AweValidationIssues issues) {
+
+    }
+
 }

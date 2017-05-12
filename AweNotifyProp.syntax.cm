@@ -44,8 +44,9 @@ public member @visibility AweNotifyProp @type=type @name=id @notify=statement {
         @visibility @type @privateName;
         extend @visibility @type @name() { return this.@privateName; }
         extend @visibility @type @name=(@type value) {
+            bool changed = this.@privateName != value;
             this.@privateName = value;
-            @notify;
+            if(changed) @notify;
             return this.@privateName;
         }
     };

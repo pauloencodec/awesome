@@ -36,70 +36,58 @@
 
 package custom.awesome;
 
-use custom.awesome.connectors;
+use custom.genericOffice;
+use cm.abstract.tools.queryDialog;
 
-private alias SnapperArray = Snapper{};
+private const str queryDialogKey = "awe-query-dialog";
 
-public class AweEasySnapper extends AweSnapper : abstract {
-    public constructor() {
-        this.configurator = this.createConfigurator();
-        this.activeConfigurator = this.configurator;
-        this.product = this.createProduct(this.configurator);
-        this.refresh();
+public class AweQueryDialog extends GoQueryDialog {
+    public str dialogCaption() {
+        return "Query";
     }
 
-    public AweProduct product;
-    extend public AweProduct createProduct(AweObject configurator) : abstract { }
-
-    public AweObject configurator;
-    extend public AweObject createConfigurator() : abstract { }
-
-    public AweProduct[] allProducts() {
-        if (this.product) {
-            return [this.product];
-        }
-        
-        return super();
+    public bool useSpecialButtons() {
+        return false;
     }
 
-    public AweObject[] allModels() {
-        if (this.configurator) {
-            return [this.configurator];
-        }
-        
-        return super();
+    public void selectCell() {
     }
 
-    public void drawGraphs(LayerBuffer lb, View view, GeometricFinder finder=null) {
-        if (this.product) {
-            if (Graph graph = this.product.get2D()) { 
-                graph.draw(lb);
+    public Part[] getRawParts() {
+        var parts = super();
+
+	    if (World w = session.mainWorld()) {
+            parts = parts.finalize(w.mainSpace);
+            parts = parts.merge(env=NativeFetchEnv(getPartTagCategories(w.mainSpace)));
+            parts = parts.finalizeAfterMerge();
+	    }
+
+        return parts;
+    }
+
+    public void buildOptions(Part part) {
+        if (part as AwePart) {
+            for (option in part.options) {
+                buildRowContents([" ", option.code, option.description, "", "",
+				"", "", "", "",  "", "", "",
+				"", "", "", ""]);
             }
         }
     }
+}
 
-    public Primitive3D get3D(FetchEnv3D env) {
-        if (this.product) {
-            return this.product.get3D(env);
-        }
+public TreeViewItem getAweQueryDialogItem(Snapper z, View view, DropDownMenu ddm) {
+    return new ImageTreeViewItem(queryDialogKey, "Query", icon("quotationList"));
+}
 
-        Box3D prim(this.localBound());
+public bool aweQueryDialogItemClicked(Snapper z, View view, MenuCallbackEnv env) {
+    if (env.key == queryDialogKey) {
+        Window win = anyFrameWindow();
         
-        prim.setMaterial(plainGreenMaterial3D);
+        new AweQueryDialog(win, z);
         
-        return prim;
+        return true;
     }
 
-    public box localBound() {
-        if (this.product) {
-            return this.product.localBound();
-        }
-
-        return box();
-    }
-
-    public void refresh(bool updateConnectors=false, bool tryAlignAllSnapped=false) {
-        this.product.?refresh();
-        super(..);
-    }
+    return false;
 }

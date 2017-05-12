@@ -89,10 +89,12 @@ public class AweProduct extends AweGeometry {
         this.super3D = null;
         this.graph = null;
         this.geometries = new AweGeometry[]();
+        this.parts.clear();
         //adding self to list of geometries
         this << this;
         
         this.build();
+        this.createParts();
     }
 
     extend public void build() {
@@ -137,13 +139,13 @@ public class AweProduct extends AweGeometry {
         return this.getMedium3D();
     }
 
-    extend private Primitive3D getSuper3D() {
+    extend public Primitive3D getSuper3D() {
         if (!this.super3D) this.buildSuper3D();
 
         return this.super3D;
     }
 
-    extend private Primitive3D getMedium3D() {
+    extend public Primitive3D getMedium3D() {
         if (!this.medium3D) this.buildMedium3D();
 
         return this.medium3D;
@@ -204,5 +206,17 @@ public class AweProduct extends AweGeometry {
         for (k, v in geometry.goi) {
             this.goi.put(k, v);
         }
+    }
+
+    extend public void validateGeometries(AweValidationIssues issues) {
+        if (this.geometries and this.geometries.any()) {
+            for (g in this.geometries) {
+                g.validate(issues);
+            }
+        }
+    }
+
+    public void validate(AweValidationIssues issues) {
+
     }
 }

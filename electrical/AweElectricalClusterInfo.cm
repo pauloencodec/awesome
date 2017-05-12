@@ -87,6 +87,43 @@ public class AweElectricalClusterInfo {
         return pointsToClusters.get(p.toS);
     }
 
+    private str missingInfeedMessage = "Missing infeeds for power.";
+
+    extend public void validate(InvalidList invalidList) {
+        Snapper{} orphanCableSnappers();
+        for(c in orphanCables) {
+            if(c.snapper) {
+                orphanCableSnappers << c.snapper;
+            }
+        }
+        if(orphanCableSnappers.count > 0) {
+            invalidList.putWarning("awe electrical orphan cable", missingInfeedMessage, orphanCableSnappers);
+        }
+
+        for(cluster in clusters) {
+            validateCluster(cluster, invalidList);
+        }
+    }
+
+    extend public void validateCluster(AweElectricalCluster cluster, InvalidList invalidList) {
+        Snapper{} clusterSnappers();
+        for(c in cluster.cables) {
+            if(c.snapper) {
+                clusterSnappers << c.snapper;
+            }
+        }
+        for(i in cluster.infeeds) {
+            if(i.snapper) {
+                clusterSnappers << i.snapper;
+            }
+        }
+        if(cluster.infeeds.count == 0) {
+            invalidList.putWarning("no infeed in electrical cluster", missingInfeedMessage, clusterSnappers);
+        } else if(cluster.infeeds.count > 1) {
+            invalidList.putError("multiple infeeds in eletrical cluster", "More than one power infeed in the same electrical application.", clusterSnappers);
+        }
+    }
+
     extend private void identifyClusters(AweElectricalMap map) {
         AweElectricalInfeedPoint[] infeeds();
         AweElectricalCableLine[] cables();

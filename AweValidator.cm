@@ -36,70 +36,41 @@
 
 package custom.awesome;
 
-use custom.awesome.connectors;
+public class AweValidationIssues {
 
-private alias SnapperArray = Snapper{};
+    public AweValidationIssue[] errors();
+    public AweValidationIssue[] warnings();
 
-public class AweEasySnapper extends AweSnapper : abstract {
-    public constructor() {
-        this.configurator = this.createConfigurator();
-        this.activeConfigurator = this.configurator;
-        this.product = this.createProduct(this.configurator);
-        this.refresh();
-    }
+    public Snapper{} snappers;
 
-    public AweProduct product;
-    extend public AweProduct createProduct(AweObject configurator) : abstract { }
+    public constructor(Snapper{} snappers) {
+        this.snappers = snappers;
+    }   
 
-    public AweObject configurator;
-    extend public AweObject createConfigurator() : abstract { }
+    extend public void error(str key, str description) {
+        errors << AweValidationIssue(..);
+    } 
 
-    public AweProduct[] allProducts() {
-        if (this.product) {
-            return [this.product];
+    extend public void warning(str key, str description) {
+        warnings << AweValidationIssue(..);
+    } 
+
+    extend public void feed(InvalidList invalidList) {
+        for(issue in this.errors) {
+            invalidList.putError(issue.key, issue.description, this.snappers);
         }
-        
-        return super();
-    }
-
-    public AweObject[] allModels() {
-        if (this.configurator) {
-            return [this.configurator];
-        }
-        
-        return super();
-    }
-
-    public void drawGraphs(LayerBuffer lb, View view, GeometricFinder finder=null) {
-        if (this.product) {
-            if (Graph graph = this.product.get2D()) { 
-                graph.draw(lb);
-            }
+        for(issue in this.warnings) {
+            invalidList.putWarning(issue.key, issue.description, this.snappers);
         }
     }
+}
 
-    public Primitive3D get3D(FetchEnv3D env) {
-        if (this.product) {
-            return this.product.get3D(env);
-        }
+public class AweValidationIssue {
+    
+    public str key;
+    public str description;
 
-        Box3D prim(this.localBound());
-        
-        prim.setMaterial(plainGreenMaterial3D);
-        
-        return prim;
-    }
-
-    public box localBound() {
-        if (this.product) {
-            return this.product.localBound();
-        }
-
-        return box();
-    }
-
-    public void refresh(bool updateConnectors=false, bool tryAlignAllSnapped=false) {
-        this.product.?refresh();
-        super(..);
+    public constructor(str key, str description) {
+        set*(this: key, description);
     }
 }
