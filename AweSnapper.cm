@@ -226,4 +226,26 @@ public class AweSnapper extends Snapper {
 
         return super(view, env);
     }
+
+    /************ validation ***************/
+    public void appendInvalidation(InvalidList invalidList) {
+        
+        AweValidationIssues issues({Snapper: this});
+
+        validate(issues);
+        for(model in allModels()) {
+            model.validate(issues);
+        }
+        for(product in allProducts()) {
+            product.validate(issues);
+            product.validateGeometries(issues);
+        }
+
+        issues.feed(invalidList);
+    }
+
+    extend public void validate(AweValidationIssues issues) {
+
+    }
+
 }
