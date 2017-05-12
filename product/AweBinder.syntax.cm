@@ -39,17 +39,8 @@ package custom.awesome.product;
 public definition @visibility aweBinder '<' @model=type ',' @product=type '>' @name=id  ';' {
     definition {
         @visibility class @name extends @model {
-            private @product _product : stream=null, copy=null;
-
-            extend @visibility @product product() {
-                if(!_product) {
-                    this._product = new @product(this);
-                } 
-                return this._product;
-            }
-
-            public aweDynamicContract {
-                aweDynamic @product product();
+            public @product createProduct() {
+                return new @product(this);
             }
         }
     };
