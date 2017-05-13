@@ -46,6 +46,7 @@ public class AweSnapper extends Snapper {
     public aweDynamicContract {
         aweDynamic void realign(SnapperArray visited=null);        
         aweDynamic void galleryChanged(AweGallery gallery);
+        aweDynamic bool mustConnect();
     }
 
     public AweConnectorCache connectorCache(this);
@@ -93,7 +94,7 @@ public class AweSnapper extends Snapper {
     /************** connections ***************/
 
     extend public bool mustConnect() {
-        return false;
+        return true;
     }
 
     extend public void connectors(AweConnectorCache cc) {
@@ -114,15 +115,6 @@ public class AweSnapper extends Snapper {
         super(collection);
     }
 
-    public Connector{} connectors() {
-        var collection = super(..);
-         if(mustConnect()) {
-            for(c in collection) {
-                aweDynamicCall c.makeMandatory();
-            }
-        }
-        return collection;
-    }
 
     public bool buildQuickProperties(QuickProperties props) { 
         if (this.activeConfigurator) {
