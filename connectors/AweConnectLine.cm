@@ -39,11 +39,21 @@ package custom.awesome.connectors;
 public class AweConnectLine extends ConnectLine {
     public aweDynamicContract {
         aweDynamic bool shouldRealign();
+        aweDynamic bool isMandatory();
+        aweDynamic void makeMandatory();
     }
     
     public bool hidden = false;
     public bool hiddenWhenDisconnected = false;
     public bool realign = false;
+
+    public bool mandatory = false;
+    extend public bool isMandatory() {
+        return mandatory;
+    }
+    extend public void makeMandatory() {
+        mandatory = true;
+    }
 
     extend public bool shouldRealign() {
         return this.realign;

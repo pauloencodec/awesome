@@ -90,6 +90,12 @@ public class AweSnapper extends Snapper {
         }
     }
 
+    /************** connections ***************/
+
+    extend public bool mustConnect() {
+        return false;
+    }
+
     extend public void connectors(AweConnectorCache cc) {
     }
 
@@ -101,9 +107,21 @@ public class AweSnapper extends Snapper {
             product.createConnectors(this.connectorCache);
         }
         
+       
+        
         this.connectorCache.addToConnectors(collection);
 
         super(collection);
+    }
+
+    public Connector{} connectors() {
+        var collection = super(..);
+         if(mustConnect()) {
+            for(c in collection) {
+                aweDynamicCall c.makeMandatory();
+            }
+        }
+        return collection;
     }
 
     public bool buildQuickProperties(QuickProperties props) { 
