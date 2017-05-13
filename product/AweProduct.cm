@@ -44,7 +44,7 @@ public class AweProduct extends AweGeometry {
     private Primitive3D super3D;
     private AweGraph graph;
 
-    private AweGeometry[] geometries;
+    public AweGeometry[] geometries;
 
     extend public AweProduct operator<<(AweGeometry geometry) {
         this.geometries <<? geometry;
@@ -90,6 +90,7 @@ public class AweProduct extends AweGeometry {
         this.graph = null;
         this.geometries = new AweGeometry[]();
         this.parts.clear();
+        this.lights.clear();
         //adding self to list of geometries
         this << this;
         

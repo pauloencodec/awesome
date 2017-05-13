@@ -34,66 +34,33 @@
    END OF CETSC
 */
 
-package custom.awesome.product;
+package custom.awesome.electrical;
 
-use custom.awesome.electrical;
-
-public class AweGeometry {
-    private str->Point2D poi() : public readable;
-    private str->Line2D loi() : public readable;
-    private str->Graph goi() : public readable;
-    private AwePart[] parts() : public readable;
-
-    public constructor() {
+public class AweLight3D extends SpotLight3D {
+    public constructor(point origin, vector direction, double intensity=.2) {
+        super(origin, origin + direction.normalized, intensity=intensity, squareFallOff=true);
+        this.setShadowSoftness(2);
+		this.setShadowResolution(redLightOverride ? 64 : 256);
+        this.useShadows(true);
+		this.setSquareFallOff(true);
+        this.setConeAngles(60deg, 120deg);
     }   
 
-    extend public Primitive3D medium3D() {
-        return null;
+    public constructor(Snapper snapper, AweLightModel model) {
+        point origin = snapper.toSpace(model.position);
+        this(origin, model.direction, model.intensity);
     }
+}
 
-    extend public Primitive3D super3D() {
-        return medium3D();
-    }
+public class AweLightModel {
 
-    extend public Graph graph() {
-        return null;
-    }
-
-    extend public box localBound() {
-        return box();
-    }
-
-    extend public void createParts() {
-    }
-
-    extend public void addPart(AwePart part) {
-        this.parts << part;        
-    }
-
-    extend public void addPart(str catalog, str sku) {
-        this.parts << new AwePart(catalog, sku);
-    }
-
-    extend public AwePart[] getParts() {
-        this.parts.clear();
-        this.createParts();
-        
-        return this.parts;
-    }
-
-    extend public void validate(AweValidationIssues issues) {
+    public constructor() {
 
     }
 
-    /********** lights ************/
-    public AweLightModel[] lights();
+    public constructor auto();
 
-    extend public void buildLights() {
-        
-    }
-
-    extend public void addLightPoint(point position, vector direction = (0,0,-1), double intensity=0.2) {
-        lights << AweLightModel(position, direction, intensity);
-    }
-
+    public point position;
+    public vector direction;
+    public double intensity;
 }

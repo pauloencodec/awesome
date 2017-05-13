@@ -38,6 +38,7 @@ package custom.awesome;
 
 use custom.awesome.connectors;
 use custom.awesome.gallery;
+use custom.awesome.electrical;
 
 private alias SnapperArray = Snapper{};
 
@@ -60,6 +61,14 @@ public class AweSnapper extends Snapper {
 
     extend public AweProduct[] allProducts() {
         return new AweProduct[]();
+    }
+
+    extend public AweGeometry[] allGeometries() {
+        AweGeometry[] geometries();
+        for(p in allProducts()) {
+            geometries += p.geometries;
+        }
+        return geometries;
     }
 
     extend public void galleryChanged(AweGallery gallery) {
@@ -177,7 +186,6 @@ public class AweSnapper extends Snapper {
 
         invalidateQuickPropertiesFor(this);
         invalidate();
-        
         this.space.invalidateSelection();
     }  
 
@@ -248,4 +256,59 @@ public class AweSnapper extends Snapper {
 
     }
 
+    /************ lights **************/
+
+    public bool denyLights() { return !hasLights(); }
+
+    public Light3D[] getLights(FetchLightEnv env) {
+        Light3D[] light3Ds();
+        for(model in lightModels()) {
+            light3Ds << AweLight3D(this, model);
+        }
+        return light3Ds;
+    }
+
+    public void invalidated(dirty3D flag3D) {
+        invalidateLights();
+    }
+
+    private AweLightModel[] _lightModels;
+    extend public AweLightModel[] lightModels() {
+        if(!_lightModels) {
+            _lightModels = new AweLightModel[]();
+        }
+        for(g in allGeometries) {
+            g.lights.clear();
+            g.buildLights();
+            for(model in g.lights) {
+                _lightModels << model;
+            }
+        }
+        return _lightModels;
+    }
+
+    extend private bool hasLights() {
+        return lightModels().any();
+    }
+
+    extend private void invalidateLights() {
+        if(hasLights()) {
+            _lightModels = null;
+            if (space) space.invalidateLight3D(this);
+        }
+    }
+
+    public void removed(RemoveSnappersEnv env) {
+        invalidateLights();
+        super(env);
+    }
+    public void suspended() {
+        invalidateLights();
+        super();
+    }
+    public void unsuspended() {
+        super();
+        invalidateLights();
+    }
 }
+
