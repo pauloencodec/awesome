@@ -258,7 +258,9 @@ public class AweSnapper extends Snapper {
 
     /************ lights **************/
 
-    public bool denyLights() { return !hasLights(); }
+    /* !!!!! important !!!!****/
+    //remeber to return false on deny lights on your snapper, like this:
+    // public bool denyLights() { return false; }
 
     public Light3D[] getLights(FetchLightEnv env) {
         Light3D[] light3Ds();
