@@ -36,7 +36,7 @@
 package custom.awesome;
 
 
-use cm.extension, cm.extension.util, cm.security, custom.awesome.electrical;
+use cm.extension, cm.extension.util, cm.security;
 
 /**
  * The extension.cm file contains info used for building the extension.
@@ -58,7 +58,7 @@ private class AwesomeLibraryExtension extends MultiCatalogExtension {
     public void initialize( ExtensionEnv env ) {
         super(env);
         pln("/******************* init the awesome **********************/");
-        registerInvalidListBuilder(function validateElectrical);
+        registerInvalidListBuilder(function validateSpace);
     }
 
     /**
@@ -71,12 +71,9 @@ private class AwesomeLibraryExtension extends MultiCatalogExtension {
 }
 
 
-public void validateElectrical(InvalidList invalidList) {
-    if(activeSpace) {
-        AweElectricalMap map(activeSpace);
-        AweElectricalClusterInfo clusterInfo(map);
-        clusterInfo.validate(invalidList);
-    }
+public void validateSpace(InvalidList invalidList) {
+    AweSpaceValidator validator(activeSpace);
+    validator.validate(invalidList);
 }
 
 
