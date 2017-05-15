@@ -3,8 +3,9 @@
   <main>custom.awesome</main>
   <name>Awesome Library</name>
   <type>code</type>
-  <version>0.5</version>
+  <version>0.6</version>
   <packages>
+    <package id="custom.awesome" />
     <package id="custom.awesome.basic3D" />
     <package id="custom.awesome.connectors" />
     <package id="custom.awesome.electrical" />
@@ -14,12 +15,12 @@
     <package id="custom.awesome.product" />
     <package id="custom.awesome.sample" />
     <package id="custom.awesome.storage" />
-    <package id="custom.awesome" />
   </packages>
   <extension-dependencies>
     <dependency id="cet.designer"/>
     <dependency id="cm.core"/>
     <dependency id="cm.core3D"/>
     <dependency id="cm.abstract.dataSymbol"/>
+    <dependency id="custom.genericOffice"/>
   </extension-dependencies>
 </extension-info>
