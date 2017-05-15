@@ -34,46 +34,52 @@
    END OF CETSC
 */
 
-package custom.awesome.connectors;
+package custom.awesome;
+use custom.awesome.electrical;
 
-public class AweConnectLine extends ConnectLine {
-    public aweDynamicContract {
-        aweDynamic bool shouldRealign();
-        aweDynamic bool isMandatory();
-        aweDynamic void makeMandatory();
-    }
-    
-    public bool hidden = false;
-    public bool hiddenWhenDisconnected = false;
-    public bool realign = false;
+public class AweSpaceValidator {
+    private Space space;
+    public constructor(Space space) {
+        this.space = space;
+    }   
 
-    public bool mandatory = false;
-    extend public bool isMandatory() {
-        return mandatory;
-    }
-    extend public void makeMandatory() {
-        mandatory = true;
+    extend public void validate(InvalidList invalidList) {
+        if(space) {
+            validateElectrical(invalidList);
+            validateLonely(invalidList);
+        }
     }
 
-    extend public bool shouldRealign() {
-        return this.realign;
-    }
-    
-    public bool isVisible() {
-        return !hidden and !((hiddenWhenDisconnected and !this.isConnected()));
+    extend public void validateElectrical(InvalidList invalidList) {
+        AweElectricalMap map(space);
+        AweElectricalClusterInfo clusterInfo(map);
+        clusterInfo.validate(invalidList);
     }
 
-    public constructor(Snapper snapper, point p0, point p1, angle roll=0deg, ConnectRule rule=null, bool realign=false) {
-        super(snapper);
+    extend public void validateLonely(InvalidList invalidList) {
+        str key = "disconnected object";
+        str description = "Product not properly connected.";
 
-        this.setPos(p0);
-        this.setEndPos(p1);
+        for(s in space.snappers) {
+            var connectors = s.connectors();
+            var mustConnect = (aweDynamicCall s.mustConnect()).?bool;
+            bool connected = false;
 
-        orientation o = orientation(p1 - p0);
-	    setRot(orientation(point(0, -_length, 0).transformed(o)));
+            for(c in connectors) {
+                Object result = aweDynamicCall c.isMandatory();
+                bool mandatory = result.?bool;
+                if(mandatory and (!c.isConnected)) {
+                    invalidList.putWarning(key, description, {Snapper: s});
+                    break;
+                }
+                if(c.isConnected) {
+                    connected = true;
+                }
+            }
 
-        this.setRule(rule);
-        
-        this.realign = realign;
+            if(mustConnect and !connected) {
+                invalidList.putWarning(key, description, {Snapper: s});
+            }
+        }
     }
 }

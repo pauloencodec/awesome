@@ -36,6 +36,8 @@
 
 package custom.awesome.product;
 
+use custom.awesome.electrical;
+
 public class AweGeometry {
     private str->Point2D poi() : public readable;
     private str->Line2D loi() : public readable;
@@ -82,4 +84,16 @@ public class AweGeometry {
     extend public void validate(AweValidationIssues issues) {
 
     }
+
+    /********** lights ************/
+    public AweLightModel[] lights();
+
+    extend public void buildLights() {
+        
+    }
+
+    extend public void addLightPoint(point position, vector direction = (0,0,-1), double intensity=0.2) {
+        lights << AweLightModel(position, direction, intensity);
+    }
+
 }
