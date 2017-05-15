@@ -34,46 +34,33 @@
    END OF CETSC
 */
 
-package custom.awesome.connectors;
+package custom.awesome.electrical;
 
-public class AweConnectLine extends ConnectLine {
-    public aweDynamicContract {
-        aweDynamic bool shouldRealign();
-        aweDynamic bool isMandatory();
-        aweDynamic void makeMandatory();
-    }
-    
-    public bool hidden = false;
-    public bool hiddenWhenDisconnected = false;
-    public bool realign = false;
+public class AweLight3D extends SpotLight3D {
+    public constructor(point origin, vector direction, double intensity=.2) {
+        super(origin, origin + direction.normalized, intensity=intensity, squareFallOff=true);
+        this.setShadowSoftness(2);
+		this.setShadowResolution(redLightOverride ? 64 : 256);
+        this.useShadows(true);
+		this.setSquareFallOff(true);
+        this.setConeAngles(60deg, 120deg);
+    }   
 
-    public bool mandatory = false;
-    extend public bool isMandatory() {
-        return mandatory;
+    public constructor(Snapper snapper, AweLightModel model) {
+        point origin = snapper.toSpace(model.position);
+        this(origin, model.direction, model.intensity);
     }
-    extend public void makeMandatory() {
-        mandatory = true;
-    }
+}
 
-    extend public bool shouldRealign() {
-        return this.realign;
-    }
-    
-    public bool isVisible() {
-        return !hidden and !((hiddenWhenDisconnected and !this.isConnected()));
+public class AweLightModel {
+
+    public constructor() {
+
     }
 
-    public constructor(Snapper snapper, point p0, point p1, angle roll=0deg, ConnectRule rule=null, bool realign=false) {
-        super(snapper);
+    public constructor auto();
 
-        this.setPos(p0);
-        this.setEndPos(p1);
-
-        orientation o = orientation(p1 - p0);
-	    setRot(orientation(point(0, -_length, 0).transformed(o)));
-
-        this.setRule(rule);
-        
-        this.realign = realign;
-    }
+    public point position;
+    public vector direction;
+    public double intensity;
 }
