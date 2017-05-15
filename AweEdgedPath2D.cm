@@ -78,6 +78,11 @@ public class AweEdgedPath2D extends EdgedPath {
         return right(-distance);
     }
 
+    extend public AweEdgedPath2D arcGo(point2D increment, angle startTangent) {
+        arcTo(endPoint + increment, startTangent);
+        return this;
+    }
+
     extend public Primitive3D get3D(Snapper owner, double thickness, angle res,
 				    FetchEnv3D env,
 				    bool flatEdges = false,
@@ -102,6 +107,7 @@ public class AweEdgedPath2D extends EdgedPath {
         return prims;
     }
 
+    // for some reason the base one only sets on the last edge added, so you'd have to call this everytime
     public void setEdge(PathEdge e) {
         for( m in members ) {
             setEdge(m, e);
