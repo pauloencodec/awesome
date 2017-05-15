@@ -15,12 +15,16 @@
     <package id="custom.awesome.product" />
     <package id="custom.awesome.sample" />
     <package id="custom.awesome.storage" />
+    <package id="custom.genericOffice"/>
+    <package id="custom.genericOffice.worksurface"/>
+    <package id="custom.genericOffice.storage"/>
+    <package id="custom.genericOffice.panel"/>
+    <package id="custom.genericOffice.wall"/>
   </packages>
   <extension-dependencies>
     <dependency id="cet.designer"/>
     <dependency id="cm.core"/>
     <dependency id="cm.core3D"/>
     <dependency id="cm.abstract.dataSymbol"/>
-    <dependency id="custom.genericOffice"/>
   </extension-dependencies>
 </extension-info>
