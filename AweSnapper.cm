@@ -200,7 +200,11 @@ public class AweSnapper extends Snapper {
         invalidateQuickPropertiesFor(this);
         invalidate();
         this.space.invalidateSelection();
-    }  
+    }
+
+    extend public str helpLink() {
+        return null;
+    }
 
     /***********************************************************************
      * Parts
@@ -235,7 +239,12 @@ public class AweSnapper extends Snapper {
     public TreeViewItem[] popupMenuItems(View view, DropDownMenu ddm) {
         var items = super(..);
         
+        items << new DelimiterTreeViewItem();
         items << this.getAweQueryDialogItem(view, ddm);
+
+        if (this.helpLink()) {
+            items << new ImageTreeViewItem("helpLink", "Help", icon("helpbubble"));
+        }
         
         return items;
     }
@@ -243,6 +252,9 @@ public class AweSnapper extends Snapper {
     public bool popupMenuItemClicked(View view, MenuCallbackEnv env) {
         if (this.aweQueryDialogItemClicked(view, env)) {
             return true;
+        }
+        else if (env.key == "helpLink") {
+            cm.os.openLocation(this.helpLink());
         }
 
         return super(view, env);
