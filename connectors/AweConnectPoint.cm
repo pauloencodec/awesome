@@ -48,6 +48,8 @@ public class AweConnectPoint extends ConnectPoint {
     public bool hidden = false;
     public bool hiddenWhenDisconnected = false;
 
+    public Object bag: copy=null, stream=null;
+
     public bool mandatory = false;
     extend public bool isMandatory() {
         return mandatory;
