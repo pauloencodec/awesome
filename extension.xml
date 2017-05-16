@@ -27,4 +27,7 @@
     <dependency id="cm.core3D"/>
     <dependency id="cm.abstract.dataSymbol"/>
   </extension-dependencies>
+  <security-delegates>
+    <delegate id="custom.acs" />
+  </security-delegates>
 </extension-info>
