@@ -101,6 +101,9 @@ public class AweSnapper extends Snapper {
     }
 
     public void connectors(ConnectorCollection collection) { 
+        if(!this.connectorCache)
+            this.connectorCache = new AweConnectorCache(this);
+        
         this.connectorCache.clearBuffer();
         this.connectors(this.connectorCache);
 
