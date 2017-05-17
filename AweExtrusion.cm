@@ -45,7 +45,7 @@ public class AweExtrusion {
         this.profile = aweCm3DLoader.getProfile(profileName, profileDir);
     }
 
-    public constructor(AwePath2D profile) {
+    public constructor(APath2D profile) {
         this.profile = profile;
     }
 
