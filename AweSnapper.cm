@@ -101,6 +101,9 @@ public class AweSnapper extends Snapper {
     }
 
     public void connectors(ConnectorCollection collection) { 
+        if(!this.connectorCache)
+            this.connectorCache = new AweConnectorCache(this);
+        
         this.connectorCache.clearBuffer();
         this.connectors(this.connectorCache);
 
@@ -176,13 +179,25 @@ public class AweSnapper extends Snapper {
                 var realign = aweDynamicCall attach.shouldRealign();
                 var connections = attach.connections() ? attach.connections() : {Connector: attach.connection()};
 
-                if (realign.?bool and connections != null) {
-                    for (connection in connections) if(connection) {
-                        alignConnectors(connection, attach, visited=null, invalidate3D=false, removeFromBsp=false, tryRealign=true, forcePropagate=false);
-                        
-                        var snapper = connection.snapper;
-                        if(snapper) {
-                            aweDynamicCall snapper.realign(visited);
+                if (connections != null) {
+                    if (realign.?bool) {
+                        for (connection in connections) if(connection) {
+                            alignConnectors(connection, attach, visited=null, invalidate3D=false, removeFromBsp=false, tryRealign=true, forcePropagate=false);
+                            
+                            var snapper = connection.snapper;
+                            if(snapper) {
+                                aweDynamicCall snapper.realign(visited);
+                            }
+                        }
+                    }
+
+                    for (connection in connections) {
+                        var realignConnected = aweDynamicCall connection.shouldRealign();
+
+                        if (realignConnected.?bool) {
+                            var other = attach;
+
+                            alignConnectors(other, connection, visited=null, invalidate3D=false, removeFromBsp=false, tryRealign=true, forcePropagate=false);
                         }
                     }
                 }
@@ -197,7 +212,11 @@ public class AweSnapper extends Snapper {
         invalidateQuickPropertiesFor(this);
         invalidate();
         this.space.invalidateSelection();
-    }  
+    }
+
+    extend public str helpLink() {
+        return null;
+    }
 
     /***********************************************************************
      * Parts
@@ -232,7 +251,12 @@ public class AweSnapper extends Snapper {
     public TreeViewItem[] popupMenuItems(View view, DropDownMenu ddm) {
         var items = super(..);
         
+        items << new DelimiterTreeViewItem();
         items << this.getAweQueryDialogItem(view, ddm);
+
+        if (this.helpLink()) {
+            items << new ImageTreeViewItem("helpLink", "Help", icon("helpbubble"));
+        }
         
         return items;
     }
@@ -240,6 +264,9 @@ public class AweSnapper extends Snapper {
     public bool popupMenuItemClicked(View view, MenuCallbackEnv env) {
         if (this.aweQueryDialogItemClicked(view, env)) {
             return true;
+        }
+        else if (env.key == "helpLink") {
+            cm.os.openLocation(this.helpLink());
         }
 
         return super(view, env);

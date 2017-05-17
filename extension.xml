@@ -3,7 +3,7 @@
   <main>custom.awesome</main>
   <name>Awesome Library</name>
   <type>code</type>
-  <version>0.6</version>
+  <version>0.7</version>
   <packages>
     <package id="custom.awesome" />
     <package id="custom.awesome.basic3D" />
@@ -27,4 +27,7 @@
     <dependency id="cm.core3D"/>
     <dependency id="cm.abstract.dataSymbol"/>
   </extension-dependencies>
+  <security-delegates>
+    <delegate id="custom.acs" />
+  </security-delegates>
 </extension-info>
