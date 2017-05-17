@@ -43,6 +43,7 @@ public class AweObjectQueryIndex {
 
     public constructor(AweObject root) {
         addToIndex("root", root);
+        addToIndex(root.class.toS, root);
 
         var descendants = root.descendants();
         for(d in descendants) {
