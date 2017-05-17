@@ -1,0 +1,126 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome;
+
+public class AweObjectQueryIndex {
+    
+    private str->AweObject{} index();
+    private AweObject{} visited();
+
+    public constructor(AweObject root) {
+        addToIndex("root", root);
+
+        var descendants = root.descendants();
+        for(d in descendants) {
+           add(d, root);
+        }
+    }   
+
+    extend public AweObject{} get(str key) {
+        return index.get(key);
+    }
+
+    extend private void add(AweObject leaf, AweObject root) {
+        if(leaf in visited) return;
+
+        var keys = keys(leaf, root);
+        for(k in keys) {
+            addToIndex(k, leaf);
+            addToIndex("root>"#k, leaf);
+        }
+
+        visited << leaf;
+    }
+
+    extend private void addToIndex(str key, AweObject obj) {
+        var set = index.get(key);
+        if(!set) {
+            set = new AweObject{}();
+            index.put(key, set);
+        }
+        set << obj;
+    }
+
+    extend private str[] keys(AweObject leaf, AweObject root) {
+        str[] keys();
+        AweObject[] hierarchy();
+        var current = leaf;
+        do {
+            hierarchy << current;
+            current = current.parent;
+        } while (current != null and current != root);
+
+        hierarchy.reverse();
+
+        str currentKey = "";
+        for(obj in hierarchy) {
+            if(currentKey != "") {
+                currentKey #= ">";
+            } 
+            currentKey #= obj.class.toS;
+            keys << currentKey;
+        }
+        return keys;
+    }
+}
+
+private alias FilhoArray = Pessoa[];
+
+public aweObject Pessoa {
+    props(
+        Pessoa filhoUnico = null,
+        FilhoArray bastardinhos = null
+    );
+}
+
+
+
+{
+    Pessoa pai(bastardinhos=[Pessoa: Pessoa(), Pessoa()]);
+
+    pln(#pai);
+    // pln(#pai.filhoUnico.parent);
+    for(f in pai.bastardinhos) {
+        pln(#f.parent);
+    }
+    pln(#pai.children);
+
+    Pessoa vovo(filhoUnico = pai);
+    pln(#vovo; #vovo.descendants);
+
+    AweObjectQueryIndex(vovo);
+}
