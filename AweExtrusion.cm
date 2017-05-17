@@ -45,7 +45,7 @@ public class AweExtrusion {
         this.profile = aweCm3DLoader.getProfile(profileName, profileDir);
     }
 
-    public constructor(AwePath2D profile) {
+    public constructor(APath2D profile) {
         this.profile = profile;
     }
 
@@ -55,6 +55,7 @@ public class AweExtrusion {
         Primitive3D prim = extrudeAlongLine(horizontalLine, this.profile, startAngle, endAngle, closeStart, closeEnd, arcResolution);
         prim.move((0, 0, height));
         prim.setDoubleSided(true);
+        prim.setTextureSpace(Text3DBoxTextureSpace3D());
         return prim;
     }
 
