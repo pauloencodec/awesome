@@ -49,6 +49,11 @@ public class AweBindingSnapper extends AweSnapper : abstract {
         this.activeConfigurator = null;
         this.invalidate();
     }
+
+    //aweBinding syntax implements this method
+    extend public void bindProducts(AweObject obj) {
+
+    }
      
     public constructor() {
         super(..);
@@ -75,6 +80,7 @@ public class AweBindingSnapper extends AweSnapper : abstract {
     }
 
     public AweProduct[] allProducts() {
+        bindProducts(this.root);
         AweProduct[] list();
 
         for (m in this.allModels()) {
