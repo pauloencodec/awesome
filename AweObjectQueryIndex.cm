@@ -61,6 +61,8 @@ public class AweObjectQueryIndex {
         for(k in keys) {
             addToIndex(k, leaf);
             addToIndex("root>"#k, leaf);
+            addToIndex(leaf.class.toS, leaf);
+            
         }
 
         visited << leaf;

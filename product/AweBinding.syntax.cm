@@ -43,7 +43,7 @@ public member @visibility aweBinding @args=formalArgList ';' {
     for(i in  0..(args.count-1)) {
         SFormalArg arg = args[i];
         SType productType = arg.typeSyntax;
-        SExpr query = arg.default();
+        str query = arg.default().toS;
         core << statement { 
             for(model in root.query(@query)) {
                 Object product = model._product;
