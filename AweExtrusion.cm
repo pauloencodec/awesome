@@ -55,7 +55,7 @@ public class AweExtrusion {
         Primitive3D prim = extrudeAlongLine(horizontalLine, this.profile, startAngle, endAngle, closeStart, closeEnd, arcResolution);
         prim.move((0, 0, height));
         prim.setDoubleSided(true);
-        prim.setTextureSpace(Text3DBoxTextureSpace3D());
+        prim.setTextureSpace(cm.std.wall.Text3DBoxTextureSpace3D());
         return prim;
     }
 
