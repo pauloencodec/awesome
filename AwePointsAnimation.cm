@@ -37,6 +37,8 @@
 package custom.awesome;
 
 public class AwePointsAnimation extends AweAnimation {
+
+    private AweAnimationHint hint(); 
     public constructor(int count=1) {
         super(new StartAnimationEnv(count));
     }   
@@ -44,6 +46,14 @@ public class AwePointsAnimation extends AweAnimation {
     public double z = 0;
     public point[] points();
     public Point currentPoint = point();
+
+    extend public void message(str text) { 
+        this.hint.show(text);
+    }
+
+    extend public void hideMessage() { 
+        this.hint.hide();
+    }
 
     //return null if you don't want it.
     extend public Point adjustPoint(int pointIndex, point mousePoint, AnimationMouseInfo mi) {
@@ -185,18 +195,22 @@ public class AwePointsAnimation extends AweAnimation {
 
     public void end() {
         if (space) {
+            this.hint.destroy();
             space.endAnimateDrawSequence(this);
             space.hide(this);
         }
+
 
         super(..);
     }
 
     public void abort() {
         if (space) {
+            this.hint.destroy();
             space.abortAnimateDraw(this);
             space.hide(this);
         }
+
 
         this.setViewMode(normalViewMode);
 

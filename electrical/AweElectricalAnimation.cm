@@ -52,6 +52,16 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
         launchMode();
     }   
 
+    public void enterView(AnimationMouseInfo mi) {
+        super(..);
+
+        if (activeView as View2D) { 
+            message("This animation is only supported for 3D views.");
+        } else { 
+            hideMessage();
+        }
+    }
+
     public void configuratorChanged() {
         launchMode();
     }
