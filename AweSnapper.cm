@@ -139,6 +139,10 @@ public class AweSnapper extends Snapper {
         return super(..);
     }
 
+    extend public void addExtraAnimationProperties(AnimationProperties props) { }
+
+    extend public void extraAnimationPropertyChanged( str key, Object value) { }
+
     public void connected(Connector c0, Connector c1, bool snapped, bool attached) {
         this.refresh(true);
         super(..);

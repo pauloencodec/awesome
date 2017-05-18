@@ -53,6 +53,7 @@ public class AweInsertAnimation extends InsertAnimation {
         this.createAnimationProperties();
         
         if (this.snapper.activeConfigurator) {
+            this.snapper.addExtraAnimationProperties(this.animationProperties);
             this.snapper.activeConfigurator.buildAnimationProperties(this.animationProperties);
 
             if (this.currentKey) {
@@ -68,6 +69,7 @@ public class AweInsertAnimation extends InsertAnimation {
 
         if (this.snapper.activeConfigurator) {
             this.snapper.activeConfigurator.animationPropertyChanged(..);
+            this.snapper.extraAnimationPropertyChanged(..);
             this.snapper.refresh(true, true);
 
             this.currentKey = key;
