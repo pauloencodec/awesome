@@ -41,7 +41,7 @@ public class AweCm3DLoader {
     private str->Primitive3D _3dCache();
     private str->APath2D _2dPathCache();
     private str->Graph _2dGraphCache();
-    private bool enableCm3Dcache = true : public readable;
+    public bool enableCm3Dcache = true;
 
     public constructor(bool enableCm3Dcache = true) {
         this.enableCm3Dcache = enableCm3Dcache;
