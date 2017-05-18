@@ -45,10 +45,10 @@ public class AweCm3DLoader {
     public constructor() {
     }
 
-    extend public BoxF getBoundFrom(str cadName, str folder=null) {
+    extend public Box getBox(str cadName, str folder=null) {
        var cm3D = this.load(cadName, folder);
-       if (cm3D and cm3D.header) { 
-            return cm3D.header.bound;
+       if (cm3D and cm3D.header and cm3D.header.bound) { 
+            return cm3D.header.bound.v.box;
        }
        return null;
     }
