@@ -59,7 +59,13 @@ public class AweCm3DLoader {
         return this.get3D(cm3D);
     }
 
-    extend public Graph get2D(str cadName, str folder=null) {
+    extend public Graph getGraph(str cadName, str folder=null) {
+       var cm3D = this.load(cadName, folder);
+
+        return this.get2D(cm3D);
+    }
+
+    extend public Graph get2D(str cadName, str folder=null) : deprecated {
        var cm3D = this.load(cadName, folder, true);
 
         return this.get2D(cm3D);
@@ -80,6 +86,10 @@ public class AweCm3DLoader {
 
         if (!cadFileName.endsWith("/")) {
             cadFileName #= "/";
+        }
+
+        if (is2D) {
+            cadFileName #= "2D/";
         }
 
         cadFileName #= cadName # ".cm3D";
