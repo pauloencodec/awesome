@@ -45,7 +45,7 @@ public class AweCm3DLoader {
     public constructor() {
     }
 
-    extend public Box getBox(str cadName, str folder=null) {
+    extend public Box getBox(str cadName, str folder) {
        var cm3D = this.load(cadName, folder);
        if (cm3D and cm3D.header and cm3D.header.bound) { 
             return cm3D.header.bound.v.box;
@@ -53,31 +53,41 @@ public class AweCm3DLoader {
        return null;
     }
 
-    extend public Primitive3D get3D(str cadName, str folder=null) {
+    extend public Primitive3D get3D(str cadName, str folder) {
        var cm3D = this.load(cadName, folder);
 
         return this.get3D(cm3D);
     }
 
-    extend public Graph getGraph(str cadName, str folder=null) {
+    extend public Graph getGraph(str cadName, str folder) {
        var cm3D = this.load(cadName, folder);
 
         return this.get2D(cm3D);
     }
 
-    extend public Graph get2D(str cadName, str folder=null) : deprecated {
-       var cm3D = this.load(cadName, folder, true);
+    extend public Graph get2D(str cadName, str folder) : deprecated {
+       if (!folder) return null;
+
+        str cadFileName = folder;
+
+        if (!cadFileName.endsWith("/")) {
+            cadFileName #= "/";
+        }
+
+        cadFileName #= "2D/" # cadName # ".cm3D";
+       
+        var cm3D = this.load(cadFileName);
 
         return this.get2D(cm3D);
     }
 
-    extend public APath2D getProfile(str cadName, str folder=null) {
+    extend public APath2D getProfile(str cadName, str folder) {
        var cm3D = this.load(cadName, folder);
 
         return this.getPath2D(cm3D);
     }
     
-    extend private str getFileName(str cadName, str folder=null, bool is2D=false) {
+    extend private str getFileName(str cadName, str folder) {
         if (!folder) {
             return null;
         }
@@ -88,18 +98,13 @@ public class AweCm3DLoader {
             cadFileName #= "/";
         }
 
-        if (is2D) {
-            cadFileName #= "2D/";
-        }
-
         cadFileName #= cadName # ".cm3D";
 
         return cadFileName;
     }
 
-    extend private Cm3D load(str cadName, str folder=null, bool is2D=false) {
-       var fileName = this.getFileName(cadName, folder, is2D);
-       var url = cmFindUrl(fileName);
+    extend private Cm3D load(str fileName) {
+        var url = cmFindUrl(fileName);
         
         if (!url.isFile()) return null;
 
@@ -114,6 +119,12 @@ public class AweCm3DLoader {
         }
         
         return cm3D;
+    }
+
+    extend private Cm3D load(str cadName, str folder) {
+       var fileName = this.getFileName(cadName, folder);
+       
+       return this.load(cadName, folder);
     }
 
     extend private Primitive3D get3D(Cm3D cm3D) {
