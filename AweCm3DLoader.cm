@@ -43,8 +43,7 @@ public class AweCm3DLoader {
     private str->Graph _2dGraphCache();
     public bool enableCm3Dcache = true;
 
-    public constructor(bool enableCm3Dcache = true) {
-        this.enableCm3Dcache = enableCm3Dcache;
+    public constructor() {
     }
 
     extend public Box getBox(str cadName, str folder) {
@@ -128,19 +127,25 @@ public class AweCm3DLoader {
         
         if (!url.isFile()) return null;
 
-       var cm3D = this._cache.get(fileName);
+        if (!this.enableCm3Dcache) { 
+            return url.getCm3D();
+        }
+
+        var cm3D = this._cache.get(fileName);
 
         if (!cm3D) {
             cm3D = url.getCm3D();
 
             if (!cm3D) return null;
 
-            if (this.enableCm3Dcache) { 
-                this._cache.put(fileName, cm3D);
-            }
+            this._cache.put(fileName, cm3D);
         }
         
         return cm3D;
+    }
+
+    extend public void flushCm3DCache() { 
+        this._cache.clear();
     }
 
     extend private Cm3D load(str cadName, str folder) {
