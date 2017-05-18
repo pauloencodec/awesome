@@ -41,6 +41,7 @@ public class AweCm3DLoader {
     private str->Primitive3D _3dCache();
     private str->APath2D _2dPathCache();
     private str->Graph _2dGraphCache();
+    public bool enableCm3Dcache = true;
 
     public constructor() {
     }
@@ -126,7 +127,11 @@ public class AweCm3DLoader {
         
         if (!url.isFile()) return null;
 
-       var cm3D = this._cache.get(fileName);
+        if (!this.enableCm3Dcache) { 
+            return url.getCm3D();
+        }
+
+        var cm3D = this._cache.get(fileName);
 
         if (!cm3D) {
             cm3D = url.getCm3D();
@@ -137,6 +142,10 @@ public class AweCm3DLoader {
         }
         
         return cm3D;
+    }
+
+    extend public void flushCm3DCache() { 
+        this._cache.clear();
     }
 
     extend private Cm3D load(str cadName, str folder) {
