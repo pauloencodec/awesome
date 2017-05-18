@@ -87,7 +87,7 @@ public class AweObject {
     extend public void animationPropertyChanged(str key, Object value) {
     }
 
-    private AweProduct _product : stream=null, copy=null;
+    public AweProduct _product : stream=null, copy=null;
 
     extend public AweProduct getProduct() {
         if (!this._product) {
@@ -207,6 +207,78 @@ public class AweObject {
 
     extend public void validate(AweValidationIssues issues) {
 
+    }
+
+    /************** query ****************/
+
+    extend public AweObject{} query(str query) {
+        AweObjectQueryIndex index(this);
+        return index.get(query);
+    }
+
+    extend public AweObject[] toAweObjectArray(Object propValue) {
+        
+        AweObject[] array();
+
+        var iteratorBase = propValue.?class.?iterator.?instantiate();
+
+        aweTryCast (iteratorBase as iterator to SeqIterator, SetIterator) {
+            iterator.init(propValue);
+            
+            while (iterator.step()) {
+                AweObject obj = iterator.get.AweObject;
+                if(obj)
+                    array << obj;
+            }
+        }
+        else { 
+            if (iteratorBase as MapIterator) { 
+                iteratorBase.init(propValue);
+
+                while (iteratorBase.step()) {
+                    AweObject obj = iteratorBase.v.AweObject;
+                    if(obj)
+                        array << obj;
+                } 
+            }
+        }
+
+        return array.count > 0 ? array : null;
+    }
+
+    public AweObject parent: copy=reference;
+
+    extend public AweObject{} children() {
+        AweObject{} children();
+        for(k,v in this.props) {
+            if(v as AweObject) {
+                children << v;
+            } else {
+                var array = this.toAweObjectArray(v);
+                if(array) {
+                    children += array;
+                }
+            }
+        }
+        for(c in children) {
+            c.parent = this;
+        }
+        return children;
+    }
+
+    extend public AweObject{} descendants(AweObject{} visited = null) {
+        if(!visited) {
+            visited = new AweObject{}();
+        }
+
+        for(c in this.children) {
+            if(c !in visited) {
+                visited << c;
+                visited += c.descendants(visited);
+            }
+        }
+
+        return visited;
     }
 }
 
@@ -421,3 +493,4 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         }
     };
 }
+
