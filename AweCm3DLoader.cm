@@ -41,8 +41,10 @@ public class AweCm3DLoader {
     private str->Primitive3D _3dCache();
     private str->APath2D _2dPathCache();
     private str->Graph _2dGraphCache();
+    private bool enableCm3Dcache = true : public readable;
 
-    public constructor() {
+    public constructor(bool enableCm3Dcache = true) {
+        this.enableCm3Dcache = enableCm3Dcache;
     }
 
     extend public Box getBox(str cadName, str folder) {
@@ -133,7 +135,9 @@ public class AweCm3DLoader {
 
             if (!cm3D) return null;
 
-            this._cache.put(fileName, cm3D);
+            if (this.enableCm3Dcache) { 
+                this._cache.put(fileName, cm3D);
+            }
         }
         
         return cm3D;
