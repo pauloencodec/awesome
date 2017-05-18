@@ -86,6 +86,11 @@ public class AwePath2D extends APath2D {
         if (!isClosed()) go(startPoint);
         return this;
     }
+
+    public void close() {
+        this.lastLine = line2D(endPoint, startPoint);
+        super();
+    }
     
     //makes extrusion between planes on z1 and z2
     extend public Primitive3D toPrimitive(double z1=0, double z2=0) {

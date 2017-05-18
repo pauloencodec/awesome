@@ -83,6 +83,11 @@ public class AweEdgedPath2D extends EdgedPath {
         return this;
     }
 
+    public void close() {
+        this.lastLine = line2D(endPoint, startPoint);
+        super();
+    }
+
     extend public Primitive3D get3D(Snapper owner, double thickness, angle res,
 				    FetchEnv3D env,
 				    bool flatEdges = false,
