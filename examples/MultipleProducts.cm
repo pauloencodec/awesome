@@ -81,7 +81,7 @@ public class CubeProduct extends AweProduct {
 public class CubeSnapper extends AweBindingSnapper {
     
     public aweBinding(
-        CubeProduct cube = "root>CubeModel"
+        CubeProduct cube = CubeModel
     );
 
     public AweObject initRoot() {
