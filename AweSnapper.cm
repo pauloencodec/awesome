@@ -153,10 +153,6 @@ public class AweSnapper extends Snapper {
         super(..);
     }
 
-    public void dropped() {
-        super();
-        this.refresh(true);
-    }
 
     public Animation insertAnimation(StartInsertAnimationEnv env) {
         return new AweInsertAnimation(env);
