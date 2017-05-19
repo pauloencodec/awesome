@@ -44,11 +44,16 @@ public class AweEasySnapper extends AweSnapper : abstract {
     public constructor() {
         this.configurator = this.createConfigurator();
         this.activeConfigurator = this.configurator;
-        this.product = this.createProduct(this.configurator);
         this.refresh();
     }
 
-    public AweProduct product;
+    private AweProduct _product : stream=null, copy=null;
+    extend public AweProduct product() {
+        if(!_product) {
+            _product = createProduct(this.configurator);
+        }
+        return _product;
+    }
     extend public AweProduct createProduct(AweObject configurator) : abstract { }
 
     public AweObject configurator;
