@@ -55,11 +55,7 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
     public void enterView(AnimationMouseInfo mi) {
         super(..);
 
-        if (activeView as View2D) { 
-            message("This animation is only supported for 3D views.");
-        } else { 
-            hideMessage();
-        }
+        this.showHint();
     }
 
     public void configuratorChanged() {
@@ -88,12 +84,34 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
         return prims;
     }
 
+    extend public void showHint() { 
+        if (activeView as View2D) { 
+            message("This animation is only supported for 3D views.");
+        } else {
+            str modeName = this.configurator.AweElectricalAnimationModel.mode;
+            str txt;
+            switch (modeName) {
+                case "Add": 
+                    txt = "Click on two points, one after the other, to route power. A power line will be created from point A to point B."; 
+                case "Infeed": 
+                    txt = "Select the power source by clicking at the infeed points."; 
+                case "Remove": 
+                    txt = "Click on two points, one after the other, to remove an existing power route."; 
+                case "View":
+                default:
+                    txt = "Use the animation properties to change mode.\n\"Infeed\" lets you select the power source. \"Add\" allows for power cable routing and \"Remove\" let you remove previously added cables."; 
+            }
+            message(txt);
+        }
+    }
+
     extend private void launchMode() {
         str modeName = this.configurator.AweElectricalAnimationModel.mode;
         if(modeName == "View") currentMode = new AweElectricalAnimationMode(this);
         if(modeName == "Infeed") currentMode = new AweElectricalAnimationInfeedMode(this);
         if(modeName == "Add") currentMode = new AweElectricalAnimationAddRouteMode(this);
         if(modeName == "Remove") currentMode = new AweElectricalAnimationDeleteRouteMode(this);
+        showHint();
         this.refresh();
     }
 }
