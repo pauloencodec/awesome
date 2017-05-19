@@ -97,7 +97,18 @@ public class AweEdgedPath2D extends EdgedPath {
 				    vector edgeTextureUp=(0, 1, 0), double scale=1.0,
 				    bool surface=true, bool edge=true) {
         this.edgeMaterial = edgeMaterial;
-        return get3D(owner, thickness, res, env, flatEdges, surfaceMaterial, surfaceTextureSpace, edgeTextureUp, scale, surface, edge);
+
+        MaterialSelector3D selector();
+        var material = new CachedMaterial(surfaceMaterial.id);
+
+        selector << option3D(electricalMaterial, #electrical);
+        selector << option3D(surfaceMaterial.material3D.copy(), #normal);
+
+        selector.finalizeSelector();
+
+        material.material3D = selector;
+
+        return get3D(owner, thickness, res, env, flatEdges, material, surfaceTextureSpace, edgeTextureUp, scale, surface, edge);
     }
 
     public Primitive3D[] buildFullEdge3D(Snapper owner, double thickness, angle res, FetchEnv3D env, bool flatEdges) {
@@ -107,7 +118,9 @@ public class AweEdgedPath2D extends EdgedPath {
         Primitive3D prim = edgeEnv.buildEdge3D();
 
         if ( prim ) {
-            prims << applyMaterial(prim, edgeMaterial);
+            prim.setMaterial(edgeMaterial.applyViewLayers());
+
+            prims << prim;
         }
         return prims;
     }
