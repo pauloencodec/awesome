@@ -36,64 +36,40 @@
 
 package custom.awesome;
 
-public class AweViewMode : abstract {
-    public constructor() {
-        registerViewMode(this.getViewMode());
+private DualMaterial3D _electricalMaterial;
+
+public DualMaterial3D electricalMaterial() {
+    if (!_electricalMaterial) {
+        _electricalMaterial = transparentColorMaterial(211, 211, 211, 0.5);
     }
 
-    extend public symbol getSymbol() : abstract {}
+    return _electricalMaterial;
+}
+
+public Material3D applyViewLayers(Material material) {
+    return material.material3D().applyViewLayers();
+}
+
+public Material3D applyViewLayers(Material3D material) {
+    MaterialSelector3D selector();
+
+    selector << option3D(electricalMaterial, #electrical);
+    selector << option3D(material, #normal);
+
+    selector.finalizeSelector();
+
+    return selector;
+}
+
+public DualMaterial3D transparentColorMaterial(int r=0, int g=0, int b=0, double opacity=0.75) {
+    return transparentColorMaterial(color(r, g, b), opacity);
+}
+
+public DualMaterial3D transparentColorMaterial(color color, double opacity=0.75) {
+    DualMaterial3D dm();
     
-    extend public symbol{} getCategories() {
-        return { this.getSymbol() };
-    }
-
-    extend public str getKey() {
-        return this.getSymbol().toS().substring(1);
-    }
-
-    extend public str getLabelResourceKey() {
-        return this.getKey() # "ViewModeName";
-    }
-
-    extend public ViewMode getViewMode() {
-        var categories = this.getCategories();
-        var viewModeCategories = this.getViewModeCategories();
-
-        if (viewModeCategories and viewModeCategories.any()) {
-            categories += viewModeCategories;
-        }
-
-        return categoryViewMode(this.getKey(),
-                                (#:package).toS().substring(1),
-                                this.getLabelResourceKey(),
-                                categories,
-                                this.getSymbol());
-    }
-
-    extend public symbol{} getViewModeCategories() {
-        return {#normal, #cad};
-    }
-
-    extend public bool isActive() {
-        return isActive(this.getViewMode());
-    }
-}
-
-public ViewMode getActiveViewMode() {
-    if (World w = activeWorld()) {
-        return w._viewMode;
-    }
-
-    return null;
-}
-
-public bool isActive(ViewMode viewMode) {
-    if (ViewMode activeViewMode = getActiveViewMode()) {
-        if (activeViewMode == viewMode) return true;
-        if (activeViewMode.key == viewMode.key) return true;
-        if (activeViewMode.layerSet and viewMode.key in activeViewMode.layerSet.layers) return true;
-        if (viewMode.key in activeViewMode.drawCategories) return true;
-    }
-
-    return false;
+    dm._color = color;
+    dm.lw = transparencyMaterial3D(color, opacity);
+    
+    return dm;
 }

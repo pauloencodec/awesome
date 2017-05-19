@@ -127,7 +127,9 @@ public class AweCm3DLoader {
         
         if (!url.isFile()) return null;
 
-        if (!this.enableCm3Dcache) { 
+        if (!this.enableCm3Dcache) {
+            cm3DCache.map.remove(url.cm3DCacheKey());
+
             return url.getCm3D();
         }
 
