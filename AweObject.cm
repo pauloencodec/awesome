@@ -351,6 +351,7 @@ public definition @visibility aweObject @name=id @parentClass=["extends" type]? 
             @visibility class @name extends @baseClassName {
                 public constructor(@props) {
                     @initProps;
+                    super();
                 }
                 @membersBundle;
             }
