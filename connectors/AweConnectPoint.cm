@@ -42,7 +42,8 @@ public class AweConnectPoint extends ConnectPoint {
         aweDynamic bool isMandatory();
         aweDynamic void makeMandatory();
     }
-
+    
+    public str id;
     public bool realign = false;
     public bool hidden = false;
     public bool hiddenWhenDisconnected = false;

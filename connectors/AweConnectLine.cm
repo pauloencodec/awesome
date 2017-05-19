@@ -43,15 +43,10 @@ public class AweConnectLine extends ConnectLine {
         aweDynamic void makeMandatory();
     }
     
+    public str id;
     public bool hidden = false;
     public bool hiddenWhenDisconnected = false;
     public bool realign = false;
-
-    private str _id;
-    extend public str id() { return _id; }
-    extend public void setId(str id) {
-        _id = id;
-    }
 
     public bool mandatory = false;
     extend public bool isMandatory() {

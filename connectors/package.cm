@@ -54,7 +54,7 @@ public bool is(Connector c, str id) {
 public void setId(Connector c, str id) { 
 
     aweTryCast(c as conn to AweConnectLine, AweConnectPoint) { 
-        conn.setId(id);
+        conn.id = id;
     }
     
 }
