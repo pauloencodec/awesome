@@ -46,6 +46,31 @@ public class AweBox3D extends Awe3D {
 
     public constructor(
         box b, 
+        Material frontMaterial,
+        Material backMaterial,
+        Material leftMaterial,
+        Material rightMaterial,
+        Material topMaterial,
+        Material bottomMaterial) {
+            this(b,
+            frontMaterial.material3D(),
+            backMaterial.material3D(),
+            leftMaterial.material3D(),
+            rightMaterial.material3D(),
+            topMaterial.material3D(),
+            bottomMaterial.material3D());
+    }
+
+    public constructor(box b, Material surfaceMaterial, Material edgeMaterial) {
+        this(b, surfaceMaterial.material3D(), edgeMaterial.material3D());
+    }
+
+    public constructor(box b, Material3D surfaceMaterial, Material3D edgeMaterial) {
+        this(b, edgeMaterial, edgeMaterial, edgeMaterial, edgeMaterial, surfaceMaterial, surfaceMaterial);
+    }
+
+    public constructor(
+        box b, 
         Material3D frontMaterial,
         Material3D backMaterial,
         Material3D leftMaterial,
@@ -63,16 +88,21 @@ public class AweBox3D extends Awe3D {
 
         this << bottom << top << left << right << front << back;
 
-        front.setMaterial(frontMaterial);
-        back.setMaterial(backMaterial);
-        left.setMaterial(leftMaterial);
-        right.setMaterial(rightMaterial);
-        top.setMaterial(topMaterial);
-        bottom.setMaterial(bottomMaterial);
+        front.setMaterial(frontMaterial.applyViewLayers());
+        back.setMaterial(backMaterial.applyViewLayers());
+        left.setMaterial(leftMaterial.applyViewLayers());
+        right.setMaterial(rightMaterial.applyViewLayers());
+        top.setMaterial(topMaterial.applyViewLayers());
+        bottom.setMaterial(bottomMaterial.applyViewLayers());
 
         this.move(b.p0);
-    }   
+    }
+
     public constructor(box b, Material3D material) {
+        this(b, material, material, material, material, material, material);
+    }
+
+    public constructor(box b, Material material) {
         this(b, material, material, material, material, material, material);
     }
 
