@@ -71,6 +71,8 @@ public class AweBindingSnapperPickSurfaceClickAnimation extends SnapperClickAnim
                 }
                 return;
             }
+        } else { 
+            snapper.activeConfigurator = snapper.root;
         }
     }
 }
