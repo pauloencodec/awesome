@@ -157,8 +157,8 @@ public class AweBindingSnapper extends AweSnapper : abstract {
                 prim.setOwner(pick);
                 
                 //selection highlight
-                if (this.activeConfigurator == m) {
-                    all << new WireBox3D(product.localBound.grown(1inch), 1);
+                if (m != root and this.activeConfigurator == m and env.reason != fetchReason3D.render) {
+                    prim = prim.outlinedPrim();
                 }
 
                 all << prim;

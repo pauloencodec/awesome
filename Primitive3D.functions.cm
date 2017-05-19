@@ -75,6 +75,7 @@ private void outlinePrims(Primitive3D thisPrim, Primitive3D[] processed, Transfo
     if(mesh as ATriMeshF) {
         mesh.put("REDHiddenLines", true);
         mesh.put("REDHiddenLines_width", 2);
+        mesh.put("REDHiddenLines_color", colorF(200, 200, 0));
         mesh.repairBrokenUV("merge");
         mesh.autoNormals();
         TriMeshF3D t(mesh);
