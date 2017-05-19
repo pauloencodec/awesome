@@ -42,8 +42,8 @@ public class AweConnectPoint extends ConnectPoint {
         aweDynamic bool isMandatory();
         aweDynamic void makeMandatory();
     }
-
-    public AweConnector;
+    
+    public str id;
     public bool realign = false;
     public bool hidden = false;
     public bool hiddenWhenDisconnected = false;
@@ -61,6 +61,37 @@ public class AweConnectPoint extends ConnectPoint {
 
     extend public bool shouldRealign() {
         return this.realign;
+    }
+
+    public point _position;
+    public point pos() { return _position; }
+    public void setPos(point newPos) {
+        _position = newPos;
+    }
+    
+    /**
+    * Orientation.
+    */
+    private orientation _rotation;
+    public orientation rot() { return _rotation; }
+    public void setRot(orientation newRot) {
+        _rotation = newRot;
+    }
+
+
+    /**
+    * Connect rule.
+    */
+    private ConnectRule _rule;
+    public ConnectRule rule() { return _rule; }
+    public void setRule(ConnectRule newRule) {
+        _rule = newRule;
+    }
+
+    private str _id;
+    extend public str id() { return _id; }
+    extend public void setId(str id) {
+        _id = id;
     }
     
     public bool isVisible() {
