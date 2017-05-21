@@ -188,7 +188,7 @@ public class AwePointsAnimation extends AweAnimation {
         }
     }
 
-    public void end() {
+    public PropObj end() {
         if (space) {
             this.hint.destroy();
             space.endAnimateDrawSequence(this);
@@ -196,7 +196,7 @@ public class AwePointsAnimation extends AweAnimation {
         }
 
 
-        super(..);
+        return super(..);
     }
 
     public void abort() {
