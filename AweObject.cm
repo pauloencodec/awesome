@@ -61,6 +61,8 @@ public class AweObject {
     }
 
     extend public Object get(str propName) {
+        if(!this.props) this.props = new (str->Object)();
+        
         return this.props.get(propName);
     }
 
