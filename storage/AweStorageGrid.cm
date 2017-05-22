@@ -53,6 +53,14 @@ public class AweStorageGrid {
         materials.put("default", material);
     }
 
+    extend public void setMaterial(str key, Material material) {
+        this.setMaterial(key, material.material3D);
+    }
+
+    extend public void setMaterial(Material material) {
+        this.setMaterial(material.material3D);
+    }
+
     extend public Material3D getMaterial(str key = "default"){
         var material = materials.get(key);
         if(material) {
