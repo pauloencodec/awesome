@@ -37,6 +37,28 @@
 package custom.awesome.connectors;
 
 public class AweSupportSurface extends SupportSurface {
+    public aweDynamicContract {
+        aweDynamic bool shouldRealign();
+        aweDynamic bool isMandatory();
+        aweDynamic void makeMandatory();
+    }
+    
+    public str id;
+    public bool realign = false;
+    public bool mandatory = false;
+
+    extend public bool isMandatory() {
+        return this.mandatory;
+    }
+
+    extend public void makeMandatory() {
+        this.mandatory = true;
+    }
+
+    extend public bool shouldRealign() {
+        return this.realign;
+    }
+
     public constructor(Snapper snapper, double w, double d, double z, ConnectRule rule=null) {
         super(snapper, z);
 
