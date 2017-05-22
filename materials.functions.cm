@@ -36,31 +36,40 @@
 
 package custom.awesome;
 
-public class AweAnimation extends ObsoleteStateMouseAnimation {
+private DualMaterial3D _electricalMaterial;
+
+public DualMaterial3D electricalMaterial() {
+    if (!_electricalMaterial) {
+        _electricalMaterial = transparentColorMaterial(211, 211, 211, 0.5);
+    }
+
+    return _electricalMaterial;
+}
+
+public Material3D applyViewLayers(Material material) {
+    return material.material3D().applyViewLayers();
+}
+
+public Material3D applyViewLayers(Material3D material) {
+    MaterialSelector3D selector();
+
+    selector << option3D(electricalMaterial, #electrical);
+    selector << option3D(material, #normal);
+
+    selector.finalizeSelector();
+
+    return selector;
+}
+
+public DualMaterial3D transparentColorMaterial(int r=0, int g=0, int b=0, double opacity=0.75) {
+    return transparentColorMaterial(color(r, g, b), opacity);
+}
+
+public DualMaterial3D transparentColorMaterial(color color, double opacity=0.75) {
+    DualMaterial3D dm();
     
-    public AweObject configurator;
-
-    extend public void configuratorChanged() {
-
-    }
-
-    public void buildProperties() {
-        if (configurator) {
-            this.destroyAnimationProperties();
-            this.createAnimationProperties();
-            
-            this.configurator.buildAnimationProperties(this.animationProperties);
-
-            this.animationProperties.finalize();
-        } else super(..);
-    }
-
-    public void propertyChange(str key, Object value) {
-        super(..);
-
-        if (configurator) {
-            configurator.animationPropertyChanged(..);
-            configuratorChanged();
-        }
-    }
+    dm._color = color;
+    dm.lw = transparencyMaterial3D(color, opacity);
+    
+    return dm;
 }

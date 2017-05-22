@@ -61,6 +61,8 @@ public class AweObject {
     }
 
     extend public Object get(str propName) {
+        if(!this.props) this.props = new (str->Object)();
+        
         return this.props.get(propName);
     }
 
@@ -351,6 +353,7 @@ public definition @visibility aweObject @name=id @parentClass=["extends" type]? 
             @visibility class @name extends @baseClassName {
                 public constructor(@props) {
                     @initProps;
+                    super();
                 }
                 @membersBundle;
             }
