@@ -90,6 +90,7 @@ public class AweConnectorCache {
             c.setRule(rule);
             c.setPos(p0);
             c.setEndPos(p1);
+            c.setId(key);
             c.realign = realign;
             c.hiddenWhenDisconnected = hiddenOnDC;
             c.mandatory = mandatory;
@@ -100,7 +101,7 @@ public class AweConnectorCache {
         return c;
     }
 
-    extend public Connector makeFace(str key, double w, double d, double z, ConnectRule rule=null) {
+    extend public Connector makeFace(str key, double w, double d, double z, ConnectRule rule=null, bool realign=false, bool mandatory=false) {
         Connector c = this.get(key);
 
         if (!c) {
@@ -112,6 +113,9 @@ public class AweConnectorCache {
         if (c as AweSupportSurface) {
             c.update(w, d, z);
             c.setRule(rule);
+            c.setId(key);
+            c.realign = realign;
+            c.mandatory = mandatory;
         }
         
         this.addToBuffer(c);
@@ -119,7 +123,7 @@ public class AweConnectorCache {
         return c;
     }
 
-    extend public Connector makeFace(str key, point pos, Graph g, ConnectRule rule=null) {
+    extend public Connector makeFace(str key, point pos, Graph g, ConnectRule rule=null, bool realign=false, bool mandatory=false) {
         Connector c = this.get(key);
 
         if (!c) {
@@ -131,6 +135,9 @@ public class AweConnectorCache {
         if (c as AweSupportSurface) {
             c.update(pos, g);
             c.setRule(rule);
+            c.setId(key);
+            c.realign = realign;
+            c.mandatory = mandatory;
         }
         
         this.addToBuffer(c);
@@ -138,17 +145,22 @@ public class AweConnectorCache {
         return c;
     }
 
-    extend public Connector makeStandOn(str key, point pos, ConnectRule rule=null) {
+    extend public Connector makeStandOn(str key, point pos, ConnectRule rule=null, bool realign=false, bool mandatory=false) {
         Connector c = this.get(key);
 
         if (!c) {
             c = new AweStandOnPoint(this.snapper, pos);
 
             this._cache.put(this.getCacheKey(key), c);
-        } 
+        }
         
-        c.setPos(pos);
-        c.setRule(rule);
+        if (c as AweStandOnPoint) {
+            c.setPos(pos);
+            c.setRule(rule);
+            c.setId(key);
+            c.realign = realign;
+            c.mandatory = mandatory;
+        }
         
         this.addToBuffer(c);
         

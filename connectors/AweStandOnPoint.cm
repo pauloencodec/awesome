@@ -37,5 +37,27 @@
 package custom.awesome.connectors;
 
 public class AweStandOnPoint extends TransformStandOnPoint {
+    public aweDynamicContract {
+        aweDynamic bool shouldRealign();
+        aweDynamic bool isMandatory();
+        aweDynamic void makeMandatory();
+    }
+    
+    public str id;
+    public bool realign = false;
+    public bool mandatory = false;
+
+    extend public bool isMandatory() {
+        return this.mandatory;
+    }
+
+    extend public void makeMandatory() {
+        this.mandatory = true;
+    }
+
+    extend public bool shouldRealign() {
+        return this.realign;
+    }
+
     public bool isVisible() { return false; }
 }
