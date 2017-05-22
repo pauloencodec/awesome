@@ -38,7 +38,7 @@ package custom.awesome;
 
 public class AweCm3DLoader {
     private str->Cm3D _cache();
-    private str->Primitive3D _3dCache();
+    private str->AwePrimitive3DInfo _3dInfoCache();
     private str->APath2D _2dPathCache();
     private str->Graph _2dGraphCache();
     public bool enableCm3Dcache = true;
@@ -52,6 +52,12 @@ public class AweCm3DLoader {
             return cm3D.header.bound.v.box;
        }
        return null;
+    }
+
+    extend public str->Primitive3D get3DWithLayer(str cadName, str folder) {
+       var cm3D = this.load(cadName, folder);
+
+        return this.get3DInfo(cm3D).layers;
     }
 
     extend public Primitive3D get3D(str cadName, str folder) {
@@ -156,12 +162,12 @@ public class AweCm3DLoader {
        return this.load(fileName);
     }
 
-    extend private Primitive3D get3D(Cm3D cm3D) {
+    extend private AwePrimitive3DInfo get3DInfo(Cm3D cm3D) {
         if (!cm3D) return null;
         
        var url = cm3D.path.toS();
 
-        if (Primitive3D prim = this._3dCache.get(url)) {
+        if (AwePrimitive3DInfo prim = this._3dInfoCache.get(url)) {
             return prim.copy();
         }
 
@@ -169,21 +175,35 @@ public class AweCm3DLoader {
 
         if (!geometrySet) return null;
 
+        str->Primitive3D layers();
         Primitive3D[] prims();
 
         for (subGeometry in geometrySet) {
             if (subGeometry as Cm3DGroupEntity) {
+
+                Primitive3D[] layerPrims();
                 for (entity in subGeometry) {
-                    prims +=? entity.get3D(forceDoubleSided=false);
+                    var g = entity.get3D(forceDoubleSided=false);
+                    prims +=? g;
+                    layerPrims +=? g;
                 }
+                layers.put(subGeometry.key, safeSet3D(layerPrims));
+
             }
         }
 
        var prim = safeSet3D(prims);
+       var item = new AwePrimitive3DInfo(prim, layers);
 
-        this._3dCache.put(url, prim);
+        this._3dInfoCache.put(url, item);
 
-        return prim.copy();
+        return item.copy();
+    }
+
+    extend private Primitive3D get3D(Cm3D cm3D) {
+
+        return this.get3DInfo(cm3D).prim;
+
     }
 
     extend private APath2D getPath2D(Cm3D cm3D) {
@@ -260,4 +280,10 @@ public class AweCm3DLoader {
 
         return shapes;
     }
+}
+
+private class AwePrimitive3DInfo { 
+    private Primitive3D prim : public readable;
+    private str->Primitive3D layers : public readable;
+    public constructor auto();
 }
