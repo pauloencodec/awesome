@@ -42,19 +42,24 @@ use cm.geometry;
 use cm.geometry2D.advanced;
 use cm.core3D;
 
-public bool is(Connector c, str id) { 
-
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint) { 
+public bool is(Connector c, str id) {
+    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
         return conn.id == id;
     }
 
     return false;
 }
 
-public void setId(Connector c, str id) { 
+public bool is(Connector c, rest: str[] ids) {
+    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
+        return conn.id in ids;
+    }
 
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint) { 
+    return false;
+}
+
+public void setId(Connector c, str id) {
+    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
         conn.id = id;
     }
-    
 }
