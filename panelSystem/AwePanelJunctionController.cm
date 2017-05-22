@@ -1,0 +1,133 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.panelSystem;
+
+public class AwePanelJunctionController extends Snapper {
+    public AweMPC<AwePanelJunctionModel, AwePanelJunctionProduct>;   
+
+    private IntRange connectionCounts(3,4);
+
+    private int connectionCount = 4;
+
+    public AwePropBag props(this, 
+        [AweProp:   
+            AweProp("height", "Height", DistanceEnum(30inch, 42inch, 54inch, 66inch), function height_changed),
+            AweProp("frameColor", "Frame Color", StrSubSet([str: "White", "Black"]), function frameColor_changed)
+        ],
+        onChange=function property_changed);
+
+    public aweQuickPropertiesBinder(props);
+
+    public box localBound() {
+        return box(AwePanelJunctionGraphPath(model).bound, 0, model.height);
+    }
+
+    
+
+    public constructor() {
+        this.connectionCount = 4;
+        init();
+        modelUpdated();
+        super(..);
+    }
+
+    extend private void init() {
+        double radius = 3.5inch/2;
+        AwePanelJunctionConnectionModel[] connections();
+        angle step = angle(360 / connectionCount);
+        angle current = 0deg;
+        for(i in 1..connectionCount) {
+            connections << AwePanelJunctionConnectionModel(current, available=true, radius, radius * 2);
+            current += step;
+        }
+        model.connections = connections;
+
+        props.set("height", 54inch);
+    }
+
+
+    private AweConnectorCache _cc(this);
+
+    public void connectors(ConnectorCollection coll) {
+        for(c in model.connections, index=i) {
+            if(!c) break;
+            point2D faceCenter = point2D(c.angle, c.radius);
+            coll << _cc.get(i.toS, faceCenter.point, orientation(c.angle), ctAlways);
+        }
+    }
+
+}
+
+private void height_changed(Object newValue, Object oldValue, Snapper controller) {
+    AwePanelJunctionController post = controller.AwePanelJunctionController;
+    post.model.height = newValue.double;
+    for(s in post.space.?selection.?snappers) {
+        if(s as AwePanelJunctionController and s != post) {
+            s.props.set("height", newValue.double);
+        }
+        if(s as AwePanelController) {
+            s.props.set("height", newValue.double);
+        }
+    }
+}
+
+
+
+
+private void frameColor_changed(Object newValue, Object oldValue, Snapper controller) {
+    AwePanelJunctionController post = controller.AwePanelJunctionController;
+    str frameColor = newValue.toS;
+    Material3D material = intenseWhiteMaterial3D();
+    if(frameColor == "Black") material = blackPlasticMaterial3D();
+    post.model.material = material;
+    for(s in post.space.?selection.?snappers) {
+        if(s as AwePanelJunctionController and s != post) {
+            s.props.set("frameColor", frameColor);
+        }
+        if(s as AwePanelController) {
+            s.props.set("frameColor", frameColor);
+        }
+    }
+}
+
+private void property_changed(Object newValue, Object oldValue, Snapper controller) {
+    controller.AwePanelJunctionController.modelUpdated();
+}
+
+{
+    AwePanelJunctionController().launch();
+}

@@ -34,30 +34,18 @@
    END OF CETSC
 */
 
-package custom.awesome.connectors;
+package custom.awesome;
 
-public class AweStandOnPoint extends TransformStandOnPoint {
-    public aweDynamicContract {
-        aweDynamic bool shouldRealign();
-        aweDynamic bool isMandatory();
-        aweDynamic void makeMandatory();
+public KeyLabelSubSet keyLabelSubSet(str->str data) {
+    KeyLabelSubSet result;
+    if (data) { 
+        for (k, v in data) { 
+            if (!result) { 
+                result = KeyLabelSubSet([k], [v]);
+                continue;
+            }
+            result.add(k, v);
+        }
     }
-    
-    public str id;
-    public bool realign = false;
-    public bool mandatory = false;
-
-    extend public bool isMandatory() {
-        return this.mandatory;
-    }
-
-    extend public void makeMandatory() {
-        this.mandatory = true;
-    }
-
-    extend public bool shouldRealign() {
-        return this.realign;
-    }
-
-    public bool isVisible() { return false; }
+    return result;
 }
