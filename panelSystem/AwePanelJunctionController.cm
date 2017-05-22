@@ -71,7 +71,7 @@ public class AwePanelJunctionController extends Snapper {
         angle step = angle(360 / connectionCount);
         angle current = 0deg;
         for(i in 1..connectionCount) {
-            connections << AwePanelJunctionConnectionModel(current, true, radius, radius * 2);
+            connections << AwePanelJunctionConnectionModel(current, available=true, radius, radius * 2);
             current += step;
         }
         model.connections = connections;

@@ -86,8 +86,8 @@ public class AwePanelProduct extends AweProduct {
         blackMarbleMaterial3D,
         null,
         null,
-        true,
-        true
+        openEndOnLeft=true,
+        openEndOnRight=true
     );
     test(AwePanelProduct(model));
 }
