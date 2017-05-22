@@ -174,13 +174,8 @@ public class AwePointsAnimation extends AweAnimation {
             this.space.clearSelection();
         }
 
-        if (World w = session.?mainWorld) {
-            for (viewMode in w.viewModes) {
-                if (viewMode.key == #electrical) {
-                    this.setViewMode(viewMode);
-                    break;
-                }
-            }
+        if (ViewMode viewMode = getRegisteredViewMode(#electrical)) {
+            this.setViewMode(viewMode);
         }
     }
 
@@ -193,7 +188,7 @@ public class AwePointsAnimation extends AweAnimation {
         }
     }
 
-    public void end() {
+    public PropObj end() {
         if (space) {
             this.hint.destroy();
             space.endAnimateDrawSequence(this);
@@ -201,7 +196,7 @@ public class AwePointsAnimation extends AweAnimation {
         }
 
 
-        super(..);
+        return super(..);
     }
 
     public void abort() {

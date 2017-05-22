@@ -47,7 +47,7 @@ public class AweEasySnapper extends AweSnapper : abstract {
         this.refresh();
     }
 
-    private AweProduct _product : stream=null, copy=null;
+    public AweProduct _product : stream=null, copy=null;
     extend public AweProduct product() {
         if(!_product) {
             _product = createProduct(this.configurator);

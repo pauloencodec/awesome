@@ -38,6 +38,7 @@ package custom.awesome;
 
 public class AweViewMode : abstract {
     public constructor() {
+        registerViewMode(this.getViewMode());
     }
 
     extend public symbol getSymbol() : abstract {}

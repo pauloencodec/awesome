@@ -63,7 +63,7 @@ public class AweSampleGallerySnapper extends AweGallerySnapper {
 
     public void applyGalleryData(Object params) {
         this.configurator = params.AweObject;
-        this.product = createProduct(this.configurator);
+        this._product = createProduct(this.configurator);
 
         this.refresh();
     }
