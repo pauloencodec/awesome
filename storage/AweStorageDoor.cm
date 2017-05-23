@@ -41,27 +41,45 @@ public class AweStorageDoor extends AweStorageGridPiece {
     public bool writeable;
     public double leftOffset;
     public double rightOffset;
-    public str pullType;
+    public AwePullType pullType;
     private Point2D _pullPosition;
+    private bool useLargeIfPossible;
 
-    public constructor(str pullType = "square-pull", bool writeable = false, double leftOffset = 0, double rightOffset = 0) {
+    public constructor(awePullType pullType, bool writeable = false, double leftOffset = 0, double rightOffset = 0, bool useLargeIfPossible = false) {
         this.pullType = pullType;
         this.writeable = writeable;
         this.leftOffset = leftOffset;
         this.rightOffset = rightOffset;
-    }   
+        this.useLargeIfPossible = useLargeIfPossible;
+    } 
 
-    public constructor(point2D pullPosition, angle pullRotation = 0deg, str pullType = "square-pull") {
+    public constructor(point2D pullPosition, angle pullRotation = 0deg, awePullType pullType = awePullType.square, bool useLargeIfPossible = false) {
         this.pullPosition = pullPosition;
         this.pullRotation = pullRotation;
         this.pullType = pullType;
+        this.useLargeIfPossible = useLargeIfPossible;
     }   
+
+    extend public str getPullTypeFileName(awePullType pt) {
+        switch (pt) { 
+            case awePullType.arch: return "arch-pull";
+            case awePullType.bar: { 
+                return this.useLargeIfPossible ? "large-bar-pull" : "bar-pull";
+            }
+            case awePullType.linear: return "linear-pull";
+            case awePullType.straight: return "straight-pull";
+            case awePullType.square:
+            default: { 
+                return "square-pull";
+            }
+        }
+    }
 
     public Awe3D get3D() {
         Awe3D prims();
 
         if (pullType) {
-            Primitive3D pull = aweCm3DLoader.get3D(pullType, storageCm3DFolder);
+            Primitive3D pull = aweCm3DLoader.get3D(this.getPullTypeFileName(pullType.v), storageCm3DFolder);
             pull.setMaterial(owner.getMaterial("pull"));
             prims << pull.setPosRot((pullPosition.x, 0, pullPosition.y), (0deg, pullRotation, 0deg));
         }
@@ -88,3 +106,4 @@ public class AweStorageDoor extends AweStorageGridPiece {
         return this._pullPosition.v;
     }
 }
+
