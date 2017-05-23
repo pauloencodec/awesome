@@ -88,12 +88,12 @@ public class AweBox3D extends Awe3D {
 
         this << bottom << top << left << right << front << back;
 
-        front.setMaterial(frontMaterial);
-        back.setMaterial(backMaterial);
-        left.setMaterial(leftMaterial);
-        right.setMaterial(rightMaterial);
-        top.setMaterial(topMaterial);
-        bottom.setMaterial(bottomMaterial);
+        front.setMaterial(frontMaterial.applyViewLayers());
+        back.setMaterial(backMaterial.applyViewLayers());
+        left.setMaterial(leftMaterial.applyViewLayers());
+        right.setMaterial(rightMaterial.applyViewLayers());
+        top.setMaterial(topMaterial.applyViewLayers());
+        bottom.setMaterial(bottomMaterial.applyViewLayers());
 
         this.move(b.p0);
     }
