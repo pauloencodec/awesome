@@ -43,24 +43,29 @@ public class AweStorageDoor extends AweStorageGridPiece {
     public double rightOffset;
     public AwePullType pullType;
     private Point2D _pullPosition;
+    private bool useLargeIfPossible;
 
-    public constructor(awePullType pullType, bool writeable = false, double leftOffset = 0, double rightOffset = 0) {
+    public constructor(awePullType pullType, bool writeable = false, double leftOffset = 0, double rightOffset = 0, bool useLargeIfPossible = false) {
         this.pullType = pullType;
         this.writeable = writeable;
         this.leftOffset = leftOffset;
         this.rightOffset = rightOffset;
+        this.useLargeIfPossible = useLargeIfPossible;
     } 
 
-    public constructor(point2D pullPosition, angle pullRotation = 0deg, awePullType pullType = awePullType.square) {
+    public constructor(point2D pullPosition, angle pullRotation = 0deg, awePullType pullType = awePullType.square, bool useLargeIfPossible = false) {
         this.pullPosition = pullPosition;
         this.pullRotation = pullRotation;
         this.pullType = pullType;
+        this.useLargeIfPossible = useLargeIfPossible;
     }   
 
     extend public str getPullTypeFileName(awePullType pt) {
         switch (pt) { 
             case awePullType.arch: return "arch-pull";
-            case awePullType.bar: return "bar-pull";
+            case awePullType.bar: { 
+                return this.useLargeIfPossible ? "large-bar-pull" : "bar-pull";
+            }
             case awePullType.linear: return "linear-pull";
             case awePullType.straight: return "straight-pull";
             case awePullType.square:
