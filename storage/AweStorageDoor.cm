@@ -41,40 +41,27 @@ public class AweStorageDoor extends AweStorageGridPiece {
     public bool writeable;
     public double leftOffset;
     public double rightOffset;
-    public AwePullType pullType;
+    public str pullType;
     private Point2D _pullPosition;
 
-    public constructor(awePullType pullType, bool writeable = false, double leftOffset = 0, double rightOffset = 0) {
+    public constructor(str pullType = "square-pull", bool writeable = false, double leftOffset = 0, double rightOffset = 0) {
         this.pullType = pullType;
         this.writeable = writeable;
         this.leftOffset = leftOffset;
         this.rightOffset = rightOffset;
-    } 
+    }   
 
-    public constructor(point2D pullPosition, angle pullRotation = 0deg, awePullType pullType = awePullType.square) {
+    public constructor(point2D pullPosition, angle pullRotation = 0deg, str pullType = "square-pull") {
         this.pullPosition = pullPosition;
         this.pullRotation = pullRotation;
         this.pullType = pullType;
     }   
 
-    extend public str getPullTypeFileName(awePullType pt) {
-        switch (pt) { 
-            case awePullType.arch: return "arch-pull";
-            case awePullType.bar: return "bar-pull";
-            case awePullType.linear: return "linear-pull";
-            case awePullType.straight: return "straight-pull";
-            case awePullType.square:
-            default: { 
-                return "square-pull";
-            }
-        }
-    }
-
     public Awe3D get3D() {
         Awe3D prims();
 
         if (pullType) {
-            Primitive3D pull = aweCm3DLoader.get3D(this.getPullTypeFileName(pullType.v), storageCm3DFolder);
+            Primitive3D pull = aweCm3DLoader.get3D(pullType, storageCm3DFolder);
             pull.setMaterial(owner.getMaterial("pull"));
             prims << pull.setPosRot((pullPosition.x, 0, pullPosition.y), (0deg, pullRotation, 0deg));
         }
@@ -101,4 +88,3 @@ public class AweStorageDoor extends AweStorageGridPiece {
         return this._pullPosition.v;
     }
 }
-
