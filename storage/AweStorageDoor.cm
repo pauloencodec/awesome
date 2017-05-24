@@ -1,3 +1,4 @@
+
 /** Configura CET Source Copyright Notice (CETSC)
 
    This file contains Configura CM source code and is part of the
@@ -41,15 +42,19 @@ public class AweStorageDoor extends AweStorageGridPiece {
     public bool writeable;
     public double leftOffset;
     public double rightOffset;
+    public double topOffset;
+    public double bottomOffset;
     public AwePullType pullType;
     private Point2D _pullPosition;
     private bool useLargeIfPossible;
 
-    public constructor(awePullType pullType, bool writeable = false, double leftOffset = 0, double rightOffset = 0, bool useLargeIfPossible = false) {
+    public constructor(awePullType pullType, bool writeable = false, double leftOffset = 0.03125inch, double rightOffset = 0.03125inch, double topOffset = 0.03125inch, double bottomOffset = 0.03125inch, bool useLargeIfPossible = false) {
         this.pullType = pullType;
         this.writeable = writeable;
         this.leftOffset = leftOffset;
         this.rightOffset = rightOffset;
+        this.topOffset = topOffset;
+        this.bottomOffset = bottomOffset;
         this.useLargeIfPossible = useLargeIfPossible;
     } 
 
@@ -90,7 +95,7 @@ public class AweStorageDoor extends AweStorageGridPiece {
             prims << writeableFront;
         }
 
-        prims << AweBox3D(box((0 + leftOffset, 0, 0), (width - rightOffset, depth, height)), owner.getMaterial("front"));
+        prims << AweBox3D(box((0 + leftOffset, 0, bottomOffset), (width - rightOffset, depth, height - topOffset)), owner.getMaterial("front"));
         return Awe3D(prims);
     }
 
