@@ -60,6 +60,7 @@ public class AweStorageCasterBase extends AweStorageBase {
     extend public Awe3D addCaster(point2D position) {
         Awe3D prims();
         prims << Awe3D(addWheels, addMount).move((position.x, position.y, 0)).rotate(90deg);
+        prims.setMaterial(material);
         return Awe3D(prims);
     }
 
