@@ -37,9 +37,15 @@
 package custom.awesome.storage;
 
 public enum awePullType : field access { 
+
+    ///////////// DISCLAIMER //////////////////////////////////////////////////// 
+    /// Please don't change those values, other libraries depend on it. 
+    /// You're fine adding new items to the enum tho.
+    //////////////////////////////////////////////////////////////////////////// 
     arch = 0;
     bar = 1;
     linear = 2;
     square = 3;
     straight = 4;
+
 }
