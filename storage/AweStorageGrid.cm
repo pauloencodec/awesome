@@ -70,10 +70,11 @@ public class AweStorageGrid {
         }
     }
 
-    extend public AweStorageGrid addColumn(double width, double septumWidth = 0) {
+    extend public AweStorageGrid addColumn(double width, double septumWidth = 0, Awe3D septum = null) {
         AweStorageGridColumn column();
         column.width = width - septumWidth/2;
         column.septumWidth = septumWidth;
+        if (septum) column.customSeptum = septum;
         if (columns.count > 0) {
             columns[columns.count-1].width -= septumWidth/2;
             columns[columns.count-1].rightPadding = septumWidth/2;
@@ -150,6 +151,10 @@ public class AweStorageGrid {
                 AweBox3D septum(box((x - c.septumWidth, localBound.p0.y, localBound.p0.z),(x, localBound.p1.y, localBound.p1.z)), getMaterial("septum"));
                 septum.move((localBound.p0.x, 0, 0));
                 prim << septum;
+            } else if (c.customSeptum) {
+                c.customSeptum.move((0, localBound.p0.y, localBound.p0.z));
+                c.customSeptum.setMaterial(getMaterial("septum"));
+                prim << c.customSeptum;
             }
             for(p in c.pieces) {
                 point origin(x,0,p.z);
