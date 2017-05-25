@@ -48,6 +48,11 @@ public class AweObject {
     public str _label;
 
     public constructor() {
+        this.init();
+    }
+
+    extend public void init() { 
+
     }
 
     public str toS() {
@@ -359,6 +364,11 @@ public definition @visibility aweObject @name=id @parentClass=["extends" type]? 
                     super();
                     @initProps;
                 }
+
+                public void init() { 
+                    @initProps;
+                }
+
                 @membersBundle;
             }
         };
