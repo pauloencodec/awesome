@@ -486,10 +486,12 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         }
 
         @visibility void buildAnimationProperties(AnimationProperties props) {
+            super(..);
             @buildAnimationProperties;
         }
 
         @visibility void animationPropertyChanged(str key, Object value) {
+            super(..);
             @animationPropertiesChanged;
         }
     };
