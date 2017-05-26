@@ -42,6 +42,7 @@ public class AweStorageGridColumn {
     public double rightPadding = 0;
     public double width;
     public double septumWidth;
+    public Awe3D customSeptum;
     
     public AweStorageGridPiece[] pieces();
     
