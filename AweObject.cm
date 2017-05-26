@@ -48,6 +48,11 @@ public class AweObject {
     public str _label;
 
     public constructor() {
+        this.init();
+    }
+
+    extend public void init() { 
+
     }
 
     public str toS() {
@@ -161,15 +166,9 @@ public class AweObject {
 
                 var target = props.get(token);
                 if (target as Double) { 
-                    if (target) { 
-                        var targetValue = target.v;
-                        if (toInches) {
-                            targetValue /= 1inch;
-                        }
-                        formattedData.put(token, (precision) ? targetValue.toS(precision.v) : targetValue.toS());
-                    } else { 
-                        formattedData.put(token, "");
-                    }
+                    formattedData.put( token, getNumberAsFormatted(target, precision, toInches=toInches ) );
+                } else if (target as Distance) { 
+                    formattedData.put( token, getNumberAsFormatted(target.v, precision, toInches=toInches ) );
                 } else {
                     str value = ""; 
                     if (target) { 
@@ -199,6 +198,18 @@ public class AweObject {
         }
 
         return format;
+    }
+
+    extend private str getNumberAsFormatted( Double target, Int precision, bool toInches ) {
+        if (target) {   
+            var targetValue = target.v;
+            if (toInches) {
+                targetValue /= 1inch;
+            }
+            return (precision) ? targetValue.toS(precision.v) : targetValue.toS();
+        } else { 
+            return "";
+        }
     }
 
     extend public Anonymous Anonymous() {
@@ -353,6 +364,11 @@ public definition @visibility aweObject @name=id @parentClass=["extends" type]? 
                     super();
                     @initProps;
                 }
+
+                public void init() { 
+                    @initProps;
+                }
+
                 @membersBundle;
             }
         };
