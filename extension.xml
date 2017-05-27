@@ -27,6 +27,6 @@
     <dependency id="cm.abstract.dataSymbol"/>
   </extension-dependencies>
   <security-delegates>
-    <delegate id="custom.acs" />
+    <delegate id="cet.designer" />
   </security-delegates>
 </extension-info>
