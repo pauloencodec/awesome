@@ -48,6 +48,11 @@ public class AweObject {
     public str _label;
 
     public constructor() {
+        this.init();
+    }
+
+    extend public void init() { 
+
     }
 
     public str toS() {
@@ -359,6 +364,11 @@ public definition @visibility aweObject @name=id @parentClass=["extends" type]? 
                     super();
                     @initProps;
                 }
+
+                public void init() { 
+                    @initProps;
+                }
+
                 @membersBundle;
             }
         };
@@ -492,10 +502,12 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         }
 
         @visibility void buildAnimationProperties(AnimationProperties props) {
+            super(..);
             @buildAnimationProperties;
         }
 
         @visibility void animationPropertyChanged(str key, Object value) {
+            super(..);
             @animationPropertiesChanged;
         }
     };
