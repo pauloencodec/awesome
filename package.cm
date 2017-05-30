@@ -49,4 +49,4 @@ use cm.draw;
 use cm.win;
 use cm.io;
 use cm.io.util;
-
+use cm.rs;

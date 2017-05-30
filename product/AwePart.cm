@@ -41,6 +41,7 @@ private const str notFoundInSifErrorMessage = " * Not found in SIF";
 public class AwePart extends OfficePart {
     public str sku;
     public str catalog;
+    public bool isValid;
     private AwePartOption[] options : public readable;
     public AwePartHeader header();
 
@@ -99,11 +100,7 @@ public class AwePart extends OfficePart {
     }
 
     extend public bool isValid() {
-        for (option in this.options) {
-            if (!option.isValid()) return false;
-        }
-
-        return true;
+        return this.isValid;
     }
 
     public str flattenableKey() {
