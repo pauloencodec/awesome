@@ -33,20 +33,11 @@
 
    END OF CETSC
 */
-package custom.awesome : 8.0.0;
 
-use custom.awesome.product;
+package custom.awesome;
 
-use cm.abstract.surface;
+public AweIsValidPartColumn isValidColumn(17);
 
-use cm.format.cm3D;
-use cm.geometry.advanced;
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.win;
-use cm.io;
-use cm.io.util;
-use cm.rs;
+package void registerCustomColumns() {
+    registerPartColumn(isValidColumn, true);
+}
