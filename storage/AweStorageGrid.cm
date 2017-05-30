@@ -85,14 +85,14 @@ public class AweStorageGrid {
         return this;
     }
 
-    extend public AweStorageGrid addPiece(AweStorageGridPiece piece, int column, double height, int columnSpan=1) {
+    extend public AweStorageGrid addPiece(AweStorageGridPiece piece, int column, double height, int columnSpan=1, double offset = 0.125inch) {
         if(columns.count <= column) {
             bug("invalid column index");
         }
-        piece.height = height;
+        piece.height = height - offset;
         columns[column].addPiece(piece);
 
-        double width = columns[column].width;
+        double width = columns[column].width - offset;
 
         if(columnSpan > 1) {
             for(i in 2..columnSpan) {
