@@ -49,6 +49,7 @@ public class AweSnapper extends Snapper {
         aweDynamic bool mustConnect();
     }
 
+    private AwePart[] parts();
     public AweConnectorCache connectorCache(this);
 
     public constructor() { 
@@ -236,6 +237,7 @@ public class AweSnapper extends Snapper {
                 part.data.setOwner(this);
                 
                 env << part;
+                this.parts << part;
             }
         }
     }
@@ -286,11 +288,19 @@ public class AweSnapper extends Snapper {
             product.validateGeometries(issues);
         }
 
+        this.validateParts(issues);
+
         issues.feed(invalidList);
     }
 
-    extend public void validate(AweValidationIssues issues) {
+    extend private void validateParts(AweValidationIssues issues) {
+        for(part in this.parts) {
+            if(!part.isValid)
+                issues.warning("invalidSKU" # part.sku, "Invalid SKU: " # part.sku);
+        }
+    }
 
+    extend public void validate(AweValidationIssues issues) {
     }
 
     /************ lights **************/

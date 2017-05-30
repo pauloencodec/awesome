@@ -52,6 +52,7 @@ private const str name = "Awesome";
 
 private class AwesomeLibraryExtension extends MultiCatalogExtension {
     public void start(ExtensionEnv env) {
+        initResources();
         super(env);
     }
 
@@ -59,6 +60,7 @@ private class AwesomeLibraryExtension extends MultiCatalogExtension {
         super(env);
         pln("/******************* init the awesome **********************/");
         registerInvalidListBuilder(function validateSpace);
+        registerCustomColumns();
     }
 
     /**
@@ -76,6 +78,14 @@ public void validateSpace(InvalidList invalidList) {
     validator.validate(invalidList);
 }
 
+package void initResources() {
+    initRs();
+
+    putNextRsPkg("custom.awesome", "custom.awesome.resources");
+    putNextRsPkg("cm.abstract.part", "custom.awesome.resources");
+    
+    safeLoadRs(cmFindUrl("custom/awesome/resources/main.rs"));
+}
 
 /**
  * Actual extension (dont change function name).

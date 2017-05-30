@@ -33,20 +33,35 @@
 
    END OF CETSC
 */
-package custom.awesome : 8.0.0;
 
-use custom.awesome.product;
+package custom.awesome.product;
 
-use cm.abstract.surface;
+public class AwePartColumn extends BasicPartColumn : abstract {
+    private int orderPriority;
 
-use cm.format.cm3D;
-use cm.geometry.advanced;
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.win;
-use cm.io;
-use cm.io.util;
-use cm.rs;
+    public constructor(str key, symbol pkg, int order) {
+        super(key, pkg);
+        this.orderPriority = order;
+    }
+
+    public double orderPriority() {
+	    return orderPriority;
+    }
+
+    public Object value(Part part, Space space) {
+        return super(..);
+    }
+}
+
+public class AweIsValidPartColumn extends AwePartColumn {
+    public constructor(int order) {
+        super("isValid", "cm.abstract.part", order);
+    }
+
+    public Object value(Part part, Space space) {
+        if ( part as AwePart ) {
+            return part.isValid;
+        }
+        return super(..);
+    }
+}
