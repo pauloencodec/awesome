@@ -52,8 +52,7 @@ public class AwePartOption extends PartInfoTree {
     }
 
     extend public bool isValid() {
-        // return !this.description.contains("*");
-        return false;
+        return this.part.isValid;
      }
 
      public PartInfoColumn[] columns() {
@@ -103,6 +102,16 @@ package class AwePartOptionNameColumn extends AwePartInfoColumn {
     public str output(PartInfoTree tree, Space space) {
 	    if (tree as AwePartOption) {
             return tree.name;
+        }
+        
+	    return "";
+    }
+}
+
+package class AwePartIsValidColumn extends AwePartInfoColumn {
+    public str output(PartInfoTree tree, Space space) {
+	    if (tree as AwePartOption) {
+            return tree.isValid.toS;
         }
         
 	    return "";

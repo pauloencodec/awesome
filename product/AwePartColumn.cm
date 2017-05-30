@@ -34,48 +34,34 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package custom.awesome.product;
 
-public class AweInsertAnimation extends InsertAnimation {
-    public AweSnapper snapper;
-    private str currentKey;
+public class AwePartColumn extends BasicPartColumn : abstract {
+    private int orderPriority;
 
-    public constructor(StartInsertAnimationEnv env) {
-        super(env);
-
-        this.snapper = env.selection.main.AweSnapper;
-
-        assert(this.snapper);
+    public constructor(str key, symbol pkg, int order) {
+        super(key, pkg);
+        this.orderPriority = order;
     }
 
-    public void buildProperties() {
-        this.destroyAnimationProperties();
-        this.createAnimationProperties();
-        
-        if (this.snapper.activeConfigurator) {
-            this.snapper.addExtraAnimationProperties(this.animationProperties);
-            this.snapper.activeConfigurator.buildAnimationProperties(this.animationProperties);
-
-            if (this.currentKey) {
-                this.animationProperties.setCurrent(this.currentKey);
-            }
-        }
-
-        this.animationProperties.finalize();
+    public double orderPriority() {
+	    return orderPriority;
     }
 
-    public void propertyChange(str key, Object value) {
-        super(..);
+    public Object value(Part part, Space space) {
+        return super(..);
+    }
+}
 
-        if (this.snapper.activeConfigurator) {
-            this.snapper.activeConfigurator.animationPropertyChanged(..);
-            this.snapper.extraAnimationPropertyChanged(..);
-            this.snapper.refresh(true, true);
-            this.updateSelectionSnaps();
+public class AweIsValidPartColumn extends AwePartColumn {
+    public constructor(int order) {
+        super("isValid", "cm.abstract.part", order);
+    }
 
-            this.currentKey = key;
-
-            this.buildProperties();
+    public Object value(Part part, Space space) {
+        if ( part as AwePart ) {
+            return part.isValid;
         }
+        return super(..);
     }
 }

@@ -36,46 +36,8 @@
 
 package custom.awesome;
 
-public class AweInsertAnimation extends InsertAnimation {
-    public AweSnapper snapper;
-    private str currentKey;
+public AweIsValidPartColumn isValidColumn(17);
 
-    public constructor(StartInsertAnimationEnv env) {
-        super(env);
-
-        this.snapper = env.selection.main.AweSnapper;
-
-        assert(this.snapper);
-    }
-
-    public void buildProperties() {
-        this.destroyAnimationProperties();
-        this.createAnimationProperties();
-        
-        if (this.snapper.activeConfigurator) {
-            this.snapper.addExtraAnimationProperties(this.animationProperties);
-            this.snapper.activeConfigurator.buildAnimationProperties(this.animationProperties);
-
-            if (this.currentKey) {
-                this.animationProperties.setCurrent(this.currentKey);
-            }
-        }
-
-        this.animationProperties.finalize();
-    }
-
-    public void propertyChange(str key, Object value) {
-        super(..);
-
-        if (this.snapper.activeConfigurator) {
-            this.snapper.activeConfigurator.animationPropertyChanged(..);
-            this.snapper.extraAnimationPropertyChanged(..);
-            this.snapper.refresh(true, true);
-            this.updateSelectionSnaps();
-
-            this.currentKey = key;
-
-            this.buildProperties();
-        }
-    }
+package void registerCustomColumns() {
+    registerPartColumn(isValidColumn, true);
 }
