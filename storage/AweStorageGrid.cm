@@ -166,4 +166,22 @@ public class AweStorageGrid {
         }
         return prim;
     }
+
+    extend public Graph get2D() {
+        Graph[] graph();
+        double x = 0;
+        for(c in columns) {
+            x += c.leftPadding;
+            for(p in c.pieces) {
+                var pieceGeometry = p.get2D();
+                if (pieceGeometry) {
+                    point origin(x,0,p.z);
+                    pieceGeometry.move(origin + localBound.p0);
+                    graph << pieceGeometry;
+                }
+            }
+            x += c.width + c.rightPadding;
+        }
+        return GInstance(graph);
+    }
 }
