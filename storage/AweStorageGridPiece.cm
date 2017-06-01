@@ -51,4 +51,9 @@ public class AweStorageGridPiece {
         AweBox3D aweBox(box(point(),width,depth,height), this.material??randomColorLWMaterial);
         return aweBox;
     }
+
+    extend public Graph get2D() {
+        GRect rectangle(rect((-width, -depth), (width, depth)));
+        return rectangle;
+    }
 }

@@ -288,16 +288,13 @@ public class AweSnapper extends Snapper {
             product.validateGeometries(issues);
         }
 
-        this.validateParts(issues);
+        this.validateParts(this.parts, issues);
 
         issues.feed(invalidList);
     }
 
-    extend private void validateParts(AweValidationIssues issues) {
-        for(part in this.parts) {
-            if(!part.isValid)
-                issues.warning("invalidSKU" # part.sku, "Invalid SKU: " # part.sku);
-        }
+    extend public void validateParts(AwePart[] parts, AweValidationIssues issues) {
+        
     }
 
     extend public void validate(AweValidationIssues issues) {

@@ -107,6 +107,7 @@ public class AweEdgedPath2D extends EdgedPath {
         selector.finalizeSelector();
 
         material.material3D = selector;
+        material.superMaterial3D = surfaceMaterial.material3D();
 
         return get3D(owner, thickness, res, env, flatEdges, material, surfaceTextureSpace, edgeTextureUp, scale, surface, edge);
     }
