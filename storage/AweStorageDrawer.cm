@@ -38,7 +38,7 @@ package custom.awesome.storage;
 
 public class AweStorageDrawer extends AweStorageDoor {
     public constructor(point2D pullPosition, awePullType pullType = awePullType.arch) {
-        super(pullPosition, pullType=pullType);
+        super(pullType);
         this.pullPosition = pullPosition;
     }   
 }
