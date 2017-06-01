@@ -38,8 +38,6 @@ package custom.awesome.product;
 use cm.geometry.advanced;
 
 public class AweProduct extends AweGeometry {
-    public Object _model;
-
     private Primitive3D medium3D;
     private Primitive3D super3D;
     private AweGraph graph;
