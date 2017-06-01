@@ -132,12 +132,16 @@ public class AweSnapper extends Snapper {
         if (this.activeConfigurator and !testChangeOnly) {
             bool changed = this.activeConfigurator.quickPropertyChanged(..);
             
+            this.onPropertyChanged(key, value);
             this.refresh(true, true);
             
             return changed;
         }
 
         return super(..);
+    }
+
+    extend public void onPropertyChanged(str key, Object value) {
     }
 
     extend public void addExtraAnimationProperties(AnimationProperties props) { }
@@ -294,7 +298,6 @@ public class AweSnapper extends Snapper {
     }
 
     extend public void validateParts(AwePart[] parts, AweValidationIssues issues) {
-        
     }
 
     extend public void validate(AweValidationIssues issues) {
