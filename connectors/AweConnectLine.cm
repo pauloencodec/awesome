@@ -77,4 +77,7 @@ public class AweConnectLine extends ConnectLine {
         
         this.realign = realign;
     }
+
+    /************** model connecting ******************/
+    public modelConnecting;
 }

@@ -34,30 +34,37 @@
    END OF CETSC
 */
 
-package custom.awesome.model;
+package custom.awesome.connectors;
+use cm.syntax;
 
-public class AweModelSnapper extends Snapper {
-    
-    private AweModelManager manager(this);
-    
-    public AweModel model;
-    public constructor(AweModel model) {
-        set*(this: model);
-    }   
+public member @visibility modelConnecting ';' {
+    return member {
+        @visibility AweObject model: copy=null, stream=null;
 
-    private str->Connector connectorCache();
-
-    public void connectors(ConnectorCollection coll) {
-        manager.connectors(model, connectorCache, coll);
-    }
-
-
-     public void drawGraphs(LayerBuffer lb, View view, GeometricFinder finder=null) {
-        var graph = manager.graph(model);
-        if (graph) {
-            graph.draw(lb);
+        public bool connect(Connector c, bool oneway=false) {
+            var success = super(..);
+            if(success) {
+                AweObject thisModel = this.getModel();
+                AweObject otherModel = c.getModel();
+                if(thisModel) {
+                    thisModel.connected(otherModel);
+                    thisModel.connected(this, c, otherModel);
+                }
+            }
+            return success;
         }
-        super(..);
-    }
 
+        public bool disconnect(Connector c, bool oneway=false) {
+            var success = super(..);
+            if(success) {
+                AweObject thisModel = this.getModel();
+                AweObject otherModel = c.getModel();
+                if(thisModel) {
+                    thisModel.disconnected(otherModel);
+                    thisModel.disconnected(this, c, otherModel);
+                }
+            }
+            return success;
+        }
+    };
 }
