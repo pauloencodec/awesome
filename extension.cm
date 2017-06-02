@@ -119,9 +119,11 @@ package ExtensionInfo getExtensionInfo() : referred {
 
     Url[] files();
 
-    for (f in getFiles(cmNative("custom/awesome/data/cm3d/"), "cm3d")) {
+    for (f in getFiles(cmFindUrl("custom/awesome/data/cm3d/"), "cm3d")) {
         files << f;
     }
+
+    files << cmFindUrl("custom/awesome/resources/main.rs");
 
     info.filesToInclude = files;
 
