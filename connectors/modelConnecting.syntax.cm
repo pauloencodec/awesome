@@ -34,68 +34,37 @@
    END OF CETSC
 */
 
-package custom.awesome.product;
+package custom.awesome.connectors;
+use cm.syntax;
 
-use custom.awesome.electrical;
+public member @visibility modelConnecting ';' {
+    return member {
+        @visibility AweObject model: copy=null, stream=null;
 
-public class AweGeometry {
-    public Object _model;
+        public bool connect(Connector c, bool oneway=false) {
+            var success = super(..);
+            if(success) {
+                AweObject thisModel = this.getModel();
+                AweObject otherModel = c.getModel();
+                if(thisModel) {
+                    thisModel.connected(otherModel);
+                    thisModel.connected(this, c, otherModel);
+                }
+            }
+            return success;
+        }
 
-    private str->Point2D poi() : public readable;
-    private str->Line2D loi() : public readable;
-    private str->Graph goi() : public readable;
-    private AwePart[] parts() : public readable;
-
-    public constructor() {
-    }   
-
-    extend public Primitive3D medium3D() {
-        return null;
-    }
-
-    extend public Primitive3D super3D() {
-        return medium3D();
-    }
-
-    extend public Graph graph() {
-        return null;
-    }
-
-    extend public box localBound() {
-        return box();
-    }
-
-    extend public void createParts() {
-    }
-
-    extend public void addPart(AwePart part) {
-        this.parts << part;        
-    }
-
-    extend public void addPart(str catalog, str sku) {
-        this.parts << new AwePart(catalog, sku);
-    }
-
-    extend public AwePart[] getParts() {
-        this.parts.clear();
-        this.createParts();
-        
-        return this.parts;
-    }
-
-    extend public void validate(AweValidationIssues issues) {
-
-    }
-
-    /********** lights ************/
-    public AweLightModel[] lights();
-
-    extend public void buildLights() {
-        
-    }
-
-    extend public void addLightPoint(point position, vector direction = (0,0,-1), double intensity=0.2) {
-        lights << AweLightModel(position, direction, intensity);
-    }
-
+        public bool disconnect(Connector c, bool oneway=false) {
+            var success = super(..);
+            if(success) {
+                AweObject thisModel = this.getModel();
+                AweObject otherModel = c.getModel();
+                if(thisModel) {
+                    thisModel.disconnected(otherModel);
+                    thisModel.disconnected(this, c, otherModel);
+                }
+            }
+            return success;
+        }
+    };
 }

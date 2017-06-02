@@ -34,68 +34,28 @@
    END OF CETSC
 */
 
-package custom.awesome.product;
+package custom.awesome;
 
-use custom.awesome.electrical;
+use cm.syntax;
 
-public class AweGeometry {
-    public Object _model;
+public definition @visibility singleton @name=id @parentClass=["extends" type]? '{' @members=[classMember]* '}' {
+    if (!parentClass) {
+        parentClass = new SType("Object");
+    }
+    
+    SMembers membersBundle(noSrcRef);
 
-    private str->Point2D poi() : public readable;
-    private str->Line2D loi() : public readable;
-    private str->Graph goi() : public readable;
-    private AwePart[] parts() : public readable;
-
-    public constructor() {
-    }   
-
-    extend public Primitive3D medium3D() {
-        return null;
+    for (m in members) {
+        membersBundle << m;
     }
 
-    extend public Primitive3D super3D() {
-        return medium3D();
-    }
+    SType type(name.name);
 
-    extend public Graph graph() {
-        return null;
-    }
-
-    extend public box localBound() {
-        return box();
-    }
-
-    extend public void createParts() {
-    }
-
-    extend public void addPart(AwePart part) {
-        this.parts << part;        
-    }
-
-    extend public void addPart(str catalog, str sku) {
-        this.parts << new AwePart(catalog, sku);
-    }
-
-    extend public AwePart[] getParts() {
-        this.parts.clear();
-        this.createParts();
+    definition {
+        @visibility class @name extends @parentClass {
+            @membersBundle;
+        }
         
-        return this.parts;
-    }
-
-    extend public void validate(AweValidationIssues issues) {
-
-    }
-
-    /********** lights ************/
-    public AweLightModel[] lights();
-
-    extend public void buildLights() {
-        
-    }
-
-    extend public void addLightPoint(point position, vector direction = (0,0,-1), double intensity=0.2) {
-        lights << AweLightModel(position, direction, intensity);
-    }
-
+        @visibility @type @name();
+    };
 }
