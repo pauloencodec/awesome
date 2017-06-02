@@ -70,16 +70,22 @@ public class AweStorageGrid {
         }
     }
 
-    extend public AweStorageGrid addColumn(double width, double septumWidth = 0, Awe3D septum = null) {
+    extend public AweStorageGrid addColumn(double width, AweStorageSeptum septum = null) {
         AweStorageGridColumn column();
-        column.width = width - septumWidth/2;
-        column.septumWidth = septumWidth;
-        if (septum) column.customSeptum = septum;
+        double septumThickness = 0;
+        column.width = width;
+
+        if (septum) {
+            septumThickness = septum.thickness;
+            column.septum = septum;
+            column.width -= septumThickness/2;
+        }
+
         if (columns.count > 0) {
-            columns[columns.count-1].width -= septumWidth/2;
-            columns[columns.count-1].rightPadding = septumWidth/2;
-        } 
-        column.leftPadding = septumWidth/2;
+            columns[columns.count-1].width -= septumThickness/2;
+            columns[columns.count-1].rightPadding = septumThickness/2;
+        }
+        column.leftPadding = septumThickness/2;
         columns << column;
         
         return this;
@@ -147,14 +153,14 @@ public class AweStorageGrid {
         double x = 0;
         for(c in columns) {
             x += c.leftPadding;
-            if(c.septumWidth > 0) {
-                AweBox3D septum(box((x - c.septumWidth, localBound.p0.y, localBound.p0.z),(x, localBound.p1.y, localBound.p1.z)), getMaterial("septum"));
-                septum.move((localBound.p0.x, 0, 0));
-                prim << septum;
-            } else if (c.customSeptum) {
-                c.customSeptum.move((0, localBound.p0.y, localBound.p0.z));
-                c.customSeptum.setMaterial(getMaterial("septum"));
-                prim << c.customSeptum;
+             if (c.septum) {
+                c.septum.move((0, localBound.p0.y, localBound.p0.z));
+                pln(#c.septum.mainMaterial);
+                pln(#c.septum.edgeMaterial);
+                if(!c.septum.mainMaterial) c.septum.setMaterial(getMaterial("septum"));
+                pln(#c.septum.mainMaterial);
+                pln(#c.septum.edgeMaterial);
+                prim << c.septum;
             }
             for(p in c.pieces) {
                 point origin(x,0,p.z);

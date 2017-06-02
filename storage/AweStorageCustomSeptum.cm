@@ -36,31 +36,15 @@
 
 package custom.awesome.storage;
 
-public class AweStorageSideLaminateWTrough extends Awe3D {
+public class AweStorageSeptum extends Awe3D {
     public double thickness;
-    public box chassis;
-    public double xCutAxis = 2.764inch;
-    public double yCutAxis = 3.295inch;
+    public Material3D mainMaterial;
+    public Material3D edgeMaterial;
 
-    public constructor(box chassis, double thickness = 0.75inch, double xCutAxis = 2.764inch, double yCutAxis = 2.264inch) {
-        this.chassis = chassis;
+    public constructor(double thickness, Material3D mainMaterial = null, Material3D edgeMaterial = null) {
         this.thickness = thickness;
-        this.xCutAxis = xCutAxis;
-        this.yCutAxis = yCutAxis;
-        this << endPanel(thickness);
-    }   
+        this.mainMaterial = mainMaterial;
+        this.edgeMaterial = edgeMaterial ?? mainMaterial;
+     }
 
-    extend public Primitive3D endPanel(double thickness = 0.75inch) {
-        AweExtrusion endPanelEx(endPanelProfile());
-        Primitive3D p = endPanelEx.horizontal(line2D((0,0),(thickness,0)),0);
-        return p;
-    }
-
-    extend public AwePath2D endPanelProfile() {
-        AwePath2D path();
-        path.up(chassis.h).left(chassis.d-xCutAxis).down(yCutAxis).left(xCutAxis).down(chassis.h-yCutAxis).close;
-
-        return path;
-    }
-    
 }

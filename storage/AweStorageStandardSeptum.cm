@@ -36,31 +36,19 @@
 
 package custom.awesome.storage;
 
-public class AweStorageSideLaminateWTrough extends Awe3D {
-    public double thickness;
+public class AweStorageStandardSeptum extends AweStorageSeptum {
     public box chassis;
-    public double xCutAxis = 2.764inch;
-    public double yCutAxis = 3.295inch;
+    public AweBox3D laminate;
 
-    public constructor(box chassis, double thickness = 0.75inch, double xCutAxis = 2.764inch, double yCutAxis = 2.264inch) {
+    public constructor(box chassis, Material3D mainMaterial, Material3D edgeMaterial, double thickness = 0.75inch) {
+        super (thickness, mainMaterial, edgeMaterial);
         this.chassis = chassis;
-        this.thickness = thickness;
-        this.xCutAxis = xCutAxis;
-        this.yCutAxis = yCutAxis;
-        this << endPanel(thickness);
+        addSeptum(thickness);
     }   
 
-    extend public Primitive3D endPanel(double thickness = 0.75inch) {
-        AweExtrusion endPanelEx(endPanelProfile());
-        Primitive3D p = endPanelEx.horizontal(line2D((0,0),(thickness,0)),0);
-        return p;
-    }
-
-    extend public AwePath2D endPanelProfile() {
-        AwePath2D path();
-        path.up(chassis.h).left(chassis.d-xCutAxis).down(yCutAxis).left(xCutAxis).down(chassis.h-yCutAxis).close;
-
-        return path;
+    extend public void addSeptum(double thickness = 0.75inch) {
+        this.laminate = AweBox3D(box((-thickness/2, 0, 0), (thickness/2, chassis.d, chassis.h)), edgeMaterial, edgeMaterial, mainMaterial, mainMaterial, edgeMaterial, edgeMaterial);
+        this << laminate;
     }
     
 }

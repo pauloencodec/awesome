@@ -110,13 +110,3 @@ public class AweBox3D extends Awe3D {
         return [Rect3D: front, back, top, bottom, right, left];
     }
 }
-
-{
-    box b((0,0,0), (1,2,3));
-    box xuprega = b.moved(point(0,0,-1inch));
-    box sobra = b * xuprega;
-    box tampinha((0,0,b.p1.z-1inch), b.p1);
-
-    test(AweBox3D(xuprega, plainRedMaterial3D));
-    test(AweBox3D(tampinha, plainGrayMaterial3D));
-}
