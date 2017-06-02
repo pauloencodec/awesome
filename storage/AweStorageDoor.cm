@@ -37,6 +37,8 @@
 
 package custom.awesome.storage;
 
+public const double storagePullOffsetFromPieceTop = 1inch;
+
 public class AweStorageDoor extends AweStorageGridPiece {
     public angle pullRotation;
     public bool writeable;
@@ -103,7 +105,6 @@ public class AweStorageDoor extends AweStorageGridPiece {
         Graph[] graph();
 
         Graph pull = aweCm3DLoader.getGraph(this.getPullTypeFileName(pullType.v), storageCm3DFolder # "/2D");
-        pln(#pull);
         pull.move((pullPosition.x, 0, pullPosition.y));
         pull.rotate(pullRotation);
 
@@ -115,7 +116,7 @@ public class AweStorageDoor extends AweStorageGridPiece {
 
     extend public point2D pullPosition() {
         if (_pullPosition == null) {
-            return (width/2, height - 1inch);
+            return (width/2, height - storagePullOffsetFromPieceTop);
         }
         return _pullPosition.v;
     }
