@@ -122,6 +122,26 @@ package ExtensionInfo getExtensionInfo() : referred {
     for (f in getFiles(cmFindUrl("custom/awesome/data/cm3d/"), "cm3d")) {
         files << f;
     }
+    
+    for (f in getFiles(cmFindUrl("custom/genericOffice/"), "rs")) {
+        files << f;
+    }
+
+    for (f in getFiles(cmFindUrl("custom/genericOffice/"), "bmp")) {
+        files << f;
+    }
+
+    for (f in getFiles(cmFindUrl("custom/genericOffice/"), "cm3d")) {
+        files << f;
+    }
+    
+    for (f in getFiles(cmFindUrl("custom/genericOffice/"), "jpg")) {
+        files << f;
+    }
+    
+    for (f in getFiles(cmFindUrl("custom/genericOffice/"), "png")) {
+        files << f;
+    }
 
     files << cmFindUrl("custom/awesome/resources/main.rs");
 
