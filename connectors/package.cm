@@ -64,7 +64,7 @@ public void setId(Connector c, str id) {
     }
 }
 
-public void id(Connector c, str id) {
+public str id(Connector c, str id) {
     aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
         return conn.id;
     }
