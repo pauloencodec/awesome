@@ -155,11 +155,7 @@ public class AweStorageGrid {
             x += c.leftPadding;
              if (c.septum) {
                 c.septum.move((0, localBound.p0.y, localBound.p0.z));
-                pln(#c.septum.mainMaterial);
-                pln(#c.septum.edgeMaterial);
                 if(!c.septum.mainMaterial) c.septum.setMaterial(getMaterial("septum"));
-                pln(#c.septum.mainMaterial);
-                pln(#c.septum.edgeMaterial);
                 prim << c.septum;
             }
             for(p in c.pieces) {
