@@ -81,4 +81,7 @@ public class AweSupportSurface extends SupportSurface {
     }
 
     public bool isVisible() { return false; }
+
+    /************** model connecting ******************/
+    public modelConnecting;
 }

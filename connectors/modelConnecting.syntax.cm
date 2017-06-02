@@ -35,49 +35,36 @@
 */
 
 package custom.awesome.connectors;
+use cm.syntax;
 
-public class AweConnectLine extends ConnectLine {
-    public aweDynamicContract {
-        aweDynamic bool shouldRealign();
-        aweDynamic bool isMandatory();
-        aweDynamic void makeMandatory();
-    }
-    
-    public str id;
-    public bool hidden = false;
-    public bool hiddenWhenDisconnected = false;
-    public bool realign = false;
+public member @visibility modelConnecting ';' {
+    return member {
+        @visibility AweObject model: copy=null, stream=null;
 
-    public bool mandatory = false;
-    extend public bool isMandatory() {
-        return mandatory;
-    }
-    extend public void makeMandatory() {
-        mandatory = true;
-    }
+        public bool connect(Connector c, bool oneway=false) {
+            var success = super(..);
+            if(success) {
+                AweObject thisModel = this.getModel();
+                AweObject otherModel = c.getModel();
+                if(thisModel) {
+                    thisModel.connected(otherModel);
+                    thisModel.connected(this, c, otherModel);
+                }
+            }
+            return success;
+        }
 
-    extend public bool shouldRealign() {
-        return this.realign;
-    }
-    
-    public bool isVisible() {
-        return !hidden and !((hiddenWhenDisconnected and !this.isConnected()));
-    }
-
-    public constructor(Snapper snapper, point p0, point p1, angle roll=0deg, ConnectRule rule=null, bool realign=false) {
-        super(snapper);
-
-        this.setPos(p0);
-        this.setEndPos(p1);
-
-        orientation o = orientation(p1 - p0);
-	    setRot(orientation(point(0, -_length, 0).transformed(o)));
-
-        this.setRule(rule);
-        
-        this.realign = realign;
-    }
-
-    /************** model connecting ******************/
-    public modelConnecting;
+        public bool disconnect(Connector c, bool oneway=false) {
+            var success = super(..);
+            if(success) {
+                AweObject thisModel = this.getModel();
+                AweObject otherModel = c.getModel();
+                if(thisModel) {
+                    thisModel.disconnected(otherModel);
+                    thisModel.disconnected(this, c, otherModel);
+                }
+            }
+            return success;
+        }
+    };
 }
