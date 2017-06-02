@@ -39,12 +39,24 @@ package custom.awesome;
 public class AweEnum extends AweEnumBase : abstract {
     private ObjectSubSet _domain;
     
-    public ObjectSubSet domain() {
-        if (this._domain) {
+    public ObjectSubSet domain(function(Object item):bool filter=null) {
+        if (!this._domain) {
+            this._domain = new ObjectSubSet(this.entries().:Object[]);
+        }
+
+        if (!filter) {
             return this._domain;
         }
 
-        return this._domain = new ObjectSubSet(this.entries().:Object[]);
+        Object[] filtered();
+
+        for (item in this._domain._members) {
+            if (filter(item)) {
+                filtered << item;
+            }
+        }
+
+        return new ObjectSubSet(filtered);
     }
     
     public bool equal(Object other, EqualEnv env=EqualEnv()) {
@@ -77,7 +89,7 @@ public class AweEnumBase : abstract {
     }
 
     extend public AweEnumBase[] entries() : abstract {}
-    extend public ObjectSubSet domain() : abstract {}
+    extend public ObjectSubSet domain(function(Object item):bool filter=null) : abstract {}
 
     public aweDynamicContract {
         aweDynamic str toStr(str extraInfo);
