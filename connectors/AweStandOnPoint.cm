@@ -60,4 +60,7 @@ public class AweStandOnPoint extends TransformStandOnPoint {
     }
 
     public bool isVisible() { return false; }
+
+    /************** model connecting ******************/
+    public modelConnecting;
 }

@@ -291,6 +291,43 @@ public class AweObject {
 
         return visited;
     }
+
+    /************* snappers reference and invalidation ***********/
+    public Snapper{} snappers : copy=null, stream=null;
+
+    extend public void invalidate() {
+        for(s in snappers) {
+            if(s as AweSnapper) {
+                s.refresh(true, true);
+            } else if(s) {
+                s.invalidate();
+            }
+        }
+        snappers.clear();
+    }
+
+    extend public void appendSnapper(Snapper s) {
+        if(!snappers) init snappers();
+        snappers << s;
+    }
+
+
+    /************** connect events ************/
+    extend public void connected(Connector thisConnector, Connector otherConnector, AweObject model) {
+
+    }
+
+    extend public void connected(AweObject model) {
+
+    }
+
+    extend public void disconnected(Connector thisConnector, Connector otherConnector, AweObject model) {
+
+    }
+
+    extend public void disconnected(AweObject model) {
+
+    }
 }
 
 public definition @visibility aweObject @name=id @parentClass=["extends" type]? '{'  @props=["props" formalArgList ';']? @members=[classMember]* '}' {

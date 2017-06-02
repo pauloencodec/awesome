@@ -107,4 +107,8 @@ public class AweConnectPoint extends ConnectPoint {
 
         this.realign = realign;
     }
+
+    /************** model connecting ******************/
+    public modelConnecting;
+    
 }
