@@ -34,68 +34,58 @@
    END OF CETSC
 */
 
-package custom.awesome.product;
+package custom.awesome;
 
-use custom.awesome.electrical;
+use cm.syntax;
 
-public class AweGeometry {
-    public Object _model;
+public definition @visibility aweEnum @name=id @args=actualArgList ';' {
+    SMembers members(noSrcRef);
+    SStatements entriesInit();
 
-    private str->Point2D poi() : public readable;
-    private str->Line2D loi() : public readable;
-    private str->Graph goi() : public readable;
-    private AwePart[] parts() : public readable;
+    SId backingEntries("_entries");
 
-    public constructor() {
-    }   
+    members << member {
+        @visibility AweEnumBase[] @backingEntries;
+    };
+    
+    for (i in (0..(args.count - 1))) {
+        SActualArg arg = args[i];
+        SExpr value = arg.e();
+        str fieldName = arg.keyword();
 
-    extend public Primitive3D medium3D() {
-        return null;
+        members << member {
+            extend @visibility @name @fieldName() {
+                return new @name(@value);
+            }
+        };
+
+        entriesInit << statement {
+            this.@backingEntries << this.@fieldName();
+        };
     }
 
-    extend public Primitive3D super3D() {
-        return medium3D();
-    }
+    members << member {
+        @visibility AweEnumBase[] entries() {
+            if (this.@backingEntries) {
+                return this.@backingEntries;
+            }
 
-    extend public Graph graph() {
-        return null;
-    }
+            this.@backingEntries = new AweEnumBase[]();
 
-    extend public box localBound() {
-        return box();
-    }
+            @entriesInit;
 
-    extend public void createParts() {
-    }
+            return this.@backingEntries;
+        }
+    };
 
-    extend public void addPart(AwePart part) {
-        this.parts << part;        
-    }
+    str singletonName = name.name;
+    SType enumType(name.name);
 
-    extend public void addPart(str catalog, str sku) {
-        this.parts << new AwePart(catalog, sku);
-    }
+    definition {
+        @visibility class @name extends AweEnum {
+            @members;
+        }
 
-    extend public AwePart[] getParts() {
-        this.parts.clear();
-        this.createParts();
-        
-        return this.parts;
-    }
-
-    extend public void validate(AweValidationIssues issues) {
-
-    }
-
-    /********** lights ************/
-    public AweLightModel[] lights();
-
-    extend public void buildLights() {
-        
-    }
-
-    extend public void addLightPoint(point position, vector direction = (0,0,-1), double intensity=0.2) {
-        lights << AweLightModel(position, direction, intensity);
-    }
-
+        @visibility @enumType @singletonName = new @enumType();
+    };
 }

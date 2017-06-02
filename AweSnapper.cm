@@ -61,6 +61,16 @@ public class AweSnapper extends Snapper {
         return new AweObject[]();
     }
 
+    extend public AweObject mainModel() {
+        return allModels().?first();
+    }
+
+    extend private void appendSelfToModels() {
+        for(m in allModels()) {
+            m.appendSnapper(this);
+        } 
+    }
+
     extend public AweProduct[] allProducts() {
         return new AweProduct[]();
     }
@@ -108,6 +118,10 @@ public class AweSnapper extends Snapper {
         this.connectorCache.clearBuffer();
         this.connectors(this.connectorCache);
 
+        for(c in this.connectorCache.buffer) {
+            c.setModel(this.mainModel());
+        }
+
         for (product in this.allProducts()) {
             product.createConnectors(this.connectorCache);
         }
@@ -132,12 +146,16 @@ public class AweSnapper extends Snapper {
         if (this.activeConfigurator and !testChangeOnly) {
             bool changed = this.activeConfigurator.quickPropertyChanged(..);
             
+            this.onPropertyChanged(key, value);
             this.refresh(true, true);
             
             return changed;
         }
 
         return super(..);
+    }
+
+    extend public void onPropertyChanged(str key, Object value) {
     }
 
     extend public void addExtraAnimationProperties(AnimationProperties props) { }
@@ -206,6 +224,7 @@ public class AweSnapper extends Snapper {
         }
     }
 
+    /*********** refreshing ***********/
     extend public void refresh(bool updateConnectors=false, bool tryAlignAllSnapped=false) {
         if (updateConnectors)  this.updateConnectors();
         if (tryAlignAllSnapped) this.realign(null);
@@ -213,6 +232,18 @@ public class AweSnapper extends Snapper {
         invalidateQuickPropertiesFor(this);
         invalidate();
         this.space.invalidateSelection();
+    }
+
+    public void invalidated(dirty3D flag3D) {
+        this.appendSelfToModels();
+        invalidateLights();
+        super(..);
+    }
+
+    public void invalidated(dirty2D flag2D) {
+        this.appendSelfToModels();
+        super(..);
+        
     }
 
     extend public str helpLink() {
@@ -288,16 +319,12 @@ public class AweSnapper extends Snapper {
             product.validateGeometries(issues);
         }
 
-        this.validateParts(issues);
+        this.validateParts(this.parts, issues);
 
         issues.feed(invalidList);
     }
 
-    extend private void validateParts(AweValidationIssues issues) {
-        for(part in this.parts) {
-            if(!part.isValid)
-                issues.warning("invalidSKU" # part.sku, "Invalid SKU: " # part.sku);
-        }
+    extend public void validateParts(AwePart[] parts, AweValidationIssues issues) {
     }
 
     extend public void validate(AweValidationIssues issues) {
@@ -317,9 +344,7 @@ public class AweSnapper extends Snapper {
         return light3Ds;
     }
 
-    public void invalidated(dirty3D flag3D) {
-        invalidateLights();
-    }
+    
 
     private AweLightModel[] _lightModels;
     extend public AweLightModel[] lightModels() {
