@@ -40,7 +40,7 @@ public class AweStorageStandardSeptum extends AweStorageSeptum {
     public box chassis;
     public AweBox3D laminate;
 
-    public constructor(box chassis, Material3D mainMaterial, Material3D edgeMaterial, double thickness = 0.75inch) {
+    public constructor(box chassis, Material3D mainMaterial = null, Material3D edgeMaterial = null, double thickness = 0.75inch) {
         super (thickness, mainMaterial, edgeMaterial);
         this.chassis = chassis;
         addSeptum(thickness);
