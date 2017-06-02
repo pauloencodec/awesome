@@ -1,0 +1,101 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.model;
+
+public class AweModelManager {
+
+    private Snapper snapper;
+
+    public constructor(Snapper snapper) {
+        set*(this: snapper);
+    }   
+
+    extend private void ensureCache(AweModel model) {
+        if(!model._cache) {
+            init model._cache();
+            model._cache.view = model.view();
+        }
+    }
+
+    extend private Graph singleModelGraph(AweModel model) {
+        this.ensureCache(model);
+        if(model._cache.view) {
+            return model._cache.view.graph();
+        } else return null;
+    }
+
+    extend public Graph graph(AweModel model) {
+        AweGraph g();
+        for(each in allModels(model)) {
+            g << singleModelGraph(each);
+        }
+        return g;
+    }
+
+    extend private AweModel{} allModels(AweModel parentModel) {
+        AweModel{} allModels();
+        allModels << parentModel;
+        for(child in parentModel._descendants) {
+            allModels << child;
+        }
+
+        return allModels;
+    }
+
+    extend private void singleModelConnectors(AweModel model, str->Connector cache, ConnectorCollection coll) {
+        var infos = model._connectorInfo();
+        for(info in infos) {
+            str id =  model.readableId # info.id;
+            Connector c = cache.get(id);
+            if(!c) {
+                c = AweModelConnectPoint(snapper);
+                cache.put(id, c);
+            }
+            info.position += model.snapperPosition();
+            c.setRot(info.position.orientation);
+            c.setPos(info.position.origin);
+            coll << c;
+        }
+    }
+
+    extend package void connectors(AweModel model, str->Connector cache, ConnectorCollection coll) {
+        for(each in allModels(model)) {
+            singleModelConnectors(each, cache, coll);
+        }
+    }
+    
+} 
