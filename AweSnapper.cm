@@ -62,7 +62,8 @@ public class AweSnapper extends Snapper {
     }
 
     extend public AweObject mainModel() {
-        return allModels().?first();
+        var allModels = allModels();
+        return allModels.?count > 0 ? allModels.first() : null;        
     }
 
     extend private void appendSelfToModels() {
@@ -119,7 +120,9 @@ public class AweSnapper extends Snapper {
         this.connectors(this.connectorCache);
 
         for(c in this.connectorCache.buffer) {
-            c.setModel(this.mainModel());
+            var mainModel = this.mainModel();
+            if(mainModel)
+                c.setModel(mainModel);
         }
 
         for (product in this.allProducts()) {

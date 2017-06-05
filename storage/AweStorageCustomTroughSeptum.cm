@@ -34,54 +34,32 @@
    END OF CETSC
 */
 
-package custom.awesome.connectors;
+package custom.awesome.storage;
 
-use custom.awesome;
-use cm.core;
-use cm.geometry;
-use cm.geometry2D.advanced;
-use cm.core3D;
+public class AweStorageCustomTroughSeptum extends AweStorageSeptum {
+    public box chassis;
+    public double xCutAxis = 2.764inch;
+    public double yCutAxis = 3.295inch;
 
-public bool is(Connector c, str id) {
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
-        return conn.id == id;
+    public constructor(box chassis, double thickness = 0.75inch, double xCutAxis = 2.014inch, double yCutAxis = 1.514inch) {
+        super(thickness);
+        this.chassis = chassis;
+        this.xCutAxis = xCutAxis;
+        this.yCutAxis = yCutAxis;
+        this << addSeptum(thickness);
+    }   
+
+    extend public Primitive3D addSeptum(double thickness = 0.75inch) {
+        AweExtrusion septumEx(septumProfile());
+        Primitive3D p = septumEx.horizontal(line2D((-thickness/2,0),(thickness/2,0)),0);
+        return p;
     }
 
-    return false;
-}
+    extend public AwePath2D septumProfile() {
+        AwePath2D path();
+        path.up(chassis.h).left(chassis.d-xCutAxis).down(yCutAxis).left(xCutAxis).down(chassis.h-yCutAxis).close;
 
-public bool is(Connector c, rest: str[] ids) {
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
-        return conn.id in ids;
+        return path;
     }
-
-    return false;
-}
-
-public void setId(Connector c, str id) {
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
-        conn.id = id;
-    }
-}
-
-public str id(Connector c, str id) {
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
-        return conn.id;
-    }
-
-    return null;
-}
-
-public AweObject getModel(Connector c) {
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
-        return conn.model;
-    }
-
-    return null;
-}
-
-public void setModel(Connector c, AweObject model) {
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
-        conn.model = model;
-    }
+    
 }

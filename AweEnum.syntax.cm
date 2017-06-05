@@ -34,54 +34,58 @@
    END OF CETSC
 */
 
-package custom.awesome.connectors;
+package custom.awesome;
 
-use custom.awesome;
-use cm.core;
-use cm.geometry;
-use cm.geometry2D.advanced;
-use cm.core3D;
+use cm.syntax;
 
-public bool is(Connector c, str id) {
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
-        return conn.id == id;
+public definition @visibility aweEnum @name=id @args=actualArgList ';' {
+    SMembers members(noSrcRef);
+    SStatements entriesInit();
+
+    SId backingEntries("_entries");
+
+    members << member {
+        @visibility AweEnumBase[] @backingEntries;
+    };
+    
+    for (i in (0..(args.count - 1))) {
+        SActualArg arg = args[i];
+        SExpr value = arg.e();
+        str fieldName = arg.keyword();
+
+        members << member {
+            extend @visibility @name @fieldName() {
+                return new @name(@value);
+            }
+        };
+
+        entriesInit << statement {
+            this.@backingEntries << this.@fieldName();
+        };
     }
 
-    return false;
-}
+    members << member {
+        @visibility AweEnumBase[] entries() {
+            if (this.@backingEntries) {
+                return this.@backingEntries;
+            }
 
-public bool is(Connector c, rest: str[] ids) {
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
-        return conn.id in ids;
-    }
+            this.@backingEntries = new AweEnumBase[]();
 
-    return false;
-}
+            @entriesInit;
 
-public void setId(Connector c, str id) {
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
-        conn.id = id;
-    }
-}
+            return this.@backingEntries;
+        }
+    };
 
-public str id(Connector c, str id) {
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
-        return conn.id;
-    }
+    str singletonName = name.name;
+    SType enumType(name.name);
 
-    return null;
-}
+    definition {
+        @visibility class @name extends AweEnum {
+            @members;
+        }
 
-public AweObject getModel(Connector c) {
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
-        return conn.model;
-    }
-
-    return null;
-}
-
-public void setModel(Connector c, AweObject model) {
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
-        conn.model = model;
-    }
+        @visibility @enumType @singletonName = new @enumType();
+    };
 }

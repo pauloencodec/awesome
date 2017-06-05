@@ -34,54 +34,21 @@
    END OF CETSC
 */
 
-package custom.awesome.connectors;
+package custom.awesome.storage;
 
-use custom.awesome;
-use cm.core;
-use cm.geometry;
-use cm.geometry2D.advanced;
-use cm.core3D;
+public class AweStorageStandardSeptum extends AweStorageSeptum {
+    public box chassis;
+    public AweBox3D laminate;
 
-public bool is(Connector c, str id) {
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
-        return conn.id == id;
+    public constructor(box chassis, Material3D mainMaterial = null, Material3D edgeMaterial = null, double thickness = 0.75inch) {
+        super (thickness, mainMaterial, edgeMaterial);
+        this.chassis = chassis;
+        addSeptum(thickness);
+    }   
+
+    extend public void addSeptum(double thickness = 0.75inch) {
+        this.laminate = AweBox3D(box((-thickness/2, 0, 0), (thickness/2, chassis.d, chassis.h)), edgeMaterial, edgeMaterial, mainMaterial, mainMaterial, edgeMaterial, edgeMaterial);
+        this << laminate;
     }
-
-    return false;
-}
-
-public bool is(Connector c, rest: str[] ids) {
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
-        return conn.id in ids;
-    }
-
-    return false;
-}
-
-public void setId(Connector c, str id) {
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
-        conn.id = id;
-    }
-}
-
-public str id(Connector c, str id) {
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
-        return conn.id;
-    }
-
-    return null;
-}
-
-public AweObject getModel(Connector c) {
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
-        return conn.model;
-    }
-
-    return null;
-}
-
-public void setModel(Connector c, AweObject model) {
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
-        conn.model = model;
-    }
+    
 }

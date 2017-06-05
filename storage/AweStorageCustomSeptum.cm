@@ -34,54 +34,17 @@
    END OF CETSC
 */
 
-package custom.awesome.connectors;
+package custom.awesome.storage;
 
-use custom.awesome;
-use cm.core;
-use cm.geometry;
-use cm.geometry2D.advanced;
-use cm.core3D;
+public class AweStorageSeptum extends Awe3D {
+    public double thickness;
+    public Material3D mainMaterial;
+    public Material3D edgeMaterial;
 
-public bool is(Connector c, str id) {
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
-        return conn.id == id;
-    }
+    public constructor(double thickness, Material3D mainMaterial = null, Material3D edgeMaterial = null) {
+        this.thickness = thickness;
+        this.mainMaterial = mainMaterial;
+        this.edgeMaterial = edgeMaterial ?? mainMaterial;
+     }
 
-    return false;
-}
-
-public bool is(Connector c, rest: str[] ids) {
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
-        return conn.id in ids;
-    }
-
-    return false;
-}
-
-public void setId(Connector c, str id) {
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
-        conn.id = id;
-    }
-}
-
-public str id(Connector c, str id) {
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
-        return conn.id;
-    }
-
-    return null;
-}
-
-public AweObject getModel(Connector c) {
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
-        return conn.model;
-    }
-
-    return null;
-}
-
-public void setModel(Connector c, AweObject model) {
-    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
-        conn.model = model;
-    }
 }
