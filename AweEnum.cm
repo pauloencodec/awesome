@@ -75,6 +75,7 @@ public class AweEnum extends AweEnumBase : abstract {
 public class AweEnumBase : abstract {
     public str key;
     public str value;
+    public Object data;
 
     public constructor() {
     }
@@ -86,6 +87,12 @@ public class AweEnumBase : abstract {
 
     public constructor(<str, str> entry) {
         this(entry.v0, entry.v1);
+    }
+
+    public constructor(<str, str, Object> entry) {
+        this(entry.v0, entry.v1);
+
+        this.data = entry.v2;
     }
 
     extend public AweEnumBase[] entries() : abstract {}
