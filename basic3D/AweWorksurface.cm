@@ -37,14 +37,14 @@
 package custom.awesome.basic3D;
 
 public class AweWorksurface {
-    public AwePath2D profile;
-    public AwePath2D path;
+    public APath2D profile;
+    public APath2D path;
     public point2D topPoint;
     public point2D bottomPoint;
     public AShape2D[] holes();
     public double distanceFromFloor;
 
-    public constructor(AwePath2D profile, AwePath2D path, double distanceFromFloor = 0) {
+    public constructor(APath2D profile, APath2D path, double distanceFromFloor = 0) {
         this.profile = profile;
         this.path = path;
         this.distanceFromFloor = distanceFromFloor;
@@ -69,7 +69,7 @@ public class AweWorksurface {
     }
 
     extend public Primitive3D makeFace(point2D p, Material3D material = randomColorLWMaterial) {
-        AwePath2D facePath = path.copy;
+        APath2D facePath = path.copy;
         if (!facePath.isClosed) facePath.close;
         facePath.grow(p.x, clockwise = false);
 
