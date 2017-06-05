@@ -34,50 +34,58 @@
    END OF CETSC
 */
 
-package custom.awesome.connectors;
+package custom.awesome;
 
-public class AweConnectLine extends ConnectLine {
-    public aweDynamicContract {
-        aweDynamic bool shouldRealign();
-        aweDynamic bool isMandatory();
-        aweDynamic void makeMandatory();
-    }
+use cm.syntax;
+
+public definition @visibility aweEnum @name=id @args=actualArgList ';' {
+    SMembers members(noSrcRef);
+    SStatements entriesInit();
+
+    SId backingEntries("_entries");
+
+    members << member {
+        @visibility AweEnumBase[] @backingEntries;
+    };
     
-    public str id;
-    public bool hidden = false;
-    public bool hiddenWhenDisconnected = false;
-    public bool realign = false;
+    for (i in (0..(args.count - 1))) {
+        SActualArg arg = args[i];
+        SExpr value = arg.e();
+        str fieldName = arg.keyword();
 
-    public bool mandatory = false;
-    extend public bool isMandatory() {
-        return mandatory;
-    }
-    extend public void makeMandatory() {
-        mandatory = true;
-    }
+        members << member {
+            extend @visibility @name @fieldName() {
+                return new @name(@value);
+            }
+        };
 
-    extend public bool shouldRealign() {
-        return this.realign;
-    }
-    
-    public bool isVisible() {
-        return !hidden and !((hiddenWhenDisconnected and !this.isConnected()));
+        entriesInit << statement {
+            this.@backingEntries << this.@fieldName();
+        };
     }
 
-    public constructor(Snapper snapper, point p0, point p1, angle roll=0deg, ConnectRule rule=null, bool realign=false) {
-        super(snapper);
+    members << member {
+        @visibility AweEnumBase[] entries() {
+            if (this.@backingEntries) {
+                return this.@backingEntries;
+            }
 
-        this.setPos(p0);
-        this.setEndPos(p1);
+            this.@backingEntries = new AweEnumBase[]();
 
-        orientation o = orientation(p1 - p0);
-	    setRot(orientation(point(0, -_length, 0).transformed(o)));
+            @entriesInit;
 
-        this.setRule(rule);
-        
-        this.realign = realign;
-    }
+            return this.@backingEntries;
+        }
+    };
 
-    /************** model connecting ******************/
-    public modelConnecting;
+    str singletonName = name.name;
+    SType enumType(name.name);
+
+    definition {
+        @visibility class @name extends AweEnum {
+            @members;
+        }
+
+        @visibility @enumType @singletonName = new @enumType();
+    };
 }
