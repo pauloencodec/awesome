@@ -36,49 +36,19 @@
 
 package custom.awesome.storage;
 
-public class AweStorageGlideBase extends AweStorageBase {
-    public double xOffset;
-    public double yFrontOffset;
-    public double yBackOffset;
+public class AweStorageStandardSeptum extends AweStorageSeptum {
+    public box chassis;
+    public AweBox3D laminate;
 
-    public constructor(double xOffset = 0, double yFrontOffset = 0, double yBackOffset = 0, Material3D material = randomColorLWMaterial) {
-        this.xOffset = xOffset;
-        this.yFrontOffset = yFrontOffset;
-        this.yBackOffset = yBackOffset == 0 ? yFrontOffset : yBackOffset;
-        this.height = 0.545inch;
-        this.material = material;
+    public constructor(box chassis, Material3D mainMaterial = null, Material3D edgeMaterial = null, double thickness = 0.75inch) {
+        super (thickness, mainMaterial, edgeMaterial);
+        this.chassis = chassis;
+        addSeptum(thickness);
     }   
 
-    public Awe3D get3D() {
-        Awe3D prims();
-
-        prims << addGlide((owner.localBound.p0.x + xOffset, owner.localBound.p0.y + yFrontOffset));
-        prims << addGlide((owner.localBound.p0.x + xOffset, owner.localBound.p1.y - yBackOffset));
-        prims << addGlide((owner.localBound.p1.x - xOffset, owner.localBound.p1.y - yBackOffset));
-        prims << addGlide((owner.localBound.p1.x - xOffset, owner.localBound.p0.y + yFrontOffset));
-        prims.setMaterial(material);
-
-        return Awe3D(prims);
+    extend public void addSeptum(double thickness = 0.75inch) {
+        this.laminate = AweBox3D(box((-thickness/2, 0, 0), (thickness/2, chassis.d, chassis.h)), edgeMaterial, edgeMaterial, mainMaterial, mainMaterial, edgeMaterial, edgeMaterial);
+        this << laminate;
     }
-
-    extend public Awe3D addGlide(point2D position) {
-        Awe3D prims();
-        
-        double d = 0.625inch;
-        double w = 2.125inch;
-        double t = 0.135inch;
-
-        Box3D glideBracket ((-d/2, -w/2, 0), (d/2, w/2, t));
-        glideBracket.move ((0, 0, 0.41inch));
-
-        ClosedCylinder3D nut (0.150inch, 0.25inch);
-        nut.move((0, 0, 0.26inch));
-
-        ClosedCylinder3D glide (0.26inch, 0.375inch);
-        glide.setRefinement(64);
-
-        prims << Awe3D(glideBracket, nut, glide).move((position.x, position.y, 0));
-
-        return Awe3D(prims);
-    }
+    
 }
