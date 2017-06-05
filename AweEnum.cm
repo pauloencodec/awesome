@@ -39,19 +39,55 @@ package custom.awesome;
 public class AweEnum extends AweEnumBase : abstract {
     private ObjectSubSet _domain;
     
-    public ObjectSubSet domain(function(Object item):bool filter=null) {
+    public ObjectSubSet domain(function(Object item):bool filter=null, AweEnum[] includes=null, AweEnum[] excludes=null) {
         if (!this._domain) {
             this._domain = new ObjectSubSet(this.entries().:Object[]);
         }
 
-        if (!filter) {
-            return this._domain;
+        if (filter) {
+            return this.filterDomain(filter);
         }
 
+        if (includes and includes.any()) {
+            return this.includeInDomain(includes);
+        }
+
+        if (excludes and excludes.any()) {
+            return this.excludeFromDomain(excludes);
+        }
+
+        return this._domain;
+    }
+
+    extend private ObjectSubSet filterDomain(function(Object item):bool filter) {
         Object[] filtered();
 
         for (item in this._domain._members) {
             if (filter(item)) {
+                filtered << item;
+            }
+        }
+
+        return new ObjectSubSet(filtered);
+    }
+
+    extend private ObjectSubSet includeInDomain(AweEnum[] includes) {
+        Object[] filtered();
+
+        for (item in this._domain._members) {
+            if (item.AweEnum in includes) {
+                filtered << item;
+            }
+        }
+
+        return new ObjectSubSet(filtered);
+    }
+
+    extend private ObjectSubSet excludeFromDomain(AweEnum[] excludes) {
+        Object[] filtered();
+
+        for (item in this._domain._members) {
+            if (item.AweEnum !in excludes) {
                 filtered << item;
             }
         }
@@ -95,8 +131,8 @@ public class AweEnumBase : abstract {
         this.data = entry.v2;
     }
 
-    extend public AweEnumBase[] entries() : abstract {}
-    extend public ObjectSubSet domain(function(Object item):bool filter=null) : abstract {}
+    extend public AweEnum[] entries() : abstract {}
+    extend public ObjectSubSet domain(function(Object item):bool filter=null, AweEnum[] includes=null, AweEnum[] excludes=null) : abstract {}
 
     public aweDynamicContract {
         aweDynamic str toStr(str extraInfo);

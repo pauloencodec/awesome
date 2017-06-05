@@ -45,17 +45,24 @@ public definition @visibility aweEnum @name=id @args=actualArgList ';' {
     SId backingEntries("_entries");
 
     members << member {
-        @visibility AweEnumBase[] @backingEntries;
+        @visibility AweEnum[] @backingEntries;
     };
     
     for (i in (0..(args.count - 1))) {
         SActualArg arg = args[i];
         SExpr value = arg.e();
         str fieldName = arg.keyword();
+        str backingFieldName = "_" # fieldName;
 
         members << member {
+            private @name @backingFieldName;
+
             extend @visibility @name @fieldName() {
-                return new @name(@value);
+                if (this.@backingFieldName) {
+                    return this.@backingFieldName;
+                }
+
+                return this.@backingFieldName = new @name(@value);
             }
         };
 
@@ -65,12 +72,12 @@ public definition @visibility aweEnum @name=id @args=actualArgList ';' {
     }
 
     members << member {
-        @visibility AweEnumBase[] entries() {
+        @visibility AweEnum[] entries() {
             if (this.@backingEntries) {
                 return this.@backingEntries;
             }
 
-            this.@backingEntries = new AweEnumBase[]();
+            this.@backingEntries = new AweEnum[]();
 
             @entriesInit;
 
