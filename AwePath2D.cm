@@ -36,7 +36,7 @@
 
 package custom.awesome;
 
-public class AwePath2D extends APath2D {
+public class AwePath2D extends EdgedPath {
     private line2D lastLine : public readable;
 
     public constructor (double x, double y) {
@@ -98,6 +98,30 @@ public class AwePath2D extends APath2D {
         mesh.setDoubleSided(true);
         mesh.move((0,0,z1));
         return mesh;
+    }
+
+    /**************** path reduction for worksurface shape *********************/
+    extend public APath2D reduced(double offset) {
+        //the edged path class from the abstract package is more entertiwned that it probably should,
+        //so the way I found to extract a reduced path is to set the defaultEdge to a PathEdge object that has the deduction property set on it, then call the method in edged path that returns the deducted path based on the default edge. Complex, right? 
+        var edge = AwePathEdge(pathDeduction = offset);
+        this.defaultEdge = edge;
+        for(m in members) {
+            setEdge(m, edge);
+        }
+        return this.deductedPath();
+    }
+}
+
+public class AwePathEdge extends PathEdge {
+    private double pathDeduction = 0;
+
+    public constructor(double pathDeduction=0) {
+        this.pathDeduction = pathDeduction;
+    }
+
+    public double pathDeduction() {
+	    return this.pathDeduction;
     }
 }
 

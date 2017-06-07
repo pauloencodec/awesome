@@ -36,17 +36,19 @@
 
 package custom.awesome.basic3D;
 
+use cm.abstract.surface;
+
 public class AweWorksurface {
     public APath2D profile;
-    public APath2D path;
+    public AwePath2D outline;
     public point2D topPoint;
     public point2D bottomPoint;
     public AShape2D[] holes();
     public double distanceFromFloor;
 
-    public constructor(APath2D profile, APath2D path, double distanceFromFloor = 0) {
+    public constructor(APath2D profile, AwePath2D outline, double distanceFromFloor = 0) {
         this.profile = profile;
-        this.path = path;
+        this.outline = outline;
         this.distanceFromFloor = distanceFromFloor;
         var first = profile.startPoint;
         var last = profile.members.last.p;
@@ -62,16 +64,16 @@ public class AweWorksurface {
 
     extend public Primitive3D edge(Material3D material = randomColorLWMaterial) {
         AweExtrusion edgeEx(profile);
-        Primitive3D edge = edgeEx.path(path);
+        Primitive3D edge = edgeEx.path(outline);
         edge.setMaterial(material);
         edge.move((0, 0, distanceFromFloor));
         return edge;
     }
 
     extend public Primitive3D makeFace(point2D p, Material3D material = randomColorLWMaterial) {
-        APath2D facePath = path.copy;
-        if (!facePath.isClosed) facePath.close;
-        facePath.grow(p.x, clockwise = false);
+        AwePath2D copy = outline.copy;
+        if (!copy.isClosed) copy.close;
+        APath2D facePath = copy.reduced(p.x);
 
         AHollowShape2D faceShape (facePath);
         faceShape.holes = this.holes;
