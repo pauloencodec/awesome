@@ -46,6 +46,18 @@ public class AwePath2D extends EdgedPath {
     public constructor(point2D origin=(0, 0)) {
         super(origin);
     }
+
+    public constructor(APath2D path2D) {
+        super(path2D.startPoint);
+        for(m in path2D.members) {
+            if(m as APath2DLineTo) {
+                this.lineTo(m.p);
+            }
+            else if(m as APath2DArcTo) {
+                this.arcTo(m.p, m.startTangent);
+            }
+        }
+    } 
     
     extend public AwePath2D to(point2D target) {
         this.lastLine = line2D(endPoint, target);
