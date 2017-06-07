@@ -94,6 +94,16 @@ public class AweEnum extends AweEnumBase : abstract {
 
         return new ObjectSubSet(filtered);
     }
+
+    extend public bool in(rest: AweEnum[] args) {
+        for (item in args) {
+            if (item == this) {
+                return true;
+            }
+        }
+
+        return false;
+    }
     
     public bool equal(Object other, EqualEnv env=EqualEnv()) {
         if (other as AweEnum) {
