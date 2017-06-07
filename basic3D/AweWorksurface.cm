@@ -46,6 +46,8 @@ public class AweWorksurface {
     public AShape2D[] holes();
     public double distanceFromFloor;
 
+    private angle arcResolution = 10deg;
+
     public constructor(APath2D profile, AwePath2D outline, double distanceFromFloor = 0) {
         this.profile = profile;
         this.outline = outline;
@@ -64,7 +66,7 @@ public class AweWorksurface {
 
     extend public Primitive3D edge(Material3D material = randomColorLWMaterial) {
         AweExtrusion edgeEx(profile);
-        Primitive3D edge = edgeEx.path(outline);
+        Primitive3D edge = edgeEx.path(outline, extrudePathArcResolution = arcResolution);
         edge.setMaterial(material);
         edge.move((0, 0, distanceFromFloor));
         return edge;
@@ -78,11 +80,10 @@ public class AweWorksurface {
         AHollowShape2D faceShape (facePath);
         faceShape.holes = this.holes;
 
-        PolygonMesh3D face(faceShape, 0, reversed=false, useNormals=false, doublePoints=true, doubleSided=true);
+        PolygonMesh3D face(faceShape, 0, reversed=false, useNormals=false, doublePoints=true, doubleSided=true, arcResolution = arcResolution);
 
         face.move((0, 0, distanceFromFloor + p.y));
         face.setMaterial(material);
-
         return face;
     }
 
