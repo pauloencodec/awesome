@@ -108,18 +108,6 @@ public class AweWorksurface {
     }
 }
 
-public APath2D reduced(APath2D this, double reduction) {
-    //the edged path class from the abstract package is more entertiwned that it probably should,
-    //so the way I found to extract a reduced path is to set the defaultEdge to a PathEdge object that has the deduction property set on it, then call the method in edged path that returns the deducted path based on the default edge. Complex, right? 
-    var edge = AwePathEdge(pathDeduction = reduction);
-    EdgedPath edged();
-    for(m in this.members) {
-        edged << m;
-        edged.setEdge(m, edge);
-    }
-    return edged.deducted();
-}
-
 
 {
     AwePath2D testPath();
