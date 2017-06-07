@@ -59,9 +59,9 @@ public class AweExtrusion {
         return prim;
     }
 
-    extend public Primitive3D path(APath2D extrudePath, bool vertical=false, angle profileRotation=0deg) {
+    extend public Primitive3D path(APath2D extrudePath, bool vertical=false, angle profileRotation=0deg, angle extrudePathArcResolution = 10deg) {
         profile.rotate(profileRotation);
-        Primitive3D prim = extrudePathAlongPath(profile, extrudePath, doubleSided = true);
+        Primitive3D prim = extrudePathAlongPath(profile, extrudePath, doubleSided = true, pathArcResolution = extrudePathArcResolution);
         if (vertical)
             prim.setPosRot((0, 0, 0), orientation(0deg, 0deg, 90deg));
         return prim;
