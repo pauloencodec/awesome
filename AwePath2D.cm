@@ -112,6 +112,8 @@ public class AwePath2D extends EdgedPath {
         return mesh;
     }
 
+    
+
     /**************** path reduction for worksurface shape *********************/
     extend public APath2D reduced(double offset) {
         //the edged path class from the abstract package is more entertiwned that it probably should,
@@ -135,5 +137,20 @@ public class AwePathEdge extends PathEdge {
     public double pathDeduction() {
 	    return this.pathDeduction;
     }
+}
+
+/*************** lines ***************/
+//all lines in a path, anti-clockwise, good for connect lines (points outwards)
+public line2D[] lines(APath2D this) {
+    var path = this.isClockwise ? this.reversed() : this;
+    line2D[] lines();
+    var lastPoint = path.startPoint;
+    for(m in members) {
+        if(m as APath2DLineTo) {
+            lines << line2D(lastPoint, m.p);
+        }
+        lastPoint = m.p;
+    }
+    return lines;
 }
 
