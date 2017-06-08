@@ -68,12 +68,16 @@ public class AweGeometry {
     extend public void createParts() {
     }
 
-    extend public void addPart(AwePart part) {
-        this.parts << part;        
+    extend public void addPart(AwePart part, int quantity=1) {
+        for (i in (1..quantity)) {
+            this.parts << part;
+        }
     }
 
-    extend public void addPart(str catalog, str sku) {
-        this.parts << new AwePart(catalog, sku);
+   extend public void addPart(str catalog, str sku, int quantity=1) {
+        for (i in (1..quantity)) {
+            this.parts << new AwePart(catalog, sku);
+        }
     }
 
     extend public AwePart[] getParts() {
