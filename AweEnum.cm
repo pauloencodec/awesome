@@ -111,7 +111,7 @@ public class AweEnum extends AweEnumBase : abstract {
     
     public bool equal(Object other, EqualEnv env=EqualEnv()) {
         if (other as AweEnum) {
-            return this.class == other.class and this.key == other.key;
+            return this.class == other.class and this.name == other.name and this.key == other.key;
         }
 
         return super(..);
@@ -155,9 +155,8 @@ public class AweEnumBase : abstract {
     }
 
     extend public str toStr(str extraInfo) {
-        if (extraInfo == "value") {
-            return this.value;
-        }
+        if (extraInfo == "value") return this.value;
+        if (extraInfo == "name") return this.name;
 
         return this.key;
     }
