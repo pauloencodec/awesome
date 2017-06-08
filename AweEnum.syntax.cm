@@ -62,7 +62,7 @@ public definition @visibility aweEnum @name=id @args=actualArgList ';' {
                     return this.@backingFieldName;
                 }
 
-                return this.@backingFieldName = new @name(@value);
+                return this.@backingFieldName = new @name(@value, @fieldName);
             }
         };
 
