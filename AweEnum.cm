@@ -38,7 +38,7 @@ package custom.awesome;
 
 public class AweEnum extends AweEnumBase : abstract {
     private ObjectSubSet _domain;
-    
+
     public ObjectSubSet domain(function(Object item):bool filter=null, AweEnum[] includes=null, AweEnum[] excludes=null) {
         if (!this._domain) {
             this._domain = new ObjectSubSet(this.entries().:Object[]);
@@ -75,7 +75,7 @@ public class AweEnum extends AweEnumBase : abstract {
         Object[] filtered();
 
         for (item in this._domain._members) {
-            if (item.AweEnum in includes) {
+            if (item.AweEnum.in(includes)) {
                 filtered << item;
             }
         }
@@ -87,7 +87,7 @@ public class AweEnum extends AweEnumBase : abstract {
         Object[] filtered();
 
         for (item in this._domain._members) {
-            if (item.AweEnum !in excludes) {
+            if (!item.AweEnum.in(excludes)) {
                 filtered << item;
             }
         }
@@ -96,6 +96,10 @@ public class AweEnum extends AweEnumBase : abstract {
     }
 
     extend public bool in(rest: AweEnum[] args) {
+        return this.in(args);
+    }
+
+    extend public bool in(AweEnum[] args) {
         for (item in args) {
             if (item == this) {
                 return true;
@@ -120,23 +124,25 @@ public class AweEnum extends AweEnumBase : abstract {
 
 public class AweEnumBase : abstract {
     public str key;
+    public str name;
     public str value;
     public Object data;
 
     public constructor() {
     }
 
-    public constructor(str key, str value) {
+    public constructor(str key, str name, str value) {
         this.key = key;
+        this.name = name;
         this.value = value;
     }
 
-    public constructor(<str, str> entry) {
-        this(entry.v0, entry.v1);
+    public constructor(<str, str> entry, str name) {
+        this(entry.v0, name, entry.v1);
     }
 
-    public constructor(<str, str, Object> entry) {
-        this(entry.v0, entry.v1);
+    public constructor(<str, str, Object> entry, str name) {
+        this(entry.v0, name, entry.v1);
 
         this.data = entry.v2;
     }
