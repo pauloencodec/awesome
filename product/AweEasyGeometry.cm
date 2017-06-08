@@ -34,33 +34,49 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package custom.awesome.product;
 
-public class AwePosition {
-    public constructor() {
-    }  
+public class AweEasyGeometry extends AweGeometry {
+    
+    public AwePosition position();
 
-    public constructor(point origin = point(), orientation orientation = orientation()) {
-        set*(this: origin, orientation);
-        this();
-    }  
+    extend private Object {} values() {
+        Object{} values();
 
-    public constructor(point2D origin, angle rotation=0deg) {
-        this(origin.point, orientation(rotation));
+        for(field in this.class.fields(super=false)) {
+            values << this.get(field);
+        }
+
+        return values;
     }
 
-    public point origin;
-    public orientation orientation;
+    private AweGraph _graph;
+    public Graph graph() {
+        if(!_graph) {
+            _graph = new AweGraph();
+            for(value in values) {
+                if(value as Graph) {
+                    _graph << value;
+                }
+            }
+            _graph.rotate(this.position.orientation);
+            _graph.move(this.position.origin);
+        }
+        return _graph;
+    }   
 
-    extend public AwePosition operator += (AwePosition anotherPosition) {
-        this.origin = this.origin.transformed(anotherPosition.orientation, anotherPosition.origin);
-        this.orientation += anotherPosition.orientation;
-        return this;
-    }
-
-    extend public AwePosition operator -= (AwePosition anotherPosition) {
-        this.origin -= anotherPosition.origin;
-        this.orientation -= anotherPosition.orientation;
-        return this;
-    }
+    private Awe3D _prims;
+    public Primitive3D medium3D() {
+        if(!_prims) {
+            _prims = new Awe3D();
+            for(value in values) {
+                if(value as Primitive3D) {
+                    _prims << value;
+                }
+            }
+            _prims.rotate(this.position.orientation);
+            _prims.move(this.position.origin);
+        }
+        return _prims;
+    }   
 }
