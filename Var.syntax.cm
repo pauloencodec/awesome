@@ -45,7 +45,7 @@ public member @visibility var @id=id @expr=['=' expr]? ';' {
     };
 }
 
-public statement var @id=id @expr=['=' expr]? ';' : invisible debug { 
+public statement var @id=id '=' @expr=expr ';' : invisible debug { 
     SType memberType(expr.type, expr.src);
     
     return statement { 
