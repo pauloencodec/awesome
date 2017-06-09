@@ -37,11 +37,11 @@
 package custom.awesome;
 
 public class AweEnum extends AweEnumBase : abstract {
-    private ObjectSubSet _domain;
+    private AweEnumSubSet _domain;
 
     public ObjectSubSet domain(function(Object item):bool filter=null, AweEnum[] includes=null, AweEnum[] excludes=null) {
         if (!this._domain) {
-            this._domain = new ObjectSubSet(this.entries().:Object[]);
+            this._domain = new AweEnumSubSet(this.entries().:Object[]);
         }
 
         if (filter) {
@@ -59,7 +59,7 @@ public class AweEnum extends AweEnumBase : abstract {
         return this._domain;
     }
 
-    extend private ObjectSubSet filterDomain(function(Object item):bool filter) {
+    extend private AweEnumSubSet filterDomain(function(Object item):bool filter) {
         Object[] filtered();
 
         for (item in this._domain._members) {
@@ -68,10 +68,10 @@ public class AweEnum extends AweEnumBase : abstract {
             }
         }
 
-        return new ObjectSubSet(filtered);
+        return new AweEnumSubSet(filtered);
     }
 
-    extend private ObjectSubSet includeInDomain(AweEnum[] includes) {
+    extend private AweEnumSubSet includeInDomain(AweEnum[] includes) {
         Object[] filtered();
 
         for (item in this._domain._members) {
@@ -80,10 +80,10 @@ public class AweEnum extends AweEnumBase : abstract {
             }
         }
 
-        return new ObjectSubSet(filtered);
+        return new AweEnumSubSet(filtered);
     }
 
-    extend private ObjectSubSet excludeFromDomain(AweEnum[] excludes) {
+    extend private AweEnumSubSet excludeFromDomain(AweEnum[] excludes) {
         Object[] filtered();
 
         for (item in this._domain._members) {
@@ -92,7 +92,7 @@ public class AweEnum extends AweEnumBase : abstract {
             }
         }
 
-        return new ObjectSubSet(filtered);
+        return new AweEnumSubSet(filtered);
     }
 
     extend public bool in(rest: AweEnum[] args) {
