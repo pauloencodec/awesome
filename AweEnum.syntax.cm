@@ -96,3 +96,31 @@ public definition @visibility aweEnum @name=id @args=actualArgList ';' {
         @visibility @enumType @singletonName = new @enumType();
     };
 }
+
+
+//first arg is expected to be the enum instance
+public statement EnumKey @name=id @overrides=actualArgList ';' {
+     
+     SExpr theEnum = overrides[0].e();
+
+     SStatements s();
+     s << statement {
+         str @name = @theEnum.key;
+     };
+
+
+     for (i in (1..(overrides.count - 1))) {
+        SActualArg arg = overrides[i];
+        str overrideName = arg.keyword();
+        SExpr overrideValue = arg.e();
+        s << statement {
+            if(@overrideName == @theEnum.name){
+                @name = @overrideValue.toS;
+            } 
+        };
+     }
+
+
+    return s;
+}
+
