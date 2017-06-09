@@ -102,6 +102,8 @@ public definition @visibility aweEnum @name=id @args=actualArgList ';' {
 public statement EnumKey @name=id @overrides=actualArgList ';' {
      
      SExpr theEnum = overrides[0].e();
+     SType theEnumType(theEnum.type, theEnum.src);
+     SId theEnumName(theEnumType.name);
 
      SStatements s();
      s << statement {
@@ -114,7 +116,9 @@ public statement EnumKey @name=id @overrides=actualArgList ';' {
         str overrideName = arg.keyword();
         SExpr overrideValue = arg.e();
         s << statement {
-            if(@overrideName == @theEnum.name){
+            //force compile error if name doesn't match enum value
+            @theEnumName.@overrideName;
+            if(@overrideName == @theEnum.name) {
                 @name = @overrideValue.toS;
             } 
         };
@@ -123,4 +127,5 @@ public statement EnumKey @name=id @overrides=actualArgList ';' {
 
     return s;
 }
+
 
