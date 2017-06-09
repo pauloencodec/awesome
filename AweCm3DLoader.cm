@@ -57,6 +57,9 @@ public class AweCm3DLoader {
     extend public str->Primitive3D get3DWithLayer(str cadName, str folder) {
        var cm3D = this.load(cadName, folder);
 
+       //prevent access violation
+       if(!cm3D) return null;
+
         return this.get3DInfo(cm3D).layers;
     }
 

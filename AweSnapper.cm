@@ -136,6 +136,14 @@ public class AweSnapper extends Snapper {
         super(collection);
     }
 
+    public double connectLineAlignConnector(ConnectLine s, Connector c, double t) {
+        if ( cm.win.isControlKeyDown() ) {
+            return super(..);  
+        } else {
+            return t; 
+        }
+    }
+
 
     public bool buildQuickProperties(QuickProperties props) { 
         if (this.activeConfigurator) {
