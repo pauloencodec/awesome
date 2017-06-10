@@ -67,7 +67,7 @@ public class AweModelLimb extends SnapperLimb {
         SelectButton button = new AweModelButton(w, this,
             snapperName=key, snapperPkg=pkg,
             label=displayLabel,
-            image=image, frameStyle=NoFrame());
+            image=image, frameStyle=toolboxButtonFrameStyle);
 
         button.key = this.key;
         button.setToolTipText(this.toolTipText ?? this.label);
