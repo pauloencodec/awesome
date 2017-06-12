@@ -42,10 +42,6 @@ public const double storagePullOffsetFromPieceTop = 1inch;
 public class AweStorageDoor extends AweStorageGridPiece {
     public angle pullRotation;
     public bool writeable;
-    public double leftOffset;
-    public double rightOffset;
-    public double topOffset;
-    public double bottomOffset;
     public AwePullType pullType;
     private Point2D _pullPosition;
     private bool useLargeIfPossible;
