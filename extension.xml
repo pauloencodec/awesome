@@ -3,7 +3,7 @@
   <main>custom.awesome</main>
   <name>Awesome Library</name>
   <type>code</type>
-  <version>0.0.12.0</version>
+  <version>0.0.13.0</version>
   <packages>
     <package id="custom.awesome" />
     <package id="custom.awesome.basic3D" />
