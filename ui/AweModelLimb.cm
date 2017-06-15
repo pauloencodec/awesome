@@ -34,34 +34,48 @@
    END OF CETSC
 */
 
-package custom.awesome.storage;
+package custom.awesome.ui;
 
-public class AweStorageGridPiece {
-    public double width;
-    public double depth;
-    public double height;
-    public double leftOffset;
-    public double rightOffset;
-    public double topOffset;
-    public double bottomOffset;
-    public double z;
-    public AweStorageGrid owner;
-    public Material3D material;
+public class AweModelLimb extends SnapperLimb {
+    private AweObject model : public readable;
 
-    public constructor(double leftOffset = 0, double rightOffset = 0, double topOffset = 0, double bottomOffset = 0) {
-        this.leftOffset = leftOffset;
-        this.rightOffset = rightOffset;
-        this.topOffset = topOffset;
-        this.bottomOffset = bottomOffset;
-    }   
+    public constructor(
+        LibraryLimb parent,
+        symbol pkg, 
+        AweObject model,
+        str key=null,
+        Image image=null,
+        str label=null,
+        str toolTipText=null) {
 
-    extend public Awe3D get3D() {
-        AweBox3D aweBox(box((leftOffset, 0, bottomOffset), (width - rightOffset,depth,height - topOffset)), this.material??randomColorLWMaterial);
-        return aweBox;
+        if(!key)
+            key = cm.os.createGUID();
+        
+        this.model = model;
+
+        super(parent, pkg, key, image=image, label="", toolTipText=toolTipText);
+    }
+    
+    public Window build(Window w) {
+        int maxLength = 13;
+        str displayLabel = this.label;
+
+        if (displayLabel.count > maxLength) {
+            displayLabel = displayLabel.truncate(maxLength) # "...";
+        }
+
+        SelectButton button = new AweModelButton(w, this,
+            snapperName=key, snapperPkg=pkg,
+            label=displayLabel,
+            image=image, frameStyle=toolboxButtonFrameStyle);
+
+        button.key = this.key;
+        button.setToolTipText(this.toolTipText ?? this.label);
+
+        return button;
     }
 
-    extend public Graph get2D() {
-        GRect rectangle(rect((-width, -depth), (width, depth)));
-        return rectangle;
+    public Snapper getSnapper() {
+        return new AweModelSnapper(this.model);
     }
 }

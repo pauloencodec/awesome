@@ -36,32 +36,15 @@
 
 package custom.awesome.storage;
 
-public class AweStorageGridPiece {
-    public double width;
-    public double depth;
-    public double height;
-    public double leftOffset;
-    public double rightOffset;
-    public double topOffset;
-    public double bottomOffset;
-    public double z;
-    public AweStorageGrid owner;
-    public Material3D material;
+public class AweStorageSeptum extends Awe3D {
+    public double thickness;
+    public Material3D mainMaterial;
+    public Material3D edgeMaterial;
 
-    public constructor(double leftOffset = 0, double rightOffset = 0, double topOffset = 0, double bottomOffset = 0) {
-        this.leftOffset = leftOffset;
-        this.rightOffset = rightOffset;
-        this.topOffset = topOffset;
-        this.bottomOffset = bottomOffset;
-    }   
+    public constructor(double thickness, Material3D mainMaterial = null, Material3D edgeMaterial = null) {
+        this.thickness = thickness;
+        this.mainMaterial = mainMaterial;
+        this.edgeMaterial = edgeMaterial ?? mainMaterial;
+     }
 
-    extend public Awe3D get3D() {
-        AweBox3D aweBox(box((leftOffset, 0, bottomOffset), (width - rightOffset,depth,height - topOffset)), this.material??randomColorLWMaterial);
-        return aweBox;
-    }
-
-    extend public Graph get2D() {
-        GRect rectangle(rect((-width, -depth), (width, depth)));
-        return rectangle;
-    }
 }

@@ -34,34 +34,49 @@
    END OF CETSC
 */
 
-package custom.awesome.storage;
+package custom.awesome.product;
 
-public class AweStorageGridPiece {
-    public double width;
-    public double depth;
-    public double height;
-    public double leftOffset;
-    public double rightOffset;
-    public double topOffset;
-    public double bottomOffset;
-    public double z;
-    public AweStorageGrid owner;
-    public Material3D material;
+public class AweEasyGeometry extends AweGeometry {
+    
+    public AwePosition position();
 
-    public constructor(double leftOffset = 0, double rightOffset = 0, double topOffset = 0, double bottomOffset = 0) {
-        this.leftOffset = leftOffset;
-        this.rightOffset = rightOffset;
-        this.topOffset = topOffset;
-        this.bottomOffset = bottomOffset;
+    extend private Object {} values() {
+        Object{} values();
+
+        for(field in this.class.fields(super=false)) {
+            values << this.get(field);
+        }
+
+        return values;
+    }
+
+    private AweGraph _graph;
+    public Graph graph() {
+        if(!_graph) {
+            _graph = new AweGraph();
+            for(value in values) {
+                if(value as Graph) {
+                    _graph << value;
+                }
+            }
+            _graph.rotate(this.position.orientation);
+            _graph.move(this.position.origin);
+        }
+        return _graph;
     }   
 
-    extend public Awe3D get3D() {
-        AweBox3D aweBox(box((leftOffset, 0, bottomOffset), (width - rightOffset,depth,height - topOffset)), this.material??randomColorLWMaterial);
-        return aweBox;
-    }
-
-    extend public Graph get2D() {
-        GRect rectangle(rect((-width, -depth), (width, depth)));
-        return rectangle;
-    }
+    private Awe3D _prims;
+    public Primitive3D medium3D() {
+        if(!_prims) {
+            _prims = new Awe3D();
+            for(value in values) {
+                if(value as Primitive3D) {
+                    _prims << value;
+                }
+            }
+            _prims.rotate(this.position.orientation);
+            _prims.move(this.position.origin);
+        }
+        return _prims;
+    }   
 }

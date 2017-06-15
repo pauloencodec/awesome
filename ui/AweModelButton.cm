@@ -34,34 +34,46 @@
    END OF CETSC
 */
 
-package custom.awesome.storage;
+package custom.awesome.ui;
 
-public class AweStorageGridPiece {
-    public double width;
-    public double depth;
-    public double height;
-    public double leftOffset;
-    public double rightOffset;
-    public double topOffset;
-    public double bottomOffset;
-    public double z;
-    public AweStorageGrid owner;
-    public Material3D material;
+public class AweModelButton extends SnapperImageButton {
+    private AweModelLimb limb;
 
-    public constructor(double leftOffset = 0, double rightOffset = 0, double topOffset = 0, double bottomOffset = 0) {
-        this.leftOffset = leftOffset;
-        this.rightOffset = rightOffset;
-        this.topOffset = topOffset;
-        this.bottomOffset = bottomOffset;
-    }   
+    public constructor(Window parent, AweModelLimb limb,
+		       FrameStyle frameStyle=pushButtonFrame,
+		       symbol snapperPkg=null,
+		       str snapperName=null,
+		       str label=null,
+		       Image image=null,
+		       str c3CatalogId=null,
+		       alignment textSide=alignment.down		    
+    ) {
+        this.limb = limb;
 
-    extend public Awe3D get3D() {
-        AweBox3D aweBox(box((leftOffset, 0, bottomOffset), (width - rightOffset,depth,height - topOffset)), this.material??randomColorLWMaterial);
-        return aweBox;
+        super(parent,
+	      frameStyle=frameStyle,
+	      label=label,
+	      snapperPkg=snapperPkg,
+	      snapperName=snapperName,
+	      image=image,
+	      c3CatalogId=c3CatalogId,
+	      textSide=textSide);
     }
-
-    extend public Graph get2D() {
-        GRect rectangle(rect((-width, -depth), (width, depth)));
-        return rectangle;
+    
+    
+    /**
+     * Get a snapper working instance.
+     * 
+     * It is the getSnapper() methods responsibility to ensure that the returned
+     * snapper is a fresh instance or a copy of a base snapper.
+     * 
+     * Note: 
+     *   This will load the snapper source, including contents. (No more lazyness!)
+     */
+    public Snapper getSnapper() {
+	   if (limb) 
+            return limb.getSnapper();
+	   
+       return null;
     }
 }

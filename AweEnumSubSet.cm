@@ -34,34 +34,24 @@
    END OF CETSC
 */
 
-package custom.awesome.storage;
+package custom.awesome;
 
-public class AweStorageGridPiece {
-    public double width;
-    public double depth;
-    public double height;
-    public double leftOffset;
-    public double rightOffset;
-    public double topOffset;
-    public double bottomOffset;
-    public double z;
-    public AweStorageGrid owner;
-    public Material3D material;
-
-    public constructor(double leftOffset = 0, double rightOffset = 0, double topOffset = 0, double bottomOffset = 0) {
-        this.leftOffset = leftOffset;
-        this.rightOffset = rightOffset;
-        this.topOffset = topOffset;
-        this.bottomOffset = bottomOffset;
-    }   
-
-    extend public Awe3D get3D() {
-        AweBox3D aweBox(box((leftOffset, 0, bottomOffset), (width - rightOffset,depth,height - topOffset)), this.material??randomColorLWMaterial);
-        return aweBox;
+public class AweEnumSubSet extends ObjectSubSet : inherit constructors {
+    public constructor(AweEnum[] members) {
+        super(members.:Object[]);
     }
 
-    extend public Graph get2D() {
-        GRect rectangle(rect((-width, -depth), (width, depth)));
-        return rectangle;
+    public bool contains(Object o) {
+	    for (item in this._members) {
+            if (item.AweEnum == o) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public Object closest(Object o) {
+	    return this.contains(o) ? o : this.first();
     }
 }

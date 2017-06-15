@@ -37,19 +37,81 @@
 package custom.awesome;
 
 public class AweEnum extends AweEnumBase : abstract {
-    private ObjectSubSet _domain;
-    
-    public ObjectSubSet domain() {
-        if (this._domain) {
-            return this._domain;
+    private AweEnumSubSet _domain;
+
+    public ObjectSubSet domain(function(Object item):bool filter=null, AweEnum[] includes=null, AweEnum[] excludes=null) {
+        if (!this._domain) {
+            this._domain = new AweEnumSubSet(this.entries().:Object[]);
         }
 
-        return this._domain = new ObjectSubSet(this.entries().:Object[]);
+        if (filter) {
+            return this.filterDomain(filter);
+        }
+
+        if (includes and includes.any()) {
+            return this.includeInDomain(includes);
+        }
+
+        if (excludes and excludes.any()) {
+            return this.excludeFromDomain(excludes);
+        }
+
+        return this._domain;
+    }
+
+    extend private AweEnumSubSet filterDomain(function(Object item):bool filter) {
+        Object[] filtered();
+
+        for (item in this._domain._members) {
+            if (filter(item)) {
+                filtered << item;
+            }
+        }
+
+        return new AweEnumSubSet(filtered);
+    }
+
+    extend private AweEnumSubSet includeInDomain(AweEnum[] includes) {
+        Object[] filtered();
+
+        for (item in this._domain._members) {
+            if (item.AweEnum.in(includes)) {
+                filtered << item;
+            }
+        }
+
+        return new AweEnumSubSet(filtered);
+    }
+
+    extend private AweEnumSubSet excludeFromDomain(AweEnum[] excludes) {
+        Object[] filtered();
+
+        for (item in this._domain._members) {
+            if (!item.AweEnum.in(excludes)) {
+                filtered << item;
+            }
+        }
+
+        return new AweEnumSubSet(filtered);
+    }
+
+    extend public bool in(rest: AweEnum[] args) {
+        return this.in(args);
+    }
+
+    extend public bool in(AweEnum[] args) {
+        for (item in args) {
+            if (item == this) {
+                return true;
+            }
+        }
+
+        return false;
     }
     
     public bool equal(Object other, EqualEnv env=EqualEnv()) {
         if (other as AweEnum) {
-            return this.class == other.class and this.key == other.key;
+            return this.class == other.class and this.name == other.name;
         }
 
         return super(..);
@@ -62,31 +124,39 @@ public class AweEnum extends AweEnumBase : abstract {
 
 public class AweEnumBase : abstract {
     public str key;
+    public str name;
     public str value;
+    public Object data;
 
     public constructor() {
     }
 
-    public constructor(str key, str value) {
+    public constructor(str key, str name, str value) {
         this.key = key;
+        this.name = name;
         this.value = value;
     }
 
-    public constructor(<str, str> entry) {
-        this(entry.v0, entry.v1);
+    public constructor(<str, str> entry, str name) {
+        this(entry.v0, name, entry.v1);
     }
 
-    extend public AweEnumBase[] entries() : abstract {}
-    extend public ObjectSubSet domain() : abstract {}
+    public constructor(<str, str, Object> entry, str name) {
+        this(entry.v0, name, entry.v1);
+
+        this.data = entry.v2;
+    }
+
+    extend public AweEnum[] entries() : abstract {}
+    extend public ObjectSubSet domain(function(Object item):bool filter=null, AweEnum[] includes=null, AweEnum[] excludes=null) : abstract {}
 
     public aweDynamicContract {
         aweDynamic str toStr(str extraInfo);
     }
 
     extend public str toStr(str extraInfo) {
-        if (extraInfo == "value") {
-            return this.value;
-        }
+        if (extraInfo == "value") return this.value;
+        if (extraInfo == "name") return this.name;
 
         return this.key;
     }

@@ -34,34 +34,54 @@
    END OF CETSC
 */
 
-package custom.awesome.storage;
+package custom.awesome.io;
 
-public class AweStorageGridPiece {
-    public double width;
-    public double depth;
-    public double height;
-    public double leftOffset;
-    public double rightOffset;
-    public double topOffset;
-    public double bottomOffset;
-    public double z;
-    public AweStorageGrid owner;
-    public Material3D material;
+private byte carriageReturn = 13;
+private byte lineFeed = 10;
 
-    public constructor(double leftOffset = 0, double rightOffset = 0, double topOffset = 0, double bottomOffset = 0) {
-        this.leftOffset = leftOffset;
-        this.rightOffset = rightOffset;
-        this.topOffset = topOffset;
-        this.bottomOffset = bottomOffset;
-    }   
+package str getString(InputFormat from) {
+    StrBuf result();
+    while (from.more) {
+        char current = from.get();
 
-    extend public Awe3D get3D() {
-        AweBox3D aweBox(box((leftOffset, 0, bottomOffset), (width - rightOffset,depth,height - topOffset)), this.material??randomColorLWMaterial);
-        return aweBox;
+        if(current.byte != carriageReturn)
+            result << current;
     }
 
-    extend public Graph get2D() {
-        GRect rectangle(rect((-width, -depth), (width, depth)));
-        return rectangle;
+    return result.toS();
+}
+
+package str[] getLines(InputFormat from, bool removeEmptyLines=true) {
+    str[] result();
+    StrBuf line();
+    str lineCheck;
+    while (from.more) {
+        char current = from.get();
+
+        if(current.byte != carriageReturn and current.byte != lineFeed)
+            line << current;
+
+        if(current.byte == lineFeed) {
+            if(removeEmptyLines) {
+                lineCheck = line.toS();
+                if(lineCheck.count > 0) {
+                    result << lineCheck;
+                }
+            } else {
+                result << line.toS();
+            }
+            line = new StrBuf();
+        }
     }
+
+    if(removeEmptyLines) {
+        lineCheck = line.toS();
+        if(lineCheck.count > 0) {
+            result << lineCheck;
+        }
+    } else {
+        result << line.toS();
+    }
+
+    return result;
 }

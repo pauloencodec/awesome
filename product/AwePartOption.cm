@@ -41,6 +41,7 @@ public class AwePartOption extends PartInfoTree {
     public str name;
     public str description;
     public double price;
+    public AwePart part;
 
     public constructor(AwePart part, str code, str name=null, str description=null, double price=0) {
         super(code, part);
