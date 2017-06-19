@@ -37,18 +37,23 @@
 package custom.awesome.storage;
 
 public class AweStoragePlatformBase extends AweStorageBase {
-    private double extraWidth;
+    private double baseTrim;
     
-    public constructor(double height, double extraWidth=0) {
+    public constructor(double height=3.39inch, double baseTrim=.730inch) {
         this.height = height;
-        this.extraWidth = extraWidth;
+        this.baseTrim = baseTrim;
     }   
 
     public Awe3D get3D() {        
         Awe3D prims();
-        box b((owner.localBound.p0.x, owner.localBound.p0.y - this.extraWidth, owner.localBound.p0.z), (owner.localBound.p1.x, owner.localBound.p1.y, this.height));
 
-        prims << Box3D(b);
+        double tinyOffset = .20inch;
+        
+        box platform((owner.localBound.p0.x, owner.localBound.p0.y, owner.localBound.p0.z), (owner.localBound.p1.x, owner.localBound.p1.y, this.height));
+        box baseTrim((owner.localBound.p0.x + tinyOffset, owner.localBound.p0.y - this.baseTrim , owner.localBound.p0.z), (owner.localBound.p1.x - tinyOffset, owner.localBound.p0.y, this.height + this.baseTrim));
+
+        prims << Box3D(platform);
+        prims << Box3D(baseTrim);
 
         prims.setMaterial(material);
 
