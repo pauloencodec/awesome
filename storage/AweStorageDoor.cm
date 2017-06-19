@@ -38,54 +38,39 @@
 package custom.awesome.storage;
 
 public const double storagePullOffsetFromPieceTop = 1inch;
+public const double storageDoorOffset = 0.03125inch;
 
 public class AweStorageDoor extends AweStorageGridPiece {
-    public angle pullRotation;
     public bool writeable;
-    public AwePullType pullType;
-    private Point2D _pullPosition;
-    private bool useLargeIfPossible;
+    public AweStoragePull pull;
 
-    public constructor(awePullType pullType, bool writeable = false, double leftOffset = 0.03125inch, double rightOffset = 0.03125inch, double topOffset = 0.03125inch, double bottomOffset = 0.03125inch, bool useLargeIfPossible = false) {
-        this.pullType = pullType;
+    public constructor(awePullType pullType, bool writeable=false, double leftOffset=storageDoorOffset, double rightOffset=storageDoorOffset, double topOffset=storageDoorOffset, double bottomOffset=storageDoorOffset, bool useLargeIfPossible=false) {
         this.writeable = writeable;
         this.leftOffset = leftOffset;
         this.rightOffset = rightOffset;
         this.topOffset = topOffset;
         this.bottomOffset = bottomOffset;
-        this.useLargeIfPossible = useLargeIfPossible;
+
+        this.pull = new AweStoragePull(pullType, useLargeIfPossible);
     } 
 
-    public constructor(point2D pullPosition, angle pullRotation = 0deg, awePullType pullType = awePullType.square, bool useLargeIfPossible = false) {
-        this.pullPosition = pullPosition;
-        this.pullRotation = pullRotation;
-        this.pullType = pullType;
-        this.useLargeIfPossible = useLargeIfPossible;
-    }   
+    public constructor(point2D pullPosition, angle pullRotation=0deg, awePullType pullType=awePullType.square, bool useLargeIfPossible=false) {
+        this.pull = new AweStoragePull(pullType, useLargeIfPossible, pullPosition, pullRotation);
+    }
 
-    extend public str getPullTypeFileName(awePullType pt) {
-        switch (pt) { 
-            case awePullType.arch: return "arch-pull";
-            case awePullType.bar: { 
-                return this.useLargeIfPossible ? "large-bar-pull" : "bar-pull";
-            }
-            case awePullType.linear: return "linear-pull";
-            case awePullType.straight: return "straight-pull";
-            case awePullType.square:
-            default: { 
-                return "square-pull";
-            }
-        }
+    public constructor(double leftOffset=storageDoorOffset, double rightOffset=storageDoorOffset, double topOffset=storageDoorOffset, double bottomOffset=storageDoorOffset, bool writeable=false, AweStoragePull pull=null) {
+        this.leftOffset = leftOffset;
+        this.rightOffset = rightOffset;
+        this.topOffset = topOffset;
+        this.bottomOffset = bottomOffset;
+        this.writeable = writeable;
+        this.pull = pull;
     }
 
     public Awe3D get3D() {
         Awe3D prims();
 
-        if (pullType) {
-            Primitive3D pull = aweCm3DLoader.get3D(this.getPullTypeFileName(pullType.v), storageCm3DFolder);
-            pull.setMaterial(owner.getMaterial("pull"));
-            prims << pull.setPosRot((pullPosition.x, 0, pullPosition.y), (0deg, pullRotation, 0deg));
-        }
+        prims << AweBox3D(box((0 + leftOffset, 0, bottomOffset), (width - rightOffset, depth, height - topOffset)), owner.getMaterial("front"));
 
         if (writeable) {
             Primitive3D writeableFront = AweBox3D(box((0, -0.01inch, 0), (width, 0, height)), owner.getMaterial("front"));
@@ -93,33 +78,36 @@ public class AweStorageDoor extends AweStorageGridPiece {
             prims << writeableFront;
         }
 
-        prims << AweBox3D(box((0 + leftOffset, 0, bottomOffset), (width - rightOffset, depth, height - topOffset)), owner.getMaterial("front"));
+        if (this.pull) {
+            this.ensurePullValues();
+
+            prims << this.pull.get3D();
+        }
+
         return Awe3D(prims);
     }
 
     public Graph get2D() {
-        Graph[] graph();
+        GInstance g();
 
-        Graph pull = aweCm3DLoader.getGraph(this.getPullTypeFileName(pullType.v), storageCm3DFolder # "/2D");
-        pull.move((pullPosition.x, 0, pullPosition.y));
-        pull.rotate(pullRotation);
+        g << new GRect(rect((0 + leftOffset, 0), (width - rightOffset, depth)));
 
-        graph << pull;
-        graph << GRect(rect((0 + leftOffset, 0), (width - rightOffset, depth)));
+        if (this.pull) {
+            this.ensurePullValues();
 
-        return GInstance(graph);
-    }
-
-    extend public point2D pullPosition() {
-        if (_pullPosition == null) {
-            return (width/2, height - storagePullOffsetFromPieceTop);
+            g << this.pull.get2D();
         }
-        return _pullPosition.v;
+
+        return g;
     }
 
-    extend public point2D pullPosition=(point2D value){
-        this._pullPosition = new Point2D (value); 
-        return this._pullPosition.v;
+    extend private void ensurePullValues() {
+        if (this.pull.material == null) {
+            this.pull.material = owner.getMaterial("pull");
+        }
+
+        if (this.pull.pos == null) {
+            this.pull.pos = (this.width / 2, this.height - storagePullOffsetFromPieceTop);
+        }
     }
 }
-
