@@ -40,9 +40,11 @@ public class AweStorageGrid {
     public box localBound;
     public AweStorageGridColumn[] columns();
     private str->Material3D materials();
+    private Box baseBox;
 
-    public constructor(box localBound) {
+    public constructor(box localBound, Box baseBox=null) {
         this.localBound = localBound;
+        this.baseBox = baseBox;
     }   
 
     extend public void setMaterial(str key, Material3D material) {
@@ -154,12 +156,22 @@ public class AweStorageGrid {
         for(c in columns) {
             x += c.leftPadding;
              if (c.septum) {
+                //See comments below about base - It might interfere here
+
                 c.septum.move((0, localBound.p0.y, localBound.p0.z));
                 if(!c.septum.mainMaterial) c.septum.setMaterial(getMaterial("septum"));
                 prim << c.septum;
             }
-            for(p in c.pieces) {
+            for(p in c.pieces, index=i) {
                 point origin(x,0,p.z);
+
+                //If the storage has a base it will start adding pieces where the base ends
+                //It is currently only implemented for AweStoragePlatformBase
+                //I'm not sure how this would work with a septum
+                if(baseBox) {
+                    origin = point(origin.x, origin.y, origin.z + baseBox.v.h);
+                }
+
                 var aweBox = p.get3D();
                 aweBox.move(origin + localBound.p0);
                 prim << aweBox;
