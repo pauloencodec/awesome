@@ -560,10 +560,18 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
     };
 }
 
+public int aweAPSort( AnimationProperty a, AnimationProperty b, Object order ) {
+    return propertySort( a.key, b.key, order );
+}
+
 public int aweQPSort( QuickProperty a, QuickProperty b, Object order ) {
+    return propertySort( a.key, b.key, order );
+}
+
+private int propertySort( str a, str b, Object order ) {
     if ( order as str[] ) {
-        int aIndex = order.indexOf( a.key );
-        int bIndex = order.indexOf( b.key );
+        int aIndex = order.indexOf( a );
+        int bIndex = order.indexOf( b );
 
         if ( aIndex > bIndex ) return bIndex == -1 ? -1 : 1; // if B wasn't in the list, push it to the end
         if ( bIndex > aIndex ) return aIndex == -1 ? 1 : -1; // if A wasn't in the list, push it to the end

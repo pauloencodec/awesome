@@ -51,17 +51,25 @@ public class AweInsertAnimation extends InsertAnimation {
     public void buildProperties() {
         this.destroyAnimationProperties();
         this.createAnimationProperties();
-        
+        str[] sortOrder = null;
+
         if (this.snapper.activeConfigurator) {
             this.snapper.addExtraAnimationProperties(this.animationProperties);
             this.snapper.activeConfigurator.buildAnimationProperties(this.animationProperties);
+
+            sortOrder = this.snapper.activeConfigurator.quickPropertySort();
+            if ( sortOrder and sortOrder.count > 0 ) {
+                for( qp in this.animationProperties.properties ) {
+                    if ( sortOrder.indexOf( qp.key ) == -1 ) sortOrder << qp.key;
+                }
+            }
 
             if (this.currentKey) {
                 this.animationProperties.setCurrent(this.currentKey);
             }
         }
 
-        this.animationProperties.finalize();
+        this.animationProperties.finalize(showList=sortOrder);
     }
 
     public void propertyChange(str key, Object value) {
