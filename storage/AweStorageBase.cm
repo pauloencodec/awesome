@@ -47,4 +47,8 @@ public class AweStorageBase {
     extend public Awe3D get3D() {
         return null;
     }
+
+    extend public Box localBound() {
+        return null;
+    }
 }

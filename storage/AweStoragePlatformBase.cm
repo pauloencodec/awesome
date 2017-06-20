@@ -37,26 +37,55 @@
 package custom.awesome.storage;
 
 public class AweStoragePlatformBase extends AweStorageBase {
-    private double baseTrim;
+    private double baseTrimThickness;
     
-    public constructor(double height=3.39inch, double baseTrim=.730inch) {
+    public constructor(double height=3.39inch, double baseTrimThickness=.730inch) {
         this.height = height;
-        this.baseTrim = baseTrim;
+        this.baseTrimThickness = baseTrimThickness;
     }   
+
+    extend private box getPlatformBox() {
+        double laminateThickness = getLaminateThicknessFromOwner(owner);
+
+        double backY = owner.localBound.p1.y - (owner.backBox.volume > 0 ? owner.backBox.d : 0d);
+        double frontY = owner.localBound.p0.y + (owner.frontBox.volume > 0 ? owner.frontBox.d : 0d);
+
+        box platform((owner.localBound.p0.x + laminateThickness, frontY, owner.localBound.p0.z), (owner.localBound.p1.x - laminateThickness, backY, this.height));
+
+        return platform;
+    }
+
+    extend private box getBaseTrimBox() {
+        double tinyOffset = .20inch;
+        double frontY = owner.localBound.p0.y + (owner.frontBox.volume > 0 ? owner.frontBox.d : 0d);
+        double laminateThickness = getLaminateThicknessFromOwner(owner);
+
+        box baseTrim((owner.localBound.p0.x + tinyOffset, frontY - this.baseTrimThickness , owner.localBound.p0.z), (owner.localBound.p1.x - tinyOffset, owner.localBound.p0.y + laminateThickness, this.height));
+
+        return baseTrim;
+    }
 
     public Awe3D get3D() {        
         Awe3D prims();
 
-        double tinyOffset = .20inch;
-        
-        box platform((owner.localBound.p0.x, owner.localBound.p0.y, owner.localBound.p0.z), (owner.localBound.p1.x, owner.localBound.p1.y, this.height));
-        box baseTrim((owner.localBound.p0.x + tinyOffset, owner.localBound.p0.y - this.baseTrim , owner.localBound.p0.z), (owner.localBound.p1.x - tinyOffset, owner.localBound.p0.y, this.height + this.baseTrim));
-
-        prims << Box3D(platform);
-        prims << Box3D(baseTrim);
+        prims << Box3D(this.getPlatformBox());
+        prims << Box3D(this.getBaseTrimBox());
 
         prims.setMaterial(material);
 
         return Awe3D(prims);
+    }
+
+    public Box localBound() {
+        return this.getPlatformBox() + this.getBaseTrimBox();
+    }
+
+    extend private double getLaminateThicknessFromOwner(AweStorageChassis3D o) {
+        if(o.frontBox.volume > 0) return o.frontBox.d;
+        if(o.leftBox.volume > 0) return o.leftBox.w;
+        if(o.rightBox.volume > 0) return o.rightBox.w;
+        if(o.backBox.volume > 0) return o.backBox.d;
+        
+        return 0;
     }
 }
