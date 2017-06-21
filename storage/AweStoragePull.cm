@@ -64,6 +64,11 @@ public class AweStoragePull {
         this.rot = rot;
     }
 
+    public constructor( Point2D pos=null, angle rot=0deg ) {
+        this.pos = pos;
+        this.rot = rot;
+    }
+
     extend public Primitive3D get3D() {
         Primitive3D pull = aweCm3DLoader.get3D(this.filePath3D);
         
