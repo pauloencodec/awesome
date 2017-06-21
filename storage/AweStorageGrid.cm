@@ -42,7 +42,11 @@ public class AweStorageGrid {
     private str->Material3D materials();
     private Box baseBox;
 
-    public constructor(box localBound, Box baseBox=null) {
+    public constructor(box localBound) {
+        this(localBound, null);
+    }   
+
+    public constructor(box localBound, Box baseBox) {
         this.localBound = localBound;
         this.baseBox = baseBox;
     }   
