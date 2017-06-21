@@ -1,0 +1,214 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome;
+
+public class ComboDistanceStepRange extends ComboDistanceRange {
+    public distance step;
+
+    extend public QuickProperty customQuickProperty(str key, str label, Object value) {
+        return new ComboSliderQuickProperty(key, label, value, value.class, this);
+    }
+
+    public aweDynamicContract {
+        aweDynamic QuickProperty customQuickProperty(str key, str label, Object value);
+    }
+
+    public constructor(distance minV, distance maxV, distance step, bool adjustFromEnd=false) {
+	if (adjustFromEnd) {
+	    distance max = ceil((maxV - minV) / step) * step;
+
+	    if (maxV - max < minV)
+	      minV = maxV - max + step;
+	    else
+	      minV = maxV - max;
+	} else {
+	    distance max = floor((maxV - minV) / step) * step + minV;
+
+	    if (max + step <= maxV) max += step;
+	    maxV = max;
+	}
+    super(minV, maxV);
+	
+	this.step = step;
+    }
+
+    public constructor(double minV, double maxV, double step, bool adjustFromEnd=false) {
+        this(minV.distance, maxV.distance, step.distance, adjustFromEnd);
+    }
+    
+    /**
+     * Return true if 'o' is within this subset.
+     */
+    public bool contains(Object o) {
+	if (o as Number) {
+	    distance v = o.distance;
+	    if (v == minV) return true;
+	    if (v == maxV) return true;
+	    
+	    if (v < minV or v > maxV) return false;
+	    
+	    distance d = floor((v - minV)/step)*step;
+	    return (d + minV)  == v or (d + minV + step) == v;
+	}
+	
+	return false;
+    }
+
+
+    /**
+     * Return the closest member to 'o' in this subset.
+     */
+    public Object closest(Object o) {
+	if (o as Number) {
+	    double v = o.double;
+	    if (v < minV) return minV;
+
+	    var max = floor((maxV - minV) / step) * step + minV;
+	    if (max + step <= maxV) max += step;
+	    if (v > max) return max;
+
+	    double d = floor((v - minV) / step) * step + minV;
+	    return ((|d - v| > |(d + step) - v|) ?  d + step : d).distance;
+	}
+	
+	return null;
+    }
+
+    
+    /**
+     * Closest succeeding or equal member.
+     */
+    public Object closestSucceeding(Object o) {
+	if (o as Number) {
+	    Object c = closest(o);
+	    if (c as Distance) return c.v < o.distance ? next(c) : c;
+	}
+	return null;
+    }
+
+
+    /**
+     * Closest preceeding or equal member.
+     */
+    public Object closestPreceeding(Object o) {
+	if (o as Number) {
+	    Object c = closest(o);
+	    if (c as Distance) return c.v > o.distance ? previous(c) : c;
+	}
+	return null;
+    }
+
+
+    /**
+     * Return the member count. 
+     * If the subset is contiuous the returnvalue is maxInt
+     */
+    public int count() {
+	int max = (floor((maxV - minV) / step)).int;
+	return max + (((max + 1)*step) + minV <=maxV ? 2 : 1);
+    }
+
+    
+    /**
+     * Return the first member of the subset. 
+     */
+    public Object first() {
+	return minV;
+    }
+
+    
+    /**
+     * Return the last memeber of the subset.
+     */
+    public Object last() {
+	return maxV;
+    }
+
+    
+    /**
+     * Return the member succeeding 'o'
+     * 'o' must be a member of this subset.
+     */
+    public Object next(Object o) {
+	if (o as Number and o in this) {
+	    distance v = o.distance;
+	    distance c = v + step;
+	    if (c <= maxV) return c;
+	}
+
+	return null;
+    }
+    
+
+    /**
+     * Return the memeber prior to 'o'.
+     * 'o' must be a member of this subset.
+     */
+    public Object previous(Object o) {
+	if (o as Number and o in this) {
+	    distance v = o.distance;
+	    distance c = v - step;
+	    if (c >= minV) return c;
+	}
+
+	return null;
+    }
+
+    
+    /**
+     * Return all members as a sequence of objects.
+     */
+    public Object[] members() {
+	Object[] members();
+	Object o = first();
+	while (o) {
+	    members << o;
+	    o = next(o);
+	}
+
+	return members;
+    }
+
+
+    /**
+     * Return a random member.
+     */
+    public Object random() {
+	int n = ( (maxV - minV)/step ).int;
+	return minV + step*randI(n);
+    }
+}
