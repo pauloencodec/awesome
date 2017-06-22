@@ -63,13 +63,13 @@ public class AweInsertAnimation extends InsertAnimation {
                     if ( sortOrder.indexOf( qp.key ) == -1 ) sortOrder << qp.key;
                 }
             }
-
-            if (this.currentKey) {
-                this.animationProperties.setCurrent(this.currentKey);
-            }
         }
 
         this.animationProperties.finalize(showList=sortOrder);
+        
+        if (this.animationProperties and this.currentKey) {
+            this.animationProperties.setCurrent(this.currentKey);
+        }
     }
 
     public void propertyChange(str key, Object value) {
