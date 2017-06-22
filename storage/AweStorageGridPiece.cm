@@ -56,7 +56,7 @@ public class AweStorageGridPiece {
     }   
 
     extend public Awe3D get3D() {
-        AweBox3D aweBox(box((leftOffset, 0, bottomOffset), (width - rightOffset,depth,height - topOffset)), this.material??randomColorLWMaterial);
+        AweBox3D aweBox(box((leftOffset, 0, bottomOffset), (width - rightOffset,depth,height - topOffset)), this.material??owner.getMaterial("front"));
         return aweBox;
     }
 
