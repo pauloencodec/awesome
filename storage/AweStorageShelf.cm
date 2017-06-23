@@ -49,4 +49,8 @@ public class AweStorageShelf extends AweStorageGridPiece {
         AweBox3D aweBox(box((0, indent, 0), (width, depth, thickness)), owner.getMaterial("shelves"));
         return aweBox;
     }
+
+    public Graph get2D() {
+        return null;
+    }
 }
