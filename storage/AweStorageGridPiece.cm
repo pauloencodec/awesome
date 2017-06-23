@@ -61,7 +61,7 @@ public class AweStorageGridPiece {
     }
 
     extend public Graph get2D() {
-        GRect rectangle(rect((-width, -depth), (width, depth)));
+        GRect rectangle(rect((0, 0), (width, depth)));
         return rectangle;
     }
 }
