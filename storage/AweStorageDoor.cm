@@ -70,7 +70,7 @@ public class AweStorageDoor extends AweStorageGridPiece {
     public Awe3D get3D() {
         Awe3D prims();
 
-        prims << AweBox3D(box((0 + leftOffset, 0, bottomOffset), (width - rightOffset, depth, height - topOffset)), owner.getMaterial("front"));
+        prims << AweBox3D(box((0 + leftOffset, 0, bottomOffset), (width - rightOffset, depth, height - topOffset)), this.material??owner.getMaterial("front"));
 
         if (writeable) {
             Primitive3D writeableFront = AweBox3D(box((0, -0.01inch, 0), (width, 0, height)), owner.getMaterial("front"));

@@ -405,6 +405,7 @@ public definition @visibility aweObject @name=id @parentClass=["extends" type]? 
                 }
 
                 public void init() { 
+                    super();
                     @initProps;
                 }
 
