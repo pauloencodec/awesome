@@ -92,8 +92,6 @@ public class AweStoragePull {
             pull.move((this.pos.v.x, 0, this.pos.v.y));
         }
 
-        pull.rotate(this.rot);
-
         return pull;
     }
 
