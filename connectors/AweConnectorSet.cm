@@ -57,20 +57,3 @@ public class AweConnectorSet {
 
     }
 }
-
-public class AweConnectEnv {
-    public AweConnectorSet set;
-    public AweObject model;
-    public Snapper snapper;
-    public Connector connector;
-    public str id;
-    public Object bag;
-
-    public constructor auto();
-
-    public constructor(Connector connector) {
-        this(set=connector.getConnectorSet, model=connector.getModel, snapper=connector.snapper, connector=connector, id=connector.getId, bag=connector.getBag);
-    }
-}
-
-

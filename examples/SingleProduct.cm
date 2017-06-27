@@ -96,11 +96,11 @@ public class SingleCubeConnectorSet extends AweConnectorSet {
     }
 
     public void connected(AweConnectEnv me, AweConnectEnv other) {
-        pln("connected to"; #other);
+        pln("connected to"; #other.model);
     }
 
     public void disconnected(AweConnectEnv me, AweConnectEnv other) {
-        pln("disconnected from"; #other);
+        pln("disconnected from"; #other.model);
     }
 
     public void connectors(AweConnectorCache cache) {
