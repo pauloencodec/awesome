@@ -47,5 +47,5 @@ public enum awePullType : field access {
     linear = 2;
     square = 3;
     straight = 4;
-
+    j = 5;
 }

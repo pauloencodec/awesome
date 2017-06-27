@@ -51,6 +51,10 @@ public class AweStorageChassis3D extends Awe3D {
     public box localBound;
     public box spaceLeft;
     public box frontBox;
+    public box topBox;
+    public box leftBox;
+    public box rightBox;
+    public box backBox;
     public AweStorageBase base;
     public Primitive3D[] specialPrims();
     extend public box gridBox() {
@@ -64,7 +68,6 @@ public class AweStorageChassis3D extends Awe3D {
         this.localBound = localBound;
         this.spaceLeft = localBound;
     }   
-
 
     extend private void addToIndex(str name, Rect3D r) {
         if(!index.get(name)) {
@@ -81,6 +84,7 @@ public class AweStorageChassis3D extends Awe3D {
     
     extend public AweStorageChassis3D addTop(double thickness=0.75inch, double indent = 0) {
         box laminate((spaceLeft.p0.x, spaceLeft.p0.y, spaceLeft.p1.z-thickness), spaceLeft.p1 - (0, indent, 0));
+        topBox = laminate;
         box temp = spaceLeft.moved(point(0, 0, -thickness));
         spaceLeft = spaceLeft * temp;
 
@@ -114,6 +118,7 @@ public class AweStorageChassis3D extends Awe3D {
 
     extend public AweStorageChassis3D addLeft(double thickness=0.75inch, Awe3D prim = null) {
         box laminate(spaceLeft.p0, (spaceLeft.p0.x + thickness, spaceLeft.p1.y, spaceLeft.p1.z));
+        leftBox = laminate;
         box temp = spaceLeft.moved(point(thickness, 0, 0));
         spaceLeft = spaceLeft * temp;
         
@@ -133,6 +138,7 @@ public class AweStorageChassis3D extends Awe3D {
 
     extend public AweStorageChassis3D addRight(double thickness=0.75inch, Awe3D prim=null) {
         box laminate((spaceLeft.p1.x - thickness, spaceLeft.p0.y, spaceLeft.p0.z), spaceLeft.p1);
+        rightBox = laminate;
         box temp = spaceLeft.moved(point(-thickness, 0, 0));
         spaceLeft = spaceLeft * temp;
         
@@ -152,6 +158,7 @@ public class AweStorageChassis3D extends Awe3D {
 
     extend public AweStorageChassis3D addBack(double thickness=0.75inch, double indent = 0) {
         box laminate((spaceLeft.p0.x, spaceLeft.p1.y - thickness, spaceLeft.p0.z), spaceLeft.p1 - (0, 0, indent));
+        backBox = laminate;
         box temp = spaceLeft.moved(point(0, -thickness, 0));
         spaceLeft = spaceLeft * temp;
 

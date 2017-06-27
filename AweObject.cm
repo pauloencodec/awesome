@@ -87,6 +87,8 @@ public class AweObject {
         return false;
     }
 
+    extend public str[] quickPropertySort() { return null; }
+
     extend public void buildAnimationProperties(AnimationProperties props) {
     }
 
@@ -444,6 +446,7 @@ public definition @visibility aweObject @name=id @parentClass=["extends" type]? 
                 }
 
                 public void init() { 
+                    super();
                     @initProps;
                 }
 
@@ -569,6 +572,14 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         @visibility bool buildQuickProperties(QuickProperties props) {
             super(..);
             @buildQuickProperties;
+            str[] sortOrder = this.quickPropertySort();
+            if ( sortOrder and sortOrder.count > 0 ) {
+                for( qp in props.properties ) {
+                    if ( sortOrder.indexOf( qp.key ) == -1 ) sortOrder << qp.key;
+                }
+                props.properties.sort( function aweQPSort, sortOrder );
+            }
+
             return true;
         }
 
@@ -589,4 +600,23 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
             @animationPropertiesChanged;
         }
     };
+}
+
+public int aweAPSort( AnimationProperty a, AnimationProperty b, Object order ) {
+    return propertySort( a.key, b.key, order );
+}
+
+public int aweQPSort( QuickProperty a, QuickProperty b, Object order ) {
+    return propertySort( a.key, b.key, order );
+}
+
+private int propertySort( str a, str b, Object order ) {
+    if ( order as str[] ) {
+        int aIndex = order.indexOf( a );
+        int bIndex = order.indexOf( b );
+
+        if ( aIndex > bIndex ) return bIndex == -1 ? -1 : 1; // if B wasn't in the list, push it to the end
+        if ( bIndex > aIndex ) return aIndex == -1 ? 1 : -1; // if A wasn't in the list, push it to the end
+    }
+    return 0;
 }
