@@ -37,6 +37,7 @@
 package custom.awesome;
 
 use cm.syntax;
+use custom.awesome.connectors;
 
 public class ToStrShell extends AweDynamicShell {
     public aweShellMethod str toStr(str extraInfo);
@@ -327,6 +328,46 @@ public class AweObject {
 
     extend public void disconnected(AweObject model) {
 
+    }
+
+    /************** exposing connectors ***************/
+    extend public Connector{} getConnectors(Snapper snapper) {
+        Connector{} connectors();
+        for(set in connectorSets) {
+            if(!set.connectorCache) {
+                set.connectorCache = new AweConnectorCache(snapper);
+            }
+            set.connectorCache.clearBuffer();
+            set.connectors(set.connectorCache);
+            for(c in set.connectorCache.buffer) {
+                c.setRule(ctAlways);
+                c.setConnectorSet(set);
+                connectors << c;
+            }
+        }
+        return connectors;
+    }
+
+    private Field{} _connectorSetFields;
+    extend public AweConnectorSet{} connectorSets() {
+        if(!_connectorSetFields) {
+            init _connectorSetFields();
+            for(field in this.class.fields) {
+                Object value = this.get(field);
+                if(value in AweConnectorSet) {
+                    _connectorSetFields << field;
+                }
+            }
+        }
+        AweConnectorSet{} sets();
+        for(field in _connectorSetFields) {
+            Object value = this.get(field);
+            if(value as AweConnectorSet) {
+                if(value)
+                    sets << value;
+            }
+        }
+        return sets;
     }
 }
 

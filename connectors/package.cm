@@ -64,7 +64,7 @@ public void setId(Connector c, str id) {
     }
 }
 
-public str id(Connector c, str id) {
+public str getId(Connector c) {
     aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
         return conn.id;
     }
@@ -84,4 +84,24 @@ public void setModel(Connector c, AweObject model) {
     aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
         conn.model = model;
     }
+}
+
+public AweConnectorSet getConnectorSet(Connector c) {
+    aweTryCast(c as conn to AweConnectPoint, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
+        return conn.connectorSet;
+    }
+    return null;
+}
+
+public void setConnectorSet(Connector c, AweConnectorSet set) {
+    aweTryCast(c as conn to  AweConnectPoint, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
+        conn.connectorSet = set;
+    }
+}
+
+public Object getBag(Connector c) {
+    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
+        return conn.bag;
+    }
+    return null;
 }

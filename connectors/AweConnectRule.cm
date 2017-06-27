@@ -36,80 +36,41 @@
 
 package custom.awesome.connectors;
 
-public class AweConnectPoint extends ConnectPoint {
-    public aweDynamicContract {
-        aweDynamic bool shouldRealign();
-        aweDynamic bool isMandatory();
-        aweDynamic void makeMandatory();
-    }
-    
-    public str id;
-    public bool realign = false;
-    public bool hidden = false;
-    public bool hiddenWhenDisconnected = false;
+public class AweConnectorSet {
 
+    public constructor() { }
 
-    public bool mandatory = false;
-    extend public bool isMandatory() {
-        return mandatory;
+    public AweConnectorCache connectorCache;
+
+    extend public void connectors(AweConnectorCache cc) {
     }
 
-    extend public void makeMandatory() {
-        mandatory = true;
+    extend public bool connect(AweConnectEnv me, AweConnectEnv other) {
+        return false;
     }
 
-    extend public bool shouldRealign() {
-        return this.realign;
+    extend public void connected(AweConnectEnv me, AweConnectEnv other) {
+
     }
 
-    public point _position;
-    public point pos() { return _position; }
-    public void setPos(point newPos) {
-        _position = newPos;
+    extend public void disconnected(AweConnectEnv me, AweConnectEnv other) {
+
     }
-    
-    /**
-    * Orientation.
-    */
-    private orientation _rotation;
-    public orientation rot() { return _rotation; }
-    public void setRot(orientation newRot) {
-        _rotation = newRot;
-    }
-
-
-    /**
-    * Connect rule.
-    */
-    private ConnectRule _rule;
-    public ConnectRule rule() { return _rule; }
-    public void setRule(ConnectRule newRule) {
-        _rule = newRule;
-    }
-
-    private str _id;
-    extend public str id() { return _id; }
-    extend public void setId(str id) {
-        _id = id;
-    }
-    
-    public bool isVisible() {
-        return !hidden and !((hiddenWhenDisconnected and !this.isConnected()));
-    }
-
-    public constructor(Snapper snapper, point pos=point(), orientation rot=orientation(), ConnectRule rule=null, bool realign=false) {
-        super(snapper);
-
-        this.setPos(pos);
-	    this.setRot(rot);
-        this.setRule(rule);
-
-        this.realign = realign;
-    }
-
-    /************** model connecting ******************/
-    public modelConnecting;
-
-    
-    
 }
+
+public class AweConnectEnv {
+    public AweConnectorSet set;
+    public AweObject model;
+    public Snapper snapper;
+    public Connector connector;
+    public str id;
+    public Object bag;
+
+    public constructor auto();
+
+    public constructor(Connector connector) {
+        this(set=connector.getConnectorSet, model=connector.getModel, snapper=connector.snapper, connector=connector, id=connector.getId, bag=connector.getBag);
+    }
+}
+
+
