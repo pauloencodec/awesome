@@ -48,7 +48,6 @@ public class AweConnectPoint extends ConnectPoint {
     public bool hidden = false;
     public bool hiddenWhenDisconnected = false;
 
-    public Object bag: copy=null, stream=null;
 
     public bool mandatory = false;
     extend public bool isMandatory() {
@@ -110,5 +109,7 @@ public class AweConnectPoint extends ConnectPoint {
 
     /************** model connecting ******************/
     public modelConnecting;
+
+    
     
 }
