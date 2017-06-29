@@ -84,9 +84,9 @@ public class AweStoragePull {
     }
 
     extend public Graph get2D() {
-        Graph[] graph();
-
         Graph pull = aweCm3DLoader.getGraph(this.filePath2D);
+
+        pull.setFillColor(white);
 
         if (this.pos != null) {
             pull.move((this.pos.v.x, 0, this.pos.v.y));
