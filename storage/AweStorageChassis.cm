@@ -90,6 +90,11 @@ public class AweStorageChassis3D extends Awe3D {
 
         AweBox3D prim(laminate, randomColorLWMaterial());
         addToIndex("front", prim.front);
+        addToIndex("topEdgeBand", prim.front);
+        addToIndex("topEdgeBand", prim.left);
+        addToIndex("topEdgeBand", prim.right);
+        addToIndex("topEdgeBand", prim.back);
+        addToIndex("top", prim.top);
         addToIndex("internal", prim.bottom);
         allFaces += prim.allFaces;
         

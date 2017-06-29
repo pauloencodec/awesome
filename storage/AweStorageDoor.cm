@@ -95,7 +95,7 @@ public class AweStorageDoor extends AweStorageGridPiece {
         if (this.pull) {
             this.ensurePullValues();
 
-            g << this.pull.get2D();
+            g <<? this.pull.get2D();
         }
 
         return g;

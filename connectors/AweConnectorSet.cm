@@ -34,23 +34,26 @@
    END OF CETSC
 */
 
-package custom.awesome.storage;
+package custom.awesome.connectors;
 
-public class AweStorageShelf extends AweStorageGridPiece {
-    public double thickness;
-    public double indent;
+public class AweConnectorSet {
 
-    public constructor(double thickness, double indent = 0) {
-        this.thickness = thickness;
-        this.indent = indent;
-    }   
+    public constructor() { }
 
-    public Awe3D get3D() {
-        AweBox3D aweBox(box((0, indent, 0), (width, depth, thickness)), owner.getMaterial("shelves"));
-        return aweBox;
+    public AweConnectorCache connectorCache;
+
+    extend public void connectors(AweConnectorCache cc) {
     }
 
-    public Graph get2D() {
-        return null;
+    extend public bool connect(AweConnectEnv me, AweConnectEnv other) {
+        return false;
+    }
+
+    extend public void connected(AweConnectEnv me, AweConnectEnv other) {
+
+    }
+
+    extend public void disconnected(AweConnectEnv me, AweConnectEnv other) {
+
     }
 }
