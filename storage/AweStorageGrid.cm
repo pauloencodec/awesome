@@ -162,7 +162,7 @@ public class AweStorageGrid {
              if (c.septum) {
                 //See comments below about base - It might interfere here
 
-                c.septum.move((-localBound.p1.x + c.width + c.septum.thickness/2, localBound.p0.y, localBound.p0.z));
+                c.septum.move((-localBound.p1.x + x + c.width, localBound.p0.y, localBound.p0.z));
                 if(!c.septum.mainMaterial) c.septum.setMaterial(getMaterial("septum"));
                 prim << c.septum;
             }
