@@ -87,15 +87,28 @@ public void setModel(Connector c, AweObject model) {
 }
 
 public AweConnectorSet getConnectorSet(Connector c) {
-    aweTryCast(c as conn to AweConnectPoint, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
+    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
         return conn.connectorSet;
     }
     return null;
 }
 
 public void setConnectorSet(Connector c, AweConnectorSet set) {
-    aweTryCast(c as conn to  AweConnectPoint, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
+    aweTryCast(c as conn to  AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
         conn.connectorSet = set;
+    }
+}
+
+public AweMagnet{} getMagnets(Connector c) {
+    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
+        return conn.magnets;
+    }
+    return null;
+}
+
+public void setMagnets(Connector c, AweMagnet{} magnets) {
+    aweTryCast(c as conn to  AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
+        conn.magnets = magnets;
     }
 }
 

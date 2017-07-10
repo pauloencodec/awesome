@@ -44,6 +44,8 @@ public member @visibility modelConnecting ';' {
 
         @visibility AweObject model: copy=null, stream=null;
 
+        @visibility AweMagnet{} magnets;
+
         public bool connect(Connector c, bool oneway=false) {
             var success = super(..);
             if(success) {
@@ -56,8 +58,8 @@ public member @visibility modelConnecting ';' {
 
                 AweConnectEnv me(this);
                 AweConnectEnv other(c);
-
-                me.set.connected(me, other);
+                if(me.set)
+                    me.set.connected(me, other);
             }
             return success;
         }
@@ -74,22 +76,25 @@ public member @visibility modelConnecting ';' {
 
                 AweConnectEnv me(this);
                 AweConnectEnv other(c);
-
-                me.set.disconnected(me, other);
+                if(me.set)
+                    me.set.disconnected(me, other);
             }
             return success;
         }
 
         /*********** awe connector set ****************/
-        public AweConnectorSet connectorSet;
+        public AweConnectorSet connectorSet: copy=null, stream=null;
 
         public bool connectableTo(Connector connector, bool oneway=false) {
             AweConnectEnv me(this);
             AweConnectEnv other(connector);
 
-            if(!me.set) return super(..);
+            if(me.set) return me.set.connect(me, other);
 
-            return me.set.connect(me, other);
+            if(magnetSetsAttract(this.magnets, connector.getMagnets())) return true;
+
+            return super(..);
+            
         }
 
         
