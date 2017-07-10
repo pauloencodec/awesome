@@ -58,8 +58,8 @@ public member @visibility modelConnecting ';' {
 
                 AweConnectEnv me(this);
                 AweConnectEnv other(c);
-
-                me.set.connected(me, other);
+                if(me.set)
+                    me.set.connected(me, other);
             }
             return success;
         }
@@ -76,8 +76,8 @@ public member @visibility modelConnecting ';' {
 
                 AweConnectEnv me(this);
                 AweConnectEnv other(c);
-
-                me.set.disconnected(me, other);
+                if(me.set)
+                    me.set.disconnected(me, other);
             }
             return success;
         }
