@@ -99,6 +99,19 @@ public void setConnectorSet(Connector c, AweConnectorSet set) {
     }
 }
 
+public AweMagnet{} getMagnets(Connector c) {
+    aweTryCast(c as conn to AweConnectPoint, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
+        return conn.magnets;
+    }
+    return null;
+}
+
+public void setMagnets(Connector c, AweMagnet{} magnets) {
+    aweTryCast(c as conn to  AweConnectPoint, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
+        conn.magnets = magnets;
+    }
+}
+
 public Object getBag(Connector c) {
     aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
         return conn.bag;
