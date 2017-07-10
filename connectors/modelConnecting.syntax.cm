@@ -83,7 +83,7 @@ public member @visibility modelConnecting ';' {
         }
 
         /*********** awe connector set ****************/
-        public AweConnectorSet connectorSet;
+        public AweConnectorSet connectorSet: copy=null, stream=null;
 
         public bool connectableTo(Connector connector, bool oneway=false) {
             AweConnectEnv me(this);
