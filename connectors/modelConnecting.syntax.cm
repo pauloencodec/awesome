@@ -44,6 +44,8 @@ public member @visibility modelConnecting ';' {
 
         @visibility AweObject model: copy=null, stream=null;
 
+        @visibility AweMagnet{} magnets;
+
         public bool connect(Connector c, bool oneway=false) {
             var success = super(..);
             if(success) {
@@ -87,9 +89,12 @@ public member @visibility modelConnecting ';' {
             AweConnectEnv me(this);
             AweConnectEnv other(connector);
 
-            if(!me.set) return super(..);
+            if(me.set) return me.set.connect(me, other);
 
-            return me.set.connect(me, other);
+            if(magnetSetsAttract(this.magnets, connector.getMagnets())) return true;
+
+            return super(..);
+            
         }
 
         
