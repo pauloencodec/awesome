@@ -82,7 +82,7 @@ public class AweWorksurface {
 
         PolygonMesh3D face(faceShape, 0, reversed=false, useNormals=false, doublePoints=true, doubleSided=true, arcResolution = arcResolution);
 
-        face.move((0, 0, height + p.y));
+        face.move((0, 0, this.height + p.y));
         face.setMaterial(material);
         return face;
     }
@@ -91,8 +91,8 @@ public class AweWorksurface {
         Awe3D prims();
         prims << makeFace(this.topPoint, material);
         for (hole in holes) {
-            PolygonMesh3D holeSides (AHollowShape2D(hole), height, reversed=true, useNormals=false, doublePoints=true, doubleSided=true, onlySides = true);
-            holeSides.move((0, 0, height + bottomPoint.y));
+            PolygonMesh3D holeSides (AHollowShape2D(hole), this.getThickness(), reversed=true, useNormals=false, doublePoints=true, doubleSided=true, onlySides = true);
+            holeSides.move((0, 0, this.height + bottomPoint.y));
             holeSides.setMaterial(material);
             prims << holeSides;
         }
@@ -100,7 +100,7 @@ public class AweWorksurface {
         return prims;
     }
 
-    extend private double height() {
+    extend private double getThickness() {
         return topPoint.y - bottomPoint.y;
     }
 

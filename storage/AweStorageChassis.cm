@@ -161,17 +161,22 @@ public class AweStorageChassis3D extends Awe3D {
         return this;
     }
 
-    extend public AweStorageChassis3D addBack(double thickness=0.75inch, double indent = 0) {
+    extend public AweStorageChassis3D addBack(double thickness=0.75inch, double indent=0, Awe3D prim=null) {
         box laminate((spaceLeft.p0.x, spaceLeft.p1.y - thickness, spaceLeft.p0.z), spaceLeft.p1 - (0, 0, indent));
         backBox = laminate;
         box temp = spaceLeft.moved(point(0, -thickness, 0));
         spaceLeft = spaceLeft * temp;
 
-        AweBox3D prim(laminate, randomColorLWMaterial());
-        addToIndex("internal", prim.front);
-        allFaces += prim.allFaces;
-        
-        this << prim;
+        if(prim) {
+            prim.move(laminate.p0);
+            specialPrims << prim;
+            this << prim;
+        } else {
+            AweBox3D prim(laminate, randomColorLWMaterial());
+            addToIndex("internal", prim.front);
+            allFaces += prim.allFaces;
+            this << prim;
+        }
         return this;
     }
 
