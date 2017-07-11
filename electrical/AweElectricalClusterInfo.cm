@@ -159,7 +159,7 @@ public class AweElectricalClusterInfo {
         }
     }
 
-    extend private void identifyAndAddInfeedCluster(AweElectricalCluster[] clusters, AweElectricalInfeedPoint infeed, point[] visitedPoints, str->AweElectricalCableLine[] pointLineIndex) {
+    extend private void identifyAndAddInfeedCluster(AweElectricalCluster[] clusters, AweElectricalInfeedPoint infeed, point[] visitedPoints, PointToElectricalCableArrayIndex pointLineIndex) {
         point p = infeed.spacePoint.v;
 
         //aready in someone else's cluster?
@@ -194,10 +194,9 @@ public class AweElectricalClusterInfo {
 
     }
 
-    extend private AweElectricalCableLine[] identifyCluster(point p, point[] visitedPoints, str->AweElectricalCableLine[] pointLineIndex, AweElectricalCableLine[] visitedLines=new AweElectricalCableLine[]()) {
+    extend private AweElectricalCableLine[] identifyCluster(point p, point[] visitedPoints, PointToElectricalCableArrayIndex pointLineIndex, AweElectricalCableLine[] visitedLines=new AweElectricalCableLine[]()) {
 
-        str pointStr = p.toS;
-        var lines = pointLineIndex.get(pointStr);
+        var lines = pointLineIndex.get(p);
         for(l in lines) {
             if(l !in visitedLines) {
                 visitedLines << l;
@@ -211,22 +210,22 @@ public class AweElectricalClusterInfo {
         return visitedLines;
     }
 
-    extend private str->AweElectricalCableLine[] indexPointsToLines(AweElectricalCableLine[] cables) {
+    extend private PointToElectricalCableArrayIndex indexPointsToLines(AweElectricalCableLine[] cables) {
 
-        str->AweElectricalCableLine[] pointLineIndex();
+        PointToElectricalCableArrayIndex pointLineIndex();
 
         for(cable in cables) {
-            str pointStr = cable.spaceLine.v.p0.toS;
-            if(!pointLineIndex.get(pointStr)) {
-                pointLineIndex.put(pointStr, new AweElectricalCableLine[]());
+            point p0 = cable.spaceLine.v.p0;
+            if(!pointLineIndex.get(p0)) {
+                pointLineIndex.put(p0, new AweElectricalCableLine[]());
             }
-            pointLineIndex.get(pointStr) << cable;
+            pointLineIndex.get(p0) << cable;
 
-            pointStr = cable.spaceLine.v.p1.toS;
-            if(!pointLineIndex.get(pointStr)) {
-                pointLineIndex.put(pointStr, new AweElectricalCableLine[]());
+            point p1 = cable.spaceLine.v.p1;
+            if(!pointLineIndex.get(p1)) {
+                pointLineIndex.put(p1, new AweElectricalCableLine[]());
             }
-            pointLineIndex.get(pointStr) << cable;
+            pointLineIndex.get(p1) << cable;
         }
 
         return pointLineIndex;
@@ -244,3 +243,6 @@ public Primitive3D infeedGeometry(AweElectricalInfeedPoint infeed) {
     return cone;
 
 }
+
+public alias AweElectricalCableArray = AweElectricalCableLine[];
+public awePointIndex PointToElectricalCableArrayIndex for AweElectricalCableArray { }
