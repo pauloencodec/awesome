@@ -40,6 +40,9 @@ package custom.awesome.electrical;
 public class AweElectricalInfeedPoint extends Point {
     public str id;
     public AweNotifyProp bool active {
+        for(c in this.cables) {
+            c.active = this.active;
+        }
         if(snapper) {
             aweDynamicCall snapper.aweElectricalInfeedChanged(this);
         }
@@ -57,5 +60,22 @@ public class AweElectricalInfeedPoint extends Point {
         return snapper.toSpace(this.orientation);
     }
 
-    
+    public AweElectricalInfeedConfigurator configurator(this);
+    public AweObject customConfigurator = null;
+}
+
+public aweObject AweElectricalInfeedConfigurator {
+    props(bool active = false);
+    public aweObjectDomain(bool active = BoolSubSet());
+
+    public AweElectricalInfeedPoint owner;
+
+    public constructor(AweElectricalInfeedPoint owner) {
+        this.active = owner.active;
+        this.owner = owner;
+    }
+
+    public void activeChanged(bool value) {
+        this.owner.?active = value;
+    }
 }

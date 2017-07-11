@@ -37,6 +37,9 @@
 package custom.awesome.electrical;
 
 public class AweElectricalAnimationInfeedMode extends AweElectricalAnimationMode {
+
+    public AweElectricalInfeedPoint selectedInfeed;
+
     public point{} clickablePoints() {
         point{} points();
         for(infeed in animation.?map.?allInfeeds) {
@@ -47,9 +50,14 @@ public class AweElectricalAnimationInfeedMode extends AweElectricalAnimationMode
 
     public void clicked(point p) {
         var infeed = animation.?map.?infeedAt(p);
+
         if(infeed) {
-            infeed.active = !infeed.active;
-            updateCables(infeed);
+            if (isControlKeyDown()) { 
+                infeed.configurator.active = !infeed.configurator.active;
+            }
+            
+            selectedInfeed = infeed;
+            animation.updateSubConfigurators();
         }
     }
 
@@ -69,19 +77,36 @@ public class AweElectricalAnimationInfeedMode extends AweElectricalAnimationMode
         }
 
         if(animation.currentPoint) {
-            Sphere3D sphere(animation.currentPoint.v, 4inch);
-            sphere.setMaterial(transparencyMaterial3D(color(255, 255, 0), 0.2));
+            Sphere3D sphere(animation.currentPoint.v, 3inch);
+            sphere.setMaterial(transparencyMaterial3D(color(50, 50, 50), 0.8));
+            prims << sphere;
+        } 
+
+        if(this.selectedInfeed) {
+            Sphere3D sphere(this.selectedInfeed.spacePoint.v, 4inch);
+            sphere.setMaterial(transparencyMaterial3D(color(255, 255, 0), this.selectedInfeed.active ? 0.2 : 0.1));
             prims << sphere;
         } 
 
         return prims;
     }
 
-    extend private void updateCables(AweElectricalInfeedPoint infeed) {
-        for(c in infeed.cables) {
-            c.active = infeed.active;
+
+    public str->AweObject subConfigurators() {
+        if(selectedInfeed) {
+            str->AweObject configurators();
+            configurators.put("selected-infeed-configurator", selectedInfeed.configurator);
+            if(selectedInfeed.customConfigurator){
+                configurators.put("selected-infeed-custom-configurator", selectedInfeed.customConfigurator);
+            }
+            return configurators;
         }
+        return null;
     }
 
+    public void configuratorChanged() {
+        this.animation.status.?updateStatus();
+    }
     
 }
+

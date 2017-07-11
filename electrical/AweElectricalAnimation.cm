@@ -48,7 +48,7 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
             this.map = new AweElectricalMap(this.space);
         }
         status = new AweElectricalClusterInfo(this.map);
-        this.configurator = new AweElectricalAnimationModel();
+        this.configurator = new AweElectricalAnimationModel(this);
         launchMode();
     }   
 
@@ -59,7 +59,8 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
     }
 
     public void configuratorChanged() {
-        launchMode();
+        updateSubConfigurators();
+        currentMode.configuratorChanged();
     }
 
     public void hoveredPointChanged(Point target) {
@@ -94,7 +95,7 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
                 case "Add": 
                     txt = "Click on two points, one after the other, to route power. A power line will be created from point A to point B."; 
                 case "Infeed": 
-                    txt = "Select the power source by clicking at the infeed points."; 
+                    txt = "Select an infeed to edit its properties or ctrl+click it to toggle on and off."; 
                 case "Remove": 
                     txt = "Click on two points, one after the other, to remove an existing power route."; 
                 case "View":
@@ -112,7 +113,16 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
         if(modeName == "Add") currentMode = new AweElectricalAnimationAddRouteMode(this);
         if(modeName == "Remove") currentMode = new AweElectricalAnimationDeleteRouteMode(this);
         showHint();
+
+        updateSubConfigurators();
+
         this.refresh();
+    }
+
+    extend public void updateSubConfigurators() {
+        //mode configurators
+        this.subConfigurators = currentMode.subConfigurators();
+        this.buildProperties();
     }
 }
 
@@ -123,6 +133,15 @@ public aweObject AweElectricalAnimationModel {
     public aweObjectDomain(
         str mode = StrSubSet(["View", "Infeed", "Add", "Remove"])
     );
+
+    public AweElectricalAnimation animation;
+    public constructor(AweElectricalAnimation animation) {
+        this.animation = animation;
+    }
+
+    public void modeChanged(str newMode) {
+        this.animation.?launchMode();
+    }
 }
 
 {

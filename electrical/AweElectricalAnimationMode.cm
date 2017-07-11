@@ -58,4 +58,11 @@ public class AweElectricalAnimationMode {
     extend public Primitive3D get3D() {
         return null;
     }
+
+    extend public str->AweObject subConfigurators() {
+        return null;
+    }
+
+    extend public void configuratorChanged() {
+    }
 }

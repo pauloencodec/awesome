@@ -48,6 +48,9 @@ public class AweObject {
     public str _galleryId;
     public str _label;
 
+    //used to expose multiple aweObjects at once in quick properties
+    public str _uniqueQuickPropertyId;
+
     public constructor() {
         this.init();
     }
@@ -372,6 +375,7 @@ public class AweObject {
         }
         return sets;
     }
+
 }
 
 public definition @visibility aweObject @name=id @parentClass=["extends" type]? '{'  @props=["props" formalArgList ';']? @members=[classMember]* '}' {
@@ -500,7 +504,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                             props.append(customQuickProperty.QuickProperty);
                         }
                         else {
-                            props.append(@propNameStr, @labelName, distance(@propName), @domainName);
+                            props.append(this._uniqueQuickPropertyId # @propNameStr, @labelName, distance(@propName), @domainName);
                         }
                     }
                 }
@@ -515,7 +519,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                             // props.append(customQuickProperty.QuickProperty);
                         }
                         else {
-                            props.append2(@propNameStr, @labelName, distance(@propName), @domainName, lockable=false);
+                            props.append2(this._uniqueQuickPropertyId # @propNameStr, @labelName, distance(@propName), @domainName, lockable=false);
                         }
                     }
                 }
@@ -531,7 +535,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                             props.append(customQuickProperty.QuickProperty);
                         }
                         else {
-                            props.append(@propNameStr, @labelName, @propName, @domainName);
+                            props.append(this._uniqueQuickPropertyId # @propNameStr, @labelName, @propName, @domainName);
                         }
                     }
                 }
@@ -546,7 +550,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                             // props.append(customQuickProperty.QuickProperty);
                         }
                         else {
-                            props.append2(@propNameStr, @labelName, @propName, @domainName, lockable=false);
+                            props.append2(this._uniqueQuickPropertyId # @propNameStr, @labelName, @propName, @domainName, lockable=false);
                         }
                     }
                 }
@@ -554,14 +558,14 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         }
         
         quickPropertiesChanged << statement {
-            if (key == @propNameStr) {
+            if (key == this._uniqueQuickPropertyId # @propNameStr) {
                 this.@propName = value.@propType;
                 return true;
             }
         };
 
         animationPropertiesChanged << statement {
-            if (key == @propNameStr) {
+            if (key == this._uniqueQuickPropertyId # @propNameStr) {
                 this.@propName = value.@propType;
             }
         };
