@@ -74,7 +74,8 @@ public class AweStorageChassis3D extends Awe3D {
             index.put(name, [Rect3D: r]);
         }
         else {
-            index.get(name) << r;
+            Rect3D[] rct = index.get(name);
+            rct << r;
         }
     }
 
@@ -161,11 +162,13 @@ public class AweStorageChassis3D extends Awe3D {
         return this;
     }
 
-    extend public AweStorageChassis3D addBack(double thickness=0.75inch, double indent=0, Awe3D prim=null) {
+    extend public AweStorageChassis3D addBack(double thickness=0.75inch, double indent=0, Awe3D prim=null, bool leaveOut=false) {
         box laminate((spaceLeft.p0.x, spaceLeft.p1.y - thickness, spaceLeft.p0.z), spaceLeft.p1 - (0, 0, indent));
         backBox = laminate;
         box temp = spaceLeft.moved(point(0, -thickness, 0));
         spaceLeft = spaceLeft * temp;
+
+        if ( leaveOut ) return this;
 
         if(prim) {
             prim.move(laminate.p0);
@@ -174,6 +177,11 @@ public class AweStorageChassis3D extends Awe3D {
         } else {
             AweBox3D prim(laminate, randomColorLWMaterial());
             addToIndex("internal", prim.front);
+            addToIndex("back", prim.back);
+            addToIndex("backEdgeBand", prim.top);
+            addToIndex("backEdgeBand", prim.left);
+            addToIndex("backEdgeBand", prim.right);
+            addToIndex("backEdgeBand", prim.bottom);
             allFaces += prim.allFaces;
             this << prim;
         }
