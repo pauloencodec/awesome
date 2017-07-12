@@ -57,7 +57,7 @@ public class AweElectricalCache {
         return cable;
     }
 
-    extend public AweElectricalInfeedPoint infeed(str id, point position, orientation orientation, AweElectricalCableLine[] cables=null, AweObject customConfigurator=null) {
+    extend public AweElectricalInfeedPoint infeed(str id, point position, orientation orientation, AweElectricalCableLine[] cables=null, AweObject[] customConfigurators=null) {
         var infeed = infeeds.get(id);
         if(!infeed) {
             infeed = new AweElectricalInfeedPoint(point());
@@ -66,8 +66,8 @@ public class AweElectricalCache {
         }
         infeed.v = position;
         set*(infeed: orientation, cables);
-        if(customConfigurator and !infeed.customConfigurator) {
-            infeed.customConfigurator = customConfigurator;
+        if(customConfigurators and !infeed.customConfigurators) {
+            infeed.customConfigurators = customConfigurators;
         }
         return infeed;
     }

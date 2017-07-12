@@ -96,8 +96,8 @@ public class AweElectricalAnimationInfeedMode extends AweElectricalAnimationMode
         if(selectedInfeed) {
             str->AweObject configurators();
             configurators.put("selected-infeed-configurator", selectedInfeed.configurator);
-            if(selectedInfeed.customConfigurator){
-                configurators.put("selected-infeed-custom-configurator", selectedInfeed.customConfigurator);
+            for(configurator in selectedInfeed.customConfigurators, index=i){
+                configurators.put("selected-infeed-custom-configurator"#i, configurator);
             }
             return configurators;
         }

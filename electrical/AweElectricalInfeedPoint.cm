@@ -61,7 +61,7 @@ public class AweElectricalInfeedPoint extends Point {
     }
 
     public AweElectricalInfeedConfigurator configurator(this);
-    public AweObject customConfigurator = null;
+    public AweObject[] customConfigurators = null;
 }
 
 public aweObject AweElectricalInfeedConfigurator {
