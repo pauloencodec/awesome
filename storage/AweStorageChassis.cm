@@ -74,7 +74,7 @@ public class AweStorageChassis3D extends Awe3D {
             index.put(name, [Rect3D: r]);
         }
         else {
-            Rect3D rct = index.get(name);
+            Rect3D[] rct = index.get(name);
             rct << r;
         }
     }
