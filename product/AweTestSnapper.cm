@@ -54,7 +54,7 @@ public class AweTestSnapper extends Snapper {
         this.graph = graph;
         this.primitive3D = primitive3D;
         this.product = product;
-        this.configurator = configurator;
+        this.configurator = configurator ? configurator : product._model.AweObject;
     }   
 
     public void drawGraphs(LayerBuffer lb, View view, GeometricFinder finder=null) {
@@ -99,7 +99,22 @@ public class AweTestSnapper extends Snapper {
     }
 
     public box localBound() {
+        if(product) return product.localBound();
+        
         return box((0,0,0), (1,1,1));
+    }
+
+    public void getParts(PartsEnv env, Snapper{} visited) {
+        if (!product or this in visited) return;
+        
+        visited << this;
+        var parts = product.getParts();
+
+        for (part in parts) {
+            part.data.setOwner(this);
+            
+            env << part;
+        }
     }
 }
 
