@@ -39,12 +39,18 @@ package custom.awesome.electrical;
 public class AweElectricalAnimationDebugMode extends AweElectricalAnimationMode {
 
     private AweElectricalClusterInfo clusterInfo;
+    private Primitive3D prims;
+
     public constructor(AweElectricalAnimation animation) {
         super(..);
         clusterInfo = AweElectricalClusterInfo(animation.map, true);
+        prims = getPrims();
     }
 
     public Primitive3D get3D() {
+        return prims;
+    }
+    extend public Primitive3D getPrims() {
         if(!clusterInfo) return null;
 
         Awe3D prims();
@@ -57,7 +63,7 @@ public class AweElectricalAnimationDebugMode extends AweElectricalAnimationMode 
                 cluster3D << l;
             }
             for(infeed in cluster.infeeds) {
-                //cluster3D << infeedGeometry(infeed);
+                cluster3D << infeedGeometry(infeed);
                 for(cable in infeed.cables) {
                     var cableLine = cable.spaceLine.v;
                     Cylinder3D l(cableLine.p0, cableLine.p1, .5inch);
