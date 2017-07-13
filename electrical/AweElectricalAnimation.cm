@@ -104,7 +104,7 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
                 case "View":
                     txt = "Use the animation properties to change mode.\n\"Infeed\" lets you select the power source. \"Add\" allows for power cable routing and \"Remove\" let you remove previously added cables."; 
                 case "Debug":
-                    txt = "Debugging this crazy thing";
+                    txt = "Red lines found no suitable infeed, colorful blocks are functional clusters.";
             }
             message(txt);
         }

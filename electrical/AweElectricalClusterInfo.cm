@@ -45,7 +45,7 @@ public class AweElectricalClusterInfo {
     private str->AweElectricalCluster pointsToClusters();
     
     //no infeed
-    private AweElectricalCableLine[] orphanCables();
+    public AweElectricalCableLine[] orphanCables();
 
     public constructor(AweElectricalMap map, bool forRouting=false) {
         this.map = map;
@@ -153,7 +153,7 @@ public class AweElectricalClusterInfo {
 
         //loose cables out there, no infeed
         for(cable in map.allCables) {
-            if(cable.active and !pointsToClusters.get(cable.spaceLine.v.p0.toS) and !pointsToClusters.get(cable.spaceLine.v.p1.toS)) {
+            if((cable.active or forRouting) and !pointsToClusters.get(cable.spaceLine.v.p0.toS) and !pointsToClusters.get(cable.spaceLine.v.p1.toS)) {
                 orphanCables << cable;
             }
         }
