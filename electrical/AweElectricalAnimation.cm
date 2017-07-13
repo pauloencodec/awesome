@@ -80,7 +80,10 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
 
     public Primitive3D get3D(FetchEnv3D env) {
         Awe3D prims();
-        prims << status.?get3D();
+
+        str modeName = this.configurator.AweElectricalAnimationModel.mode;
+        if(modeName != "Debug")
+            prims << status.?get3D();
         prims << currentMode.?get3D();
         return prims;
     }
@@ -99,8 +102,9 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
                 case "Remove": 
                     txt = "Click on two points, one after the other, to remove an existing power route."; 
                 case "View":
-                default:
                     txt = "Use the animation properties to change mode.\n\"Infeed\" lets you select the power source. \"Add\" allows for power cable routing and \"Remove\" let you remove previously added cables."; 
+                case "Debug":
+                    txt = "Debugging this crazy thing";
             }
             message(txt);
         }
@@ -112,6 +116,7 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
         if(modeName == "Infeed") currentMode = new AweElectricalAnimationInfeedMode(this);
         if(modeName == "Add") currentMode = new AweElectricalAnimationAddRouteMode(this);
         if(modeName == "Remove") currentMode = new AweElectricalAnimationDeleteRouteMode(this);
+        if(modeName == "Debug") currentMode = new AweElectricalAnimationDebugMode(this);
         showHint();
 
         updateSubConfigurators();
@@ -131,7 +136,7 @@ public aweObject AweElectricalAnimationModel {
         str mode = "View"
     );
     public aweObjectDomain(
-        str mode = StrSubSet(["View", "Infeed", "Add", "Remove"])
+        str mode = StrSubSet(developMode ? ["View", "Infeed", "Add", "Remove", "Debug"] : ["View", "Infeed", "Add", "Remove"])
     );
 
     public AweElectricalAnimation animation;
