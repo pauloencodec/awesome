@@ -44,9 +44,9 @@ public class AweElectricalCluster {
     public constructor() {
     }   
 
-    extend public point{} allVertices() {
+    extend public point{} allVertices(bool clickableOnly=false) {
         point{} allVertices();
-        for(l in spaceLines()) {
+        for(l in spaceLines(clickableOnly)) {
             allVertices << l.p0;
             allVertices << l.p1;
         }
@@ -54,11 +54,21 @@ public class AweElectricalCluster {
         return allVertices;
     }
 
-    extend public line[] spaceLines() {
+    extend public line[] spaceLines(bool clickableOnly=false) {
         line[] lines();
-        for(c in cables) {
+
+        AweElectricalCableLine[] allCables();
+        
+        allCables +=? cables;
+
+        for (infeed in infeeds) {
+            allCables +=? infeed.cables;
+        }
+
+        for(c in allCables) if (!clickableOnly or c.clickable) {
             lines << c.spaceLine.v;
         }
+        
         return lines;
     }
 }

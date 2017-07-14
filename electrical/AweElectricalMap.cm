@@ -89,7 +89,7 @@ public class AweElectricalMap {
             }
         }
 
-        for(c in notInfeedCables) {
+        for(c in allCables) if (c.clickable) {
             notInfeedCableVertices << c.spaceLine.v.p0;
             notInfeedCableVertices << c.spaceLine.v.p1;
         }

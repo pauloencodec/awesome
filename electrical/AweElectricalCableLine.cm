@@ -48,6 +48,7 @@ public class AweElectricalCableLine extends Line {
     public Snapper snapper : copy=null;
     public bool powered;
     public bool infeedCable = false;
+    public bool clickable = true;
     
     extend public Line spaceLine() {
         if(!snapper) return null;
