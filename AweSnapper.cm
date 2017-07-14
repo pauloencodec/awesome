@@ -133,6 +133,13 @@ public class AweSnapper extends Snapper {
         
         this.connectorCache.addToConnectors(collection);
 
+        //connector sets in models
+        for(m in allModels) {
+            for(c in m.getConnectors(this)) {
+                collection << c;
+            }
+        }
+
         super(collection);
     }
 

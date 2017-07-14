@@ -39,7 +39,12 @@ use cm.syntax;
 
 public member @visibility modelConnecting ';' {
     return member {
+        
+        @visibility Object bag: copy=null, stream=null;
+
         @visibility AweObject model: copy=null, stream=null;
+
+        @visibility AweMagnet{} magnets;
 
         public bool connect(Connector c, bool oneway=false) {
             var success = super(..);
@@ -50,6 +55,11 @@ public member @visibility modelConnecting ';' {
                     thisModel.connected(otherModel);
                     thisModel.connected(this, c, otherModel);
                 }
+
+                AweConnectEnv me(this);
+                AweConnectEnv other(c);
+                if(me.set)
+                    me.set.connected(me, other);
             }
             return success;
         }
@@ -63,8 +73,30 @@ public member @visibility modelConnecting ';' {
                     thisModel.disconnected(otherModel);
                     thisModel.disconnected(this, c, otherModel);
                 }
+
+                AweConnectEnv me(this);
+                AweConnectEnv other(c);
+                if(me.set)
+                    me.set.disconnected(me, other);
             }
             return success;
         }
+
+        /*********** awe connector set ****************/
+        public AweConnectorSet connectorSet: copy=null, stream=null;
+
+        public bool connectableTo(Connector connector, bool oneway=false) {
+            AweConnectEnv me(this);
+            AweConnectEnv other(connector);
+
+            if(me.set) return me.set.connect(me, other);
+
+            if(magnetSetsAttract(this.magnets, connector.getMagnets())) return true;
+
+            return super(..);
+            
+        }
+
+        
     };
 }

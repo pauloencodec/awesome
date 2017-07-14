@@ -36,54 +36,8 @@
 
 package custom.awesome;
 
-public class AweInsertAnimation extends InsertAnimation {
-    public AweSnapper snapper;
-    private str currentKey;
+public double getDecimalPart(double value) {
+    double d = |value|;
 
-    public constructor(StartInsertAnimationEnv env) {
-        super(env);
-
-        this.snapper = env.selection.main.AweSnapper;
-
-        assert(this.snapper);
-    }
-
-    public void buildProperties() {
-        this.destroyAnimationProperties();
-        this.createAnimationProperties();
-        str[] sortOrder = null;
-
-        if (this.snapper.activeConfigurator) {
-            this.snapper.addExtraAnimationProperties(this.animationProperties);
-            this.snapper.activeConfigurator.buildAnimationProperties(this.animationProperties);
-
-            sortOrder = this.snapper.activeConfigurator.quickPropertySort();
-            if ( sortOrder and sortOrder.count > 0 ) {
-                for( qp in this.animationProperties.properties ) {
-                    if ( sortOrder.indexOf( qp.key ) == -1 ) sortOrder << qp.key;
-                }
-            }
-        }
-
-        this.animationProperties.finalize(showList=sortOrder);
-        
-        if (this.animationProperties and this.currentKey) {
-            this.animationProperties.setCurrent(this.currentKey);
-        }
-    }
-
-    public void propertyChange(str key, Object value) {
-        super(..);
-
-        if (this.snapper.activeConfigurator) {
-            this.snapper.activeConfigurator.animationPropertyChanged(..);
-            this.snapper.extraAnimationPropertyChanged(..);
-            this.snapper.refresh(true, true);
-            this.updateSelectionSnaps();
-
-            this.currentKey = key;
-
-            this.buildProperties();
-        }
-    }
+    return d - d.floor();
 }

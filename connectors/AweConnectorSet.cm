@@ -34,56 +34,27 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package custom.awesome.connectors;
 
-public class AweInsertAnimation extends InsertAnimation {
-    public AweSnapper snapper;
-    private str currentKey;
+public class AweConnectorSet {
 
-    public constructor(StartInsertAnimationEnv env) {
-        super(env);
+    public constructor() { }
 
-        this.snapper = env.selection.main.AweSnapper;
+    public AweConnectorCache connectorCache;
 
-        assert(this.snapper);
+    extend public void connectors(AweConnectorCache cc) {
     }
 
-    public void buildProperties() {
-        this.destroyAnimationProperties();
-        this.createAnimationProperties();
-        str[] sortOrder = null;
-
-        if (this.snapper.activeConfigurator) {
-            this.snapper.addExtraAnimationProperties(this.animationProperties);
-            this.snapper.activeConfigurator.buildAnimationProperties(this.animationProperties);
-
-            sortOrder = this.snapper.activeConfigurator.quickPropertySort();
-            if ( sortOrder and sortOrder.count > 0 ) {
-                for( qp in this.animationProperties.properties ) {
-                    if ( sortOrder.indexOf( qp.key ) == -1 ) sortOrder << qp.key;
-                }
-            }
-        }
-
-        this.animationProperties.finalize(showList=sortOrder);
-        
-        if (this.animationProperties and this.currentKey) {
-            this.animationProperties.setCurrent(this.currentKey);
-        }
+    extend public bool connect(AweConnectEnv me, AweConnectEnv other) {
+        if(magnetSetsAttract(me.connector.getMagnets(), other.connector.getMagnets())) return true;
+        return false;
     }
 
-    public void propertyChange(str key, Object value) {
-        super(..);
+    extend public void connected(AweConnectEnv me, AweConnectEnv other) {
 
-        if (this.snapper.activeConfigurator) {
-            this.snapper.activeConfigurator.animationPropertyChanged(..);
-            this.snapper.extraAnimationPropertyChanged(..);
-            this.snapper.refresh(true, true);
-            this.updateSelectionSnaps();
+    }
 
-            this.currentKey = key;
+    extend public void disconnected(AweConnectEnv me, AweConnectEnv other) {
 
-            this.buildProperties();
-        }
     }
 }

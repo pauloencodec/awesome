@@ -36,6 +36,8 @@
 
 package custom.awesome.examples;
 
+use custom.awesome.connectors;
+
 /* just one product */
 
 //the cube model
@@ -44,6 +46,8 @@ public aweObject MyCubeModel {
         double size = 1,
         point origin = point()
     );
+
+    public SingleCubeConnectorSet sideConnectors(this);
 
     public aweObjectDomain(
         distance size = DistanceEnum(1,2,3,4,5,6,7,8)
@@ -76,6 +80,35 @@ public class SingleCubeSnapper extends AweBindingSnapper {
        return Cube();
     }
     
+}
+
+//connector set
+public class SingleCubeConnectorSet extends AweConnectorSet {
+    //contract
+    public MyCubeModel model;
+    public constructor(MyCubeModel model) {
+        this.model = model;
+    }
+
+    public bool connect(AweConnectEnv me, AweConnectEnv other) {
+        //connect to points of the same kind
+        return other.set in SingleCubeConnectorSet;
+    }
+
+    public void connected(AweConnectEnv me, AweConnectEnv other) {
+        pln("connected to"; #other.model);
+    }
+
+    public void disconnected(AweConnectEnv me, AweConnectEnv other) {
+        pln("disconnected from"; #other.model);
+    }
+
+    public void connectors(AweConnectorCache cache) {
+        cache.makePoint("left", this.model.origin + (0, this.model.size/2, 0), 180deg);
+        cache.makePoint("right", this.model.origin + (this.model.size, this.model.size/2, 0), 0deg);
+        cache.makePoint("top", this.model.origin + (this.model.size/2, this.model.size, 0), 90deg);
+        cache.makePoint("bottom", this.model.origin + (this.model.size/2, 0, 0), 270deg);
+    }
 }
 
 {

@@ -40,9 +40,15 @@ public class AweStorageGrid {
     public box localBound;
     public AweStorageGridColumn[] columns();
     private str->Material3D materials();
+    private Box baseBox;
 
     public constructor(box localBound) {
+        this(localBound, null);
+    }   
+
+    public constructor(box localBound, Box baseBox) {
         this.localBound = localBound;
+        this.baseBox = baseBox;
     }   
 
     extend public void setMaterial(str key, Material3D material) {
@@ -122,28 +128,28 @@ public class AweStorageGrid {
         return this;
     }
 
-    extend public AweStorageGrid fillWithPieces(AweStorageGridPiece piece, int column, double height, double columnHeight){
+    extend public AweStorageGrid fillWithPieces(AweStorageGridPiece piece, int column, double height, double columnHeight, int columnSpan=1){
         int pieces = (localBound.h/height).int;
         
         for (i in 1..pieces) {
-            this.addPiece(piece.copy, column, height);
+            this.addPiece(piece.copy, column, height, columnSpan);
         }
         return this;
     }
 
     //Evely Distributed Pieces
     // Will use local bound height.
-    extend public AweStorageGrid evenlyDistPieces(AweStorageGridPiece piece, int column, int pieces){        
+    extend public AweStorageGrid evenlyDistPieces(AweStorageGridPiece piece, int column, int pieces, int columnSpan=1){        
         for (i in 1..pieces) {
-            this.addPiece(piece.copy, column, localBound.h/pieces);
+            this.addPiece(piece.copy, column, localBound.h/pieces, columnSpan);
         }
         return this;
     }
     
     //Will use given height
-    extend public AweStorageGrid evenlyDistPieces(AweStorageGridPiece piece, int column, int pieces, double height){        
+    extend public AweStorageGrid evenlyDistPieces(AweStorageGridPiece piece, int column, int pieces, double height, int columnSpan=1){        
         for (i in 1..pieces) {
-            this.addPiece(piece.copy, column, height/pieces);
+            this.addPiece(piece.copy, column, height/pieces, columnSpan);
         }
         return this;
     }
@@ -154,12 +160,22 @@ public class AweStorageGrid {
         for(c in columns) {
             x += c.leftPadding;
              if (c.septum) {
-                c.septum.move((0, localBound.p0.y, localBound.p0.z));
+                //See comments below about base - It might interfere here
+
+                c.septum.move((-localBound.p1.x + x - c.septum.thickness/2, localBound.p0.y, localBound.p0.z));
                 if(!c.septum.mainMaterial) c.septum.setMaterial(getMaterial("septum"));
                 prim << c.septum;
             }
-            for(p in c.pieces) {
+            for(p in c.pieces, index=i) {
                 point origin(x,0,p.z);
+
+                //If the storage has a base it will start adding pieces where the base ends
+                //It is currently only implemented for AweStoragePlatformBase
+                //I'm not sure how this would work with a septum
+                if(baseBox) {
+                    origin = point(origin.x, origin.y, origin.z + baseBox.v.h);
+                }
+
                 var aweBox = p.get3D();
                 aweBox.move(origin + localBound.p0);
                 prim << aweBox;

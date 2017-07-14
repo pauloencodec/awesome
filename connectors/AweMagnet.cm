@@ -34,56 +34,51 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package custom.awesome.connectors;
 
-public class AweInsertAnimation extends InsertAnimation {
-    public AweSnapper snapper;
-    private str currentKey;
-
-    public constructor(StartInsertAnimationEnv env) {
-        super(env);
-
-        this.snapper = env.selection.main.AweSnapper;
-
-        assert(this.snapper);
+public class AweMagnet {
+    public constructor(str key, bool positive) {
+        this.key = key;
+        this.positive=positive;
     }
 
-    public void buildProperties() {
-        this.destroyAnimationProperties();
-        this.createAnimationProperties();
-        str[] sortOrder = null;
+    public str key;
+    public bool positive;
 
-        if (this.snapper.activeConfigurator) {
-            this.snapper.addExtraAnimationProperties(this.animationProperties);
-            this.snapper.activeConfigurator.buildAnimationProperties(this.animationProperties);
+    extend public bool attracts(AweMagnet other) {
+        return this.key == other.key and this.positive != other.positive;
+    }
 
-            sortOrder = this.snapper.activeConfigurator.quickPropertySort();
-            if ( sortOrder and sortOrder.count > 0 ) {
-                for( qp in this.animationProperties.properties ) {
-                    if ( sortOrder.indexOf( qp.key ) == -1 ) sortOrder << qp.key;
-                }
+}
+
+public bool magnetSetsAttract(AweMagnet{} oneSet, AweMagnet{} otherSet) {
+    for(magnet in oneSet) {
+        for(otherMagnet in otherSet) {
+            if(magnet.attracts(otherMagnet)) {
+                return true;
             }
         }
-
-        this.animationProperties.finalize(showList=sortOrder);
-        
-        if (this.animationProperties and this.currentKey) {
-            this.animationProperties.setCurrent(this.currentKey);
-        }
     }
+    return false;
+}
 
-    public void propertyChange(str key, Object value) {
-        super(..);
+public expr magnet '(' @key=id @charge=magnetCharge ')'  {
+    str keyStr = key.name;
+    return blockExpr {
+        result AweMagnet(@keyStr, @charge.v);
+    };
+}
 
-        if (this.snapper.activeConfigurator) {
-            this.snapper.activeConfigurator.animationPropertyChanged(..);
-            this.snapper.extraAnimationPropertyChanged(..);
-            this.snapper.refresh(true, true);
-            this.updateSelectionSnaps();
+public syntax Bool magnetCharge {
+    '+' { return Bool(true); }
+    '-' { return Bool(false); }
+    empty { return null; }
+}
 
-            this.currentKey = key;
+{
+    var m = magnet(structure+);
+    pln(#m.positive; #m.key);
 
-            this.buildProperties();
-        }
-    }
+    var other = magnet(structure+);
+    pln(#m.attracts(other));
 }

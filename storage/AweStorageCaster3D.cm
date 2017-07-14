@@ -1,0 +1,136 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.storage;
+
+public class AweStorageCaster3D extends Awe3D {
+    private point pos;
+    private angle rot;
+
+    public constructor(point pos=point(), angle rot=0deg) {
+        super();
+
+        this.pos = pos;
+        this.rot = rot;
+        
+        this << new Awe3D(this.createWheels(), this.createMount()).rotate(this.rot).move(this.pos);
+    }
+
+    extend private Primitive3D createWheels() {
+        Awe3D prims();
+
+        ClosedCylinder3D wheelA(0.4375inch, 1.1875inch);
+        wheelA.refinement = 32;
+        prims << wheelA.setPosRot((0, -0.375inch, 1.1875inch), orientation(0, 0, 90));
+
+        ClosedCylinder3D wheelB = wheelA.copy();
+        prims << wheelB.setPosRot((0, 0.375inch, 1.1875inch), orientation(0, 0, -90));
+
+        return prims;
+    }
+
+    extend private Primitive3D createMount() {
+        Awe3D prims();
+
+        // Structure
+        AwePath2D outerRimProfile(- 1.25inch, 0);
+        outerRimProfile.arcTo((0, 1.25inch), 90deg);
+        outerRimProfile.arcTo((1.25inch, 0), 0deg);
+        outerRimProfile.arcTo((1.21875inch, - 0.359375inch), 270deg);
+        outerRimProfile.lineTo(1.265625inch, - 0.359375inch);
+        outerRimProfile.arcTo((1.296875inch, 0), 80deg);
+        outerRimProfile.arcTo((0, 1.296875inch), 90deg);
+        outerRimProfile.arcTo((- 1.296875inch, 0), 180deg);
+        outerRimProfile.arcTo((- 1.265625inch, - 0.359375inch), 270deg);
+        outerRimProfile.lineTo(- 1.21875inch, - 0.359375inch);
+        outerRimProfile.arcTo((- 1.25inch, 0), 100deg);
+        outerRimProfile.close();
+
+        AweExtrusion outerRimEx(outerRimProfile);
+        Primitive3D outerRim = outerRimEx.horizontal(line2D((- 0.75inch, 0), (0.75inch, 0)), 0);
+        prims << outerRim.setPosRot((0, 0, 1.1875inch), orientation(90, 0, 0));
+
+        AwePath2D outerRimStructureProfile();
+        outerRimStructureProfile.lineTo(- 1.25inch, 0);
+        outerRimStructureProfile.arcTo((0, 1.2inch), 90deg);
+        outerRimStructureProfile.arcTo((1.25inch, 0), 0deg);
+        outerRimStructureProfile.close();
+
+        AweExtrusion outerRimStructureEx(outerRimStructureProfile);
+        Primitive3D outerRimStructure = outerRimStructureEx.horizontal(line2D((- 0.425inch, 0), (0.425inch, 0)), 0);
+        prims << outerRimStructure.setPosRot((0, 0, 1.25inch), orientation(90, 0, 0));
+
+        // Structure to plate
+        ClosedCylinder3D cylinder1(0.5inch, 0.3125inch);
+        cylinder1.refinement = 16;
+        cylinder1.setPos((0.703125inch, 0, 1.9765625inch));
+        prims << cylinder1;
+
+        ClosedCylinder3D cylinder2(0.078125inch, 0.1640625inch);
+        cylinder2.refinement = 16;
+        cylinder2.setPos((0.703125inch, 0, 2.4765625inch));
+        prims << cylinder2;
+
+        ClosedCylinder3D cylinder3(0.15625inch, 0.2421875inch);
+        cylinder3.refinement = 16;
+        cylinder3.setPos((0.703125inch, 0, 2.5546875inch));
+        prims << cylinder3;
+
+        ClosedCylinder3D cylinder4(0.09375inch, 0.453125inch);
+        cylinder4.refinement = 16;
+        cylinder4.setPos((0.703125inch, 0, 2.7109375inch));
+        prims << cylinder4;
+        
+        // Plate
+        Box3D plate((-0.59375inch, -1inch, 0), (0.59375inch, 1inch, 0.109375inch));
+        prims << plate.setPos((0.703125inch, 0, 2.8046875inch));   
+
+        // Wheel lock
+        AwePath2D wheelLockProfile();
+        wheelLockProfile.arcTo((0.1875inch, 0.06125inch), 40deg);
+        wheelLockProfile.arcTo((0.578125inch, -0.1inch), 0deg);
+        wheelLockProfile.arcTo((0.65625inch, 0.046875inch), 0deg);
+        wheelLockProfile.arcTo((0.1875inch, 0.235inch), 135deg);
+        wheelLockProfile.arcTo((0, 0.2inch), 180deg);
+        wheelLockProfile.close;
+
+        AweExtrusion wheelLockEx(wheelLockProfile);
+        Primitive3D wheelLock = wheelLockEx.horizontal(line2D((-0.2890625inch, 0), (0.2890625inch, 0)), 0);
+        prims << wheelLock.setPosRot((-1inch, 0, 1.78125inch), orientation(270, 0, 0));
+
+        return prims;
+    }
+}

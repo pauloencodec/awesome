@@ -51,6 +51,10 @@ public class AweStorageChassis3D extends Awe3D {
     public box localBound;
     public box spaceLeft;
     public box frontBox;
+    public box topBox;
+    public box leftBox;
+    public box rightBox;
+    public box backBox;
     public AweStorageBase base;
     public Primitive3D[] specialPrims();
     extend public box gridBox() {
@@ -65,13 +69,13 @@ public class AweStorageChassis3D extends Awe3D {
         this.spaceLeft = localBound;
     }   
 
-
     extend private void addToIndex(str name, Rect3D r) {
         if(!index.get(name)) {
             index.put(name, [Rect3D: r]);
         }
         else {
-            index.get(name) << r;
+            Rect3D[] rct = index.get(name);
+            rct << r;
         }
     }
 
@@ -81,11 +85,17 @@ public class AweStorageChassis3D extends Awe3D {
     
     extend public AweStorageChassis3D addTop(double thickness=0.75inch, double indent = 0) {
         box laminate((spaceLeft.p0.x, spaceLeft.p0.y, spaceLeft.p1.z-thickness), spaceLeft.p1 - (0, indent, 0));
+        topBox = laminate;
         box temp = spaceLeft.moved(point(0, 0, -thickness));
         spaceLeft = spaceLeft * temp;
 
         AweBox3D prim(laminate, randomColorLWMaterial());
         addToIndex("front", prim.front);
+        addToIndex("topEdgeBand", prim.front);
+        addToIndex("topEdgeBand", prim.left);
+        addToIndex("topEdgeBand", prim.right);
+        addToIndex("topEdgeBand", prim.back);
+        addToIndex("top", prim.top);
         addToIndex("internal", prim.bottom);
         allFaces += prim.allFaces;
         
@@ -114,6 +124,7 @@ public class AweStorageChassis3D extends Awe3D {
 
     extend public AweStorageChassis3D addLeft(double thickness=0.75inch, Awe3D prim = null) {
         box laminate(spaceLeft.p0, (spaceLeft.p0.x + thickness, spaceLeft.p1.y, spaceLeft.p1.z));
+        leftBox = laminate;
         box temp = spaceLeft.moved(point(thickness, 0, 0));
         spaceLeft = spaceLeft * temp;
         
@@ -133,6 +144,7 @@ public class AweStorageChassis3D extends Awe3D {
 
     extend public AweStorageChassis3D addRight(double thickness=0.75inch, Awe3D prim=null) {
         box laminate((spaceLeft.p1.x - thickness, spaceLeft.p0.y, spaceLeft.p0.z), spaceLeft.p1);
+        rightBox = laminate;
         box temp = spaceLeft.moved(point(-thickness, 0, 0));
         spaceLeft = spaceLeft * temp;
         
@@ -150,16 +162,29 @@ public class AweStorageChassis3D extends Awe3D {
         return this;
     }
 
-    extend public AweStorageChassis3D addBack(double thickness=0.75inch, double indent = 0) {
+    extend public AweStorageChassis3D addBack(double thickness=0.75inch, double indent=0, Awe3D prim=null, bool leaveOut=false) {
         box laminate((spaceLeft.p0.x, spaceLeft.p1.y - thickness, spaceLeft.p0.z), spaceLeft.p1 - (0, 0, indent));
+        backBox = laminate;
         box temp = spaceLeft.moved(point(0, -thickness, 0));
         spaceLeft = spaceLeft * temp;
 
-        AweBox3D prim(laminate, randomColorLWMaterial());
-        addToIndex("internal", prim.front);
-        allFaces += prim.allFaces;
-        
-        this << prim;
+        if ( leaveOut ) return this;
+
+        if(prim) {
+            prim.move(laminate.p0);
+            specialPrims << prim;
+            this << prim;
+        } else {
+            AweBox3D prim(laminate, randomColorLWMaterial());
+            addToIndex("internal", prim.front);
+            addToIndex("back", prim.back);
+            addToIndex("backEdgeBand", prim.top);
+            addToIndex("backEdgeBand", prim.left);
+            addToIndex("backEdgeBand", prim.right);
+            addToIndex("backEdgeBand", prim.bottom);
+            allFaces += prim.allFaces;
+            this << prim;
+        }
         return this;
     }
 
