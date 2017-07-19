@@ -67,9 +67,7 @@ public class AweElectricalCache {
         }
         infeed.v = position;
         set*(infeed: orientation, cables);
-        if(customConfigurators and !infeed.customConfigurators) {
-            infeed.customConfigurators = customConfigurators;
-        }
+        infeed.customConfigurators = customConfigurators;
         return infeed;
     }
 }

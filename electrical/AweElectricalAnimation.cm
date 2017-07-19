@@ -129,6 +129,11 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
         this.subConfigurators = currentMode.subConfigurators();
         this.buildProperties();
     }
+
+    extend public void updateMap() {
+       this.map = new AweElectricalMap(this.space);
+       status = new AweElectricalClusterInfo(this.map);
+   }
 }
 
 public aweObject AweElectricalAnimationModel {
