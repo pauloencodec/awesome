@@ -40,10 +40,10 @@ use custom.awesome.electrical;
 
 public class AweElectricalViewMode extends ViewMode {
 
-    public constructor( symbol{} visible=null, symbol{} draw=null ) {
+    public constructor() {
         symbol{} categories = { #electrical };
         if (visible and visible.any()) {
-            categories += visible;
+            categories += {#normal, #cad};
         }
         super("electrical",  (#:package).toS().substring(1), "electricalViewModeName", visible=categories, draw={#electrical} );
     }

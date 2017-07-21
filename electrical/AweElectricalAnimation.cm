@@ -86,9 +86,8 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
     }
 
     public void refresh() {
-        ViewMode vm = session.?mainWorld.viewMode("electrical");
-        if ( vm ) {
-            activeSpace.invalidate3D( vm );
+        if ( viewMode ) {
+            activeSpace.invalidate3D( viewMode );
         }
         super(..);
     }

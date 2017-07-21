@@ -39,6 +39,7 @@ package custom.awesome;
 public class AweAnimation extends ObsoleteStateMouseAnimation {
     
     public AweObject configurator;
+    public ViewMode viewMode;
 
     extend public void configuratorChanged() {
 
@@ -62,5 +63,10 @@ public class AweAnimation extends ObsoleteStateMouseAnimation {
             configurator.animationPropertyChanged(..);
             configuratorChanged();
         }
+    }
+
+    extend public void setViewMode(ViewMode viewMode) {
+        this.viewMode = viewMode;
+        space.setViewMode( viewMode );
     }
 }
