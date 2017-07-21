@@ -60,6 +60,10 @@ public member @visibility modelConnecting ';' {
                 AweConnectEnv other(c);
                 if(me.set)
                     me.set.connected(me, other);
+
+                if (this.snapper in AweSnapper) {
+                    this.snapper.AweSnapper.refresh(true);
+                } 
             }
             return success;
         }
@@ -78,6 +82,10 @@ public member @visibility modelConnecting ';' {
                 AweConnectEnv other(c);
                 if(me.set)
                     me.set.disconnected(me, other);
+
+                if (this.snapper in AweSnapper) {
+                    this.snapper.AweSnapper.refresh(true);
+                }
             }
             return success;
         }
