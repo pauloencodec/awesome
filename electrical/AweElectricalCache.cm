@@ -47,6 +47,7 @@ public class AweElectricalCache {
 
     extend public AweElectricalCableLine cable( AweElectricalCableLine cable ) {
         cables.put( cable.id, cable );
+        return cable;
     }
 
     extend public AweElectricalCableLine cable(str id, point start, point end, bool clickable=true) {
