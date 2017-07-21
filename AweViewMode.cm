@@ -36,6 +36,36 @@
 
 package custom.awesome;
 
+use custom.awesome.electrical;
+
+public class AweElectricalViewMode extends ViewMode {
+
+    public constructor( symbol{} visible=null, symbol{} draw=null ) {
+        symbol{} categories = { #electrical };
+        if (visible and visible.any()) {
+            categories += visible;
+        }
+        super("electrical",  (#:package).toS().substring(1), "electricalViewModeName", visible=categories, draw={#electrical} );
+    }
+    
+    public Primitive3D get3D(FetchEnv3D env) {
+        var map = new AweElectricalMap( activeSpace );
+        var status = new AweElectricalClusterInfo(map);
+        var prims = status.get3D(); 
+        return prims;
+    }
+
+    // not sure if this is necessary or not
+    public bool deny3D() {
+        return false;
+    }
+
+    // not sure if this is necessary or not
+    public bool process3D() { 
+        return false; 
+    }
+}
+
 public class AweViewMode : abstract {
     public constructor() {
         registerViewMode(this.getViewMode());
