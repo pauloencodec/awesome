@@ -108,6 +108,13 @@ public class AwePointsAnimation extends AweAnimation {
         }
     }
 
+    extend public void setViewMode(ViewMode viewMode) {
+        // if (World w = session.?mainWorld) {
+        //     w.setViewMode(viewMode);
+        // }
+        space.setViewMode( viewMode );
+    }
+
     public bool deny3D() {
 	    return false;
     }
