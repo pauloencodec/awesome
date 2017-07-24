@@ -64,54 +64,57 @@ public class AweElectricalClusterInfo {
             if(cluster.infeeds.count != 1) return;
 
             var infeed = cluster.infeeds.first();
+            infeed.resetStreamInfo();
 
-            var cableIndex = PointToElectricalCableArrayIndex();
+            var cableIndex = PointToElectricalComponentArrayIndex();
 
-            var allCables = new AweElectricalCableLine[]();
-            allCables += infeed.cables;
-            allCables += cluster.cables;
+            var allCables = new AweElectricalComponent[]();
+            for(c in infeed.cables) allCables << c;
+            for(c in cluster.cables) allCables << c;
 
             for(c in allCables) {
-                //reset any stream info
-                c.upstream = null;
-                c.downstream = new AweElectricalCableLine{}();
-
-                for(v in c.vertices) {
-                    var currentCables = cableIndex.get(v);
-                    if(!currentCables) currentCables = new AweElectricalCableLine[]();
-                    currentCables << c;
-                    cableIndex.put(v, currentCables);
-                }
+                addComponentToIndex(c, cableIndex);
             }
-            goDownstream(null, infeed.spacePoint.v, cableIndex);
+            goDownstream(infeed, infeed.spacePoint.v, cableIndex);
         }
     }
 
-    extend private void goDownstream(AweElectricalCableLine upstream, point joint, PointToElectricalCableArrayIndex index) {
-       
-        if(upstream) {
-            if(!upstream.downstream) {
-                upstream.downstream = new AweElectricalCableLine{}();
-            }
-            upstream.downstream.clear();
+    extend private void addComponentToIndex(AweElectricalComponent component, PointToElectricalComponentArrayIndex index) {
+        
+        //reset any stream info
+        component.resetStreamInfo();
+
+        for(v in component.vertices) {
+            var current = index.get(v);
+            if(!current) current = new AweElectricalComponent[]();
+            current << component;
+            index.put(v, current);
         }
+    }
 
-        var cablesAtJoint = index.get(joint);
+    extend private void goDownstream(AweElectricalComponent upstream, point joint, PointToElectricalComponentArrayIndex index) {
+       
+        var componentsAtJoint = index.get(joint);
 
-        for(cable in cablesAtJoint) {
-            if(cable == upstream) continue;
-            cable.upstream = upstream;
+        for(component in componentsAtJoint) {
+            
+            //found self, get out
+            if(component == upstream) continue;
+
+            component.upstream = upstream;
 
             if(upstream) {
-                upstream.downstream << cable;
+                upstream.downstream << component;
             }
 
-            for(vertice in cable.vertices) {
+            for(vertice in component.vertices) {
                 if(vertice == joint) continue;
 
-                cable.flow = line(joint, vertice);
+                if(component as AweElectricalCableLine) {
+                    component.flow = line(joint, vertice);
+                }
 
-                goDownstream(cable, vertice, index);                
+                goDownstream(component, vertice, index);                
             }
         }
     }
@@ -331,7 +334,9 @@ public Primitive3D infeedGeometry(AweElectricalInfeedPoint infeed) {
 }
 
 public alias AweElectricalCableArray = AweElectricalCableLine[];
+public alias AweElectricalComponentArray = AweElectricalComponent[];
 public awePointIndex PointToElectricalCableArrayIndex for AweElectricalCableArray { }
+public awePointIndex PointToElectricalComponentArrayIndex for AweElectricalComponentArray { }
 
 {
     animate(new cm.abstract.robotics.RobotLimbInsertAnimation(StartInsertAnimationEnv(activeSpace, Snapper())));

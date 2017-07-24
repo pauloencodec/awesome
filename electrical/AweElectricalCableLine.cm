@@ -36,7 +36,14 @@
 
 package custom.awesome.electrical;
 
-public class AweElectricalCableLine extends Line {
+public class AweElectricalCableLine extends AweElectricalComponent {
+
+    public line snapperLine;
+
+    public constructor(line snapperLine) {
+        this.snapperLine = snapperLine;
+    }
+
     public AweNotifyProp bool active {
         if(snapper) {
             aweDynamicCall snapper.aweElectricalCableLineChanged(this);
@@ -49,11 +56,10 @@ public class AweElectricalCableLine extends Line {
     public bool powered;
     public bool infeedCable = false;
 
-    public AweElectricalCableLine upstream;
-    public AweElectricalCableLine{} downstream();
+    
 
     //space coordinates
-    extend public point[] vertices() {
+    public point[] vertices() {
         return [spaceLine().v.p0, spaceLine().v.p1];
     }
 
@@ -62,6 +68,6 @@ public class AweElectricalCableLine extends Line {
     
     extend public Line spaceLine() {
         if(!snapper) return null;
-        return Line(snapper.toSpace(this.line));
+        return Line(snapper.toSpace(this.snapperLine));
     }
 }

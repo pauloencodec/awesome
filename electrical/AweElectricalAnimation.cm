@@ -137,7 +137,7 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
 
 public aweObject AweElectricalAnimationModel {
     props(
-        str mode = "Debug"
+        str mode = "View"
     );
     public aweObjectDomain(
         str mode = StrSubSet(developMode ? ["View", "Infeed", "Add", "Remove", "Debug"] : ["View", "Infeed", "Add", "Remove"])
