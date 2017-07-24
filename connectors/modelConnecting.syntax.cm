@@ -60,6 +60,10 @@ public member @visibility modelConnecting ';' {
                 AweConnectEnv other(c);
                 if(me.set)
                     me.set.connected(me, other);
+
+                if (this.snapper in AweSnapper) {
+                    this.snapper.AweSnapper.refresh(true);
+                } 
             }
             return success;
         }
@@ -78,6 +82,10 @@ public member @visibility modelConnecting ';' {
                 AweConnectEnv other(c);
                 if(me.set)
                     me.set.disconnected(me, other);
+
+                if (this.snapper in AweSnapper) {
+                    this.snapper.AweSnapper.refresh(true);
+                }
             }
             return success;
         }
@@ -89,14 +97,25 @@ public member @visibility modelConnecting ';' {
             AweConnectEnv me(this);
             AweConnectEnv other(connector);
 
-            if(me.set) return me.set.connect(me, other);
+            if (this.isConnectable(me, other, connector)) {
+                Connector self = this;
 
-            if(magnetSetsAttract(this.magnets, connector.getMagnets())) return true;
+                if (self as ConnectLine) {
+                    if (self.freeSnapPosition(connector, self.length / 2) == maxDouble) {
+                        return false;
+                    }
+                }
 
-            return super(..);
-            
+                return true;
+            }
+
+            return me.set ? false : super(..);
         }
 
-        
+        extend private bool isConnectable(AweConnectEnv me, AweConnectEnv other, Connector connector) {
+            if (me.set) return me.set.connect(me, other);
+
+            return magnetSetsAttract(this.magnets, connector.getMagnets());
+        }
     };
 }

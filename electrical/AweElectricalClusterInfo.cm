@@ -55,6 +55,68 @@ public class AweElectricalClusterInfo {
 
     extend public void updateStatus() {
         identifyClusters(map);
+        makeTree();
+    }
+
+    extend private void makeTree() {
+        for(cluster in clusters) { 
+            //faulty state
+            if(cluster.infeeds.count != 1) return;
+
+            var infeed = cluster.infeeds.first();
+            infeed.resetStreamInfo();
+
+            var cableIndex = PointToElectricalComponentArrayIndex();
+
+            var allCables = new AweElectricalComponent[]();
+            for(c in infeed.cables) allCables << c;
+            for(c in cluster.cables) allCables << c;
+
+            for(c in allCables) {
+                addComponentToIndex(c, cableIndex);
+            }
+            goDownstream(infeed, infeed.spacePoint.v, cableIndex);
+        }
+    }
+
+    extend private void addComponentToIndex(AweElectricalComponent component, PointToElectricalComponentArrayIndex index) {
+        
+        //reset any stream info
+        component.resetStreamInfo();
+
+        for(v in component.vertices) {
+            var current = index.get(v);
+            if(!current) current = new AweElectricalComponent[]();
+            current << component;
+            index.put(v, current);
+        }
+    }
+
+    extend private void goDownstream(AweElectricalComponent upstream, point joint, PointToElectricalComponentArrayIndex index) {
+       
+        var componentsAtJoint = index.get(joint);
+
+        for(component in componentsAtJoint) {
+            
+            //found self, get out
+            if(component == upstream) continue;
+
+            component.upstream = upstream;
+
+            if(upstream) {
+                upstream.downstream << component;
+            }
+
+            for(vertice in component.vertices) {
+                if(vertice == joint) continue;
+
+                if(component as AweElectricalCableLine) {
+                    component.flow = line(joint, vertice);
+                }
+
+                goDownstream(component, vertice, index);                
+            }
+        }
     }
 
     extend public Primitive3D get3D() {
@@ -62,9 +124,15 @@ public class AweElectricalClusterInfo {
         for(cluster in clusters) {
             Awe3D cluster3D();
             for(cable in cluster.cables) {
-                var cableLine = cable.spaceLine.v;
-                Cylinder3D l(cableLine.p0, cableLine.p1, .5inch);
-                cluster3D << l;
+                if(!cable.upstream) {
+                    var cableLine = cable.spaceLine.v;
+                    Cylinder3D l(cableLine.p0, cableLine.p1, .5inch);
+                    cluster3D << l;
+
+                } else {
+                    var cableLine = cable.flow;
+                    cluster3D << getPoweredCable3D(cableLine, plainGreenMaterial3D);
+                }
             }
             for(infeed in cluster.infeeds) {
                 cluster3D << infeedGeometry(infeed);
@@ -81,6 +149,27 @@ public class AweElectricalClusterInfo {
         }
         
         return all3D;
+    }
+
+    extend private Primitive3D getPoweredCable3D(line flowline, Material3D material){
+        var desiredConeLength = 2inch;
+        var coneCount = (flowline.length / desiredConeLength).floor;
+        var actualConeLength = flowline.length / coneCount;
+
+        Awe3D prims();
+
+        var currentPoint = flowline.p0;
+        var direction = orientation(flowline.p1 - flowline.p0);
+        for(i in 1..coneCount) {
+            var p0 = currentPoint;
+            var p1 = p0 + point(direction, actualConeLength);
+            currentPoint = p1;
+            Cone3D cone(p0, p1, 0.5inch, 0);
+            cone.setMaterial(material);
+            prims << cone;
+        }
+
+        return prims;
     }
 
     extend public AweElectricalCluster clusterAt(point p) {
@@ -245,4 +334,10 @@ public Primitive3D infeedGeometry(AweElectricalInfeedPoint infeed) {
 }
 
 public alias AweElectricalCableArray = AweElectricalCableLine[];
+public alias AweElectricalComponentArray = AweElectricalComponent[];
 public awePointIndex PointToElectricalCableArrayIndex for AweElectricalCableArray { }
+public awePointIndex PointToElectricalComponentArrayIndex for AweElectricalComponentArray { }
+
+{
+    animate(new cm.abstract.robotics.RobotLimbInsertAnimation(StartInsertAnimationEnv(activeSpace, Snapper())));
+}

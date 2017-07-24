@@ -34,42 +34,24 @@
    END OF CETSC
 */
 
-package custom.awesome.electrical;
+package custom.awesome;
 
-public class AweElectricalCache {
-    
-    public constructor() {
+public class AweLaserPickInfo {
+    private point source : public readable;
+    private point intersection : public readable;
+    private Object owner : public readable;
 
+    public constructor(point source, PickIntersection3D pickIntersection) {
+        this.source = source;
+        this.owner = pickIntersection.owner;
+        this.intersection = pickIntersection.info.ipWC.point;
     }
 
-    private str->AweElectricalInfeedPoint infeeds() : public readable;
-    private str->AweElectricalCableLine cables() : public readable;
-
-    extend public AweElectricalCableLine cable(str id, point start, point end, bool clickable=true) {
-        var cable = cables.get(id);
-        if(!cable) {
-            cable = new AweElectricalCableLine(line());
-            cable.id = id;
-            cables.put(id, cable);
-        }
-
-        cable.clickable = clickable;
-        cable.snapperLine.p0 = start;
-        cable.snapperLine.p1 = end;
-        
-        return cable;
+    extend public double distance() {
+        return this.source.distance(this.intersection);
     }
 
-    extend public AweElectricalInfeedPoint infeed(str id, point position, orientation orientation, AweElectricalCableLine[] cables=null, AweObject[] customConfigurators=null) {
-        var infeed = infeeds.get(id);
-        if(!infeed) {
-            infeed = new AweElectricalInfeedPoint(point());
-            infeed.id = id;
-            infeeds.put(id, infeed);
-        }
-        infeed.position = position;
-        set*(infeed: orientation, cables);
-        infeed.customConfigurators = customConfigurators;
-        return infeed;
+    public str toS() {
+        return format("@this.owner;: source=@this.source;, intersection=@this.intersection;, distance=@this.distance;");
     }
 }
