@@ -63,16 +63,32 @@ public class AweElectricalClusterInfo {
             //faulty state
             if(cluster.infeeds.count != 1) return;
 
-            var cableIndex = indexPointsToLines(cluster.cables);
-
             var infeed = cluster.infeeds.first();
 
+            var cableIndex = PointToElectricalCableArrayIndex();
+
+            var allCables = new AweElectricalCableLine[]();
+            allCables += infeed.cables;
+            allCables += cluster.cables;
+
+            for(c in allCables) {
+                //reset any stream info
+                c.upstream = null;
+                c.downstream = new AweElectricalCableLine{}();
+
+                for(v in c.vertices) {
+                    var currentCables = cableIndex.get(v);
+                    if(!currentCables) currentCables = new AweElectricalCableLine[]();
+                    currentCables << c;
+                    cableIndex.put(v, currentCables);
+                }
+            }
             goDownstream(null, infeed.spacePoint.v, cableIndex);
         }
     }
 
     extend private void goDownstream(AweElectricalCableLine upstream, point joint, PointToElectricalCableArrayIndex index) {
-        
+       
         if(upstream) {
             if(!upstream.downstream) {
                 upstream.downstream = new AweElectricalCableLine{}();
@@ -83,8 +99,7 @@ public class AweElectricalClusterInfo {
         var cablesAtJoint = index.get(joint);
 
         for(cable in cablesAtJoint) {
-            if(cable == upstream) break;
-
+            if(cable == upstream) continue;
             cable.upstream = upstream;
 
             if(upstream) {
@@ -92,7 +107,7 @@ public class AweElectricalClusterInfo {
             }
 
             for(vertice in cable.vertices) {
-                if(vertice == joint) break;
+                if(vertice == joint) continue;
 
                 cable.flow = line(joint, vertice);
 
@@ -106,9 +121,15 @@ public class AweElectricalClusterInfo {
         for(cluster in clusters) {
             Awe3D cluster3D();
             for(cable in cluster.cables) {
-                var cableLine = cable.flow;
-                Cylinder3D l(cableLine.p0, cableLine.p1, .5inch);
-                cluster3D << l;
+                if(!cable.upstream) {
+                    var cableLine = cable.spaceLine.v;
+                    Cylinder3D l(cableLine.p0, cableLine.p1, .5inch);
+                    cluster3D << l;
+
+                } else {
+                    var cableLine = cable.flow;
+                    cluster3D << getPoweredCable3D(cableLine, plainGreenMaterial3D);
+                }
             }
             for(infeed in cluster.infeeds) {
                 cluster3D << infeedGeometry(infeed);
@@ -125,6 +146,27 @@ public class AweElectricalClusterInfo {
         }
         
         return all3D;
+    }
+
+    extend private Primitive3D getPoweredCable3D(line flowline, Material3D material){
+        var desiredConeLength = 2inch;
+        var coneCount = (flowline.length / desiredConeLength).floor;
+        var actualConeLength = flowline.length / coneCount;
+
+        Awe3D prims();
+
+        var currentPoint = flowline.p0;
+        var direction = orientation(flowline.p1 - flowline.p0);
+        for(i in 1..coneCount) {
+            var p0 = currentPoint;
+            var p1 = p0 + point(direction, actualConeLength);
+            currentPoint = p1;
+            Cone3D cone(p0, p1, 0.5inch, 0);
+            cone.setMaterial(material);
+            prims << cone;
+        }
+
+        return prims;
     }
 
     extend public AweElectricalCluster clusterAt(point p) {
@@ -290,3 +332,7 @@ public Primitive3D infeedGeometry(AweElectricalInfeedPoint infeed) {
 
 public alias AweElectricalCableArray = AweElectricalCableLine[];
 public awePointIndex PointToElectricalCableArrayIndex for AweElectricalCableArray { }
+
+{
+    animate(new cm.abstract.robotics.RobotLimbInsertAnimation(StartInsertAnimationEnv(activeSpace, Snapper())));
+}
