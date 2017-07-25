@@ -98,8 +98,7 @@ public class AweElectricalClusterInfo {
        
         var componentsAtJoint = index.get(joint);
 
-        for(component in componentsAtJoint) {
-            
+        for(component in componentsAtJoint) if (component.active) {
             //found self, get out
             if(component == upstream) continue;
 

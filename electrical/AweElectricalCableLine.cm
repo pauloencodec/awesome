@@ -44,12 +44,6 @@ public class AweElectricalCableLine extends AweElectricalComponent {
         this.snapperLine = snapperLine;
     }
 
-    public AweNotifyProp bool active {
-        if(snapper) {
-            aweDynamicCall snapper.aweElectricalCableLineChanged(this);
-        }
-    }
-
     public str id;
 
     public Snapper snapper : copy=null;
@@ -68,5 +62,11 @@ public class AweElectricalCableLine extends AweElectricalComponent {
     extend public Line spaceLine() {
         if(!snapper) return null;
         return Line(snapper.toSpace(this.snapperLine));
+    }
+
+    public void activeChanged() {
+        if(snapper) {
+            aweDynamicCall snapper.aweElectricalCableLineChanged(this);
+        }
     }
 }

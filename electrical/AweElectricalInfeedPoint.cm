@@ -47,14 +47,6 @@ public class AweElectricalInfeedPoint extends AweElectricalComponent {
     }
 
     public str id;
-    public AweNotifyProp bool active {
-        for(c in this.cables) {
-            c.active = this.active;
-        }
-        if(snapper) {
-            aweDynamicCall snapper.aweElectricalInfeedChanged(this);
-        }
-    } 
     public orientation orientation;
     public AweElectricalCableLine[] cables();
     public AweElectricalCableLine[] activeNetwork();
@@ -76,6 +68,15 @@ public class AweElectricalInfeedPoint extends AweElectricalComponent {
         if(!spacePoint) return null;
 
         return [this.spacePoint.v];
+    }
+
+    public void activeChanged() {
+        for(c in this.cables) {
+            c.active = this.active;
+        }
+        if(snapper) {
+            aweDynamicCall snapper.aweElectricalInfeedChanged(this);
+        }
     }
 }
 

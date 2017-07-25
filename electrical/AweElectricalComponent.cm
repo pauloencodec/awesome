@@ -42,6 +42,10 @@ public class AweElectricalComponent : abstract {
     public AweElectricalComponent upstream;
     public AweElectricalComponent{} downstream();
 
+    public AweNotifyProp bool active {
+        this.activeChanged();
+    }
+    
     extend public void resetStreamInfo() {
         this.upstream = null;
         this.downstream = new AweElectricalComponent{} ();
