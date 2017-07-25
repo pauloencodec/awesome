@@ -47,6 +47,8 @@ public class AweElectricalClusterInfo {
     //no infeed
     public AweElectricalCableLine[] orphanCables();
 
+    private double lineThickness = 0.3inch;
+
     public constructor(AweElectricalMap map, bool forRouting=false) {
         this.map = map;
         this.forRouting = forRouting;
@@ -121,24 +123,29 @@ public class AweElectricalClusterInfo {
 
     extend public Primitive3D get3D() {
         Awe3D all3D();
+
         for(cluster in clusters) {
+            Awe3D infeed3D();
             Awe3D cluster3D();
             for(cable in cluster.cables) {
                 if(!cable.upstream) {
                     var cableLine = cable.spaceLine.v;
-                    Cylinder3D l(cableLine.p0, cableLine.p1, .5inch);
+                    Cylinder3D l(cableLine.p0, cableLine.p1, this.lineThickness);
                     cluster3D << l;
 
                 } else {
                     var cableLine = cable.flow;
-                    cluster3D << getPoweredCable3D(cableLine, plainGreenMaterial3D);
+                    cluster3D << getPoweredCable3D(cableLine);
                 }
             }
             for(infeed in cluster.infeeds) {
-                cluster3D << infeedGeometry(infeed);
+                infeed3D << infeedGeometry(infeed);
             }
             cluster3D.setMaterial(cluster.infeeds.count != 1 ? plainRedMaterial3D : plainGreenMaterial3D);
+            infeed3D.setMaterial(cluster.infeeds.count != 1 ? plainRedMaterial3D : plainGreenMaterial3D);
+            
             all3D << cluster3D;
+            all3D << infeed3D;
         }
 
         for(cable in orphanCables) {
@@ -151,22 +158,16 @@ public class AweElectricalClusterInfo {
         return all3D;
     }
 
-    extend private Primitive3D getPoweredCable3D(line flowline, Material3D material){
-        var desiredConeLength = 2inch;
-        var coneCount = (flowline.length / desiredConeLength).floor;
-        var actualConeLength = flowline.length / coneCount;
-
+    extend private Primitive3D getPoweredCable3D(line flowline){
         Awe3D prims();
 
-        var currentPoint = flowline.p0;
-        var direction = orientation(flowline.p1 - flowline.p0);
-        for(i in 1..coneCount) {
-            var p0 = currentPoint;
-            var p1 = p0 + point(direction, actualConeLength);
-            currentPoint = p1;
-            Cone3D cone(p0, p1, 0.5inch, 0);
-            cone.setMaterial(material);
-            prims << cone;
+        if (flowline.length > 5inch) {
+            Arrow3D arrow(flowline.p0, flowline.p1, 0.7inch, this.lineThickness, 1.5inch);
+            prims << arrow;
+        }
+        else {
+            Cylinder3D l(flowline.p0, flowline.p1, this.lineThickness);
+            prims << l;
         }
 
         return prims;
@@ -322,15 +323,12 @@ public class AweElectricalClusterInfo {
 }
 
 public Primitive3D infeedGeometry(AweElectricalInfeedPoint infeed) {
+    point tip = infeed.spacePoint.v;
+    point origin = tip - point(infeed.spaceOrientation, 3inch);
 
-    //cone
-    point origin = infeed.spacePoint.v;
-    point tip = origin + point(infeed.spaceOrientation, 3inch);
-    Cone3D cone(origin, tip, 2inch, 0);
-    cone.doubleSided = true;
+    Arrow3D arrow(origin, tip, 1.5inch, 0.75inch, 1.5inch);
     
-    return cone;
-
+    return arrow;
 }
 
 public alias AweElectricalCableArray = AweElectricalCableLine[];

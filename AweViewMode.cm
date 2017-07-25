@@ -42,7 +42,7 @@ public class AweElectricalViewMode extends ViewMode {
 
     public constructor() {
         symbol{} categories = { #electrical, #normal, #cad };
-        super("electrical",  (#:package).toS().substring(1), "electricalViewModeName", visible=categories, draw={#electrical} );
+        super("aweElectrical",  (#:package).toS().substring(1), "electricalViewModeName", visible=categories, draw={#electrical} );
     }
     
     public Primitive3D get3D(FetchEnv3D env) {
