@@ -53,8 +53,7 @@ public class AweElectricalCache {
     extend public AweElectricalCableLine cable(str id, point start, point end, bool clickable=true) {
         var cable = cables.get(id);
         if(!cable) {
-            cable = new AweElectricalCableLine(line());
-            cable.id = id;
+            cable = createCableLine(id);
             cables.put(id, cable);
         }
 
@@ -76,5 +75,11 @@ public class AweElectricalCache {
         set*(infeed: orientation, cables);
         infeed.customConfigurators = customConfigurators;
         return infeed;
+    }
+
+    extend public AweElectricalCableLine createCableLine( str id ) {
+        AweElectricalCableLine cable = new AweElectricalCableLine(line());
+        cable.id = id;
+        return cable;
     }
 }
