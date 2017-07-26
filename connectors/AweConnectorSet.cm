@@ -37,7 +37,6 @@
 package custom.awesome.connectors;
 
 public class AweConnectorSet {
-
     public constructor() { }
 
     public AweConnectorCache connectorCache;
@@ -47,11 +46,8 @@ public class AweConnectorSet {
 
     extend public bool connect(AweConnectEnv me, AweConnectEnv other) {
         if(!magnetSetsAttract(me.connector.getMagnets(), other.connector.getMagnets())) return false;
-        if(!acceptNewPosition(me, other)) return false;
         return true;
     }
-
-    
 
     extend public void connected(AweConnectEnv me, AweConnectEnv other) {
 
@@ -61,26 +57,14 @@ public class AweConnectorSet {
 
     }
 
+    extend public vector getDisplacementIfConnected(AweConnectEnv me, AweConnectEnv other) {
+        point oldPosition = me.snapper.pos();
+        point newPosition = me.snapper.positionIfConnected(me.connector, other.connector);
 
-    extend public bool acceptNewPosition(AweConnectEnv me, AweConnectEnv other) {
-        point oldPosition = me.connector.pos();
-        point newPosition = me.snapper.toSnapper(this.positionIfConnected(me.connector, other.connector));
-        return acceptNewPosition(me, other, oldPosition, newPosition);
+        return newPosition - oldPosition;
     }
 
-    //chance to reject a position you don't want
-    extend public bool acceptNewPosition(AweConnectEnv me, AweConnectEnv other, point oldPosition, point newPosition) {
-        return true;
+    extend public bool debug() {
+        return false;
     }
-
-    /**
-     * Return the position of this if snap were connected to attach. Assume vertical mouseline at 'snap'.
-     */
-     extend public point positionIfConnected(Connector snap, Connector attach) {
-        point p = attach.spacePos();
-        line fake = line(p + (0, 0, 1e5), p - (0, 0, 1e5));
-        return snap.snapPosition(attach, fake, asSnap=true);
-    }
-
-    
 }

@@ -37,8 +37,9 @@
 package custom.awesome.connectors;
 
 public class AweFixedZConnectorSet extends AweConnectorSet {
-    //chance to reject a position you don't want
-     public bool acceptNewPosition(AweConnectEnv me, AweConnectEnv other, point oldPosition, point newPosition) {
-        return oldPosition.z == newPosition.z;
-    } 
+    public bool connect(AweConnectEnv me, AweConnectEnv other) {
+        if (!super(..)) return false;
+
+        return this.getDisplacementIfConnected(me, other).z == 0;
+    }
 }
