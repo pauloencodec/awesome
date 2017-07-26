@@ -65,17 +65,23 @@ public class AweConnectLine extends ConnectLine {
     }
 
     public constructor(Snapper snapper, point p0, point p1, angle roll=0deg, ConnectRule rule=null, bool realign=false) {
-        super(snapper);
-
-        this.setPos(p0);
-        this.setEndPos(p1);
-
-        orientation o = orientation(p1 - p0);
-	    setRot(orientation(point(0, -_length, 0).transformed(o)));
+        super(snapper, p0, p1, roll);
 
         this.setRule(rule);
-        
         this.realign = realign;
+    }
+
+    extend public void setRoll(point p0, point p1, angle roll) {
+        if (p0.point2D == p1.point2D) {
+            orientation o;
+            o.roll =  (p0.z > p1.z) ? o.roll = 270deg : o.roll = 90deg;
+            o.yaw = roll;
+            this.setRot(o);
+        }
+        else {
+            orientation o = orientation(p1 - p0);
+            this.setRot(orientation(point(0, -this.length, 0).transformed(o)));
+        }
     }
 
     /************** model connecting ******************/
