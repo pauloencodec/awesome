@@ -54,6 +54,7 @@ public class AweElectricalAnimationDebugMode extends AweElectricalAnimationMode 
         if(!clusterInfo) return null;
 
         Awe3D prims();
+        point[] cablePoints();
 
         for(cluster in clusterInfo.clusters) {
             Awe3D cluster3D();
@@ -61,6 +62,18 @@ public class AweElectricalAnimationDebugMode extends AweElectricalAnimationMode 
                 var cableLine = cable.spaceLine.v;
                 Cylinder3D l(cableLine.p0, cableLine.p1, .5inch);
                 cluster3D << l;
+
+                if ( !cablePoints.contains( cableLine.p0 ) ) {
+                    Sphere3D s( cableLine.p0, r=.5inch, thetaRefinement=16.byte );
+                    cluster3D << s;
+                    cablePoints << cableLine.p0;
+                }
+                if ( !cablePoints.contains( cableLine.p1 ) ) {
+                    Sphere3D s( cableLine.p1, r=.5inch, thetaRefinement=16.byte );
+                    cluster3D << s;
+                    cablePoints << cableLine.p1;
+                }
+                
             }
             for(infeed in cluster.infeeds) {
                 cluster3D << infeedGeometry(infeed);
