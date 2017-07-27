@@ -48,7 +48,7 @@ public class AweElectricalCache {
     extend public AweElectricalCableLine cable(str id, point start, point end, bool clickable=true) {
         var cable = cables.get(id);
         if(!cable) {
-            cable = new AweElectricalCableLine(line());
+            cable = this.createCableInstance();
             cable.id = id;
             cables.put(id, cable);
         }
@@ -60,10 +60,14 @@ public class AweElectricalCache {
         return cable;
     }
 
+    extend public AweElectricalCableLine createCableInstance() {
+        return new AweElectricalCableLine(line());
+    }
+
     extend public AweElectricalInfeedPoint infeed(str id, point position, orientation orientation, AweElectricalCableLine[] cables=null, AweObject[] customConfigurators=null) {
         var infeed = infeeds.get(id);
         if(!infeed) {
-            infeed = new AweElectricalInfeedPoint(point());
+            infeed = this.createInfeedInstance();
             infeed.id = id;
             infeeds.put(id, infeed);
         }
@@ -71,5 +75,9 @@ public class AweElectricalCache {
         set*(infeed: orientation, cables);
         infeed.customConfigurators = customConfigurators;
         return infeed;
+    }
+
+    extend public AweElectricalInfeedPoint createInfeedInstance() {
+        return new AweElectricalInfeedPoint(point());
     }
 }
