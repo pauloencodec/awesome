@@ -40,6 +40,19 @@ public class AweConnectorSet {
     public constructor() { }
 
     public AweConnectorCache connectorCache;
+    public bool selected = true;
+
+    extend public str name() {
+        return null;
+    }
+
+    extend public bool optional() {
+        return false;
+    }
+
+    extend public bool active() {
+        return !this.optional() or this.selected;
+    }
 
     extend public void connectors(AweConnectorCache cc) {
     }
