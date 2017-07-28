@@ -95,7 +95,7 @@ public class AweObject {
         for(set in this.connectorSets) {
             if(set.optional and set.name()) {
                 var setKey = "ConnectorSet_" # set.name();
-                props.append2(setKey, set.name(), set.selected, BoolSubSet());
+                props.append2(setKey, set.name(), set.selected, BoolSubSet(), lockable=false);
             }
         }
     }
