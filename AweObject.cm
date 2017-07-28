@@ -79,20 +79,83 @@ public class AweObject {
     extend public void propChanged(str propName, Object oldValue, Object newValue) {
     }        
 
+    extend public void buildQuickPropertiesFromSyntax(QuickProperties props) {
+    }
+
+    extend public void buildConnectorSetProperties(QuickProperties props) {
+        for(set in this.connectorSets) {
+            if(set.optional and set.name()) {
+                var setKey = "ConnectorSet_" # set.name();
+                props.append(setKey, set.name(), set.selected, BoolSubSet());
+            }
+        }
+    }
+
+    extend public void buildConnectorSetAnimationProperties(AnimationProperties props) {
+        for(set in this.connectorSets) {
+            if(set.optional and set.name()) {
+                var setKey = "ConnectorSet_" # set.name();
+                props.append2(setKey, set.name(), set.selected, BoolSubSet());
+            }
+        }
+    }
+
+    extend public bool toggleConnectorSetProperties(str key, Object value) {
+        var changed = false;
+        
+        for(set in this.connectorSets) {
+            if(set.optional and set.name()) {
+                var setKey = "ConnectorSet_" # set.name();
+                if(key == setKey) {
+                    set.selected = value.bool;
+                    changed = true;
+                }
+            }
+        }
+
+        return changed;
+    }
+
     extend public bool buildQuickProperties(QuickProperties props) {
+        this.buildQuickPropertiesFromSyntax(props);
+        this.buildConnectorSetProperties(props);
+        this.sortQuickProperties(props);
+        
         return props and props.properties.any();
     }
 
+    extend public void sortQuickProperties(QuickProperties props) {
+        str[] sortOrder = this.quickPropertySort();
+        if ( sortOrder and sortOrder.count > 0 ) {
+            for( qp in props.properties ) {
+                if ( sortOrder.indexOf( qp.key ) == -1 ) sortOrder << qp.key;
+            }
+            props.properties.sort( function aweQPSort, sortOrder );
+        }
+    }
+
     extend public bool quickPropertyChanged(QuickProperties props, str key, Object value, bool testChangeOnly) {
-        return false;
+        var changed = false;
+        
+        if(!testChangeOnly)
+            changed = this.toggleConnectorSetProperties(key, value);
+        
+        return changed;
     }
 
     extend public str[] quickPropertySort() { return null; }
 
+    extend public void buildAnimationPropertiesFromSyntax(AnimationProperties props) {
+    }
+
     extend public void buildAnimationProperties(AnimationProperties props) {
+        this.buildAnimationPropertiesFromSyntax(props);
+        this.buildConnectorSetAnimationProperties(props);
+        //There is no animationProperties.sort
     }
 
     extend public void animationPropertyChanged(str key, Object value) {
+        this.toggleConnectorSetProperties(key, value);
     }
 
     public AweProduct _product : stream=null, copy=null;
@@ -335,7 +398,7 @@ public class AweObject {
     /************** exposing connectors ***************/
     extend public Connector{} getConnectors(Snapper snapper) {
         Connector{} connectors();
-        for(set in connectorSets) {
+        for(set in connectorSets) if(set.active()) {
             if(!set.connectorCache) {
                 set.connectorCache = new AweConnectorCache(snapper);
             }
@@ -570,18 +633,9 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
     return member {
         @domainMembers;
                 
-        @visibility bool buildQuickProperties(QuickProperties props) {
+        @visibility void buildQuickPropertiesFromSyntax(QuickProperties props) {
             super(..);
-            @buildQuickProperties;
-            str[] sortOrder = this.quickPropertySort();
-            if ( sortOrder and sortOrder.count > 0 ) {
-                for( qp in props.properties ) {
-                    if ( sortOrder.indexOf( qp.key ) == -1 ) sortOrder << qp.key;
-                }
-                props.properties.sort( function aweQPSort, sortOrder );
-            }
-
-            return true;
+            @buildQuickProperties;           
         }
 
         @visibility bool quickPropertyChanged(QuickProperties props, str key, Object value, bool testChangeOnly) {
@@ -591,7 +645,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
             return super(..);
         }
 
-        @visibility void buildAnimationProperties(AnimationProperties props) {
+        @visibility void buildAnimationPropertiesFromSyntax(AnimationProperties props) {
             super(..);
             @buildAnimationProperties;
         }
