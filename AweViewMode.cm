@@ -39,15 +39,16 @@ package custom.awesome;
 use custom.awesome.electrical;
 
 public class AweElectricalViewMode extends ViewMode {
+    private AweElectricalMap map;
 
     public constructor() {
         symbol{} categories = { #electrical, #normal, #cad };
         super("aweElectrical",  (#:package).toS().substring(1), "electricalViewModeName", visible=categories, draw={#electrical} );
+        this.map = new AweElectricalMap( activeSpace );
     }
     
     public Primitive3D get3D(FetchEnv3D env) {
-        var map = new AweElectricalMap( activeSpace );
-        var status = new AweElectricalClusterInfo(map);
+        var status = new AweElectricalClusterInfo(this.map);
         var prims = status.get3D(); 
         return prims;
     }
