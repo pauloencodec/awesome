@@ -51,14 +51,16 @@ public class AweOptimizedLineNetwork {
             point[] result();
 
             AwePathNode node = found;
-            result << node.end;
+            result << node.start;
 
             while( node.parentNode != null ) {
-                result << node.start;
+                // printf( "( @node.start/1inch;, @node.realEnd/1inch; )" );
+                result << node.realEnd;
                 node = node.parentNode;
             }
+            // printf( "( @node.start/1inch;, @node.realEnd/1inch; )" );
 
-            result << node.start;
+            result << node.realEnd;
             result.reverse();
 
             return result;
@@ -162,6 +164,10 @@ private class AwePathNode {
 
     extend public point start() {
         return reverse ? this.end : this.root;
+    }
+
+    extend public point realEnd() {
+        return reverse ? this.root : this.end;
     }
 
     public constructor( point start, point end, bool reverse = false ) {
