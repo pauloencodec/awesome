@@ -80,4 +80,11 @@ public class AweConnectorSet {
     extend public bool debug() {
         return false;
     }
+
+    extend public bool isAnyConnected(){
+        if (connectorCache != null) for (c in connectorCache.buffer) if (c.isConnected)
+            return true;
+
+        return false;
+    }
 }
