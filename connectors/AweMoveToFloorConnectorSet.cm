@@ -34,24 +34,14 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package custom.awesome.connectors;
 
-public void launch(Snapper s) {
-    animate(s.insertAnimation(StartInsertAnimationEnv(s.space, s)));
-}
-
-public void moveToFloor(Snapper s, bool moveGroup=true, bool invalidate=true) {
-    double bottomZ = maxDouble;
-    var snappers = moveGroup ? s.allGroupSelect(includeSelf=true) : { s };
-
-    for (snapper in snappers) {
-        if (snapper.pos.z < bottomZ) {
-            bottomZ = snapper.pos.z;
-        }
+public class AweMoveToFloorConnectorSet extends AweConnectorSet {
+    public void connected(AweConnectEnv me, AweConnectEnv other) {
+        me.snapper.moveToFloor();
     }
 
-    for (snapper in snappers) {
-        snapper.move((0, 0, -bottomZ));
-        snapper.invalidate();
+    public void disconnected(AweConnectEnv me, AweConnectEnv other) {
+        me.snapper.moveToFloor();
     }
 }
