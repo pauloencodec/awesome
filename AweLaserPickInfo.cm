@@ -34,56 +34,24 @@
    END OF CETSC
 */
 
-package custom.awesome.connectors;
+package custom.awesome;
 
-public class AweConnectLine extends ConnectLine {
-    public aweDynamicContract {
-        aweDynamic bool shouldRealign();
-        aweDynamic bool isMandatory();
-        aweDynamic void makeMandatory();
-    }
-    
-    public str id;
-    public bool hidden = false;
-    public bool hiddenWhenDisconnected = false;
-    public bool realign = false;
+public class AweLaserPickInfo {
+    private point source : public readable;
+    private point intersection : public readable;
+    private Object owner : public readable;
 
-    public bool mandatory = false;
-    extend public bool isMandatory() {
-        return mandatory;
-    }
-    extend public void makeMandatory() {
-        mandatory = true;
+    public constructor(point source, PickIntersection3D pickIntersection) {
+        this.source = source;
+        this.owner = pickIntersection.owner;
+        this.intersection = pickIntersection.info.ipWC.point;
     }
 
-    extend public bool shouldRealign() {
-        return this.realign;
-    }
-    
-    public bool isVisible() {
-        return !hidden and !((hiddenWhenDisconnected and !this.isConnected()));
+    extend public double distance() {
+        return this.source.distance(this.intersection);
     }
 
-    public constructor(Snapper snapper, point p0, point p1, angle roll=0deg, ConnectRule rule=null, bool realign=false) {
-        super(snapper, p0, p1, roll);
-
-        this.setRule(rule);
-        this.realign = realign;
+    public str toS() {
+        return format("@this.owner;: source=@this.source;, intersection=@this.intersection;, distance=@this.distance;");
     }
-
-    extend public void setRoll(point p0, point p1, angle roll) {
-        if (p0.point2D == p1.point2D) {
-            orientation o;
-            o.roll =  (p0.z > p1.z) ? o.roll = 270deg : o.roll = 90deg;
-            o.yaw = roll;
-            this.setRot(o);
-        }
-        else {
-            orientation o = orientation(p1 - p0);
-            this.setRot(orientation(point(0, -this.length, 0).transformed(o)));
-        }
-    }
-
-    /************** model connecting ******************/
-    public modelConnecting;
 }

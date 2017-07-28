@@ -36,54 +36,10 @@
 
 package custom.awesome.connectors;
 
-public class AweConnectLine extends ConnectLine {
-    public aweDynamicContract {
-        aweDynamic bool shouldRealign();
-        aweDynamic bool isMandatory();
-        aweDynamic void makeMandatory();
-    }
-    
-    public str id;
-    public bool hidden = false;
-    public bool hiddenWhenDisconnected = false;
-    public bool realign = false;
+public class AweFixedZConnectorSet extends AweConnectorSet {
+    public bool connect(AweConnectEnv me, AweConnectEnv other) {
+        if (!super(..)) return false;
 
-    public bool mandatory = false;
-    extend public bool isMandatory() {
-        return mandatory;
+        return this.getDisplacementIfConnected(me, other).z == 0;
     }
-    extend public void makeMandatory() {
-        mandatory = true;
-    }
-
-    extend public bool shouldRealign() {
-        return this.realign;
-    }
-    
-    public bool isVisible() {
-        return !hidden and !((hiddenWhenDisconnected and !this.isConnected()));
-    }
-
-    public constructor(Snapper snapper, point p0, point p1, angle roll=0deg, ConnectRule rule=null, bool realign=false) {
-        super(snapper, p0, p1, roll);
-
-        this.setRule(rule);
-        this.realign = realign;
-    }
-
-    extend public void setRoll(point p0, point p1, angle roll) {
-        if (p0.point2D == p1.point2D) {
-            orientation o;
-            o.roll =  (p0.z > p1.z) ? o.roll = 270deg : o.roll = 90deg;
-            o.yaw = roll;
-            this.setRot(o);
-        }
-        else {
-            orientation o = orientation(p1 - p0);
-            this.setRot(orientation(point(0, -this.length, 0).transformed(o)));
-        }
-    }
-
-    /************** model connecting ******************/
-    public modelConnecting;
 }

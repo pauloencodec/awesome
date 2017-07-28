@@ -180,17 +180,6 @@ public class AweSnapper extends Snapper {
 
     extend public void extraAnimationPropertyChanged( str key, Object value) { }
 
-    public void connected(Connector c0, Connector c1, bool snapped, bool attached) {
-        this.refresh(true);
-        super(..);
-    }
-
-    public void disconnected(Connector c0, Connector c1, bool wasSnapped, bool wasAttached) {
-        this.refresh(true);
-        super(..);
-    }
-
-
     public Animation insertAnimation(StartInsertAnimationEnv env) {
         return new AweInsertAnimation(env);
     }
@@ -401,6 +390,16 @@ public class AweSnapper extends Snapper {
     public void unsuspended() {
         super();
         invalidateLights();
+    }
+
+    public bool dbg_connectLinesIn3D() {
+        if (developMode) {
+            for (set in this.mainModel.connectorSets()) {
+                if (set.debug) return true;
+            }
+        }
+        
+        return false;
     }
 }
 
