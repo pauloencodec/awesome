@@ -44,68 +44,27 @@ public class AweOptimizedLineNetwork {
         this.navigator = new AweLineNavigator(lines);
     }
 
-    extend public point[] shortestRoute(point start, point end) {
-
+    extend public point[] shortestRoute( point start, point end ) {
         var found = this.navigator.copy().search(..);
-
-        if (found) { 
         
+        if ( found ) {
             point[] result();
 
-            var node = found;
-            
-            if (!node.parentNode) { 
-                result << node.end;
-            }
+            AwePathNode node = found;
+            result << node.end;
 
-            while (node.parentNode != null)
-            {
-                var handled = false;
-                
-                if (node.realEnd == end) { 
-                    if (node.root == start) { 
-                        result << node.root;
-                        break;
-                    }
-                    result << node.end;
-                    handled = true;
-                } 
-                
-                if (node.root == start) { 
-                    result << node.realEnd << node.start;
-                    break;
-                }
-
-                if (!handled) { 
-                    result << node.end << node.root;
-                }
-
+            while( node.parentNode != null ) {
+                result << node.start;
                 node = node.parentNode;
             }
 
-            result << node.end;
-            result << start;
+            result << node.start;
             result.reverse();
-            return reduce(result);
 
+            return result;
         }
 
         return null;
-    }
-
-    extend public point[] reduce(point[] ps) { 
-        for (p in ps, index=i) { 
-            var uBound = ps.count-1;
-            var x = i + 1;
-            while (x <= uBound) { 
-                if (ps[x] == p) {
-                    ps.remove(x);
-                    uBound--;
-                }
-                x++;
-            }
-        }
-        return ps;
     }
 }
 
@@ -119,84 +78,53 @@ private class AweLineNavigator {
         }
     }
 
-    extend public AwePathNode search(point start, point end) { 
-        
-        this.calculateFor(end);
-        var key = this.getKeyFor(start);
-        var lines = this.lines.get(key);
+    extend public AwePathNode[] getLinesWithStart( point start ) {
+        return this.lines.get(this.getKeyFor(start));
+    }
 
-        if (!lines) { 
-            pln("No lines found for " #start);
-            return null;
+    extend public AwePathNode search( point start, point end ) {
+        this.calculateHFor( end ); // calculate the H for all points to 'end'
+        
+        AwePathNode[] open = this.getLinesWithStart( start );
+        AwePathNode[] closed();
+
+        for( n in open ) {
+            n.setParentNode( null );
         }
-        
-        for (n in lines) {
 
-            n.state = aweNodeState.done;
-            if (n.end == end) { 
-                return n;
+        while( open.count > 0 ) {
+            // find cheapest node in open
+            AwePathNode next = open.first;
+            for( n in open ) {
+                if ( n.f < next.f ) next = n;
             }
 
-            sorted double->AwePathNode rawDistances();
-            var nodes = this.expandFrom(n);
-            for (en in nodes) { 
-                rawDistances.put(en.f, en);
-            }
+            // remove from open, and add to closed
+            // open.exclude( next );
+            open.remove( open.indexOf( next ) );
+            closed << next;
 
-            if (!rawDistances.any) {
-                continue;
-            }
+            // if this node ends at end, we're done!
+            if ( next.end == end ) return next;
 
-            for (d, no in rawDistances) { 
-                if (no.endsAt(end)) { 
-                    return no;
-                } else { 
-                    var r = this.search(no.root, end);
-                    if (r) { 
-                        return r;
-                    }
+            // add all the guys that have this as a start
+            AwePathNode[] toAdd = this.getLinesWithStart( next.end );
+            // remove anything that's in closed
+            for ( n in toAdd ) {
+                if ( closed.contains(n) ) {
+                    continue;
+                } else {
+                    n.setParentNode( next );
+                    open << n;
                 }
             }
         }
 
+        // sorry charlie
         return null;
     }
 
-    extend public AwePathNode[] expandFrom(AwePathNode baseNode)  { 
-
-        AwePathNode[] expanded();
-
-        var lines = this.lines.get(this.getKeyFor(baseNode.end));
-        if (!lines) { 
-            pln("No lines found for " #baseNode);
-            return expanded;
-        }
-
-        for (node in lines) {
-
-            if (node.state == aweNodeState.done) { 
-                continue;
-            }
-
-            if (node.state == aweNodeState.traversing) {
-                if ((node.getCost(node.start, node.parentNode.start) + node.g) < node.g)
-                {
-                    node.parentNode = baseNode;
-                    expanded << node;
-                }
-            }
-            else
-            {
-                node.parentNode = baseNode;
-                node.state = aweNodeState.traversing;
-                expanded << node;
-            }
-        }
-
-        return expanded;
-    }
-
-    extend public void calculateFor(point end) { 
+    extend public void calculateHFor(point end) { 
         for (k,v in this.lines) { 
             for (n in v) { 
                 n.initialize(end);
@@ -209,7 +137,7 @@ private class AweLineNavigator {
         this.checkAndAdd(line(l.p1, l.p0), true);
     }
 
-    final private void checkAndAdd(line l, bool reverse = false) {
+    final private void checkAndAdd(line l, bool reverse=false) {
         var k = this.getKeyFor(l.p0);
         if (k !in this.lines) { 
             AwePathNode[] nodes();
@@ -229,31 +157,17 @@ private class AwePathNode {
     public point end;
     public double g;
     public double h;
-    public aweNodeState state;
-    public bool reverse;
     private AwePathNode parentNode;
+    private bool reverse;
 
-    public constructor(point start, point end, bool reverse) {
+    extend public point start() {
+        return reverse ? this.end : this.root;
+    }
+
+    public constructor( point start, point end, bool reverse = false ) {
         this.root = start;
         this.end = end;
-        this.state = aweNodeState.pending;
-        this.reverse = reverse;
-    }
-
-    extend public bool endsAt(point p) { 
-        return this.realEnd == p;
-    }
-
-    extend public line l() { 
-        return line(root, end);
-    }
-
-    extend public point start() { 
-        return this.reverse ? this.end : this.root;
-    }
-
-    extend public point realEnd() { 
-        return this.reverse ? this.root : this.end;
+        this.reverse = true;
     }
 
     extend public AwePathNode initialize(point target) { 
@@ -268,7 +182,13 @@ private class AwePathNode {
 
     extend public AwePathNode setParentNode(AwePathNode parent) {
         this.parentNode = parent;
-        this.g = this.parentNode.g + this.getCost(this.start, this.parentNode.start);
+
+        if ( this.parentNode ) {
+            // this.g = this.parentNode.g + this.getCost(this.start, this.parentNode.start);
+            this.g = this.getCost(this.start, this.parentNode.start) + this.parentNode.g;
+        } else {
+            this.g = this.getCost(this.start, this.end); // if it has no parent, then the cost is just itself
+        }
         return this;
     }
 
@@ -277,12 +197,7 @@ private class AwePathNode {
     }
 
     public str toS() {
-        return this.l # " - " # this.l.length # " - " # (this.l.p0.z == this.l.p1.z);
+        line l( start, end );
+        return l # " - " # l.length # " - " # (l.p0.z == l.p1.z);
     }
-}
-
-private enum aweNodeState {
-    pending;
-    traversing;
-    done;
 }
