@@ -70,8 +70,16 @@ public class AweConnectorCache {
         return this.setupConnector(c, position, direction, key, rule, magnets);
     }
 
+    extend public Connector makeMagneticPoint(str key, point position, orientation direction, ConnectRule rule=magneticRule, bool realign=false, bool hiddenOnDC=true, bool mandatory=false, AweMagnet magnet=null, AweMagnet{} magnets=null) {
+        return this.makePoint(..);
+    }
+    
     extend public Connector makePoint(str key, point position, orientation direction, ConnectRule rule=ctNever, bool realign=false, bool hiddenOnDC=true, bool mandatory=false, AweMagnet magnet=null, AweMagnet{} magnets=null) {
         return this.get(..);
+    }
+
+    extend public Connector makeMagneticLine(str key, line l, angle roll=0deg, ConnectRule rule=magneticRule, bool realign=false, bool hiddenOnDC=true, bool mandatory=false, AweMagnet magnet=null, AweMagnet{} magnets=null) {
+        return this.makeLine(..);
     }
 
     extend public Connector makeLine(str key, line l, angle roll=0deg, ConnectRule rule= null, bool realign=false, bool hiddenOnDC=true, bool mandatory=false, AweMagnet magnet=null, AweMagnet{} magnets=null) {

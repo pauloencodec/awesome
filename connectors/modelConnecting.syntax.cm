@@ -109,7 +109,7 @@ public member @visibility modelConnecting ';' {
                 return true;
             }
 
-            return me.set ? false : super(..);
+            return me.set or (this.rule == magneticRule) ? false : super(..);
         }
 
         extend private bool isConnectable(AweConnectEnv me, AweConnectEnv other, Connector connector) {
