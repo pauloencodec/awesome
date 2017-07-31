@@ -40,8 +40,6 @@ use cm.syntax;
 public class AweConsumer {
     public AweObject source;
 
-    public str->str propAliases();
-
     public constructor(AweObject source) {
         this.source = source;
     }   
@@ -70,9 +68,13 @@ public syntax str->Object aweConsumerContractItem {
 
 }
 
-public definition @visibility aweConsumer @name=id '{' "contract" '(' @contractItems=[aweConsumerContractItem ',']* @lastContractItem=aweConsumerContractItem ')' ';' '}' {
+public definition @visibility aweConsumer @name=id @parentClass=["extends" type]? '{' "contract" '(' @contractItems=[aweConsumerContractItem ',']* @lastContractItem=aweConsumerContractItem ')' ';' @members=[classMember]* '}' {
     
     contractItems << lastContractItem;
+
+    if (!parentClass) {
+        parentClass = new SType("AweConsumer");
+    }
 
     SMembers props(noSrcRef);
     SMembers methods(noSrcRef);
@@ -133,7 +135,7 @@ public definition @visibility aweConsumer @name=id '{' "contract" '(' @contractI
     }
 
     definition {
-        @visibility class @name extends AweConsumer {
+        @visibility class @name extends @parentClass {
             @visibility constructor(@constructorParams) {
                 super(source);
             }
