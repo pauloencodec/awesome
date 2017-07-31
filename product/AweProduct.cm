@@ -46,6 +46,18 @@ public class AweProduct extends AweGeometry {
 
     extend public AweProduct operator<<(AweGeometry geometry) {
         this.geometries <<? geometry;
+        
+        if(geometry as AweProduct) {
+            this.geometries += geometry.geometries;
+        }
+        
+        return this;
+    }
+
+    extend public AweProduct operator<<(AweGeometry[] geometries) {
+        for (g in geometries) {
+            this << g;
+        }
 
         return this;
     }
