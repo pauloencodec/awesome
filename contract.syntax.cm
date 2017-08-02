@@ -37,13 +37,6 @@
 package custom.awesome;
 use cm.syntax;
 
-public class AweConsumer {
-    public AweObject source;
-
-    public constructor(AweObject source) {
-        this.source = source;
-    }   
-}
 
 public syntax str->Object aweConsumerContractItem {
     
@@ -68,7 +61,7 @@ public syntax str->Object aweConsumerContractItem {
 
 }
 
-public member @visibility contractConstructor '(' @contractItems=[aweConsumerContractItem ',']* @lastContractItem=aweConsumerContractItem ')' '{' @expressions=[statement]* '}'  {
+public member @visibility contract '(' @contractItems=[aweConsumerContractItem ',']* @lastContractItem=aweConsumerContractItem ')' '{' @expressions=[statement]* '}'  {
     
     contractItems << lastContractItem;
 
@@ -173,7 +166,7 @@ public aweObject MySource {
 }
 
 public class MySourceConsumer {
-    public contractConstructor(
+    public contract(
             double width,
             double height,
             AweObject child,
