@@ -68,13 +68,10 @@ public syntax str->Object aweConsumerContractItem {
 
 }
 
-public definition @visibility aweConsumer @name=id @parentClass=["extends" type]? '{' "contract" '(' @contractItems=[aweConsumerContractItem ',']* @lastContractItem=aweConsumerContractItem ')' ';' @members=[classMember]* '}' {
+public member @visibility contractConstructor '(' @contractItems=[aweConsumerContractItem ',']* @lastContractItem=aweConsumerContractItem ')' '{' @expressions=[statement]* '}'  {
     
     contractItems << lastContractItem;
 
-    if (!parentClass) {
-        parentClass = new SType("AweConsumer");
-    }
 
     SMembers props(noSrcRef);
     SMembers methods(noSrcRef);
@@ -92,7 +89,7 @@ public definition @visibility aweConsumer @name=id @parentClass=["extends" type]
 
             props << member {
                 extend @visibility @propType @propName() {
-                    return this.source.?get(@propNameStr).@propType;
+                    return this.__source.?get(@propNameStr).@propType;
                 }
             };
         }
@@ -116,16 +113,16 @@ public definition @visibility aweConsumer @name=id @parentClass=["extends" type]
             if(SType("void").equal(methodReturnType)) {
                 methods << member {
                     extend @visibility @methodReturnType @methodName(@methodArgs) {
-                        if(this.source)  {
-                            dynamic_call(source.@methodName(@actualArgs));
+                        if(this.__source)  {
+                            dynamic_call(__source.@methodName(@actualArgs));
                         }
                     }
                 };
             } else {
                 methods << member {
                     extend @visibility @methodReturnType @methodName(@methodArgs) {
-                        if(!this.source) return @zero;
-                        return dynamic_call(source.@methodName(@actualArgs):@methodReturnType);
+                        if(!this.__source) return @zero;
+                        return dynamic_call(__source.@methodName(@actualArgs):@methodReturnType);
                     }
                 };
             }
@@ -133,17 +130,25 @@ public definition @visibility aweConsumer @name=id @parentClass=["extends" type]
             
         }
     }
+    SStatements s = statement {};
+    for(e in expressions) {
+        s << e;
+    }
 
-    definition {
-        @visibility class @name extends @parentClass {
-            @visibility constructor(@constructorParams) {
-                super(source);
-            }
+    pln(#s);
 
-            @props;
+    return member {
+        @visibility AweObject __source;
 
-            @methods;
+        @visibility constructor(@constructorParams) {
+            this.__source = source;
+            @s;
         }
+
+        @props;
+
+        @methods;
+
     };
 }
 
@@ -154,6 +159,10 @@ public aweObject MySource {
         AweObject child = null
     );
 
+    public constructor() {
+        pln("hello!");
+    }
+
     extend public void sayHi() {
         pln("hi!");
     }
@@ -163,14 +172,18 @@ public aweObject MySource {
     }
 }
 
-public aweConsumer MySourceConsumer {
-    contract(
-        double width,
-        double height,
-        AweObject child,
-        void sayHi(),
-        double plusOne(double x)
-    );
+public class MySourceConsumer {
+    public contractConstructor(
+            double width,
+            double height,
+            AweObject child,
+            void sayHi(),
+            double plusOne(double x)
+    )
+    {
+        pln("hi there");
+    }
+    
 }
 
 {

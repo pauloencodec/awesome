@@ -36,8 +36,8 @@
 
 package custom.awesome.connectors;
 
-public class AweConnectorSet extends AweConsumer {
-    public constructor() { super(null); }
+public class AweConnectorSet  {
+    public constructor() { }
 
     public AweConnectorCache connectorCache;
     public bool selected = true;
