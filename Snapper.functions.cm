@@ -39,3 +39,19 @@ package custom.awesome;
 public void launch(Snapper s) {
     animate(s.insertAnimation(StartInsertAnimationEnv(s.space, s)));
 }
+
+public void moveToFloor(Snapper s, bool moveGroup=true, bool invalidate=true) {
+    double bottomZ = maxDouble;
+    var snappers = moveGroup ? s.allGroupSelect(includeSelf=true) : { s };
+
+    for (snapper in snappers) {
+        if (snapper.pos.z < bottomZ) {
+            bottomZ = snapper.pos.z;
+        }
+    }
+
+    for (snapper in snappers) {
+        snapper.move((0, 0, -bottomZ));
+        snapper.invalidate();
+    }
+}

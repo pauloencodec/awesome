@@ -391,5 +391,15 @@ public class AweSnapper extends Snapper {
         super();
         invalidateLights();
     }
+
+    public bool dbg_connectLinesIn3D() {
+        if (developMode) {
+            for (set in this.mainModel.connectorSets()) {
+                if (set.debug) return true;
+            }
+        }
+        
+        return false;
+    }
 }
 
