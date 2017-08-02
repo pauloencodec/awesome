@@ -36,63 +36,43 @@
 
 package custom.awesome.electrical;
 
-public class AweOptimizedLineNetwork { 
+public class WeightedLine {
+    public line line;
+    public double weight;
 
-    private AweLineNavigator navigator;
-
-    public constructor(line[] lines) { 
-        this.navigator = new AweLineNavigator(lines);
-    }
-
-    extend public point[] shortestRoute( point start, point end ) {
-        var found = this.navigator.copy().search(..);
-        
-        if ( found ) {
-            point[] result();
-
-            AwePathNode node = found;
-            result << node.start;
-
-            while( node.parentNode != null ) {
-                // printf( "( @node.start/1inch;, @node.realEnd/1inch; )" );
-                result << node.realEnd;
-                node = node.parentNode;
-            }
-            // printf( "( @node.start/1inch;, @node.realEnd/1inch; )" );
-
-            result << node.realEnd;
-            result.reverse();
-
-            return result;
-        }
-
-        return null;
+    public constructor( line line, double weight = 1.0 ) {
+        this.line = line;
+        this.weight = weight;
     }
 }
 
-private class AweLineNavigator { 
+public class AweOptimizedLineNetwork { 
 
-    private str->AwePathNode[] lines() : public readable;
+    private AweGraphPath graph();
 
     public constructor(line[] lines) { 
         for (l in lines) { 
-            this.add(l);
+            this.graph.addEdge( l, 1.0 ); // use constant weight
         }
     }
 
-    extend public AwePathNode[] getLinesWithStart( point start ) {
-        return this.lines.get(this.getKeyFor(start));
+    public constructor(WeightedLine[] lines) { 
+        for (l in lines) { 
+            this.graph.addEdge( l.line, l.weight );
+        }
     }
 
-    extend public AwePathNode search( point start, point end ) {
-        this.calculateHFor( end ); // calculate the H for all points to 'end'
-        
-        AwePathNode[] open = this.getLinesWithStart( start );
-        AwePathNode[] closed();
+    extend public point[] shortestRoute( point start, point end ) {
+        var found = search(..);
 
-        for( n in open ) {
-            n.setParentNode( null );
-        }
+        if ( found ) return found.reversePath();
+        return null;
+    }
+
+    extend private AwePathNode search( point start, point end ) {
+        AwePathNode[] open();
+        open << AwePathNode( null, this.graph.getVertex( start ), null, end );
+        AweGraphVertex[] closed();
 
         while( open.count > 0 ) {
             // find cheapest node in open
@@ -102,22 +82,21 @@ private class AweLineNavigator {
             }
 
             // remove from open, and add to closed
-            // open.exclude( next );
             open.remove( open.indexOf( next ) );
-            closed << next;
+            closed << next.vertex;
 
             // if this node ends at end, we're done!
-            if ( next.end == end ) return next;
+            if ( next.point == end ) return next;
 
             // add all the guys that have this as a start
-            AwePathNode[] toAdd = this.getLinesWithStart( next.end );
+            AweGraphEdge[] toAdd = next.vertex.neighbors();
             // remove anything that's in closed
-            for ( n in toAdd ) {
+            for ( e in toAdd ) {
+                AweGraphVertex n = e.neighbor(next.vertex);
                 if ( closed.contains(n) ) {
                     continue;
                 } else {
-                    n.setParentNode( next );
-                    open << n;
+                    open << AwePathNode( next, n, e, end );
                 }
             }
         }
@@ -125,85 +104,121 @@ private class AweLineNavigator {
         // sorry charlie
         return null;
     }
+}
 
-    extend public void calculateHFor(point end) { 
-        for (k,v in this.lines) { 
-            for (n in v) { 
-                n.initialize(end);
+private class AweGraphPath {
+    public str->AweGraphVertex vertices();
+
+    public constructor() { }
+
+    extend public AweGraphVertex getVertex( point p ) {
+        return this.vertices.get( p.toS );
+    }
+
+    extend public AweGraphVertex addVertex( point p ) {
+        AweGraphVertex vertex = getVertex( p );
+        if ( !vertex ) {
+            vertex = AweGraphVertex(p);
+            vertices.put( p.toS, vertex );
+        }
+        return vertex;
+    }
+
+    extend public void addEdge( line l, double weight ) {
+        AweGraphVertex p0 = this.addVertex( l.p0 );
+        AweGraphVertex p1 = this.addVertex( l.p1 );
+
+        bool newEdge = true;
+        for( edge in p0.edges ) {
+            if ( edge.neighbor( p0 ) == p1 ) {
+                newEdge = false;
+                break;
             }
         }
-    }
-
-    final private void add(line l) { 
-        this.checkAndAdd(l);
-        this.checkAndAdd(line(l.p1, l.p0), true);
-    }
-
-    final private void checkAndAdd(line l, bool reverse=false) {
-        var k = this.getKeyFor(l.p0);
-        if (k !in this.lines) { 
-            AwePathNode[] nodes();
-            this.lines.put(k, nodes);
+        if ( newEdge ) {
+            AweGraphEdge edge( p0, p1, weight );
+            p0.edges << edge;
+            p1.edges << edge;
         }
-        this.lines.get(k) << AwePathNode(l.p0, l.p1, reverse);
-    }
-
-    final private str getKeyFor(point p) { 
-        return p.x # "_" # p.y # "_" # p.z;
     }
 }
 
+private class AweGraphVertex {
+    public point point;
+    public AweGraphEdge[] edges();
+
+    public constructor( point p ) {
+        this.point = p;
+    }
+
+    extend public AweGraphEdge[] neighbors() {
+        return edges;
+    }
+}
+
+private class AweGraphEdge {
+    public AweGraphVertex vertex1;
+    public AweGraphVertex vertex2;
+    public double weight;
+
+    public constructor( AweGraphVertex v1, AweGraphVertex v2, double w ) {
+        vertex1 = v1;
+        vertex2 = v2;
+        weight = w;
+    }
+
+    extend public double cost() {
+        return vertex1.point.distance(vertex2.point) * weight;
+    }
+
+    extend public AweGraphVertex neighbor( AweGraphVertex me ) {
+        if ( vertex1 == me ) return vertex2;
+        if ( vertex2 == me ) return vertex1;
+        return null;
+    }
+} 
+
 private class AwePathNode {
-    
-    public point root;
-    public point end;
-    public double g;
-    public double h;
-    private AwePathNode parentNode;
-    private bool reverse;
+    public AweGraphVertex vertex;
+    public AweGraphEdge edge;
+    public double g = 0;
+    public double h = 0;
+    private AwePathNode parent;
 
-    extend public point start() {
-        return reverse ? this.end : this.root;
+    public constructor( AwePathNode parent, AweGraphVertex p, AweGraphEdge e, point hTarget ) {
+        this.vertex = p;
+        this.edge = e;
+        this.h = getCost( hTarget );
+        this.parent = parent;
+
+        // if it has a parent node, it has a cost
+        if ( this.parent ) {
+            this.g = this.edge.cost() + this.parent.g;
+        } 
     }
 
-    extend public point realEnd() {
-        return reverse ? this.root : this.end;
-    }
-
-    public constructor( point start, point end, bool reverse = false ) {
-        this.root = start;
-        this.end = end;
-        this.reverse = true;
-    }
-
-    extend public AwePathNode initialize(point target) { 
-        this.h = getCost(this.start, target);
-        this.g = 0;
-        return this;
+    extend public point point() {
+        return vertex.point;
     }
 
     extend public double f() {
         return this.g + this.h;
     }
 
-    extend public AwePathNode setParentNode(AwePathNode parent) {
-        this.parentNode = parent;
+    extend public double getCost( point target) {
+        return this.point.distance(target);
+    }
 
-        if ( this.parentNode ) {
-            // this.g = this.parentNode.g + this.getCost(this.start, this.parentNode.start);
-            this.g = this.getCost(this.start, this.parentNode.start) + this.parentNode.g;
-        } else {
-            this.g = this.getCost(this.start, this.end); // if it has no parent, then the cost is just itself
+    extend public point[] reversePath() {
+        point[] result();
+        AwePathNode node = this;
+
+        while( node.parent != null ) {
+            result << node.point;
+            node = node.parent;
         }
-        return this;
-    }
-
-    extend public double getCost(point base, point target) {
-        return base.distance(target);
-    }
-
-    public str toS() {
-        line l( start, end );
-        return l # " - " # l.length # " - " # (l.p0.z == l.p1.z);
+        result << node.point;
+        result.reverse();
+        return result;
     }
 }
