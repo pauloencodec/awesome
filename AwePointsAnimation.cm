@@ -203,7 +203,7 @@ public class AwePointsAnimation extends AweAnimation {
         }
 
 
-        this.setViewMode(normalViewMode);
+        this.setViewMode(null);
 
         super(..);
     }
