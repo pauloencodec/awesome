@@ -283,7 +283,36 @@ public class AweObject {
     }
 
     extend public void validate(AweValidationIssues issues) {
+        for(validator in this.getValidators()) if(validator.active) {
+            validator.validate(issues);
+        }
 
+        for(set in connectorSets) if(set.active) {
+            set.validate(issues);
+        }
+    }
+
+    private Field{} _validatorFields;
+    extend public AweValidator{} getValidators() {
+        if(!_validatorFields) {
+            init _validatorFields();
+            for(field in this.class.fields) {
+                Object value = this.get(field);
+                if(value in AweValidator) {
+                    _validatorFields << field;
+                }
+            }
+        }
+        
+        AweValidator{} validators();
+        for(field in _validatorFields) {
+            Object value = this.get(field);
+            if(value as AweValidator) {
+                if(value)
+                    validators << value;
+            }
+        }
+        return validators;
     }
 
     /************** query ****************/

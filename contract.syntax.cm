@@ -116,7 +116,11 @@ public member @visibility contract "from" @source=id '{' @contractItems=[aweCons
             }
         }
     }
- 
+    SStatements s = statement {};
+    for(e in expressions) {
+        s << e;
+    }
+
     return member {
         @props;
         @methods;

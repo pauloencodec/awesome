@@ -35,6 +35,7 @@
 */
 
 package custom.awesome.connectors;
+use cm.runtime, cm.basic;
 
 public class AweConnectorSet  {
     public constructor() { }
@@ -60,6 +61,35 @@ public class AweConnectorSet  {
     extend public bool connect(AweConnectEnv me, AweConnectEnv other) {
         if(!magnetSetsAttract(me.connector.getMagnets(), other.connector.getMagnets())) return false;
         return true;
+    }
+
+    extend public void validate(AweValidationIssues issues) {
+        for(validator in this.getValidators()) if(validator.active) {
+            validator.validate(issues);
+        }
+    }
+
+    private Field{} _validatorFields;
+    extend public AweValidator{} getValidators() {
+        if(!_validatorFields) {
+            init _validatorFields();
+            for(field in this.class.fields) {
+                Object value = this.get(field);
+                if(value in AweValidator) {
+                    _validatorFields << field;
+                }
+            }
+        }
+        
+        AweValidator{} validators();
+        for(field in _validatorFields) {
+            Object value = this.get(field);
+            if(value as AweValidator) {
+                if(value)
+                    validators << value;
+            }
+        }
+        return validators;
     }
 
     extend public void connected(AweConnectEnv me, AweConnectEnv other) {
