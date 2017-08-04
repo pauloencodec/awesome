@@ -42,6 +42,7 @@ public class AweConnectorSet  {
 
     public AweConnectorCache connectorCache;
     public bool selected = true;
+    public AweObject[] connectedModels();
 
     extend public str name() {
         return null;
