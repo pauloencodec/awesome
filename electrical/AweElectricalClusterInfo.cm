@@ -77,7 +77,9 @@ public class AweElectricalClusterInfo {
             for(c in allCables) {
                 addComponentToIndex(c, cableIndex);
             }
-            goDownstream(infeed, infeed.spacePoint.v, cableIndex);
+
+            var visited = new AweElectricalComponent{}();
+            goDownstream(infeed, infeed.spacePoint.v, cableIndex, visited);
         }
     }
 
@@ -94,8 +96,11 @@ public class AweElectricalClusterInfo {
         }
     }
 
-    extend private void goDownstream(AweElectricalComponent upstream, point joint, PointToElectricalComponentArrayIndex index) {
-       
+    extend private void goDownstream(AweElectricalComponent upstream, point joint, PointToElectricalComponentArrayIndex index, AweElectricalComponent{} visited) {
+        if (upstream in visited) return;
+
+        visited << upstream;
+
         var componentsAtJoint = index.get(joint);
 
         for(component in componentsAtJoint) if (component.active) {
@@ -115,7 +120,7 @@ public class AweElectricalClusterInfo {
                     component.flow = line(joint, vertice);
                 }
 
-                goDownstream(component, vertice, index);                
+                goDownstream(component, vertice, index, visited);                
             }
         }
     }
