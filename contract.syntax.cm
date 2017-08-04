@@ -63,82 +63,118 @@ public syntax str->Object aweConsumerContractItem {
 
 public member @visibility Contract @source=id '{' @contractItems=[aweConsumerContractItem ';']*'}'  {
     
-    SMembers props(noSrcRef);
-    SMembers methods(noSrcRef);
+    SMembers proxyMembers(noSrcRef);
 
 
     for(item in contractItems) {
-
-        //props
-        if(item.get("contractType").str == "prop") {
-            SId propName = item.get("name").SId;
-            str propNameStr = propName.name;
-            SType propType = item.get("returnType").SType;
-            SExpr zero = propType.type().literal0();
-
-            props << member {
-                extend @visibility @propType @propName() {
-                    if(!@source) {
-                        return @zero;
-                    }
-
-                    //awe object has a generic getter
-                    if(@source as AweObject) {
-                        Object value = @source.get(@propNameStr);
-                        if(value) return value.@propType;
-                    } 
-                    
-                    if(Field field = @source.class.?field(@propNameStr)) {
-                        Object value = @source.get(field).@propType;
-                        if(value) return value.@propType;
-                    }
-
-                    //last try, a parameter-less getter method
-                    return dynamic_call(@source.@propName():@propType);
-                }
-            };
-        }
-
-        //methods
-         if(item.get("contractType").str == "method") {
-            SId methodName = item.get("name").SId;
-            str methodNameStr = methodName.name;
-            SType methodReturnType = item.get("returnType").SType;
-            SFormalArgList methodArgs = item.get("args").SFormalArgList;
-            SExpr zero = methodReturnType.type().literal0();
-
-            SActualArgList actualArgs();
-
-            for(i in 0..(methodArgs.count-1)) {
-                SFormalArg arg = methodArgs[i];
-                SActualArg actualArg(arg.id.name);
-                actualArgs << actualArg;
-            }
-
-            if(SType("void").equal(methodReturnType)) {
-                methods << member {
-                    extend @visibility @methodReturnType @methodName(@methodArgs) {
-                        if(@source)  {
-                            dynamic_call(@source.@methodName(@actualArgs));
-                        }
-                    }
-                };
-            } else {
-                methods << member {
-                    extend @visibility @methodReturnType @methodName(@methodArgs) {
-                        if(!@source) return @zero;
-                        return dynamic_call(@source.@methodName(@actualArgs):@methodReturnType);
-                    }
-                };
-            }
-        }
+        proxyMembers << proxyMember(source, item);
     }
  
     return member {
         @visibility Object @source;
-        @props;
-        @methods;
+        @proxyMembers;
     };
+}
+
+public definition @visibility contract @name=id '{' @contractItems=[aweConsumerContractItem ';']*'}'  {
+    
+    SMembers proxyMembers(noSrcRef);
+    SId source("source");
+
+    for(item in contractItems) {
+        proxyMembers << proxyMember(source, item);
+    }
+ 
+    definition {
+        @visibility class @name {
+            @visibility Object @source;
+            @visibility constructor(Object @source) {
+                this.@source = @source;
+            }
+            @proxyMembers;
+        }
+    };
+}
+
+
+public SMember proxyProp(SId source, SId propName, SType propType) {
+    str propNameStr = propName.name;
+    SExpr zero = propType.type().literal0();
+
+    return member {
+        extend public @propType @propName() {
+            if(!@source) {
+                return @zero;
+            }
+
+            //awe object has a generic getter
+            if(@source as AweObject) {
+                Object value = @source.get(@propNameStr);
+                if(value) return value.@propType;
+            } 
+            
+            if(Field field = @source.class.?field(@propNameStr)) {
+                Object value = @source.get(field).@propType;
+                if(value) return value.@propType;
+            }
+
+            //last try, a parameter-less getter method
+            return dynamic_call(@source.@propName():@propType);
+        }
+    };
+} 
+
+public SMember proxyMethod(SId source, SId methodName, SType methodReturnType, SFormalArgList methodArgs) {
+    str methodNameStr = methodName.name;
+    SExpr zero = methodReturnType.type().literal0();
+
+    SActualArgList actualArgs();
+
+    for(i in 0..(methodArgs.count-1)) {
+        SFormalArg arg = methodArgs[i];
+        SActualArg actualArg(arg.id.name);
+        actualArgs << actualArg;
+    }
+
+    if(SType("void").equal(methodReturnType)) {
+        return member {
+            extend public @methodReturnType @methodName(@methodArgs) {
+                if(@source)  {
+                    dynamic_call(@source.@methodName(@actualArgs));
+                }
+            }
+        };
+    } else {
+        return member {
+            extend public @methodReturnType @methodName(@methodArgs) {
+                if(!@source) return @zero;
+                return dynamic_call(@source.@methodName(@actualArgs):@methodReturnType);
+            }
+        };
+    }
+}
+
+public SMember proxyMember(SId source, str->Object contractItem) {
+    //props
+    if(contractItem.get("contractType").str == "prop") {
+        SId propName = contractItem.get("name").SId;
+        str propNameStr = propName.name;
+        SType propType = contractItem.get("returnType").SType;
+        SExpr zero = propType.type().literal0();
+
+        return proxyProp(source, propName, propType);
+    }
+
+    //methods
+    else if(contractItem.get("contractType").str == "method") {
+        SId methodName = contractItem.get("name").SId;
+        SType methodReturnType = contractItem.get("returnType").SType;
+        SFormalArgList methodArgs = contractItem.get("args").SFormalArgList;
+
+        return proxyMethod(source, methodName, methodReturnType, methodArgs);
+    }
+
+    return null;
 }
 
 public aweObject MySource {
@@ -162,7 +198,7 @@ public aweObject MySource {
         return x + 1;
     }
 
-    extend public int xereca() { return 3; }
+    extend public int numero() { return 3; }
 }
 
 public class MySourceConsumer {
@@ -172,7 +208,7 @@ public class MySourceConsumer {
         double height;
         AweObject child;
         bool isAlive;
-        int xereca;
+        int numero;
         void sayHi();
         double plusOne(double x);
     }
@@ -182,11 +218,18 @@ public class MySourceConsumer {
     }
 }
 
+public contract ISayHi {
+    void sayHi();
+}
+
 
 {
     MySource s();
     MySourceConsumer c(s);
     pln(#c.width; #c.child);
     c.sayHi();
-    pln(#c.plusOne(7); #c.isAlive; #c.xereca);
+    pln(#c.plusOne(7); #c.isAlive; #c.numero);
+
+    var x = new ISayHi(c);
+    x.sayHi();
 }
