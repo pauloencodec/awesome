@@ -61,16 +61,11 @@ public syntax str->Object aweConsumerContractItem {
 
 }
 
-public member @visibility contract '(' @contractItems=[aweConsumerContractItem ',']* @lastContractItem=aweConsumerContractItem ')' '{' @expressions=[statement]* '}'  {
+public member @visibility contract "from" @source=id '{' @contractItems=[aweConsumerContractItem ';']*'}'  {
     
-    contractItems << lastContractItem;
-
-
     SMembers props(noSrcRef);
     SMembers methods(noSrcRef);
-    SFormalArgList constructorParams(noSrcRef);
 
-    constructorParams << SFormalArg(SType("AweObject"), SId("source"));
 
     for(item in contractItems) {
 
@@ -82,7 +77,7 @@ public member @visibility contract '(' @contractItems=[aweConsumerContractItem '
 
             props << member {
                 extend @visibility @propType @propName() {
-                    return this.__source.?get(@propNameStr).@propType;
+                    return @source.?get(@propNameStr).@propType;
                 }
             };
         }
@@ -106,42 +101,25 @@ public member @visibility contract '(' @contractItems=[aweConsumerContractItem '
             if(SType("void").equal(methodReturnType)) {
                 methods << member {
                     extend @visibility @methodReturnType @methodName(@methodArgs) {
-                        if(this.__source)  {
-                            dynamic_call(__source.@methodName(@actualArgs));
+                        if(@source)  {
+                            dynamic_call(@source.@methodName(@actualArgs));
                         }
                     }
                 };
             } else {
                 methods << member {
                     extend @visibility @methodReturnType @methodName(@methodArgs) {
-                        if(!this.__source) return @zero;
-                        return dynamic_call(__source.@methodName(@actualArgs):@methodReturnType);
+                        if(!@source) return @zero;
+                        return dynamic_call(@source.@methodName(@actualArgs):@methodReturnType);
                     }
                 };
             }
-
-            
         }
     }
-    SStatements s = statement {};
-    for(e in expressions) {
-        s << e;
-    }
-
-    pln(#s);
-
+ 
     return member {
-        @visibility AweObject __source;
-
-        @visibility constructor(@constructorParams) {
-            this.__source = source;
-            @s;
-        }
-
         @props;
-
         @methods;
-
     };
 }
 
@@ -166,16 +144,19 @@ public aweObject MySource {
 }
 
 public class MySourceConsumer {
-    public contract(
-            double width,
-            double height,
-            AweObject child,
-            void sayHi(),
-            double plusOne(double x)
-    )
-    {
-        pln("hi there");
+    public AweObject model;
+    public constructor(AweObject model) {
+        this.model = model;
     }
+
+    public contract from model {
+        double width;
+        double height;
+        AweObject child;
+        void sayHi();
+        double plusOne(double x);
+    }
+    
     
 }
 
