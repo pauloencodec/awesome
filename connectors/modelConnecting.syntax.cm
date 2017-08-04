@@ -58,8 +58,10 @@ public member @visibility modelConnecting ';' {
 
                 AweConnectEnv me(this);
                 AweConnectEnv other(c);
-                if(me.set)
+                if(me.set) {
                     me.set.connected(me, other);
+                    me.set.connectedModels << otherModel;
+                }
 
                 if (this.snapper in AweSnapper) {
                     this.snapper.AweSnapper.refresh(true);
@@ -80,8 +82,10 @@ public member @visibility modelConnecting ';' {
 
                 AweConnectEnv me(this);
                 AweConnectEnv other(c);
-                if(me.set)
+                if(me.set) {
                     me.set.disconnected(me, other);
+                    me.set.connectedModels.exclude(otherModel);
+                }
 
                 if (this.snapper in AweSnapper) {
                     this.snapper.AweSnapper.refresh(true);
