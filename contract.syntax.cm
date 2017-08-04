@@ -74,10 +74,27 @@ public member @visibility contract "from" @source=id '{' @contractItems=[aweCons
             SId propName = item.get("name").SId;
             str propNameStr = propName.name;
             SType propType = item.get("returnType").SType;
+            SExpr zero = propType.type().literal0();
 
             props << member {
                 extend @visibility @propType @propName() {
-                    return @source.?get(@propNameStr).@propType;
+                    if(!@source) {
+                        return @zero;
+                    }
+
+                    //awe object has a generic getter
+                    if(@source as AweObject) {
+                        Object value = @source.get(@propNameStr);
+                        if(value) return value.@propType;
+                    } 
+                    
+                    if(Field field = @source.class.?field(@propNameStr)) {
+                        Object value = @source.get(field).@propType;
+                        if(value) return value.@propType;
+                    }
+
+                    //last try, a parameter-less getter method
+                    return dynamic_call(@source.@propName():@propType);
                 }
             };
         }
@@ -130,6 +147,8 @@ public aweObject MySource {
         AweObject child = null
     );
 
+    public bool isAlive = true;
+
     public constructor() {
         pln("hello!");
     }
@@ -141,10 +160,12 @@ public aweObject MySource {
     extend public double plusOne(double x) {
         return x + 1;
     }
+
+    extend public int xereca() { return 3; }
 }
 
 public class MySourceConsumer {
-    public AweObject model;
+    public Object model;
     public constructor(AweObject model) {
         this.model = model;
     }
@@ -153,6 +174,8 @@ public class MySourceConsumer {
         double width;
         double height;
         AweObject child;
+        bool isAlive;
+        int xereca;
         void sayHi();
         double plusOne(double x);
     }
@@ -160,10 +183,11 @@ public class MySourceConsumer {
     
 }
 
+
 {
     MySource s();
     MySourceConsumer c(s);
     pln(#c.width; #c.child);
     c.sayHi();
-    pln(#c.plusOne(7));
+    pln(#c.plusOne(7); #c.isAlive; #c.xereca);
 }
