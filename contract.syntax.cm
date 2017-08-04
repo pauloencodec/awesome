@@ -51,6 +51,15 @@ public syntax str->Object aweConsumerContractItem {
     }
 
     //values
+    @returnType=type "*" @name=id {
+        str->Object data();
+        data.put("contractType", "contract-type-prop");
+        data.put("returnType", returnType);
+        data.put("name", name);
+        return data;
+    }
+
+    //values
     @returnType=type @name=id {
         str->Object data();
         data.put("contractType", "prop");
@@ -93,6 +102,10 @@ public definition @visibility contract @name=id '{' @contractItems=[aweConsumerC
             }
             @proxyMembers;
         }
+
+        @visibility @name @name(Object source) {
+            return new @name(source);
+        }
     };
 }
 
@@ -107,19 +120,67 @@ public SMember proxyProp(SId source, SId propName, SType propType) {
                 return @zero;
             }
 
-            //awe object has a generic getter
+            //awe object has a generic getter«
             if(@source as AweObject) {
                 Object value = @source.get(@propNameStr);
                 if(value) return value.@propType;
             } 
-            
+
             if(Field field = @source.class.?field(@propNameStr)) {
-                Object value = @source.get(field).@propType;
+                Object value = @source.get(field);
                 if(value) return value.@propType;
             }
 
             //last try, a parameter-less getter method
             return dynamic_call(@source.@propName():@propType);
+        }
+    };
+} 
+
+public SMember proxyContractTypeProp(SId source, SId propName, SType propType) {
+    str propNameStr = propName.name;
+    SExpr zero = propType.type().literal0();
+
+    //this strips the 
+    SType singleType(propType.name);
+
+    bool isCollection = !singleType.equal(propType);
+
+    pln(#isCollection; #singleType; #propType);
+
+    return member {
+        extend public @propType @propName() {
+            if(!@source) {
+                return @zero;
+            }
+
+            Object value = null;
+
+            //awe object has a generic getter«
+            if(@source as AweObject) {
+                value = @source.get(@propNameStr);
+            } 
+
+            if(!value and Field field = @source.class.?field(@propNameStr)) {
+                value = @source.get(field);
+            }
+
+            //last try, a parameter-less getter method
+            if(!value) value = dynamic_call(@source.@propName());
+
+            //give up
+            if(!value) return @zero;
+
+            if(@isCollection) {
+
+            } else {
+                value = new @singleType(value);
+            }
+
+            //give up again
+            if(!value) return @zero;
+                
+            return value.:@propType;
         }
     };
 } 
@@ -158,11 +219,17 @@ public SMember proxyMember(SId source, str->Object contractItem) {
     //props
     if(contractItem.get("contractType").str == "prop") {
         SId propName = contractItem.get("name").SId;
-        str propNameStr = propName.name;
         SType propType = contractItem.get("returnType").SType;
-        SExpr zero = propType.type().literal0();
 
         return proxyProp(source, propName, propType);
+    }
+
+    //contract type props
+    if(contractItem.get("contractType").str == "contract-type-prop") {
+        SId propName = contractItem.get("name").SId;
+        SType propType = contractItem.get("returnType").SType;
+
+        return proxyContractTypeProp(source, propName, propType);
     }
 
     //methods
@@ -177,59 +244,55 @@ public SMember proxyMember(SId source, str->Object contractItem) {
     return null;
 }
 
-public aweObject MySource {
-    props(
-        double width = 52inch,
-        double height = 48inch,
-        AweObject child = null
-    );
+//examples:
 
-    public bool isAlive = true;
-
-    public constructor() {
-        pln("hello!");
-    }
-
-    extend public void sayHi() {
-        pln("hi!");
-    }
-
-    extend public double plusOne(double x) {
-        return x + 1;
-    }
-
-    extend public int numero() { return 3; }
+//pre-defined contract types
+public contract IBox {
+    double width;
+    double height;
+    double depth;
+    box bound();
 }
 
-public class MySourceConsumer {
-
-    public Contract model {
-        double width;
-        double height;
-        AweObject child;
-        bool isAlive;
-        int numero;
-        void sayHi();
-        double plusOne(double x);
-    }
-    
-    public constructor(Object model) {
-        this.model = model;
-    }
+public class ABox {
+    public constructor(double size) {
+        this.width = 1;
+        this.depth = 1;
+        this.height = 1;
+     }
+    public double width;
+    public double height;
+    public double depth;
+    extend public box bound() { return box((0,0,0), (width, depth, height)); }
 }
-
-public contract ISayHi {
-    void sayHi();
-}
-
 
 {
-    MySource s();
-    MySourceConsumer c(s);
-    pln(#c.width; #c.child);
-    c.sayHi();
-    pln(#c.plusOne(7); #c.isAlive; #c.numero);
+    pln("********** basic usage ********");
+    ABox b(2);
+    IBox ib(b);
+    pln(#ib.bound());
 
-    var x = new ISayHi(c);
-    x.sayHi();
+    //mimics cast syntax
+    pln(#b.IBox);
+}
+
+//nesting contract
+public class AThingThatHasABox {
+    public constructor() { }
+
+    public ABox myBox(1);
+
+}
+
+public contract IThingThatHasABox {
+    //add the star to signal to the syntax that this is a contract type. this will tell it to wrap the result in the contract.
+    IBox{}* myBoxes;
+}
+
+{
+    pln("********** nested contracts ********");
+    
+    AThingThatHasABox thing();
+    var iThing = thing.IThingThatHasABox;
+   
 }
