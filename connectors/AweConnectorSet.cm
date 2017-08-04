@@ -70,26 +70,8 @@ public class AweConnectorSet  {
         }
     }
 
-    private Field{} _validatorFields;
-    extend public AweValidator{} getValidators() {
-        if(!_validatorFields) {
-            init _validatorFields();
-            for(field in this.class.fields) {
-                Object value = this.get(field);
-                if(value in AweValidator) {
-                    _validatorFields << field;
-                }
-            }
-        }
-        
-        AweValidator{} validators();
-        for(field in _validatorFields) {
-            Object value = this.get(field);
-            if(value as AweValidator) {
-                if(value)
-                    validators << value;
-            }
-        }
+    extend public AweValidator[] getValidators() {
+        AweValidator[] validators();
         return validators;
     }
 
