@@ -141,12 +141,8 @@ public SMember proxyContractTypeProp(SId source, SId propName, SType propType) {
     str propNameStr = propName.name;
     SExpr zero = propType.type().literal0();
 
-    //this strips the 
-    SType singleType(propType.name);
-
-    bool isCollection = !singleType.equal(propType);
-
-    pln(#isCollection; #singleType; #propType);
+    SExpr castExpr = castToAContractType(SId("value"), propType);
+    
 
     return member {
         extend public @propType @propName() {
@@ -171,16 +167,7 @@ public SMember proxyContractTypeProp(SId source, SId propName, SType propType) {
             //give up
             if(!value) return @zero;
 
-            if(@isCollection) {
-
-            } else {
-                value = new @singleType(value);
-            }
-
-            //give up again
-            if(!value) return @zero;
-                
-            return value.:@propType;
+            return @castExpr;
         }
     };
 } 
@@ -244,7 +231,74 @@ public SMember proxyMember(SId source, str->Object contractItem) {
     return null;
 }
 
+public SExpr castToAContractType(SId value, SType propType) {
+    //this strips the {} and [] 
+    SType singleType(propType.name);
+    bool isCollection = !singleType.equal(propType);
+    SExpr zero = propType.type().literal0();
+    
+
+    return blockExpr {
+        if(@isCollection) {
+            @propType collection();
+            var iteratorBase = @value.?class.?iterator.?instantiate();
+            aweTryCast (iteratorBase as iterator to SeqIterator, SetIterator) {
+                iterator.init(@value);
+                while (iterator.step()) {
+                    var item = iterator.get;
+                    if(item)
+                        collection << new @singleType(item);
+                }
+            }
+            @value = collection;
+        } else {
+            @value = new @singleType(@value);
+        }
+
+
+        //got nothing
+        if(!@value) result @zero;
+                
+        result @value.:@propType;
+    };
+}
+
 //examples:
+
+
+
+
+
+{
+    // pln("********** basic usage ********");
+    // ABox b(2);
+    // IBox ib(b);
+    // pln(#ib.bound());
+
+    // //mimics cast syntax
+    // pln(#b.IBox);
+}
+
+//nesting contract
+public class AThingThatHasABox {
+    public constructor() { 
+        myBoxes << ABox(2);
+        myBoxes << ABox(3);
+    }
+    public ABox{} myBoxes();
+}
+
+public class ABox {
+    public constructor(double size) {
+        this.width = size;
+        this.depth = size;
+        this.height = size;
+     }
+    public double width;
+    public double height;
+    public double depth;
+    extend public box bound() { return box((0,0,0), (width, depth, height)); }
+}
 
 //pre-defined contract types
 public contract IBox {
@@ -254,45 +308,15 @@ public contract IBox {
     box bound();
 }
 
-public class ABox {
-    public constructor(double size) {
-        this.width = 1;
-        this.depth = 1;
-        this.height = 1;
-     }
-    public double width;
-    public double height;
-    public double depth;
-    extend public box bound() { return box((0,0,0), (width, depth, height)); }
-}
-
-{
-    pln("********** basic usage ********");
-    ABox b(2);
-    IBox ib(b);
-    pln(#ib.bound());
-
-    //mimics cast syntax
-    pln(#b.IBox);
-}
-
-//nesting contract
-public class AThingThatHasABox {
-    public constructor() { }
-
-    public ABox myBox(1);
-
-}
-
 public contract IThingThatHasABox {
     //add the star to signal to the syntax that this is a contract type. this will tell it to wrap the result in the contract.
     IBox{}* myBoxes;
 }
 
 {
-    pln("********** nested contracts ********");
-    
     AThingThatHasABox thing();
     var iThing = thing.IThingThatHasABox;
-   
+    for(b in iThing.myBoxes) {
+        pln(#b.bound());
+    }
 }
