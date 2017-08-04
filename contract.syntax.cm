@@ -61,7 +61,7 @@ public syntax str->Object aweConsumerContractItem {
 
 }
 
-public member @visibility contract "from" @source=id '{' @contractItems=[aweConsumerContractItem ';']*'}'  {
+public member @visibility Contract @source=id '{' @contractItems=[aweConsumerContractItem ';']*'}'  {
     
     SMembers props(noSrcRef);
     SMembers methods(noSrcRef);
@@ -135,6 +135,7 @@ public member @visibility contract "from" @source=id '{' @contractItems=[aweCons
     }
  
     return member {
+        @visibility Object @source;
         @props;
         @methods;
     };
@@ -165,12 +166,8 @@ public aweObject MySource {
 }
 
 public class MySourceConsumer {
-    public Object model;
-    public constructor(AweObject model) {
-        this.model = model;
-    }
 
-    public contract from model {
+    public Contract model {
         double width;
         double height;
         AweObject child;
@@ -180,7 +177,9 @@ public class MySourceConsumer {
         double plusOne(double x);
     }
     
-    
+    public constructor(Object model) {
+        this.model = model;
+    }
 }
 
 
