@@ -40,6 +40,16 @@ use cm.syntax;
 
 public syntax str->Object aweConsumerContractItem {
     
+    //method with * (returns a contract type)
+    @returnType=type "*" @name=id @args=formalArgList { 
+        str->Object data();
+        data.put("contractType", "contract-type-method");
+        data.put("returnType", returnType);
+        data.put("name", name);
+        data.put("args", args);
+        return data;
+    }
+
     //method
     @returnType=type @name=id @args=formalArgList { 
         str->Object data();
@@ -50,7 +60,7 @@ public syntax str->Object aweConsumerContractItem {
         return data;
     }
 
-    //values
+    //prop with * (returns a contract type)
     @returnType=type "*" @name=id {
         str->Object data();
         data.put("contractType", "contract-type-prop");
@@ -59,7 +69,7 @@ public syntax str->Object aweConsumerContractItem {
         return data;
     }
 
-    //values
+    //prop
     @returnType=type @name=id {
         str->Object data();
         data.put("contractType", "prop");
@@ -202,6 +212,31 @@ public SMember proxyMethod(SId source, SId methodName, SType methodReturnType, S
     }
 }
 
+public SMember proxyContractTypeMethod(SId source, SId methodName, SType methodReturnType, SFormalArgList methodArgs) {
+    str methodNameStr = methodName.name;
+    SExpr zero = methodReturnType.type().literal0();
+    SExpr castExpr = castToAContractType(SId("value"), methodReturnType);
+
+    SActualArgList actualArgs();
+
+    for(i in 0..(methodArgs.count-1)) {
+        SFormalArg arg = methodArgs[i];
+        SActualArg actualArg(arg.id.name);
+        actualArgs << actualArg;
+    }
+
+    return member {
+        extend public @methodReturnType @methodName(@methodArgs) {
+            if(!@source) return @zero;
+            Object value = dynamic_call(@source.@methodName(@actualArgs));
+
+            if(!value) return @zero;
+
+            return @castExpr;
+        }
+    };
+}
+
 public SMember proxyMember(SId source, str->Object contractItem) {
     //props
     if(contractItem.get("contractType").str == "prop") {
@@ -212,7 +247,7 @@ public SMember proxyMember(SId source, str->Object contractItem) {
     }
 
     //contract type props
-    if(contractItem.get("contractType").str == "contract-type-prop") {
+    else if(contractItem.get("contractType").str == "contract-type-prop") {
         SId propName = contractItem.get("name").SId;
         SType propType = contractItem.get("returnType").SType;
 
@@ -226,6 +261,15 @@ public SMember proxyMember(SId source, str->Object contractItem) {
         SFormalArgList methodArgs = contractItem.get("args").SFormalArgList;
 
         return proxyMethod(source, methodName, methodReturnType, methodArgs);
+    }
+
+    //contract type methods
+    else if(contractItem.get("contractType").str == "contract-type-method") {
+        SId methodName = contractItem.get("name").SId;
+        SType methodReturnType = contractItem.get("returnType").SType;
+        SFormalArgList methodArgs = contractItem.get("args").SFormalArgList;
+
+        return proxyContractTypeMethod(source, methodName, methodReturnType, methodArgs);
     }
 
     return null;
@@ -286,6 +330,10 @@ public class AThingThatHasABox {
         myBoxes << ABox(3);
     }
     public ABox{} myBoxes();
+
+    extend public ABox localBound() {
+        return ABox(4);
+    }
 }
 
 public class ABox {
@@ -310,13 +358,14 @@ public contract IBox {
 
 public contract IThingThatHasABox {
     //add the star to signal to the syntax that this is a contract type. this will tell it to wrap the result in the contract.
-    IBox{}* myBoxes;
+    // IBox* myBoxes;
+    IBox{}* localBound();
 }
 
 {
     AThingThatHasABox thing();
     var iThing = thing.IThingThatHasABox;
-    for(b in iThing.myBoxes) {
-        pln(#b.bound());
-    }
+    // for(b in iThing.myBoxes) {
+    //     pln(#b.bound());
+    // }
 }
