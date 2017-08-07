@@ -107,6 +107,8 @@ public definition @visibility contract @name=id '{' @contractItems=[aweConsumerC
     definition {
         @visibility class @name {
             @visibility Object @source;
+            @visibility constructor() {
+            }
             @visibility constructor(Object @source) {
                 this.@source = @source;
             }
@@ -228,8 +230,7 @@ public SMember proxyContractTypeMethod(SId source, SId methodName, SType methodR
     return member {
         extend public @methodReturnType @methodName(@methodArgs) {
             if(!@source) return @zero;
-            Object value = dynamic_call(@source.@methodName(@actualArgs));
-
+            Object value = dynamic_call(@source.@methodName(@actualArgs):Object);
             if(!value) return @zero;
 
             return @castExpr;
@@ -281,9 +282,8 @@ public SExpr castToAContractType(SId value, SType propType) {
     bool isCollection = !singleType.equal(propType);
     SExpr zero = propType.type().literal0();
     
-
-    return blockExpr {
-        if(@isCollection) {
+    if(isCollection) {
+        return blockExpr {
             @propType collection();
             var iteratorBase = @value.?class.?iterator.?instantiate();
             aweTryCast (iteratorBase as iterator to SeqIterator, SetIterator) {
@@ -295,77 +295,16 @@ public SExpr castToAContractType(SId value, SType propType) {
                 }
             }
             @value = collection;
-        } else {
-            @value = new @singleType(@value);
-        }
 
-
-        //got nothing
-        if(!@value) result @zero;
-                
-        result @value.:@propType;
-    };
-}
-
-//examples:
-
-
-
-
-
-{
-    // pln("********** basic usage ********");
-    // ABox b(2);
-    // IBox ib(b);
-    // pln(#ib.bound());
-
-    // //mimics cast syntax
-    // pln(#b.IBox);
-}
-
-//nesting contract
-public class AThingThatHasABox {
-    public constructor() { 
-        myBoxes << ABox(2);
-        myBoxes << ABox(3);
+            //got nothing
+            if(!@value) result @zero;
+                    
+            result @value.:@propType;
+        };
+    } else {
+        return blockExpr {
+           result new @propType(@value);
+        };
     }
-    public ABox{} myBoxes();
-
-    extend public ABox localBound() {
-        return ABox(4);
-    }
-}
-
-public class ABox {
-    public constructor(double size) {
-        this.width = size;
-        this.depth = size;
-        this.height = size;
-     }
-    public double width;
-    public double height;
-    public double depth;
-    extend public box bound() { return box((0,0,0), (width, depth, height)); }
-}
-
-//pre-defined contract types
-public contract IBox {
-    double width;
-    double height;
-    double depth;
-    box bound();
-}
-
-public contract IThingThatHasABox {
-    //add the star to signal to the syntax that this is a contract type. this will tell it to wrap the result in the contract.
-    // IBox* myBoxes;
-    IBox{}* localBound();
-}
-
-{
-    AThingThatHasABox thing();
-    var iThing = thing.IThingThatHasABox;
-    // for(b in iThing.myBoxes) {
-    //     pln(#b.bound());
-    // }
+    
 }
