@@ -122,7 +122,7 @@ public class AwePointsAnimation extends AweAnimation {
      * Get 2D.
      */
     public void drawGraphs(LayerBuffer lb) {
-        this.get2D().draw(lb);
+        this.get2D().?draw(lb);
     }
 
     /**
