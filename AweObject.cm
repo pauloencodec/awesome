@@ -283,7 +283,18 @@ public class AweObject {
     }
 
     extend public void validate(AweValidationIssues issues) {
+        for(validator in this.getValidators()) if(validator.active) {
+            validator.validate(issues);
+        }
 
+        for(set in connectorSets) if(set.active) {
+            set.validate(issues);
+        }
+    }
+
+    extend public AweValidator[] getValidators() {
+        AweValidator[] validators();
+        return validators;
     }
 
     /************** query ****************/
