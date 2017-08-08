@@ -111,22 +111,6 @@ package ExtensionId getExtensionId() : encrypted, referred {
     return extensionId;
 }
 
-public Url[] crawlDirectory(Url directory, str ext, Url[] files=new Url[]()) {
-    Url[] urls = directoriesIn(directory);
-
-    for (url in urls) {
-        crawlDirectory(url, ext, files);
-    }
-    
-    Url[] dirFiles = filesIn(directory, "*." # ext);
-    
-    for (f in dirFiles) {
-        files << f;
-    }
-    
-    return files;
-}
-
 /**
  * Actual extension info (dont change function name).
  */
@@ -135,31 +119,31 @@ package ExtensionInfo getExtensionInfo() : referred {
 
     Url[] files();
 
-    for (f in crawlDirectory(cmNative("custom/awesome/data/cm3d/"), "cm3d")) {
+    for (f in getFiles(cmFindUrl("custom/awesome/data/cm3d/"), "cm3d")) {
         files << f;
     }
     
-    for (f in crawlDirectory(cmNative("custom/genericOffice/"), "rs")) {
+    for (f in getFiles(cmFindUrl("custom/genericOffice/"), "rs")) {
         files << f;
     }
 
-    for (f in crawlDirectory(cmNative("custom/genericOffice/"), "bmp")) {
+    for (f in getFiles(cmFindUrl("custom/genericOffice/"), "bmp")) {
         files << f;
     }
 
-    for (f in crawlDirectory(cmNative("custom/genericOffice/"), "cm3d")) {
+    for (f in getFiles(cmFindUrl("custom/genericOffice/"), "cm3d")) {
         files << f;
     }
     
-    for (f in crawlDirectory(cmNative("custom/genericOffice/"), "jpg")) {
+    for (f in getFiles(cmFindUrl("custom/genericOffice/"), "jpg")) {
         files << f;
     }
     
-    for (f in crawlDirectory(cmNative("custom/genericOffice/"), "png")) {
+    for (f in getFiles(cmFindUrl("custom/genericOffice/"), "png")) {
         files << f;
     }
 
-    files << cmNative("custom/awesome/resources/main.rs");
+    files << cmFindUrl("custom/awesome/resources/main.rs");
 
     info.filesToInclude = files;
 
