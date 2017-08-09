@@ -54,7 +54,7 @@ public class AweTestSnapper extends Snapper {
         this.graph = graph;
         this.primitive3D = primitive3D;
         this.product = product;
-        this.configurator = configurator ? configurator : product._model.AweObject;
+        this.configurator = configurator ? configurator : product.?_model.AweObject;
     }   
 
     public void drawGraphs(LayerBuffer lb, View view, GeometricFinder finder=null) {
