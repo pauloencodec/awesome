@@ -646,17 +646,17 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         };
 
         applyFrom << statement {
-            if (@domainName and @visibleName) {
-                if (Object value = source.get(@propNameStr)) {
-                    if (value as @propType) {
-                        aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, @propName);
+            // if (@domainName and @visibleName) {
+            //     if (Object value = source.get(@propNameStr)) {
+            //         if (value as @propType) {
+            //             aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, @propName);
                         
-                        if (@domainName.contains(value)) {
-                            this.@propName = value;
-                        }
-                    }
-                }
-            }
+            //             if (@domainName.contains(value)) {
+            //                 this.@propName = value;
+            //             }
+            //         }
+            //     }
+            // }
         };
     }
 
