@@ -36,15 +36,41 @@
 
 package custom.awesome;
 
-public class AweValidator {
-    public constructor() {
+public class AweValidationIssues {
+
+    public AweValidationIssue[] errors();
+    public AweValidationIssue[] warnings();
+
+    public Snapper{} snappers;
+
+    public constructor(Snapper{} snappers) {
+        this.snappers = snappers;
     }   
 
-    extend public void validate(AweValidationIssues issues) {
+    extend public void error(str key, str description) {
+        errors << AweValidationIssue(..);
+    } 
 
+    extend public void warning(str key, str description) {
+        warnings << AweValidationIssue(..);
+    } 
+
+    extend public void feed(InvalidList invalidList) {
+        for(issue in this.errors) {
+            invalidList.putError(issue.key, issue.description, this.snappers);
+        }
+        for(issue in this.warnings) {
+            invalidList.putWarning(issue.key, issue.description, this.snappers);
+        }
     }
+}
 
-    extend public bool active() {
-        return true;
+public class AweValidationIssue {
+    
+    public str key;
+    public str description;
+
+    public constructor(str key, str description) {
+        set*(this: key, description);
     }
 }
