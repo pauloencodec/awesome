@@ -42,6 +42,9 @@ use custom.awesome.electrical;
 
 private alias SnapperArray = Snapper{};
 
+private const str applyToKey = "awe-apply-from";
+private const str helpLinkKey = "awe-help-link";
+
 public class AweSnapper extends Snapper {
     public aweDynamicContract {
         aweDynamic void realign(SnapperArray visited=null);        
@@ -291,11 +294,22 @@ public class AweSnapper extends Snapper {
     public TreeViewItem[] popupMenuItems(View view, DropDownMenu ddm) {
         var items = super(..);
         
+        if (selectMode == userSelect.single) {
+            if (AweEnum options = this.mainModel.applyFromOptions()) {
+                for (entry in options.entries) {
+                    items << new ImageTreeViewItem(format("@applyToKey;_@entry.name;"), format("Apply @entry.value; to Selection"), icon("copy"));
+                }
+            }
+            else {
+                items << new ImageTreeViewItem(applyToKey, "Apply to Selection", icon("copy"));
+            }
+        }
+
         items << new DelimiterTreeViewItem();
         items << this.getAweQueryDialogItem(view, ddm);
 
         if (this.helpLink()) {
-            items << new ImageTreeViewItem("helpLink", "Help", icon("helpbubble"));
+            items << new ImageTreeViewItem(helpLinkKey, "Help", icon("helpbubble"));
         }
         
         return items;
@@ -305,11 +319,35 @@ public class AweSnapper extends Snapper {
         if (this.aweQueryDialogItemClicked(view, env)) {
             return true;
         }
-        else if (env.key == "helpLink") {
+        else if (env.key == helpLinkKey) {
             cm.os.openLocation(this.helpLink());
+        }
+        else if (env.key.beginsWith(applyToKey)) {
+            this.applyToSelection(env.key);
         }
 
         return super(view, env);
+    }
+
+    extend private void applyToSelection(str key) {
+        str optionName = null;
+        
+        if (key.contains("_")) {
+            optionName = key.split('_').v1;
+        }
+
+        for (snapper in this.space.selection) if (snapper != this) {
+            if (snapper as AweSnapper) {
+                if (optionName) {
+                    snapper.mainModel.applyFrom(this.mainModel, optionName);
+                }
+                else {
+                    snapper.mainModel.applyFrom(this.mainModel);
+                }
+
+                snapper.refresh(true, true);
+            }
+        }
     }
 
     /************ validation ***************/
