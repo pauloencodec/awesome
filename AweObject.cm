@@ -60,10 +60,14 @@ public class AweObject {
         return this._label ? this._label : super();
     }
 
-    extend public void applyFrom(AweObject o) {
-        for(k,v in o.props) {
-            this.set(k, v.copy);
-        }
+    extend public void applyFrom(AweObject source) {
+    }
+
+    extend public void applyFrom(AweObject source, str optionName) {
+    }
+
+    extend public AweEnum applyFromOptions() {
+        return null;
     }
 
     extend public Object get(str propName) {
@@ -465,7 +469,6 @@ public definition @visibility aweObject @name=id @parentClass=["extends" type]? 
             str propNameStr = propName.name;
             SExpr propInitialValue = arg.default();
             SId onChangeMethodName(propName#"Changed");
-            SId getDomainMethodName(propName#"Domain");
             
             //3 signatures for change
             onChange << member {
@@ -546,6 +549,8 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
 
     SStatements buildAnimationProperties();
     SStatements animationPropertiesChanged();
+
+    SStatements applyFrom();
     
     for (i in 0..(domains.count-1)) {
         SFormalArg arg = domains[i];
@@ -639,6 +644,20 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                 this.@propName = value.@propType;
             }
         };
+
+        applyFrom << statement {
+            if (@domainName and @visibleName) {
+                if (Object value = source.get(@propNameStr)) {
+                    if (value as @propType) {
+                        aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, @propName);
+                        
+                        if (@domainName.contains(value)) {
+                            this.@propName = value;
+                        }
+                    }
+                }
+            }
+        };
     }
 
     return member {
@@ -664,6 +683,13 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         @visibility void animationPropertyChanged(str key, Object value) {
             super(..);
             @animationPropertiesChanged;
+        }
+
+        @visibility void applyFrom(AweObject source) {
+            if (this.class == source.class) {
+                super(..);
+                @applyFrom;
+            }
         }
     };
 }
