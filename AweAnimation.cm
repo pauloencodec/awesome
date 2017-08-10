@@ -41,7 +41,7 @@ public class AweAnimation extends ObsoleteStateMouseAnimation {
     public AweObject configurator;
     public ViewMode viewMode;
 
-    public str->AweObject subConfigurators();
+    public sorted str->AweObject subConfigurators();
 
     extend public void configuratorChanged() {
 
