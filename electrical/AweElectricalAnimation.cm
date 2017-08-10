@@ -52,6 +52,11 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
         launchMode();
     }   
 
+    public void begin() {
+        super();
+        if ( space ) this.setViewMode( AweElectricalViewMode() );
+    }
+
     public void enterView(AnimationMouseInfo mi) {
         super(..);
 
@@ -85,13 +90,6 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
         str modeName = this.configurator.AweElectricalAnimationModel.mode;
         prims << currentMode.?get3D();
         return prims;
-    }
-
-    public void refresh() {
-        if ( viewMode ) {
-            activeSpace.invalidate3D( viewMode );
-        }
-        super(..);
     }
 
     extend public void showHint() { 
