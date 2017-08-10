@@ -59,7 +59,7 @@ public class AweElectricalAnimationMode {
         return null;
     }
 
-    extend public str->AweObject subConfigurators() {
+    extend public sorted str->AweObject subConfigurators() {
         return null;
     }
 
