@@ -71,4 +71,22 @@ public class AweElectricalCluster {
         
         return lines;
     }
+
+    extend public WeightedLine[] weightedSpaceLines(bool clickableOnly=false) {
+        WeightedLine[] lines();
+
+        AweElectricalCableLine[] allCables();
+        
+        allCables +=? cables;
+
+        for (infeed in infeeds) {
+            allCables +=? infeed.cables;
+        }
+
+        for(c in allCables) if (!clickableOnly or c.clickable) {
+            lines << WeightedLine( c.spaceLine.v, c.weight );
+        }
+        
+        return lines;
+    }
 }

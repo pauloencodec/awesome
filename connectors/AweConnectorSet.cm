@@ -36,18 +36,30 @@
 
 package custom.awesome.connectors;
 
-public class AweConnectorSet {
-
+public class AweConnectorSet  {
     public constructor() { }
 
     public AweConnectorCache connectorCache;
+    public bool selected = true;
+
+    extend public str name() {
+        return null;
+    }
+
+    extend public bool optional() {
+        return false;
+    }
+
+    extend public bool active() {
+        return !this.optional() or this.selected;
+    }
 
     extend public void connectors(AweConnectorCache cc) {
     }
 
     extend public bool connect(AweConnectEnv me, AweConnectEnv other) {
-        if(magnetSetsAttract(me.connector.getMagnets(), other.connector.getMagnets())) return true;
-        return false;
+        if(!magnetSetsAttract(me.connector.getMagnets(), other.connector.getMagnets())) return false;
+        return true;
     }
 
     extend public void connected(AweConnectEnv me, AweConnectEnv other) {
@@ -56,5 +68,23 @@ public class AweConnectorSet {
 
     extend public void disconnected(AweConnectEnv me, AweConnectEnv other) {
 
+    }
+
+    extend public vector getDisplacementIfConnected(AweConnectEnv me, AweConnectEnv other) {
+        point oldPosition = me.snapper.pos();
+        point newPosition = me.snapper.positionIfConnected(me.connector, other.connector);
+
+        return newPosition - oldPosition;
+    }
+
+    extend public bool debug() {
+        return false;
+    }
+
+    extend public bool isAnyConnected(){
+        if (connectorCache != null) for (c in connectorCache.buffer) if (c.isConnected)
+            return true;
+
+        return false;
     }
 }
