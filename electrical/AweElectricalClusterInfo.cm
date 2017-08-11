@@ -339,7 +339,3 @@ public alias AweElectricalCableArray = AweElectricalCableLine[];
 public alias AweElectricalComponentArray = AweElectricalComponent[];
 public awePointIndex PointToElectricalCableArrayIndex for AweElectricalCableArray { }
 public awePointIndex PointToElectricalComponentArrayIndex for AweElectricalComponentArray { }
-
-{
-    animate(new cm.abstract.robotics.RobotLimbInsertAnimation(StartInsertAnimationEnv(activeSpace, Snapper())));
-}
