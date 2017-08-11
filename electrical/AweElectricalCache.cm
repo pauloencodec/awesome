@@ -50,7 +50,7 @@ public class AweElectricalCache {
         return cable;
     }
 
-    extend public AweElectricalCableLine cable(str id, point start, point end, bool clickable=true, double weight=1.0) {
+    extend public AweElectricalCableLine cable(str id, point start, point end, bool clickable=true, double weight=1.0, bool clickableP0=true, bool clickableP1=true) {
         var cable = cables.get(id);
         if(!cable) {
             cable = this.createCableInstance();
@@ -59,6 +59,8 @@ public class AweElectricalCache {
         }
 
         cable.clickable = clickable;
+        cable.clickableP0 = clickableP0;
+        cable.clickableP1 = clickableP1;
         cable.snapperLine.p0 = start;
         cable.snapperLine.p1 = end;
         cable.weight = weight;

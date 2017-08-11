@@ -50,6 +50,8 @@ public class AweElectricalCableLine extends AweElectricalComponent {
     public bool powered;
     public bool infeedCable = false;
     public bool clickable = true;
+    public bool clickableP0 = true;
+    public bool clickableP1 = true;
     public double weight = 1.0;
 
     //space coordinates
