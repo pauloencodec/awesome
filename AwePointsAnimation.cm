@@ -100,7 +100,7 @@ public class AwePointsAnimation extends AweAnimation {
 
     extend public void refresh() {
         if (space) {
-            if ( viewModel ) space.invalidate3D( viewMode );
+            if ( viewMode ) space.invalidate3D( viewMode );
             space.invalidate2D(this);
             space.invalidate3D(this);
             space.beginAnimateDrawSequence(this);
