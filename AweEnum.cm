@@ -114,6 +114,10 @@ public class AweEnum extends AweEnumBase : abstract {
             return this.class == other.class and this.name == other.name;
         }
 
+        if (other as str) {
+            return this.name == other;
+        }
+
         return super(..);
     }
 
