@@ -412,10 +412,12 @@ public class AweObject {
 
     extend public AweObject{} directlyConnectedModels() {
         AweObject{} connected();
-        for(c in this.getConnectors(null)) {
-            var model = c.getModel();
-            if(model) {
-                connected << model;
+        for(connector in this.getConnectors(null)) {
+            for(attach in connector.connections) {
+                var model = attach.getModel();
+                if(model) {
+                    connected << model;
+                }
             }
         }
         return connected;

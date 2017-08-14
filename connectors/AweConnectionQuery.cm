@@ -36,6 +36,7 @@
 
 package custom.awesome.connectors;
 use cm.runtime;
+use cm.syntax;
 
 public class AweConnectionQuery {
     public AweObject root;
@@ -44,16 +45,33 @@ public class AweConnectionQuery {
         this.root = root;
     }
 
-    extend public AweObject{} find(Type[] query, AweObject current = root, AweObject{} found = new AweObject{}) {
+    extend public AweObject{} find(Type[] query, AweObject current = null, AweObject{} found = new AweObject{}) {
+
+        //first time
+        if(!current) {
+            //start recursion with root
+            current = this.root;
+
+            //insert root type as first query item
+            Type[] queryPlusRoot();
+            queryPlusRoot << this.root.class;
+            for(item in query) {
+                queryPlusRoot << item;
+            }
+
+            query = queryPlusRoot;
+        }
 
         //bad query, get out
         if(!query or query.count == 0) {
             //return collection untouched
             return found;
         }
+
+        Type targetType = query.first();
         
         //doesn't match, get out
-        if(!current.is(query.first())) {
+        if(!current.is(targetType)) {
             //return collection untouched
             return found;
         }
@@ -61,7 +79,7 @@ public class AweConnectionQuery {
         //last item left in query. since we got a type match, then we want this one
         //imagine the original query was for A, B, C and this is C. 
         if(query.count == 1) {
-            found << root;
+            found << current;
             //end of the road, get out
             return found;
         }
@@ -70,7 +88,6 @@ public class AweConnectionQuery {
         //imagine the original query was for A, B, C and this is A or B. not what we want but in the right path.
 
         //recursive strategy begins
-        
         Type[] newQuery = removeFirst(query); //something like A, B, C is now B, C
 
         //if new query is null, it means it was already down to one type, we remove first and have nothing left. end of the road.
@@ -104,8 +121,26 @@ public class AweConnectionQuery {
 }
 
 
-{
-    Type x = AweConnectPoint;
-    Type y = Connector;
-    pln(y.isAssignableTo(x));
+public expr find '(' @root=expr ':' @query=[type '>']* @lastType=type ')' {
+    if(!query) {
+        query = new SType[]();
+    }
+    query << lastType;
+
+
+    return blockExpr {
+        AweObject root = @root;
+        AweConnectionQuery query(root);
+        SType[] sTypes = @query;
+        Type[] types();
+        for(t in sTypes) {
+            types << t.type;
+        }
+        AweObject{} mySet = query.find(types);
+        @lastType{} typedSet();
+        for(item in mySet) {
+            typedSet << item.@lastType;
+        }
+        result typedSet;
+    };
 }
