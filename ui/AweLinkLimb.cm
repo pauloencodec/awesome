@@ -34,35 +34,57 @@
    END OF CETSC
 */
 
-package custom.awesome.electrical;
+package custom.awesome.ui;
 
-public class AweElectricalAnimationMode {
-    public AweElectricalAnimation animation;
+public class AweLinkLimb extends LibraryLimb {
+    public str url;
+    
+    public constructor(
+        LibraryLimb parent,
+        str url,
+        symbol pkg=null,
+        str key=null,
+        Image image=null,
+        str label=null,
+        str toolTipText=null) {
 
-    public constructor(AweElectricalAnimation animation) {
-        this.animation = animation;
-    }   
-
-    extend public point{} clickablePoints() {
-        return null;
-    } 
-
-    extend public void clicked(point p) {
-
-    }
-
-    extend public void hoveredPointChanged(Point target) {
+        if (!key) {
+            key = cm.os.createGUID();
+        }
         
+        this.url = url;
+
+        super(parent, pkg, key, image=image, label="", toolTipText=toolTipText);
     }
 
-    extend public Primitive3D get3D() {
-        return null;
-    }
+    public Window build(Window w) {
+        var button = new AweLinkButton(w, this, label=this.label, image=image, frameStyle=toolboxButtonFrameStyle);
 
-    extend public sorted str->AweObject subConfigurators() {
-        return null;
-    }
+        button.key = this.key;
+        button.setToolTipText(this.toolTipText ?? this.label);
 
-    extend public void configuratorChanged() {
+        return button;
     }
+}
+
+public class AweLinkButton extends Button {
+    private AweLinkLimb limb : public readable;
+
+    public constructor(Window parent, AweLinkLimb limb, FrameStyle frameStyle=pushButtonFrame, str label=null, Image image=null, alignment textSide=alignment.down) {
+        this.limb = limb;
+
+        super(parent, frameStyle=frameStyle, label=label, image=image, textSide=textSide, margins=(2, 2));
+
+        this.pressCb = function onLinkButtonClick;
+    }
+}
+
+private void onLinkButtonClick(Control control) {
+    if (control as AweLinkButton) {
+        cm.os.openLocation(control.limb.url);
+    }
+}
+
+public void addLink(LibraryLimb container, str url, Image image, str tooltip) {
+    new AweLinkLimb(container, url, image=image, toolTipText=tooltip);
 }

@@ -34,35 +34,46 @@
    END OF CETSC
 */
 
-package custom.awesome.electrical;
+package custom.awesome.ui;
 
-public class AweElectricalAnimationMode {
-    public AweElectricalAnimation animation;
+public class AweValidationLimb extends LibraryLimb {
+    public constructor(
+        LibraryLimb parent,
+        symbol pkg=null,
+        str key=null,
+        Image image=null,
+        str label=null,
+        str toolTipText=null) {
 
-    public constructor(AweElectricalAnimation animation) {
-        this.animation = animation;
-    }   
-
-    extend public point{} clickablePoints() {
-        return null;
-    } 
-
-    extend public void clicked(point p) {
-
-    }
-
-    extend public void hoveredPointChanged(Point target) {
+        if (!key) {
+            key = cm.os.createGUID();
+        }
         
+        super(parent, pkg, key, image=image, label="", toolTipText=toolTipText);
     }
 
-    extend public Primitive3D get3D() {
-        return null;
-    }
+    public Window build(Window w) {
+        var button = new AweValidationButton(w, label=this.label, image=image, frameStyle=toolboxButtonFrameStyle);
 
-    extend public sorted str->AweObject subConfigurators() {
-        return null;
-    }
+        button.key = this.key;
+        button.setToolTipText(this.toolTipText ?? this.label);
 
-    extend public void configuratorChanged() {
+        return button;
     }
+}
+
+public class AweValidationButton extends Button {
+    public constructor(Window parent, FrameStyle frameStyle=pushButtonFrame, str label=null, Image image=null, alignment textSide=alignment.down) {
+        super(parent, frameStyle=frameStyle, label=label, image=image, textSide=textSide, margins=(2, 2));
+
+        this.pressCb = function onValidationButtonClick;
+    }
+}
+
+private void onValidationButtonClick(Control control) {
+    showInvalidListDialog(anyFrameWindow);
+}
+
+public void addValidation(LibraryLimb container, Image image, str tooltip) {
+    new AweValidationLimb(container, image=image, toolTipText=tooltip);
 }

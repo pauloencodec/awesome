@@ -36,11 +36,12 @@
 
 package custom.awesome.electrical;
 
-public class AweElectricalCableLine extends Line {
-    public AweNotifyProp bool active {
-        if(snapper) {
-            aweDynamicCall snapper.aweElectricalCableLineChanged(this);
-        }
+public class AweElectricalCableLine extends AweElectricalComponent {
+
+    public line snapperLine;
+
+    public constructor(line snapperLine) {
+        this.snapperLine = snapperLine;
     }
 
     public str id;
@@ -48,9 +49,27 @@ public class AweElectricalCableLine extends Line {
     public Snapper snapper : copy=null;
     public bool powered;
     public bool infeedCable = false;
+    public bool clickable = true;
+    public bool clickableP0 = true;
+    public bool clickableP1 = true;
+    public double weight = 1.0;
+
+    //space coordinates
+    public point[] vertices() {
+        return [spaceLine().v.p0, spaceLine().v.p1];
+    }
+
+    //either p0 to p1 or p1 to p0 in space coordinates. it will be flipped to reflect the flow of power. it's set under makeTree method of cluster info class.
+    public line flow = spaceLine() ? spaceLine().v : line();
     
     extend public Line spaceLine() {
         if(!snapper) return null;
-        return Line(snapper.toSpace(this.line));
+        return Line(snapper.toSpace(this.snapperLine));
+    }
+
+    public void activeChanged() {
+        if(snapper) {
+            aweDynamicCall snapper.aweElectricalCableLineChanged(this);
+        }
     }
 }

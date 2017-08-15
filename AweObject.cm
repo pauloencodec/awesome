@@ -48,6 +48,9 @@ public class AweObject {
     public str _galleryId;
     public str _label;
 
+    //used to expose multiple aweObjects at once in quick properties
+    public str _uniqueQuickPropertyId;
+
     public constructor() {
         this.init();
     }
@@ -60,10 +63,14 @@ public class AweObject {
         return this._label ? this._label : super();
     }
 
-    extend public void applyFrom(AweObject o) {
-        for(k,v in o.props) {
-            this.set(k, v.copy);
-        }
+    extend public void applyFrom(AweObject source) {
+    }
+
+    extend public void applyFrom(AweObject source, str optionName) {
+    }
+
+    extend public AweEnum applyFromOptions() {
+        return null;
     }
 
     extend public Object get(str propName) {
@@ -406,11 +413,30 @@ public class AweObject {
 
     }
 
+    extend public AweObject{} directlyConnectedModels() {
+        AweObject{} connected();
+        for(connector in this.getConnectors(null)) {
+            for(attach in connector.connections) {
+                var model = attach.getModel();
+                if(model) {
+                    connected << model;
+                }
+            }
+        }
+        return connected;
+    }
+
+    extend public bool is(Type t) {
+        Type thisType = this.class;
+        return thisType.isAssignableTo(t);
+    }
+
     /************** exposing connectors ***************/
-    extend public Connector{} getConnectors(Snapper snapper) {
+    extend public Connector{} getConnectors(Snapper snapper=null) {
         Connector{} connectors();
         for(set in connectorSets) if(set.active()) {
             if(!set.connectorCache) {
+                if(!snapper) continue;
                 set.connectorCache = new AweConnectorCache(snapper);
             }
             set.connectorCache.clearBuffer();
@@ -445,6 +471,7 @@ public class AweObject {
         }
         return sets;
     }
+
 }
 
 public definition @visibility aweObject @name=id @parentClass=["extends" type]? '{'  @props=["props" formalArgList ';']? @members=[classMember]* '}' {
@@ -464,7 +491,6 @@ public definition @visibility aweObject @name=id @parentClass=["extends" type]? 
             str propNameStr = propName.name;
             SExpr propInitialValue = arg.default();
             SId onChangeMethodName(propName#"Changed");
-            SId getDomainMethodName(propName#"Domain");
             
             //3 signatures for change
             onChange << member {
@@ -545,6 +571,8 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
 
     SStatements buildAnimationProperties();
     SStatements animationPropertiesChanged();
+
+    SStatements applyFrom();
     
     for (i in 0..(domains.count-1)) {
         SFormalArg arg = domains[i];
@@ -573,7 +601,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                             props.append(customQuickProperty.QuickProperty);
                         }
                         else {
-                            props.append(@propNameStr, @labelName, distance(@propName), @domainName);
+                            props.append(this._uniqueQuickPropertyId # @propNameStr, @labelName, distance(@propName), @domainName);
                         }
                     }
                 }
@@ -588,7 +616,19 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                             // props.append(customQuickProperty.QuickProperty);
                         }
                         else {
-                            props.append2(@propNameStr, @labelName, distance(@propName), @domainName, lockable=false);
+                            props.append2(this._uniqueQuickPropertyId # @propNameStr, @labelName, distance(@propName), @domainName, lockable=false);
+                        }
+                    }
+                }
+            };
+
+            applyFrom << statement {
+                if (@domainName and @visibleName) {
+                    if (Object value = source.get(@propNameStr)) {
+                        // aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, distance(@propName));
+                        
+                        if (@domainName.contains(value)) {
+                            this.@propName = value.@propType;
                         }
                     }
                 }
@@ -604,7 +644,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                             props.append(customQuickProperty.QuickProperty);
                         }
                         else {
-                            props.append(@propNameStr, @labelName, @propName, @domainName);
+                            props.append(this._uniqueQuickPropertyId # @propNameStr, @labelName, @propName, @domainName);
                         }
                     }
                 }
@@ -619,7 +659,21 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                             // props.append(customQuickProperty.QuickProperty);
                         }
                         else {
-                            props.append2(@propNameStr, @labelName, @propName, @domainName, lockable=false);
+                            props.append2(this._uniqueQuickPropertyId # @propNameStr, @labelName, @propName, @domainName, lockable=false);
+                        }
+                    }
+                }
+            };
+
+            applyFrom << statement {
+                if (@domainName and @visibleName) {
+                    if (Object value = source.get(@propNameStr)) {
+                        if (value as @propType) {
+                            aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, @propName);
+                            
+                            if (@domainName.contains(value)) {
+                                this.@propName = value;
+                            }
                         }
                     }
                 }
@@ -627,14 +681,14 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         }
         
         quickPropertiesChanged << statement {
-            if (key == @propNameStr) {
+            if (key == this._uniqueQuickPropertyId # @propNameStr) {
                 this.@propName = value.@propType;
                 return true;
             }
         };
 
         animationPropertiesChanged << statement {
-            if (key == @propNameStr) {
+            if (key == this._uniqueQuickPropertyId # @propNameStr) {
                 this.@propName = value.@propType;
             }
         };
@@ -663,6 +717,13 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         @visibility void animationPropertyChanged(str key, Object value) {
             super(..);
             @animationPropertiesChanged;
+        }
+
+        @visibility void applyFrom(AweObject source) {
+            if (this.class == source.class) {
+                super(..);
+                @applyFrom;
+            }
         }
     };
 }

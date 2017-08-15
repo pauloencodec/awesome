@@ -34,35 +34,57 @@
    END OF CETSC
 */
 
-package custom.awesome.electrical;
+package custom.awesome.ui;
 
-public class AweElectricalAnimationMode {
-    public AweElectricalAnimation animation;
+public class AweAnimationLimb extends AnimationLimb {
+    private Animation animation : public readable;
 
-    public constructor(AweElectricalAnimation animation) {
-        this.animation = animation;
-    }   
+    public constructor(
+        LibraryLimb parent,
+        Animation animation,
+        symbol pkg=null,
+        str key=null,
+        Image image=null,
+        str label=null,
+        str toolTipText=null) {
 
-    extend public point{} clickablePoints() {
-        return null;
-    } 
-
-    extend public void clicked(point p) {
-
-    }
-
-    extend public void hoveredPointChanged(Point target) {
+        if (!key) {
+            key = cm.os.createGUID();
+        }
         
+        this.animation = animation;
+
+        super(parent, pkg, key, image=image, label="", toolTipText=toolTipText);
+    }
+    
+    public Window build(Window w) {
+        SelectButton button = new AweAnimationButton(w, this, label=this.label, image=image, frameStyle=toolboxButtonFrameStyle);
+
+        button.key = this.key;
+        button.setToolTipText(this.toolTipText ?? this.label);
+
+        return button;
+    }
+}
+
+public class AweAnimationButton extends AnimationImageButton {
+    private AweAnimationLimb limb;
+
+    public constructor(Window parent, AweAnimationLimb limb, FrameStyle frameStyle=pushButtonFrame, str label=null, Image image=null, alignment textSide=alignment.down) {
+        this.limb = limb;
+
+        super(parent, snapperName=this.limb.key, frameStyle=frameStyle, label=label, image=image, textSide=textSide);
     }
 
-    extend public Primitive3D get3D() {
+    public Animation getToolboxAnimation() {
+        if (this.limb) {
+            return this.limb.animation.class.instantiate().Animation;
+        }
+
         return null;
     }
+}
 
-    extend public sorted str->AweObject subConfigurators() {
-        return null;
-    }
-
-    extend public void configuratorChanged() {
-    }
+public void add(LibraryLimb container, Animation animation, Image image, str tooltip) {
+    new AweAnimationLimb(container, animation, image=image, toolTipText=tooltip);
 }
