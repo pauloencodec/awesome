@@ -37,25 +37,61 @@
 package custom.awesome.electrical;
 
 
-public class AweElectricalInfeedPoint extends Point {
+
+public class AweElectricalInfeedPoint extends AweElectricalComponent {
+
+    public point position;
+
+    public constructor(point position) {
+        this.position = position;
+    }
+
     public str id;
-    public AweNotifyProp bool active {
-        if(snapper) {
-            aweDynamicCall snapper.aweElectricalInfeedChanged(this);
-        }
-    } 
     public orientation orientation;
     public AweElectricalCableLine[] cables();
     public AweElectricalCableLine[] activeNetwork();
     public Snapper snapper : copy=null;
     extend public Point spacePoint() {
         if(!snapper) return null;
-        return Point(snapper.toSpace(this.point));
+        return Point(snapper.toSpace(this.position));
     }
     extend public orientation spaceOrientation() {
         if(!snapper) return orientation();
         return snapper.toSpace(this.orientation);
     }
 
-    
+    public AweElectricalInfeedConfigurator configurator(this);
+    public AweObject[] customConfigurators = null;
+
+    public point[] vertices() {
+        
+        if(!spacePoint) return null;
+
+        return [this.spacePoint.v];
+    }
+
+    public void activeChanged() {
+        for(c in this.cables) {
+            c.active = this.active;
+        }
+        if(snapper) {
+            aweDynamicCall snapper.aweElectricalInfeedChanged(this);
+        }
+    }
+}
+
+public aweObject AweElectricalInfeedConfigurator {
+    props(bool active = false);
+    public aweObjectDomain(bool active = BoolSubSet());
+
+    public AweElectricalInfeedPoint owner;
+
+    public constructor(AweElectricalInfeedPoint owner) {
+        this.active = owner.active;
+        this.owner = owner;
+    }
+
+    public void activeChanged(bool value) {
+        this.owner.?active = value;
+    }
 }
