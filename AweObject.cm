@@ -442,6 +442,7 @@ public class AweObject {
             set.connectorCache.clearBuffer();
             set.connectors(set.connectorCache);
             for(c in set.connectorCache.buffer) {
+                // c.setRule(ctAlways);
                 c.setConnectorSet(set);
                 c.setModel(this);
                 connectors << c;
