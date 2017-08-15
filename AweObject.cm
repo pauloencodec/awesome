@@ -668,12 +668,10 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
             applyFrom << statement {
                 if (@domainName and @visibleName) {
                     if (Object value = source.get(@propNameStr)) {
-                        if (value as @propType) {
-                            aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, @propName);
-                            
-                            if (@domainName.contains(value)) {
-                                this.@propName = value;
-                            }
+                        aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, @propName);
+                        
+                        if (@domainName.contains(value)) {
+                            this.@propName = value.@propType;
                         }
                     }
                 }
@@ -720,7 +718,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         }
 
         @visibility void applyFrom(AweObject source) {
-            if (this.class == source.class) {
+            if (this.is(source.class)) {
                 super(..);
                 @applyFrom;
             }
