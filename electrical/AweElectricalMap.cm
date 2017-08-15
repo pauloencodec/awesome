@@ -89,9 +89,9 @@ public class AweElectricalMap {
             }
         }
 
-        for(c in notInfeedCables) {
-            notInfeedCableVertices << c.spaceLine.v.p0;
-            notInfeedCableVertices << c.spaceLine.v.p1;
+        for(c in allCables) if (c.clickable) {
+            if (c.clickableP0) notInfeedCableVertices << c.spaceLine.v.p0;
+            if (c.clickableP1) notInfeedCableVertices << c.spaceLine.v.p1;
         }
 
         networkInfo = new AweElectricalClusterInfo(this, forRouting=true);

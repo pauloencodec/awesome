@@ -40,6 +40,7 @@ use cm.syntax;
 
 public member @visibility AweNotifyProp @type=type @name=id @notify=statement {
     SId privateName("_"#name.name);
+    SId changedCallbackName(name#"Changed");
     return member {
         @visibility @type @privateName;
         extend @visibility @type @name() { return this.@privateName; }
@@ -49,5 +50,6 @@ public member @visibility AweNotifyProp @type=type @name=id @notify=statement {
             if(changed) @notify;
             return this.@privateName;
         }
+        extend @visibility void @changedCallbackName() { }
     };
 }
