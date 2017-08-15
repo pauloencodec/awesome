@@ -1,0 +1,146 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.connectors;
+use cm.runtime;
+use cm.syntax;
+
+public class AweConnectionQuery {
+    public AweObject root;
+
+    public constructor(AweObject root) {
+        this.root = root;
+    }
+
+    extend public AweObject{} find(Type[] query, AweObject current = null, AweObject{} found = new AweObject{}) {
+
+        //first time
+        if(!current) {
+            //start recursion with root
+            current = this.root;
+
+            //insert root type as first query item
+            Type[] queryPlusRoot();
+            queryPlusRoot << this.root.class;
+            for(item in query) {
+                queryPlusRoot << item;
+            }
+
+            query = queryPlusRoot;
+        }
+
+        //bad query, get out
+        if(!query or query.count == 0) {
+            //return collection untouched
+            return found;
+        }
+
+        Type targetType = query.first();
+        
+        //doesn't match, get out
+        if(!current.is(targetType)) {
+            //return collection untouched
+            return found;
+        }
+
+        //last item left in query. since we got a type match, then we want this one
+        //imagine the original query was for A, B, C and this is C. 
+        if(query.count == 1) {
+            found << current;
+            //end of the road, get out
+            return found;
+        }
+
+        //if we get to here, we matched the first item of the query but there's still more to go.
+        //imagine the original query was for A, B, C and this is A or B. not what we want but in the right path.
+
+        //recursive strategy begins
+        Type[] newQuery = removeFirst(query); //something like A, B, C is now B, C
+
+        //if new query is null, it means it was already down to one type, we remove first and have nothing left. end of the road.
+        if(!newQuery) return found;
+        
+        //if the code made this far, there's a new query to try on connected objects.
+
+        var connectedObjects = current.directlyConnectedModels();
+
+        for(obj in connectedObjects) {
+            //recursively call this method on each in order to attempt to populate the found set
+            find(newQuery, current = obj, found = found);
+        }
+
+        return found;
+
+    }
+
+    extend private Type[] removeFirst(Type[] query) {
+        if(query.count <= 1) return null;
+
+        Type[] newSeq();
+
+        for(i in 1..(query.count - 1)){
+            newSeq << query[i];
+        }
+
+        return newSeq;
+    }
+
+}
+
+
+public expr find '(' @root=expr ':' @query=[type '>']* @lastType=type ')' {
+    if(!query) {
+        query = new SType[]();
+    }
+    query << lastType;
+
+
+    return blockExpr {
+        AweObject root = @root;
+        AweConnectionQuery query(root);
+        SType[] sTypes = @query;
+        Type[] types();
+        for(t in sTypes) {
+            types << t.type;
+        }
+        AweObject{} mySet = query.find(types);
+        @lastType{} typedSet();
+        for(item in mySet) {
+            typedSet << item.@lastType;
+        }
+        result typedSet;
+    };
+}

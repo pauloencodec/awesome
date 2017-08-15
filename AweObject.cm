@@ -410,11 +410,30 @@ public class AweObject {
 
     }
 
+    extend public AweObject{} directlyConnectedModels() {
+        AweObject{} connected();
+        for(connector in this.getConnectors(null)) {
+            for(attach in connector.connections) {
+                var model = attach.getModel();
+                if(model) {
+                    connected << model;
+                }
+            }
+        }
+        return connected;
+    }
+
+    extend public bool is(Type t) {
+        Type thisType = this.class;
+        return thisType.isAssignableTo(t);
+    }
+
     /************** exposing connectors ***************/
-    extend public Connector{} getConnectors(Snapper snapper) {
+    extend public Connector{} getConnectors(Snapper snapper=null) {
         Connector{} connectors();
         for(set in connectorSets) if(set.active()) {
             if(!set.connectorCache) {
+                if(!snapper) continue;
                 set.connectorCache = new AweConnectorCache(snapper);
             }
             set.connectorCache.clearBuffer();
