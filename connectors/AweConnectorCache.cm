@@ -49,7 +49,7 @@ public class AweConnectorCache {
         this.snapper = snapper;
     }   
 
-    extend public Connector get(str key, point position, orientation direction, ConnectRule rule=ctNever, bool realign=false, bool hiddenOnDC=true, bool mandatory=false, AweMagnet magnet=null, AweMagnet{} magnets=null) {
+    extend public Connector get(str key, point position, orientation direction, ConnectRule rule=magneticRule, bool realign=false, bool hiddenOnDC=true, bool mandatory=false, AweMagnet magnet=null, AweMagnet{} magnets=null) {
         if(magnet and !magnets) {
             magnets = {magnet};
         }
@@ -70,15 +70,15 @@ public class AweConnectorCache {
         return this.setupConnector(c, position, direction, key, rule, magnets);
     }
 
-    extend public Connector makePoint(str key, point position, orientation direction, ConnectRule rule=ctNever, bool realign=false, bool hiddenOnDC=true, bool mandatory=false, AweMagnet magnet=null, AweMagnet{} magnets=null) {
+    extend public Connector makePoint(str key, point position, orientation direction, ConnectRule rule=magneticRule, bool realign=false, bool hiddenOnDC=true, bool mandatory=false, AweMagnet magnet=null, AweMagnet{} magnets=null) {
         return this.get(..);
     }
 
-    extend public Connector makeLine(str key, line l, angle roll=0deg, ConnectRule rule= null, bool realign=false, bool hiddenOnDC=true, bool mandatory=false, AweMagnet magnet=null, AweMagnet{} magnets=null) {
+    extend public Connector makeLine(str key, line l, angle roll=0deg, ConnectRule rule= magneticRule, bool realign=false, bool hiddenOnDC=true, bool mandatory=false, AweMagnet magnet=null, AweMagnet{} magnets=null) {
         return this.makeLine(key, l.p0, l.p1, roll, rule, realign, hiddenOnDC, mandatory, magnet, magnets);
     }
 
-    extend public Connector makeLine(str key, point p0, point p1, angle roll=0deg, ConnectRule rule= null, bool realign=false, bool hiddenOnDC=true, bool mandatory=false, AweMagnet magnet=null, AweMagnet{} magnets=null) {
+    extend public Connector makeLine(str key, point p0, point p1, angle roll=0deg, ConnectRule rule= magneticRule, bool realign=false, bool hiddenOnDC=true, bool mandatory=false, AweMagnet magnet=null, AweMagnet{} magnets=null) {
         Connector c = this.get(key);
 
         if (!c) {
@@ -106,7 +106,7 @@ public class AweConnectorCache {
         return c;
     }
 
-    extend public Connector makeFace(str key, double w, double d, double z, ConnectRule rule=null, bool realign=false, bool mandatory=false) {
+    extend public Connector makeFace(str key, double w, double d, double z, ConnectRule rule=magneticRule, bool realign=false, bool mandatory=false) {
         Connector c = this.get(key);
 
         if (!c) {
@@ -128,7 +128,7 @@ public class AweConnectorCache {
         return c;
     }
 
-    extend public Connector makeFace(str key, point pos, Graph g, ConnectRule rule=null, bool realign=false, bool mandatory=false) {
+    extend public Connector makeFace(str key, point pos, Graph g, ConnectRule rule=magneticRule, bool realign=false, bool mandatory=false) {
         Connector c = this.get(key);
 
         if (!c) {
@@ -150,7 +150,7 @@ public class AweConnectorCache {
         return c;
     }
 
-    extend public Connector makeStandOn(str key, point pos, ConnectRule rule=null, bool realign=false, bool mandatory=false) {
+    extend public Connector makeStandOn(str key, point pos, ConnectRule rule=magneticRule, bool realign=false, bool mandatory=false) {
         Connector c = this.get(key);
 
         if (!c) {
@@ -186,7 +186,7 @@ public class AweConnectorCache {
         return c;
     }
 
-    extend private Connector setupConnector(Connector c, point position, orientation direction, str id, ConnectRule rule=ctNever, AweMagnet{} magnets=null) {
+    extend private Connector setupConnector(Connector c, point position, orientation direction, str id, ConnectRule rule=magneticRule, AweMagnet{} magnets=null) {
         c.setPos(position);
         c.setRot(direction);
         c.setRule(rule);
