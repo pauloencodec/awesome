@@ -39,17 +39,27 @@ package custom.awesome;
 public class AweAnimation extends ObsoleteStateMouseAnimation {
     
     public AweObject configurator;
+    public ViewMode viewMode;
+
+    public sorted str->AweObject subConfigurators();
 
     extend public void configuratorChanged() {
 
     }
 
     public void buildProperties() {
+
+        this.destroyAnimationProperties();
+        this.createAnimationProperties();
+        
         if (configurator) {
-            this.destroyAnimationProperties();
-            this.createAnimationProperties();
             
             this.configurator.buildAnimationProperties(this.animationProperties);
+
+            for(key, value in subConfigurators) {
+                value._uniqueQuickPropertyId = key;
+                value.buildAnimationProperties(this.animationProperties);
+            }
 
             this.animationProperties.finalize();
         } else super(..);
@@ -60,7 +70,17 @@ public class AweAnimation extends ObsoleteStateMouseAnimation {
 
         if (configurator) {
             configurator.animationPropertyChanged(..);
+            for(key, value in subConfigurators) {
+                value.animationPropertyChanged(..);
+            }
             configuratorChanged();
         }
+
+        this.buildProperties();
+    }
+
+    extend public void setViewMode(ViewMode viewMode) {
+        this.viewMode = viewMode;
+        space.setViewMode( viewMode );
     }
 }

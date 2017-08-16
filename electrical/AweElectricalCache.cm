@@ -45,27 +45,47 @@ public class AweElectricalCache {
     private str->AweElectricalInfeedPoint infeeds() : public readable;
     private str->AweElectricalCableLine cables() : public readable;
 
-    extend public AweElectricalCableLine cable(str id, point start, point end) {
-        var cable = cables.get(id);
-        if(!cable) {
-            cable = new AweElectricalCableLine(line());
-            cable.id = id;
-            cables.put(id, cable);
-        }
-        cable.v.p0 = start;
-        cable.v.p1 = end;
+    extend public AweElectricalCableLine cable( AweElectricalCableLine cable ) {
+        cables.put( cable.id, cable );
         return cable;
     }
 
-    extend public AweElectricalInfeedPoint infeed(str id, point position, orientation orientation, AweElectricalCableLine[] cables=null) {
+    extend public AweElectricalCableLine cable(str id, point start, point end, bool clickable=true, double weight=1.0, bool clickableP0=true, bool clickableP1=true) {
+        var cable = cables.get(id);
+        if(!cable) {
+            cable = this.createCableInstance();
+            cable.id = id;
+            cables.put(id, cable);
+        }
+
+        cable.clickable = clickable;
+        cable.clickableP0 = clickableP0;
+        cable.clickableP1 = clickableP1;
+        cable.snapperLine.p0 = start;
+        cable.snapperLine.p1 = end;
+        cable.weight = weight;
+        
+        return cable;
+    }
+
+    extend public AweElectricalCableLine createCableInstance() {
+        return new AweElectricalCableLine(line());
+    }
+
+    extend public AweElectricalInfeedPoint infeed(str id, point position, orientation orientation, AweElectricalCableLine[] cables=null, AweObject[] customConfigurators=null) {
         var infeed = infeeds.get(id);
         if(!infeed) {
-            infeed = new AweElectricalInfeedPoint(point());
+            infeed = this.createInfeedInstance();
             infeed.id = id;
             infeeds.put(id, infeed);
         }
-        infeed.v = position;
+        infeed.position = position;
         set*(infeed: orientation, cables);
+        infeed.customConfigurators = customConfigurators;
         return infeed;
+    }
+
+    extend public AweElectricalInfeedPoint createInfeedInstance() {
+        return new AweElectricalInfeedPoint(point());
     }
 }
