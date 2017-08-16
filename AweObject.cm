@@ -381,13 +381,16 @@ public class AweObject {
 
     extend public void invalidate() {
         for(s in snappers) {
-            if(s as AweSnapper) {
-                s.refresh(true, true);
-            } else if(s) {
-                s.invalidate();
+            if(s and s.isAlive) {
+                if(s as AweSnapper) {
+                    s.refresh(true, true);
+                } else if(s) {
+                    s.invalidate();
+                }
+            } else {
+                this.snappers.remove(s);
             }
         }
-        snappers.clear();
     }
 
     extend public void appendSnapper(Snapper s) {
@@ -470,6 +473,11 @@ public class AweObject {
             }
         }
         return sets;
+    }
+
+    /************* automations ***************/
+    extend public AweGroupAutomation[] getGroupAutomations() {
+        return null;
     }
 
 }
