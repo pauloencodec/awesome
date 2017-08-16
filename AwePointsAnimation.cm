@@ -100,17 +100,12 @@ public class AwePointsAnimation extends AweAnimation {
 
     extend public void refresh() {
         if (space) {
+            if ( viewMode ) space.invalidate3D( viewMode );
             space.invalidate2D(this);
             space.invalidate3D(this);
             space.beginAnimateDrawSequence(this);
             space.initAnimateDraw(this);
             space.animateDraw(this);
-        }
-    }
-
-    extend public void setViewMode(ViewMode viewMode) {
-        if (World w = session.?mainWorld) {
-            w.setViewMode(viewMode);
         }
     }
 
@@ -173,10 +168,6 @@ public class AwePointsAnimation extends AweAnimation {
         if (this.space) {
             this.space.clearSelection();
         }
-
-        if (ViewMode viewMode = getRegisteredViewMode(#electrical)) {
-            this.setViewMode(viewMode);
-        }
     }
 
     public void begin() {
@@ -185,6 +176,10 @@ public class AwePointsAnimation extends AweAnimation {
         if (space) {
             space.beginAnimateDrawSequence(this);
             space.show(this);
+            
+            // ViewMode vm = AweElectricalViewMode();
+            // this.space._viewMode = vm;
+            // this.space.viewModeChanged();
         }
     }
 
@@ -194,7 +189,6 @@ public class AwePointsAnimation extends AweAnimation {
             space.endAnimateDrawSequence(this);
             space.hide(this);
         }
-
 
         return super(..);
     }
@@ -207,7 +201,7 @@ public class AwePointsAnimation extends AweAnimation {
         }
 
 
-        this.setViewMode(normalViewMode);
+        this.setViewMode(null);
 
         super(..);
     }

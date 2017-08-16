@@ -48,9 +48,14 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
             this.map = new AweElectricalMap(this.space);
         }
         status = new AweElectricalClusterInfo(this.map);
-        this.configurator = new AweElectricalAnimationModel();
+        this.configurator = new AweElectricalAnimationModel(this);
         launchMode();
     }   
+
+    public void begin() {
+        super();
+        if ( space ) this.setViewMode( AweElectricalViewMode() );
+    }
 
     public void enterView(AnimationMouseInfo mi) {
         super(..);
@@ -59,7 +64,8 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
     }
 
     public void configuratorChanged() {
-        launchMode();
+        updateSubConfigurators();
+        currentMode.configuratorChanged();
     }
 
     public void hoveredPointChanged(Point target) {
@@ -78,8 +84,10 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
     }
 
     public Primitive3D get3D(FetchEnv3D env) {
+        
         Awe3D prims();
-        prims << status.?get3D();
+
+        str modeName = this.configurator.AweElectricalAnimationModel.mode;
         prims << currentMode.?get3D();
         return prims;
     }
@@ -94,12 +102,13 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
                 case "Add": 
                     txt = "Click on two points, one after the other, to route power. A power line will be created from point A to point B."; 
                 case "Infeed": 
-                    txt = "Select the power source by clicking at the infeed points."; 
+                    txt = "Select an infeed to edit its properties or ctrl+click it to toggle on and off."; 
                 case "Remove": 
                     txt = "Click on two points, one after the other, to remove an existing power route."; 
                 case "View":
-                default:
                     txt = "Use the animation properties to change mode.\n\"Infeed\" lets you select the power source. \"Add\" allows for power cable routing and \"Remove\" let you remove previously added cables."; 
+                case "Debug":
+                    txt = "Red lines found no suitable infeed, colorful blocks are functional clusters.";
             }
             message(txt);
         }
@@ -111,9 +120,24 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
         if(modeName == "Infeed") currentMode = new AweElectricalAnimationInfeedMode(this);
         if(modeName == "Add") currentMode = new AweElectricalAnimationAddRouteMode(this);
         if(modeName == "Remove") currentMode = new AweElectricalAnimationDeleteRouteMode(this);
+        if(modeName == "Debug") currentMode = new AweElectricalAnimationDebugMode(this);
         showHint();
+
+        updateSubConfigurators();
+
         this.refresh();
     }
+
+    extend public void updateSubConfigurators() {
+        //mode configurators
+        this.subConfigurators = currentMode.subConfigurators();
+        this.buildProperties();
+    }
+
+    extend public void updateMap() {
+       this.map = new AweElectricalMap(this.space);
+       status = new AweElectricalClusterInfo(this.map);
+   }
 }
 
 public aweObject AweElectricalAnimationModel {
@@ -121,8 +145,17 @@ public aweObject AweElectricalAnimationModel {
         str mode = "View"
     );
     public aweObjectDomain(
-        str mode = StrSubSet(["View", "Infeed", "Add", "Remove"])
+        str mode = StrSubSet(developMode ? ["View", "Infeed", "Add", "Remove", "Debug"] : ["View", "Infeed", "Add", "Remove"])
     );
+
+    public AweElectricalAnimation animation;
+    public constructor(AweElectricalAnimation animation) {
+        this.animation = animation;
+    }
+
+    public void modeChanged(str newMode) {
+        this.animation.?launchMode();
+    }
 }
 
 {

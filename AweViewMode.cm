@@ -36,6 +36,8 @@
 
 package custom.awesome;
 
+use custom.awesome.electrical;
+
 public class AweViewMode : abstract {
     public constructor() {
         registerViewMode(this.getViewMode());
