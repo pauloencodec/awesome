@@ -242,6 +242,8 @@ public class AweSnapper extends Snapper {
         invalidateQuickPropertiesFor(this);
         invalidate();
         this.space.invalidateSelection();
+
+        this.groupChanged();
     }
 
     public void invalidated(dirty3D flag3D) {
@@ -259,6 +261,48 @@ public class AweSnapper extends Snapper {
     extend public str helpLink() {
         return null;
     }
+
+    
+    /********** group changed ***********/
+    extend public void groupChanged() {
+        if(disableGroupChangeTrigger) return;
+
+        var group = this.groupModels();
+        str->AweGroupAutomation automations();
+        for(model in group) {
+            var modelGroupAutomations = model.getGroupAutomations();
+            for(auto in modelGroupAutomations) {
+                if(!automations.get(auto.id))
+                    automations.put(auto.id, auto);
+            }
+        }
+
+        disableGroupChangeTrigger = true;
+        for(id, automation in automations) {
+            automation.run(group);
+        }
+        disableGroupChangeTrigger = false;
+        
+    }
+
+    extend private AweObject{} groupModels() {
+        var snappers = this.allConnected(true);
+        AweObject{} allModels();
+        for(s in snappers) {
+            if(s as AweSnapper) {
+                var models = s.allModels();
+                for(m in models) {
+                    allModels << m;
+                }
+            }
+        }
+        return allModels;
+    }
+
+    extend private AweGroupAutomation{} getGroupAutomations(AweObject{} group) {
+        return null;
+    }
+
 
     /***********************************************************************
      * Parts
@@ -441,3 +485,4 @@ public class AweSnapper extends Snapper {
     }
 }
 
+private bool disableGroupChangeTrigger = false;
