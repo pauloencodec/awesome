@@ -36,21 +36,57 @@
 
 package custom.awesome.automations;
 
-public class AweGroupAutomation {
+//compares new set of AweSnappers with the previous set and clones properties of things it deems the same
+public class AweAutomationPropertyCloner {
 
-    public constructor() {
-    }  
-    
-    extend public void run(AweObject{} group) {
-        
+    public AweAutomationBoxToModelMapItem{} oldGen;
+
+    public constructor(AweAutomationBoxToModelMapItem{} oldGen) {
+        this.oldGen = oldGen;
+    }   
+
+    extend public AweSnapper{} applyTo(AweSnapper{} newGen) {
+        AweSnapper{} processed();
+        for(newOne in newGen) {
+            processed << process(newOne);
+        }
+        return processed;
     }
 
-    extend public AweSnapper{} run(AweObject{} group, AweObject trigger) {
-        run(group);
-        return null;
+    extend private AweSnapper process(AweSnapper newOne) {
+        //80% threshold? 
+        var threshold = 0.8;
+        for(oldOne in oldGen) {
+            var likelihood = compare(oldOne, newOne);
+            if(likelihood >= threshold) {
+                return clone(oldOne, newOne);
+            }
+        }
+        //poor thing found no match
+        return newOne;
     }
 
-    extend public str id() {
-        return this.class.name;
+    extend private AweSnapper clone(AweAutomationBoxToModelMapItem oldOne, AweSnapper newOne) {
+        newOne.mainModel().applyFrom(oldOne.model);
+        return newOne;
+    }
+
+    //returns the percentage likelihood of being the same thing. 1 = 100%
+    extend private double compare(AweAutomationBoxToModelMapItem oldOne, AweSnapper newOne) {
+
+        if(oldOne.model.?class != newOne.mainModel().?class) return 0;
+
+        var newBox = newOne.bound();
+
+        //preventing division by 0 down the road
+        var newBoxVolume = newBox.volume();
+        if(newBoxVolume == 0) {
+            return 0;
+        }
+
+        var oldBox = oldOne.bound;
+        var intersectionBox = oldBox * newBox;
+        var sharedVolumePercentage = intersectionBox.volume() / newBox.volume();
+        return sharedVolumePercentage;
     }
 }
