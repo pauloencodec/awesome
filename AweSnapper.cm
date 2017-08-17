@@ -264,6 +264,8 @@ public class AweSnapper extends Snapper {
 
     
     /********** group changed ***********/
+    public str spawnerAutomationId;
+
     extend public void groupChanged() {
         if(disableGroupChangeTrigger) return;
 
@@ -277,12 +279,38 @@ public class AweSnapper extends Snapper {
             }
         }
 
+        
         disableGroupChangeTrigger = true;
         for(id, automation in automations) {
-            automation.run(group);
+            var oldSnappers = findAutomationSpawnSnappers(id, this.allConnected(true));
+            AweAutomationBoxToModelMapItem{} map();
+            for(oldOne in oldSnappers) {
+                map << new AweAutomationBoxToModelMapItem(oldOne.bound(), oldOne.mainModel());
+                //bye
+                this.space.remove(oldOne);
+            }
+            var newSnappers = automation.run(group, this.mainModel());
+            AweAutomationPropertyCloner cloner(map);
+            //try to clone property of similar old snappers
+            newSnappers = cloner.applyTo(newSnappers);
+            for(newOne in newSnappers) {
+                space.put(newOne);
+            }
         }
         disableGroupChangeTrigger = false;
         
+    }
+
+    extend private AweSnapper{} findAutomationSpawnSnappers(str id, Snapper{} snappers) {
+        AweSnapper{} found();
+        for(s in snappers) {
+            if(s as AweSnapper) {
+                if(s.spawnerAutomationId == id) {
+                    found << s;
+                }
+            }
+        }
+        return found;
     }
 
     extend private AweObject{} groupModels() {
