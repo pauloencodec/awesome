@@ -45,7 +45,7 @@ public class AweGroupAutomation {
         
     }
 
-    extend public AweSnapper{} run(AweObject{} group, AweObject trigger) {
+    extend public AweSnapper{} run(AweObject{} group, AweObject trigger, AweAutomationPropertyCloner cloner) {
         run(group);
         return null;
     }

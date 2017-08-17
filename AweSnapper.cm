@@ -289,13 +289,11 @@ public class AweSnapper extends Snapper {
                 //bye
                 this.space.remove(oldOne);
             }
-            var newSnappers = automation.run(group, this.mainModel());
             AweAutomationPropertyCloner cloner(map);
+            var newSnappers = automation.run(group, this.mainModel(), cloner);
             //try to clone property of similar old snappers
-            newSnappers = cloner.applyTo(newSnappers);
             for(newOne in newSnappers) {
                 newOne.spawnerAutomationId = id;
-                space.put(newOne);
             }
         }
         disableGroupChangeTrigger = false;
