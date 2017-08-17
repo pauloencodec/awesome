@@ -36,21 +36,13 @@
 
 package custom.awesome.automations;
 
-public class AweGroupAutomation {
+public class AweAutomationBoxToModelMapItem {
 
-    public constructor() {
-    }  
-    
-    extend public void run(AweObject{} group) {
-        
-    }
+    public box bound;
+    public AweObject model;
 
-    extend public AweSnapper{} run(AweObject{} group, AweObject trigger) {
-        run(group);
-        return null;
-    }
-
-    extend public str id() {
-        return this.class.name;
-    }
+    public constructor(box bound, AweObject model) {
+        this.bound = bound;
+        this.model = model;
+    }   
 }
