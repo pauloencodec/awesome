@@ -294,6 +294,7 @@ public class AweSnapper extends Snapper {
             //try to clone property of similar old snappers
             newSnappers = cloner.applyTo(newSnappers);
             for(newOne in newSnappers) {
+                newOne.spawnerAutomationId = id;
                 space.put(newOne);
             }
         }
