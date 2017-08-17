@@ -45,30 +45,18 @@ public class AweAutomationPropertyCloner {
         this.oldGen = oldGen;
     }   
 
-    extend public AweSnapper{} applyTo(AweSnapper{} newGen) {
-        AweSnapper{} processed();
-        for(newOne in newGen) {
-            processed << process(newOne);
-        }
-        return processed;
-    }
 
-    extend private AweSnapper process(AweSnapper newOne) {
+    extend private AweObject bestMatch(AweSnapper newOne) {
         //80% threshold? 
         var threshold = 0.8;
         for(oldOne in oldGen) {
             var likelihood = compare(oldOne, newOne);
             if(likelihood >= threshold) {
-                return clone(oldOne, newOne);
+                return oldOne.model;
             }
         }
         //poor thing found no match
-        return newOne;
-    }
-
-    extend private AweSnapper clone(AweAutomationBoxToModelMapItem oldOne, AweSnapper newOne) {
-        newOne.mainModel().applyFrom(oldOne.model);
-        return newOne;
+        return newOne.mainModel();
     }
 
     //returns the percentage likelihood of being the same thing. 1 = 100%
