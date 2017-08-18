@@ -45,7 +45,9 @@ public class AweElectricalClusterInfo {
     private str->AweElectricalCluster pointsToClusters();
     
     //no infeed
-    private AweElectricalCableLine[] orphanCables();
+    public AweElectricalCableLine[] orphanCables();
+
+    private double lineThickness = 0.3inch;
 
     public constructor(AweElectricalMap map, bool forRouting=false) {
         this.map = map;
@@ -55,22 +57,99 @@ public class AweElectricalClusterInfo {
 
     extend public void updateStatus() {
         identifyClusters(map);
+        makeTree();
+    }
+
+    extend private void makeTree() {
+        for(cluster in clusters) { 
+            //faulty state
+            if(cluster.infeeds.count != 1) return;
+
+            var infeed = cluster.infeeds.first();
+            infeed.resetStreamInfo();
+
+            var cableIndex = PointToElectricalComponentArrayIndex();
+
+            var allCables = new AweElectricalComponent[]();
+            for(c in infeed.cables) allCables << c;
+            for(c in cluster.cables) allCables << c;
+
+            for(c in allCables) {
+                addComponentToIndex(c, cableIndex);
+            }
+
+            var visited = new AweElectricalComponent{}();
+            goDownstream(infeed, infeed.spacePoint.v, cableIndex, visited);
+        }
+    }
+
+    extend private void addComponentToIndex(AweElectricalComponent component, PointToElectricalComponentArrayIndex index) {
+        
+        //reset any stream info
+        component.resetStreamInfo();
+
+        for(v in component.vertices) {
+            var current = index.get(v);
+            if(!current) current = new AweElectricalComponent[]();
+            current << component;
+            index.put(v, current);
+        }
+    }
+
+    extend private void goDownstream(AweElectricalComponent upstream, point joint, PointToElectricalComponentArrayIndex index, AweElectricalComponent{} visited) {
+        if (upstream in visited) return;
+
+        visited << upstream;
+
+        var componentsAtJoint = index.get(joint);
+
+        for(component in componentsAtJoint) if (component.active) {
+            //found self, get out
+            if(component == upstream) continue;
+
+            component.upstream = upstream;
+
+            if(upstream) {
+                upstream.downstream << component;
+            }
+
+            for(vertice in component.vertices) {
+                if(vertice == joint) continue;
+
+                if(component as AweElectricalCableLine) {
+                    component.flow = line(joint, vertice);
+                }
+
+                goDownstream(component, vertice, index, visited);                
+            }
+        }
     }
 
     extend public Primitive3D get3D() {
         Awe3D all3D();
+
         for(cluster in clusters) {
+            Awe3D infeed3D();
             Awe3D cluster3D();
             for(cable in cluster.cables) {
-                var cableLine = cable.spaceLine.v;
-                Cylinder3D l(cableLine.p0, cableLine.p1, .5inch);
-                cluster3D << l;
+                if(!cable.upstream) {
+                    var cableLine = cable.spaceLine.v;
+                    Cylinder3D l(cableLine.p0, cableLine.p1, this.lineThickness);
+                    cluster3D << l;
+
+                } else {
+                    var cableLine = cable.flow;
+                    cluster3D << getPoweredCable3D(cableLine);
+                }
             }
             for(infeed in cluster.infeeds) {
-                cluster3D << infeedGeometry(infeed);
+                infeed3D << infeedGeometry(infeed);
             }
             cluster3D.setMaterial(cluster.infeeds.count != 1 ? plainRedMaterial3D : plainGreenMaterial3D);
+            infeed3D.setMaterial(cluster.infeeds.count != 1 ? plainRedMaterial3D : plainGreenMaterial3D);
+            
             all3D << cluster3D;
+            all3D << infeed3D;
         }
 
         for(cable in orphanCables) {
@@ -81,6 +160,21 @@ public class AweElectricalClusterInfo {
         }
         
         return all3D;
+    }
+
+    extend private Primitive3D getPoweredCable3D(line flowline){
+        Awe3D prims();
+
+        if (flowline.length > 5inch) {
+            Arrow3D arrow(flowline.p0, flowline.p1, 0.7inch, this.lineThickness, 1.5inch);
+            prims << arrow;
+        }
+        else {
+            Cylinder3D l(flowline.p0, flowline.p1, this.lineThickness);
+            prims << l;
+        }
+
+        return prims;
     }
 
     extend public AweElectricalCluster clusterAt(point p) {
@@ -153,13 +247,13 @@ public class AweElectricalClusterInfo {
 
         //loose cables out there, no infeed
         for(cable in map.allCables) {
-            if(cable.active and !pointsToClusters.get(cable.spaceLine.v.p0.toS) and !pointsToClusters.get(cable.spaceLine.v.p1.toS)) {
+            if((cable.active or forRouting) and !pointsToClusters.get(cable.spaceLine.v.p0.toS) and !pointsToClusters.get(cable.spaceLine.v.p1.toS)) {
                 orphanCables << cable;
             }
         }
     }
 
-    extend private void identifyAndAddInfeedCluster(AweElectricalCluster[] clusters, AweElectricalInfeedPoint infeed, point[] visitedPoints, str->AweElectricalCableLine[] pointLineIndex) {
+    extend private void identifyAndAddInfeedCluster(AweElectricalCluster[] clusters, AweElectricalInfeedPoint infeed, point[] visitedPoints, PointToElectricalCableArrayIndex pointLineIndex) {
         point p = infeed.spacePoint.v;
 
         //aready in someone else's cluster?
@@ -194,10 +288,9 @@ public class AweElectricalClusterInfo {
 
     }
 
-    extend private AweElectricalCableLine[] identifyCluster(point p, point[] visitedPoints, str->AweElectricalCableLine[] pointLineIndex, AweElectricalCableLine[] visitedLines=new AweElectricalCableLine[]()) {
+    extend private AweElectricalCableLine[] identifyCluster(point p, point[] visitedPoints, PointToElectricalCableArrayIndex pointLineIndex, AweElectricalCableLine[] visitedLines=new AweElectricalCableLine[]()) {
 
-        str pointStr = p.toS;
-        var lines = pointLineIndex.get(pointStr);
+        var lines = pointLineIndex.get(p);
         for(l in lines) {
             if(l !in visitedLines) {
                 visitedLines << l;
@@ -211,22 +304,22 @@ public class AweElectricalClusterInfo {
         return visitedLines;
     }
 
-    extend private str->AweElectricalCableLine[] indexPointsToLines(AweElectricalCableLine[] cables) {
+    extend private PointToElectricalCableArrayIndex indexPointsToLines(AweElectricalCableLine[] cables) {
 
-        str->AweElectricalCableLine[] pointLineIndex();
+        PointToElectricalCableArrayIndex pointLineIndex();
 
         for(cable in cables) {
-            str pointStr = cable.spaceLine.v.p0.toS;
-            if(!pointLineIndex.get(pointStr)) {
-                pointLineIndex.put(pointStr, new AweElectricalCableLine[]());
+            point p0 = cable.spaceLine.v.p0;
+            if(!pointLineIndex.get(p0)) {
+                pointLineIndex.put(p0, new AweElectricalCableLine[]());
             }
-            pointLineIndex.get(pointStr) << cable;
+            pointLineIndex.get(p0) << cable;
 
-            pointStr = cable.spaceLine.v.p1.toS;
-            if(!pointLineIndex.get(pointStr)) {
-                pointLineIndex.put(pointStr, new AweElectricalCableLine[]());
+            point p1 = cable.spaceLine.v.p1;
+            if(!pointLineIndex.get(p1)) {
+                pointLineIndex.put(p1, new AweElectricalCableLine[]());
             }
-            pointLineIndex.get(pointStr) << cable;
+            pointLineIndex.get(p1) << cable;
         }
 
         return pointLineIndex;
@@ -234,13 +327,15 @@ public class AweElectricalClusterInfo {
 }
 
 public Primitive3D infeedGeometry(AweElectricalInfeedPoint infeed) {
+    point tip = infeed.spacePoint.v;
+    point origin = tip - point(infeed.spaceOrientation, 3inch);
 
-    //cone
-    point origin = infeed.spacePoint.v;
-    point tip = origin + point(infeed.spaceOrientation, 3inch);
-    Cone3D cone(origin, tip, 2inch, 0);
-    cone.doubleSided = true;
+    Arrow3D arrow(origin, tip, 1.5inch, 0.75inch, 1.5inch);
     
-    return cone;
-
+    return arrow;
 }
+
+public alias AweElectricalCableArray = AweElectricalCableLine[];
+public alias AweElectricalComponentArray = AweElectricalComponent[];
+public awePointIndex PointToElectricalCableArrayIndex for AweElectricalCableArray { }
+public awePointIndex PointToElectricalComponentArrayIndex for AweElectricalComponentArray { }

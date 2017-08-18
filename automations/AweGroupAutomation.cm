@@ -34,35 +34,18 @@
    END OF CETSC
 */
 
-package custom.awesome.electrical;
+package custom.awesome.automations;
 
-public class AweElectricalAnimationMode {
-    public AweElectricalAnimation animation;
+public class AweGroupAutomation {
 
-    public constructor(AweElectricalAnimation animation) {
-        this.animation = animation;
-    }   
-
-    extend public point{} clickablePoints() {
-        return null;
-    } 
-
-    extend public void clicked(point p) {
-
-    }
-
-    extend public void hoveredPointChanged(Point target) {
+    public constructor() {
+    }  
+    
+    extend public void run(AweObject{} group) {
         
     }
 
-    extend public Primitive3D get3D() {
-        return null;
-    }
-
-    extend public sorted str->AweObject subConfigurators() {
-        return null;
-    }
-
-    extend public void configuratorChanged() {
+    extend public str id() {
+        return this.class.name;
     }
 }

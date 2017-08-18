@@ -48,6 +48,9 @@ public class AweObject {
     public str _galleryId;
     public str _label;
 
+    //used to expose multiple aweObjects at once in quick properties
+    public str _uniqueQuickPropertyId;
+
     public constructor() {
         this.init();
     }
@@ -378,13 +381,16 @@ public class AweObject {
 
     extend public void invalidate() {
         for(s in snappers) {
-            if(s as AweSnapper) {
-                s.refresh(true, true);
-            } else if(s) {
-                s.invalidate();
+            if(s and s.isAlive) {
+                if(s as AweSnapper) {
+                    s.refresh(true, true);
+                } else if(s) {
+                    s.invalidate();
+                }
+            } else {
+                this.snappers.remove(s);
             }
         }
-        snappers.clear();
     }
 
     extend public void appendSnapper(Snapper s) {
@@ -410,17 +416,35 @@ public class AweObject {
 
     }
 
+    extend public AweObject{} directlyConnectedModels() {
+        AweObject{} connected();
+        for(connector in this.getConnectors(null)) {
+            for(attach in connector.connections) {
+                var model = attach.getModel();
+                if(model) {
+                    connected << model;
+                }
+            }
+        }
+        return connected;
+    }
+
+    extend public bool is(Type t) {
+        Type thisType = this.class;
+        return thisType.isAssignableTo(t);
+    }
+
     /************** exposing connectors ***************/
-    extend public Connector{} getConnectors(Snapper snapper) {
+    extend public Connector{} getConnectors(Snapper snapper=null) {
         Connector{} connectors();
         for(set in connectorSets) if(set.active()) {
             if(!set.connectorCache) {
+                if(!snapper) continue;
                 set.connectorCache = new AweConnectorCache(snapper);
             }
             set.connectorCache.clearBuffer();
             set.connectors(set.connectorCache);
             for(c in set.connectorCache.buffer) {
-                c.setRule(ctAlways);
                 c.setConnectorSet(set);
                 c.setModel(this);
                 connectors << c;
@@ -450,6 +474,12 @@ public class AweObject {
         }
         return sets;
     }
+
+    /************* automations ***************/
+    extend public AweGroupAutomation[] getGroupAutomations() {
+        return null;
+    }
+
 }
 
 public definition @visibility aweObject @name=id @parentClass=["extends" type]? '{'  @props=["props" formalArgList ';']? @members=[classMember]* '}' {
@@ -579,7 +609,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                             props.append(customQuickProperty.QuickProperty);
                         }
                         else {
-                            props.append(@propNameStr, @labelName, distance(@propName), @domainName);
+                            props.append(this._uniqueQuickPropertyId # @propNameStr, @labelName, distance(@propName), @domainName);
                         }
                     }
                 }
@@ -594,7 +624,19 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                             // props.append(customQuickProperty.QuickProperty);
                         }
                         else {
-                            props.append2(@propNameStr, @labelName, distance(@propName), @domainName, lockable=false);
+                            props.append2(this._uniqueQuickPropertyId # @propNameStr, @labelName, distance(@propName), @domainName, lockable=false);
+                        }
+                    }
+                }
+            };
+
+            applyFrom << statement {
+                if (@domainName and @visibleName) {
+                    if (Object value = source.get(@propNameStr)) {
+                        // aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, distance(@propName));
+                        
+                        if (@domainName.contains(value)) {
+                            this.@propName = value.@propType;
                         }
                     }
                 }
@@ -610,7 +652,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                             props.append(customQuickProperty.QuickProperty);
                         }
                         else {
-                            props.append(@propNameStr, @labelName, @propName, @domainName);
+                            props.append(this._uniqueQuickPropertyId # @propNameStr, @labelName, @propName, @domainName);
                         }
                     }
                 }
@@ -625,7 +667,19 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                             // props.append(customQuickProperty.QuickProperty);
                         }
                         else {
-                            props.append2(@propNameStr, @labelName, @propName, @domainName, lockable=false);
+                            props.append2(this._uniqueQuickPropertyId # @propNameStr, @labelName, @propName, @domainName, lockable=false);
+                        }
+                    }
+                }
+            };
+
+            applyFrom << statement {
+                if (@domainName and @visibleName) {
+                    if (Object value = source.get(@propNameStr)) {
+                        aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, @propName);
+                        
+                        if (@domainName.contains(value)) {
+                            this.@propName = value.@propType;
                         }
                     }
                 }
@@ -633,30 +687,16 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         }
         
         quickPropertiesChanged << statement {
-            if (key == @propNameStr) {
+            if (key == this._uniqueQuickPropertyId # @propNameStr) {
                 this.@propName = value.@propType;
                 return true;
             }
         };
 
         animationPropertiesChanged << statement {
-            if (key == @propNameStr) {
+            if (key == this._uniqueQuickPropertyId # @propNameStr) {
                 this.@propName = value.@propType;
             }
-        };
-
-        applyFrom << statement {
-            // if (@domainName and @visibleName) {
-            //     if (Object value = source.get(@propNameStr)) {
-            //         if (value as @propType) {
-            //             aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, @propName);
-                        
-            //             if (@domainName.contains(value)) {
-            //                 this.@propName = value;
-            //             }
-            //         }
-            //     }
-            // }
         };
     }
 
@@ -686,7 +726,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         }
 
         @visibility void applyFrom(AweObject source) {
-            if (this.class == source.class) {
+            if (this.is(source.class)) {
                 super(..);
                 @applyFrom;
             }

@@ -44,21 +44,68 @@ public class AweElectricalCluster {
     public constructor() {
     }   
 
-    extend public point{} allVertices() {
+    extend public point{} allVertices(bool clickableOnly=false) {
         point{} allVertices();
-        for(l in spaceLines()) {
-            allVertices << l.p0;
-            allVertices << l.p1;
+        for(l in spaceLines(clickableOnly)) {
+            if (l.clickableP0) allVertices << l.p0;
+            if (l.clickableP1) allVertices << l.p1;
         }
 
         return allVertices;
     }
 
-    extend public line[] spaceLines() {
-        line[] lines();
-        for(c in cables) {
-            lines << c.spaceLine.v;
+    extend private AweElectricalLine[] spaceLines(bool clickableOnly=false) {
+        AweElectricalLine[] lines();
+
+        AweElectricalCableLine[] allCables();
+        
+        allCables +=? cables;
+
+        for (infeed in infeeds) {
+            allCables +=? infeed.cables;
         }
+
+        for(c in allCables) if (!clickableOnly or c.clickable) {
+            lines << AweElectricalLine(c.spaceLine.v, c.clickableP0, c.clickableP1);
+        }
+        
         return lines;
+    }
+
+    extend public WeightedLine[] weightedSpaceLines(bool clickableOnly=false) {
+        WeightedLine[] lines();
+
+        AweElectricalCableLine[] allCables();
+        
+        allCables +=? cables;
+
+        for (infeed in infeeds) {
+            allCables +=? infeed.cables;
+        }
+
+        for(c in allCables) if (!clickableOnly or c.clickable) {
+            lines << WeightedLine( c.spaceLine.v, c.weight );
+        }
+        
+        return lines;
+    }
+}
+
+private class AweElectricalLine extends Line {
+    public bool clickableP0;
+    public bool clickableP1;
+
+    public constructor(line l, bool clickableP0=true, bool clickableP1=true) {
+        set*(this: clickableP0, clickableP1);
+
+        super(l);
+    }
+
+    extend public point p0() {
+        return this.v.p0;
+    }
+
+    extend public point p1() {
+        return this.v.p1;
     }
 }

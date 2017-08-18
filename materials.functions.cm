@@ -46,6 +46,18 @@ public DualMaterial3D electricalMaterial() {
     return _electricalMaterial;
 }
 
+public Material3D getMaterialWithElectrical( Material3D material ) {
+    MaterialSelector3D selector();
+
+    selector << option3D(electricalMaterial, #electrical);
+    selector << option3D(material, #normal);
+    // selector << option3D(material, #normal);
+
+    selector.finalizeSelector();
+    
+    return selector;
+}
+
 public Material3D applyViewLayers(Material material) {
     return material.material3D().applyViewLayers();
 }

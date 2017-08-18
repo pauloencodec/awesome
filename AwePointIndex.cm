@@ -1,0 +1,112 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome;
+
+use cm.syntax;
+
+//makes it possible to have something similar to a point->something dictionary
+public class AwePointIndex {
+
+    //number of decimal digits to round to while creating the grid. 
+    //the smaller the number here, the bigger the tolerance that will cause two slighly different points to be considered the same.
+    //example: 1 for 0.1m, 2 for 0.01m
+    public int decimalPrecision = 5;
+
+    public str->Object index();
+    public constructor() {
+    }   
+
+    extend public str pointToKey(point p) {
+        return digitalize(p).toS;
+    }
+
+    extend public void putObj(point p, Object o) {
+        index.put(pointToKey(p), o);
+    }
+
+    extend public Object getObj(point p) {
+        return index.get(pointToKey(p));
+    }
+
+    //forces points into a 3d grid to avoid different keys for points that are very close. sometimes small precision differences emerge from converting toSpace and toSnapper.
+    extend public point digitalize(point p) {
+
+        p.x = round(p.x, decimalPrecision);
+        p.y = round(p.y, decimalPrecision);
+        p.z = round(p.z, decimalPrecision);
+
+        /**
+         * dealing with ~0
+         */
+        if (p.x == 0) p.x = 0;
+        if (p.y == 0) p.y = 0;
+        if (p.z == 0) p.z = 0;
+
+        return p;
+    }
+}
+
+public definition @visibility awePointIndex @name=id "for" @t=type '{' @members=[classMember]* '}' {
+
+    SMembers membersBundle(noSrcRef);
+    for(m in members) {
+        membersBundle << m;
+    }
+
+    definition {
+        @visibility class @name extends AwePointIndex {
+            @membersBundle;
+
+            extend @visibility void put(point p, @t value) {
+                this.putObj(p, value);
+            }
+
+            extend @visibility @t get(point p) {
+                return this.getObj(p).@t;
+            }
+        }
+    };
+}
+
+public awePointIndex PointToStrIndex for str {
+}
+
+{
+    PointToStrIndex x();
+    x.put((0,1,1), "Jao");
+    pln(#x.get((0,1,1)));
+}

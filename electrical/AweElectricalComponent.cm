@@ -36,33 +36,21 @@
 
 package custom.awesome.electrical;
 
-public class AweElectricalAnimationMode {
-    public AweElectricalAnimation animation;
+public class AweElectricalComponent : abstract {
+    public constructor() {} 
 
-    public constructor(AweElectricalAnimation animation) {
-        this.animation = animation;
-    }   
+    public AweElectricalComponent upstream;
+    public AweElectricalComponent{} downstream();
 
-    extend public point{} clickablePoints() {
-        return null;
-    } 
-
-    extend public void clicked(point p) {
-
+    public AweNotifyProp bool active {
+        this.activeChanged();
+    }
+    
+    extend public void resetStreamInfo() {
+        this.upstream = null;
+        this.downstream = new AweElectricalComponent{} ();
     }
 
-    extend public void hoveredPointChanged(Point target) {
-        
-    }
-
-    extend public Primitive3D get3D() {
-        return null;
-    }
-
-    extend public sorted str->AweObject subConfigurators() {
-        return null;
-    }
-
-    extend public void configuratorChanged() {
-    }
+    //in space coordinates
+    extend public point[] vertices() : abstract { }
 }

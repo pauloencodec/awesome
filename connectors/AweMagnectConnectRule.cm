@@ -34,35 +34,12 @@
    END OF CETSC
 */
 
-package custom.awesome.electrical;
+package custom.awesome.connectors;
 
-public class AweElectricalAnimationMode {
-    public AweElectricalAnimation animation;
-
-    public constructor(AweElectricalAnimation animation) {
-        this.animation = animation;
-    }   
-
-    extend public point{} clickablePoints() {
-        return null;
-    } 
-
-    extend public void clicked(point p) {
-
-    }
-
-    extend public void hoveredPointChanged(Point target) {
-        
-    }
-
-    extend public Primitive3D get3D() {
-        return null;
-    }
-
-    extend public sorted str->AweObject subConfigurators() {
-        return null;
-    }
-
-    extend public void configuratorChanged() {
-    }
+public class MagneticConnectType extends ConnectType { }
+public ConnectRule magneticRule;
+public ConnectRule magneticConnectRule;
+init { 
+    magneticRule = makeConnectRule("magneticRule", MagneticConnectType);
+    magneticConnectRule = LightMultiConnectRule("magneticConnectRule", [magneticRule, magneticRule]).register();
 }
