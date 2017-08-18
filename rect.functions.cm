@@ -44,3 +44,11 @@ public rect orientBy(rect r, line2D l) {
     b.move(l.p0.point); 
     return b.rect;
 }
+
+public double intersectionPercentage(box a, box b) {
+    if (!a.intersects(b)) return 0;
+
+    var intersection = a * b;
+    
+    return intersection.volume() / a.volume();
+} 

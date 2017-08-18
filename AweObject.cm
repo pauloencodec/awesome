@@ -63,7 +63,7 @@ public class AweObject {
         return this._label ? this._label : super();
     }
 
-    extend public void applyFrom(AweObject source) {
+    extend public void applyFrom(AweObject source, str{} ignore=null) {
     }
 
     extend public void applyFrom(AweObject source, str optionName) {
@@ -81,6 +81,12 @@ public class AweObject {
         Object oldValue = get(propName);
         this.props.put(propName, value);
         propChanged(propName, oldValue, value);
+
+        for (AweSnapper snapper in this.snappers) {
+            if (snapper.mainModel() == this) {
+                snapper.onModelPropertyChanged(propName, oldValue, value);
+            }
+        }
     }
             
     extend public void propChanged(str propName, Object oldValue, Object newValue) {
@@ -379,6 +385,10 @@ public class AweObject {
     /************* snappers reference and invalidation ***********/
     public Snapper{} snappers : copy=null, stream=null;
 
+    extend public Snapper mainSnapper() {
+        return this.snappers.?get();
+    }
+
     extend public void invalidate() {
         for(s in snappers) {
             if(s and s.isAlive) {
@@ -631,7 +641,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
             };
 
             applyFrom << statement {
-                if (@domainName and @visibleName) {
+                if (@domainName and @visibleName and @propNameStr !in ignore) {
                     if (Object value = source.get(@propNameStr)) {
                         // aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, distance(@propName));
                         
@@ -674,7 +684,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
             };
 
             applyFrom << statement {
-                if (@domainName and @visibleName) {
+                if (@domainName and @visibleName and @propNameStr !in ignore) {
                     if (Object value = source.get(@propNameStr)) {
                         aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, @propName);
                         
@@ -725,7 +735,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
             @animationPropertiesChanged;
         }
 
-        @visibility void applyFrom(AweObject source) {
+        @visibility void applyFrom(AweObject source, str{} ignore=null) {
             if (this.is(source.class)) {
                 super(..);
                 @applyFrom;
