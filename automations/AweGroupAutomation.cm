@@ -37,17 +37,23 @@
 package custom.awesome.automations;
 
 public class AweGroupAutomation {
-
-    public constructor() {
-    }  
+    public int priority = 0;
     
-    extend public void run(AweObject{} group) {
-        
+    public constructor(int priority=0) {
+        this.priority = priority;
+    }
+    
+    extend public void run(AweGroupAutomationTrigger trigger, AweObject{} group, AweObject caller) {
     }
 
-    extend public AweSnapper{} run(AweObject{} group, AweObject trigger, AweAutomationPropertyCloner cloner) {
-        run(group);
+    extend public AweSnapper{} run(AweGroupAutomationTrigger trigger, AweObject{} group, AweObject caller, AweAutomationPropertyCloner cloner) {
+        this.run(trigger, group, caller);
+        
         return null;
+    }
+
+    extend public bool shouldRun(AweGroupAutomationTrigger trigger) {
+        return false;
     }
 
     extend public str id() {

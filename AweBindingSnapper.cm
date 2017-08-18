@@ -56,9 +56,10 @@ public class AweBindingSnapper extends AweSnapper : abstract {
     }
      
     public constructor() {
-        super(..);
         this.root = this.initRoot();
         this.activeConfigurator = root;
+        
+        super(..);
     }
 
     public void refresh(bool updateConnectors=false, bool tryAlignAllSnapped=false) {
@@ -164,6 +165,7 @@ public class AweBindingSnapper extends AweSnapper : abstract {
                 all << prim;
             }
         }
+        
         return all;
     }   
 
@@ -197,6 +199,12 @@ public class AweBindingSnapper extends AweSnapper : abstract {
             return new AweBindingSnapperPickSurfaceClickAnimation(env, this);
         }
 
+        return super(..);
+    }
+
+    public Object loaded0(ObjectFormatter formatter, LoadFailInfo failInfo) {
+        this.appendSelfToModels();
+        
         return super(..);
     }
 }

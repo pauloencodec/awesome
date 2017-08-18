@@ -37,12 +37,13 @@
 package custom.awesome.automations;
 
 public class AweAutomationBoxToModelMapItem {
-
-    public box bound;
+    public AweSnapper snapper;
     public AweObject model;
+    public box bound;
 
-    public constructor(box bound, AweObject model) {
-        this.bound = bound;
-        this.model = model;
+    public constructor(AweSnapper snapper) {
+        this.snapper = snapper;
+        this.model = snapper.mainModel();
+        this.bound = snapper.bound();
     }   
 }

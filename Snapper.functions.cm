@@ -52,6 +52,77 @@ public void moveToFloor(Snapper s, bool moveGroup=true, bool invalidate=true) {
 
     for (snapper in snappers) {
         snapper.move((0, 0, -bottomZ));
-        snapper.invalidate();
+
+        if (invalidate) {
+            snapper.invalidate();
+        }
+    }
+}
+
+public AweObject getModel(Snapper s) {
+    if (s as AweSnapper) {
+        return s.mainModel();
+    }
+
+    return null;
+}
+
+public aweEnum ConnectLinePosition (
+    p0 = <"p0", "p0">,
+    mid = <"mid", "mid">,
+    p1 = <"p1", "p1">
+);
+
+//source: source snapper connector
+//target: other snapper connector
+public void snapAndConnect(Snapper snapper, Connector source, Connector target, ConnectLinePosition position=ConnectLinePosition.mid) {
+    snapper.doSnap(source, target, line());
+
+    var sourceLine = source.ConnectLine;
+    var targetLine = target.ConnectLine;
+
+    if (sourceLine and targetLine) {
+        var s = sourceLine.spaceLine();
+        var t = targetLine.spaceLine();
+
+        if (position == ConnectLinePosition.mid) {
+            vector v = t.midPoint() - s.midPoint();
+
+            snapper.move(v);
+        }
+        else {
+            vector{} vectors();
+    
+            if (position != ConnectLinePosition.p1) {
+                vectors << t.p0 - s.p0;
+                vectors << t.p0 - s.p1;
+            }
+
+            if (position != ConnectLinePosition.p0) {
+                vectors << t.p1 - s.p0;
+                vectors << t.p1 - s.p1;
+            }
+    
+            for (v in vectors) {
+                var movedSource = line(s.p0, s.p1).moved(v);
+                
+                if (t.curveContains(movedSource.p0) and t.curveContains(movedSource.p1)) {
+                    snapper.move(v);
+                    break;
+                }
+            }
+        }
+    }
+
+    snapper.connect(source, target, undoable=false);
+}
+
+public void remove(Space space, AweObject model) {
+    if (space and model) {
+        var snapper = model.mainSnapper();
+    
+        if (snapper in space) {
+            space.remove(snapper);
+        }
     }
 }

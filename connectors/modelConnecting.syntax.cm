@@ -46,8 +46,13 @@ public member @visibility modelConnecting ';' {
 
         @visibility AweMagnet{} magnets;
 
+        @visibility bool passive;
+
         public bool connect(Connector c, bool oneway=false) {
+            this.passive = oneway;
+            
             var success = super(..);
+            
             if(success) {
                 AweObject thisModel = this.getModel();
                 AweObject otherModel = c.getModel();
