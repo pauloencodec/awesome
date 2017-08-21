@@ -34,21 +34,46 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package custom.awesome.automations;
 
-public rect orientBy(rect r, line2D l) {
-    orientation o = l.orientation();
-    box b(r, 0, 1);
-    b.rotate(o);
-    b.move((0,0,0));
-    b.move(l.p0.point); 
-    return b.rect;
+//compares new set of AweSnappers with the previous set and clones properties of things it deems the same
+public class AweAutomationPropertyCloner {
+    public AweAutomationBoxToModelMapItem{} oldGen;
+
+    public constructor(AweAutomationBoxToModelMapItem{} oldGen) {
+        this.oldGen = oldGen;
+    }   
+
+    extend public AweSnapper bestMatch(AweSnapper newOne) {
+        //80% threshold? 
+        var threshold = 0.8;
+        var siblings = mainSpace().get(new GeometricBoxFinder(newOne.bound().grown(2m)));
+
+        for (AweSnapper snapper in siblings) {
+            var likelihood = compare(new AweAutomationBoxToModelMapItem(snapper), newOne);
+            
+            if (likelihood >= threshold) {
+                return snapper;
+            }
+        }
+
+        //poor thing found no match
+        return null;
+    }
+
+    //returns the percentage likelihood of being the same thing. 1 = 100%
+    extend private double compare(AweAutomationBoxToModelMapItem oldOne, AweSnapper newOne) {
+        if (oldOne.model.?class != newOne.mainModel().?class) return 0;
+
+        var newBox = newOne.bound();
+
+        //preventing division by 0 down the road
+        var newBoxVolume = newBox.volume();
+        
+        if (newBoxVolume <= 0) {
+            return 0;
+        }
+
+        return oldOne.bound.intersectionPercentage(newBox);
+    }
 }
-
-public double intersectionPercentage(box a, box b) {
-    if (!a.intersects(b)) return 0;
-
-    var intersection = a * b;
-    
-    return intersection.volume() / a.volume();
-} 

@@ -34,21 +34,16 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package custom.awesome.automations;
 
-public rect orientBy(rect r, line2D l) {
-    orientation o = l.orientation();
-    box b(r, 0, 1);
-    b.rotate(o);
-    b.move((0,0,0));
-    b.move(l.p0.point); 
-    return b.rect;
+public class AweAutomationBoxToModelMapItem {
+    public AweSnapper snapper;
+    public AweObject model;
+    public box bound;
+
+    public constructor(AweSnapper snapper) {
+        this.snapper = snapper;
+        this.model = snapper.mainModel();
+        this.bound = snapper.bound();
+    }   
 }
-
-public double intersectionPercentage(box a, box b) {
-    if (!a.intersects(b)) return 0;
-
-    var intersection = a * b;
-    
-    return intersection.volume() / a.volume();
-} 
