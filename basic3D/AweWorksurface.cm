@@ -46,7 +46,7 @@ public class AweWorksurface {
     public AShape2D[] holes();
     public double height;
 
-    public angle arcResolution = 10deg;
+    private angle arcResolution = 10deg;
 
     public constructor(APath2D profile, AwePath2D outline, double height = 0) {
         this.profile = profile;
