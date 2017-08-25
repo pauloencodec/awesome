@@ -67,9 +67,9 @@ public class AweExtrusion {
         return prim;
     }
 
-    extend public Primitive3D vertical(double position, double length, double height, angle normal=0deg) {
+    extend public Primitive3D vertical(double position, double length, double height, angle normal=0deg, bool closeStart = true, bool closeEnd = true) {
         line2D l((length, 0));
-        Primitive3D prim = horizontal(l, 0);
+        Primitive3D prim = horizontal(l, 0, closeStart = closeStart, closeEnd = closeEnd);
         point start = (position, 0, height);
         //stand on end
         prim.rotate((0, 1, 0), -90deg);
