@@ -41,6 +41,23 @@ public class AweElectricalComponent : abstract {
 
     public AweElectricalComponent upstream;
     public AweElectricalComponent{} downstream();
+    
+    extend public AweElectricalComponent root() {
+        var root = this.upstream;
+        
+        if (!root) return this;
+
+        AweElectricalComponent{} visited();
+
+        while (root.upstream) {
+            if (root.upstream in visited) break;
+
+            visited << root.upstream;
+            root = root.upstream;
+        }
+
+        return root;
+    }
 
     public AweNotifyProp bool active {
         this.activeChanged();
