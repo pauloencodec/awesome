@@ -34,21 +34,56 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package custom.awesome.ui;
 
-public rect orientBy(rect r, line2D l) {
-    orientation o = l.orientation();
-    box b(r, 0, 1);
-    b.rotate(o);
-    b.move((0,0,0));
-    b.move(l.p0.point); 
-    return b.rect;
+public class AweVoidCallbackLimb extends LibraryLimb {
+    public function() callback=null;
+    
+    public constructor(
+        LibraryLimb parent,
+        function() callback,
+        symbol pkg=null,
+        str key=null,
+        Image image=null,
+        str label=null,
+        str toolTipText=null) {
+
+        if (!key) {
+            key = cm.os.createGUID();
+        }
+        
+        super(parent, pkg, key, image=image, label="", toolTipText=toolTipText);
+
+        this.callback = callback;
+    }
+
+    public Window build(Window w) {
+        var button = new AweVoidCallbackButton(w, this.callback, label=this.label, image=image, frameStyle=toolboxButtonFrameStyle);
+
+        button.key = this.key;
+        button.setToolTipText(this.toolTipText ?? this.label);
+
+        return button;
+    }
 }
 
-public double intersectionPercentage(box a, box b) {
-    if (!a.intersects(b)) return 0;
+public class AweVoidCallbackButton extends Button {
+    public function() callback=null;
 
-    var intersection = a * b;
-    
-    return intersection.volume() / a.volume();
-} 
+    public constructor(Window parent, function() callback, FrameStyle frameStyle=pushButtonFrame, str label=null, Image image=null, alignment textSide=alignment.down) {
+        super(parent, frameStyle=frameStyle, label=label, image=image, textSide=textSide, margins=(2, 2));
+
+        this.callback = callback;
+        this.pressCb = function onButtonClick;
+    }
+}
+
+private void onButtonClick(Control control) {
+    if (control as AweVoidCallbackButton) {
+        control.callback();
+    }
+}
+
+public void add(LibraryLimb container, function() callback, Image image, str tooltip) {
+    new AweVoidCallbackLimb(container, callback, image=image, toolTipText=tooltip);
+}

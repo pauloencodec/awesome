@@ -34,21 +34,29 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package custom.awesome.automations;
 
-public rect orientBy(rect r, line2D l) {
-    orientation o = l.orientation();
-    box b(r, 0, 1);
-    b.rotate(o);
-    b.move((0,0,0));
-    b.move(l.p0.point); 
-    return b.rect;
-}
-
-public double intersectionPercentage(box a, box b) {
-    if (!a.intersects(b)) return 0;
-
-    var intersection = a * b;
+public class AweGroupAutomation {
+    public int priority = 0;
     
-    return intersection.volume() / a.volume();
-} 
+    public constructor(int priority=0) {
+        this.priority = priority;
+    }
+    
+    extend public void run(AweGroupAutomationTrigger trigger, AweObject{} group, AweObject caller) {
+    }
+
+    extend public AweSnapper{} run(AweGroupAutomationTrigger trigger, AweObject{} group, AweObject caller, AweAutomationPropertyCloner cloner) {
+        this.run(trigger, group, caller);
+        
+        return null;
+    }
+
+    extend public bool shouldRun(AweGroupAutomationTrigger trigger) {
+        return false;
+    }
+
+    extend public str id() {
+        return this.class.name;
+    }
+}

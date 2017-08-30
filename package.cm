@@ -36,6 +36,7 @@
 package custom.awesome : 8.0.0;
 
 use custom.awesome.product;
+use custom.awesome.automations;
 
 use cm.abstract.surface;
 
