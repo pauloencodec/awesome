@@ -34,12 +34,12 @@
    END OF CETSC
 */
 
-package custom.awesome.io;
+package custom.awesome.schemes;
 
-use cm.format.prc;
-use cm.io;
-use cm.io.util;
-use cm.basic;
-use cm.format.json;
+use custom.awesome;
+use custom.awesome.materials;
+use custom.awesome.product;
 use cm.core;
-use cm.runtime;
+use cm.geometry;
+use cm.geometry2D.advanced;
+use cm.core3D;

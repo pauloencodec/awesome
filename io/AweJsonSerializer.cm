@@ -1,0 +1,271 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.io;
+
+public class AweJsonSerializer {
+    public constructor() {
+    }
+
+    extend public JsonNode toJson(Object o, Field[] fields = null, bool boxed = false){
+        if (!o) return null;
+
+        JsonObject json();
+
+        fields = fields != null ? fields : o.class.fields(super=true);
+
+        for (f in fields) if (publicReadable(f)) {
+            str name = f.name;
+            Object value = getValue(o, f, boxed);
+
+            if (f.type == str) {
+                json.put(name, value.str);
+            }
+            else if (f.type == double) { 
+                json.put(name, value.double);
+            }
+            else if (f.type == bool) {
+                json.put(name, value.bool);
+            }
+            else if (f.type == int) {
+                json.put(name, value.int);
+            }
+            else if ((value != null) and value.class.isBoxClass) {
+                if (f.type.isEnum) {
+                    json.put(name, value.toS);
+                }
+                else {
+                    json.put(name, toJson(value, f.type.Value.fields, boxed=true));
+                }
+            }
+            else if (value as Seq) {
+                JsonArray items();
+                
+                for (i in value) {
+                    items << toJson(i);
+                }
+                
+                json.put(name, items);
+            }
+            else if ((value != null) and value.class.isClass) {
+                json.put(name, toJson(value));
+            }
+            else if (value != null) {
+                pln("The type '" # f.type.?name # "' is not supported yet.");
+                return null;
+            }
+        }
+
+        if ( o as str ) {
+            return JsonString(o);
+        }
+
+        return json;
+    }
+
+    extend public void populateFromJson(JsonObject json, Object instance){
+        if(instance == null){
+            pln("Instance to be filled can't be null");
+            return;
+        }
+        fromJson(json, instance.class, instance);
+    }
+
+    extend public Object fromJson(JsonObject json, Class target, 
+        Object instance = null, Field[] fields = null) {
+
+        Constructor targetConstructor;
+
+        if (!target.isBoxClass and !instance) {
+            instance = target.new();
+        }
+
+        fields = fields != null ? fields : target.fields;
+
+        for (p in fields) if (json.?values.?contains(p.name)) {
+            Object extractedValue;
+            JsonNode nodeValue = json.get(p.name);
+
+            if (nodeValue as JsonNumber) {
+                if (p.type == double) {
+                    extractedValue = nodeValue.double;
+                }
+                else if (p.type == int) {
+                    extractedValue = nodeValue.int;
+                }
+             }
+             else if (nodeValue as JsonString) {
+                if (p.type.isEnum) {
+                    extractedValue = p.type.Enum.get(nodeValue.str);
+                }
+                else {
+                    extractedValue = nodeValue.str;
+                }
+            }
+            else if (nodeValue as JsonBoolean) {
+                extractedValue = nodeValue.bool;
+            }
+            else if (nodeValue as JsonArray) {
+                if (nodeValue.count > 0) {
+                    if (availSeqType(p.type)) {
+                        Type elementType = p.type.elementType();
+                        Class collectionClass = instantiateSeq(elementType);
+                        Seq collection = collectionClass.new().Seq;
+
+                        collection.init(nodeValue.data.count);
+
+                        int i = 0;
+                        
+                        for (item in nodeValue.data) {
+                            JsonObject innerJson = item.asObject();
+                            Class elementClassInfo;
+                            Object defaultValue;
+                            
+                            if (elementType.boxClass) {
+                                elementClassInfo = elementType.boxClass;
+                                
+                                Object result = fromJson(innerJson, elementClassInfo, defaultValue);
+                                
+                                collection.putGeneric(i++, result);
+                            }
+                            else {
+                                Class elementClassInfo = class(elementType.pkg, elementType.name);
+                                
+                                defaultValue = elementClassInfo.new();
+                                
+                                Object result = fromJson(innerJson, elementClassInfo, defaultValue);
+                                
+                                collection.putGeneric(i++, result);
+                            }
+                        }
+
+                        extractedValue = collection;
+                    }
+                }
+            }
+            else if (nodeValue as JsonObject) {
+                Type propertyType = p.type;
+                
+                Class boxClass = propertyType.boxClass;
+
+                if (propertyType.isBoxClass or boxClass) {
+                    extractedValue = fromJson(nodeValue, boxClass, boxClass.new, propertyType.Value.fields);
+                }
+                else {
+                    Class _class = class(p.type.pkg, p.type.name);
+                    Object objInstance = _class.new;
+
+                    if (!objInstance) {
+                        bug("Could not create an instance - " # #p);
+                    }
+
+                    extractedValue = fromJson(nodeValue, _class, objInstance);
+                }
+
+            }
+            else if (nodeValue != null) {
+                pln("The type '" # nodeValue.?class.?name # "' is not supported yet as a Json Node type.");
+                return null;
+            }
+
+            if (instance) {
+                if (instance.class.isBoxClass) {
+                    instance = boxValue(instance, p.name, extractedValue);
+                }
+                else {
+                    instance.set(p, extractedValue);
+                }
+            }
+            else {
+                return extractedValue;
+            }
+        }
+
+        return instance;
+    }
+
+    extend public Object getValue(Object object, Field field, bool boxed = false) {
+        if (object != null) {
+            if (boxed) {
+                return unboxValue(object, field.name);
+            }
+            return object.get(field);
+        }
+
+        return null;
+    }
+
+    extend public Object unboxValue(Object object, str fieldName) {
+        StrBuf b();
+
+        // b << "use " << substringAfter(object.class.pkg.toS, "#") << "; \n";
+        b << "package " << substringAfter(object.class.pkg.toS, "#") << ";";
+        b << "public Object _temp_fun(Object field) { return field."
+         << object.class <<  ".v." << fieldName << "; }";
+        
+        if (Function f = compileFun(b)) {
+            return (f.:function(Object):Object)(object);
+        }
+        
+        return null;
+    }
+
+    extend public Object boxValue(Object object, str fieldName, Object value) {
+        StrBuf b();
+
+        b << "package " << substringAfter(object.class.pkg.toS, "#") << "; \n";
+        b << "public Object _temp_fun(Object obj, Object val) { obj." << 
+            object.class << ".v." << fieldName << " = " << 
+            "val." << value.class.boxValueField.type.name << "; return obj; }";
+
+        if (Function f = compileFun(b)) {
+            return (f.:function(Object, Object):Object)(object, value);
+        }
+
+        return null;
+    }
+}
+
+
+public Url getWritableUrl(bool isUnsafe=false, rest: str[] path) {
+    str fullPath = "";
+
+    for (p in path) {
+        fullPath #= p;
+    }
+
+    return isUnsafe ? unsafeNativeUrl(fullPath) : cmWritable(fullPath);
+}
