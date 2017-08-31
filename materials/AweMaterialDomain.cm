@@ -60,14 +60,14 @@ public class AweMaterialDomain extends OfficeMaterialDomain {
         AweJsonSerializer json();
         var jsonObj = parseToJson(jsonContent).JsonObject;
         var tree = json.fromJson(jsonObj, AweMaterialTreeItem).AweMaterialTreeItem;
+        pln(#tree.children[7].key);
         return tree;
     }
 
     public bool useCOM() { return true; }
 
     extend public Material fetchMaterial(str materialID) {
-        // return material(materialID);
-        return material("plain_green");
+        return material(materialID);
     }
 
     extend public MaterialTreeViewItem convertTree(AweMaterialTreeItem aweRoot) {
@@ -76,7 +76,6 @@ public class AweMaterialDomain extends OfficeMaterialDomain {
         for (child in aweRoot.children) {
             appendItem(cetRoot, child);
         }
-
         return cetRoot;
     }
 
@@ -94,5 +93,5 @@ public class AweMaterialDomain extends OfficeMaterialDomain {
 }
 
 {
-    AweMaterialDomain domain("C:\\Users\\User\\Downloads\\further-fabrics.json");
+    AweMaterialDomain domain("C:\\Users\\User\\Downloads\\table-laminates.json");
 }
