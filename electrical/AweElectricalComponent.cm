@@ -75,7 +75,7 @@ public class AweElectricalComponent : abstract {
 
             if (component.id == descendantId) return true;
 
-            if (component.hasDescendant(descendantId)) {
+            if (component.hasDescendant(descendantId, visited)) {
                 return true;
             }
 
