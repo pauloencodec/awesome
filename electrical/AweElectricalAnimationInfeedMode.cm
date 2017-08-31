@@ -57,8 +57,14 @@ public class AweElectricalAnimationInfeedMode extends AweElectricalAnimationMode
             }
             
             selectedInfeed = infeed;
+            this.infeedSelected(infeed);
             animation.updateSubConfigurators();
+            
         }
+    }
+
+    extend public void infeedSelected(AweElectricalInfeedPoint infeed) {
+
     }
 
     public void hoveredPointChanged(Point target) {

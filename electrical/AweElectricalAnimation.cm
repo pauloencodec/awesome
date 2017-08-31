@@ -131,6 +131,8 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
 
         currentMode = this.modesInstances.get(modeName);
 
+        currentMode.begin();
+
         showHint();
 
         updateSubConfigurators();
@@ -164,6 +166,8 @@ public aweObject AweElectricalAnimationModel {
     }
 
     public void modeChanged(str newMode) {
+        if (this.animation.?currentMode) this.animation.?currentMode.end();
+
         this.animation.?launchMode();
     }
 }

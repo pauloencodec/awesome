@@ -39,8 +39,10 @@ package custom.awesome.electrical;
 public class AweElectricalComponent : abstract {
     public constructor() {} 
 
+    public str id;
     public AweElectricalComponent upstream;
     public AweElectricalComponent{} downstream();
+    public bool hideInCluster3D;
     
     extend public AweElectricalComponent root() {
         var root = this.upstream;
@@ -57,6 +59,50 @@ public class AweElectricalComponent : abstract {
         }
 
         return root;
+    }
+
+    extend public bool hasComponentInStream(str componentId) {
+        return this.id == componentId or this.hasDescendant(componentId) or this.hasAncestor(componentId);
+    }
+
+    extend public bool hasDescendant(str descendantId, AweElectricalComponent{} visited=null) {
+        var downstream = this.downstream;
+        
+        if (!visited) visited = new AweElectricalComponent{}();
+
+        for (component in downstream) {
+            if (component in visited) return false;
+
+            if (component.id == descendantId) return true;
+
+            if (component.hasDescendant(descendantId)) {
+                return true;
+            }
+
+            visited << component;
+        }
+
+        return false;
+    }
+
+    extend public bool hasAncestor(str ancestorId) {
+        var upstream = this.upstream;
+        
+        if (!root) return false;
+
+        AweElectricalComponent{} visited();
+
+        while (upstream) {
+            if (upstream in visited) break;
+
+            if (upstream.id == ancestorId) return true;
+
+            visited << upstream;
+
+            upstream = upstream.upstream;
+        }
+
+        return false;
     }
 
     public AweNotifyProp bool active {

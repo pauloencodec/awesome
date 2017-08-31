@@ -131,7 +131,7 @@ public class AweElectricalClusterInfo {
         for(cluster in clusters) {
             Awe3D infeed3D();
             Awe3D cluster3D();
-            for(cable in cluster.cables) {
+            for(cable in cluster.cables) if (!cable.hideInCluster3D) {
                 if(!cable.upstream) {
                     var cableLine = cable.spaceLine.v;
                     Cylinder3D l(cableLine.p0, cableLine.p1, this.lineThickness);
