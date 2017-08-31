@@ -34,75 +34,41 @@
    END OF CETSC
 */
 
-package custom.awesome.examples;
+package custom.awesome.materials;
 
-/*
-this is an example of how to use multiple products in one snapper.
-the code creates a bunch of cubes, each a product, with independent configurations.
-*/
+public class AweMaterialManager {
 
-//each cube
-public aweObject CubeModel {
-    props(
-        bool on=false,
-        point origin=point(),
-        AweMaterial paint = AweMaterial("plain_green")
-    );
-    public aweObjectDomain(
-        bool on=BoolSubSet()
-    );
-}
+    public Snapper owner;
+    public UserMaterials userMaterials();
+    public str->AweBindingSnapperPickSurface surfaces();
 
-//cube product
-public class CubeProduct extends AweProduct {
-    public AweModel<CubeModel> model;
-    public box localBound() {
-        box b(point(), 1, 1, 1);
-        b.move(this.model.origin);
-        return b;
-    }
-    
-    public Primitive3D medium3D() {
-        Box3D b(this.localBound());
-        // b.setMaterial(model.on ? plainBlueMaterial3D : plainWhiteMaterial3D);
-        this.applyMaterial("paint", b);
-        return b;
+    public constructor(Snapper owner) {
+        this.owner = owner;
+    }   
+
+    extend public Primitive3D apply(AweObject model, str materialPropKey, Primitive3D prim) {
+        str pickSurfaceID = model.toS # materialPropKey;
+        Material m = getMaterial(model, materialPropKey);
+        m.apply(prim, new FetchEnv3D());
+        AweBindingSnapperPickSurface surface(this.owner, prim, pickSurfaceID);
+        surface.configurator = model;
+        surface.propKey = materialPropKey;
+        prim.setOwner(surface);
+        userMaterials.registerEmptyKey(pickSurfaceID);
+        return prim;
     }
 
-    public Graph graph() { 
-        var c = model.on ? blue : white;
-        var g = GRect(rect(point2D(), (1, 1)), c);
-        g.move(this.model.origin);
-        return g;
-    }
-    
-}
+    extend private Material getMaterial(AweObject model, str materialPropKey) {
+        var aweMaterial = model.get(materialPropKey).?AweMaterial;
+        if(!aweMaterial)
+            //TODO: do something better when they try to apply a prop that doesn't exist or is not a material?
+            return material("plain_red");
 
-
-//the snapper. just init root with your data.
-public class CubeSnapper extends AweBindingSnapper {
-    
-    public aweBinding(
-        CubeProduct cube = CubeModel
-    );
-
-    public AweObject initRoot() {
-        AweObjectArray collection();
-        bool on = false;
-        for(x in 0..2) {
-            for(y in 0..2) {
-                for(z in 0..2) {
-                    collection << CubeModel(origin=(x,y,z), on=on);
-                    on = !on;
-                }
-            }
-        }
-        return collection;
+        return material(aweMaterial.id);
     }
 
-    
-}
-
-{
-    CubeSnapper().launch();
+    extend public void clear() {
+        //resets material keys
+        this.userMaterials.remove();
+    }
 }

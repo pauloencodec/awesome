@@ -62,7 +62,7 @@ public class AweProduct extends AweGeometry {
         return this;
     }
 
-    public constructor(Object model) {
+    public constructor(AweObject model) {
         this.updateModel(model);
     }   
 
@@ -84,7 +84,7 @@ public class AweProduct extends AweGeometry {
         return this.goi.get(key);
     }
 
-    extend public void updateModel(Object model) {
+    extend public void updateModel(AweObject model) {
         this._model = model;
         
         this.modelChanged();
@@ -111,20 +111,22 @@ public class AweProduct extends AweGeometry {
     extend public void build() {
     }
 
-    extend public void buildSuper3D() {
+    extend public void buildSuper3D(AweMaterialManager materialManager) {
         Primitive3D[] prims();
 
         for (g in this.geometries) {
+            g.materialManager = materialManager;
             prims <<? g.super3D();
         }
 
         this.super3D = safeSet3D(prims);
     }
 
-    extend public void buildMedium3D() {
+    extend public void buildMedium3D(AweMaterialManager materialManager) {
         Primitive3D[] prims();
 
         for (g in this.geometries) {
+            g.materialManager = materialManager;
             prims <<? g.medium3D();
         }
 
@@ -143,21 +145,21 @@ public class AweProduct extends AweGeometry {
         }
     }
 
-    extend public Primitive3D get3D(FetchEnv3D env) {
+    extend public Primitive3D get3D(FetchEnv3D env, AweMaterialManager materialManager) {
         //for rendering
-        if (env.detail == detailLevel3D.super) return this.getSuper3D();
+        if (env.detail == detailLevel3D.super) return this.getSuper3D(materialManager);
 
-        return this.getMedium3D();
+        return this.getMedium3D(materialManager);
     }
 
-    extend public Primitive3D getSuper3D() {
-        if (!this.super3D) this.buildSuper3D();
+    extend public Primitive3D getSuper3D(AweMaterialManager materialManager) {
+        if (!this.super3D) this.buildSuper3D(materialManager);
 
         return this.super3D;
     }
 
-    extend public Primitive3D getMedium3D() {
-        if (!this.medium3D) this.buildMedium3D();
+    extend public Primitive3D getMedium3D(AweMaterialManager materialManager) {
+        if (!this.medium3D) this.buildMedium3D(materialManager);
 
         return this.medium3D;
     }

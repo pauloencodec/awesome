@@ -39,7 +39,8 @@ package custom.awesome.product;
 use custom.awesome.electrical;
 
 public class AweGeometry {
-    public Object _model;
+    public AweObject _model;
+    public AweMaterialManager materialManager : copy=null, stream=null;
 
     private str->Point2D poi() : public readable;
     private str->Line2D loi() : public readable;
@@ -102,4 +103,9 @@ public class AweGeometry {
         lights << AweLightModel(position, direction, intensity);
     }
 
+    /**************** material ********************/
+    extend public Primitive3D applyMaterial(str materialPropKey, Primitive3D prim) {
+        if(!this.materialManager) return prim;
+        return this.materialManager.apply(this._model, materialPropKey, prim);
+    }
 }
