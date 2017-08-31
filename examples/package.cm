@@ -38,6 +38,7 @@ package custom.awesome.examples;
 
 use custom.awesome.product;
 use custom.awesome;
+use custom.awesome.materials;
 use cm.format.cm3D;
 use cm.geometry.advanced;
 use cm.application;

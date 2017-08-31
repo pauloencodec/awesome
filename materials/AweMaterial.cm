@@ -34,75 +34,11 @@
    END OF CETSC
 */
 
-package custom.awesome.examples;
+package custom.awesome.materials;
 
-/*
-this is an example of how to use multiple products in one snapper.
-the code creates a bunch of cubes, each a product, with independent configurations.
-*/
-
-//each cube
-public aweObject CubeModel {
-    props(
-        bool on=false,
-        point origin=point(),
-        AweMaterial paint = AweMaterial("plain_green")
-    );
-    public aweObjectDomain(
-        bool on=BoolSubSet()
-    );
-}
-
-//cube product
-public class CubeProduct extends AweProduct {
-    public AweModel<CubeModel> model;
-    public box localBound() {
-        box b(point(), 1, 1, 1);
-        b.move(this.model.origin);
-        return b;
-    }
-    
-    public Primitive3D medium3D() {
-        Box3D b(this.localBound());
-        // b.setMaterial(model.on ? plainBlueMaterial3D : plainWhiteMaterial3D);
-        this.applyMaterial("paint", b);
-        return b;
-    }
-
-    public Graph graph() { 
-        var c = model.on ? blue : white;
-        var g = GRect(rect(point2D(), (1, 1)), c);
-        g.move(this.model.origin);
-        return g;
-    }
-    
-}
-
-
-//the snapper. just init root with your data.
-public class CubeSnapper extends AweBindingSnapper {
-    
-    public aweBinding(
-        CubeProduct cube = CubeModel
-    );
-
-    public AweObject initRoot() {
-        AweObjectArray collection();
-        bool on = false;
-        for(x in 0..2) {
-            for(y in 0..2) {
-                for(z in 0..2) {
-                    collection << CubeModel(origin=(x,y,z), on=on);
-                    on = !on;
-                }
-            }
-        }
-        return collection;
-    }
-
-    
-}
-
-{
-    CubeSnapper().launch();
+public class AweMaterial {
+    public str id;
+    public constructor(str id) {
+        this.id = id;
+    }   
 }
