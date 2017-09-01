@@ -34,42 +34,36 @@
    END OF CETSC
 */
 
-package custom.awesome.materials;
+package custom.awesome.schemes;
 
-public class AweMaterialManager {
+public class AweMaterialSchemeEditor extends OfficeGroupSchemeEditor {
 
-    public Snapper owner;
-    public UserMaterials userMaterials();
-    public str->AweBindingSnapperPickSurface surfaces();
+    public bool applyScheme(Snapper{} snappers, GroupScheme gs) {
+        bool applied = false;
 
-    public constructor(Snapper owner) {
-        this.owner = owner;
-    }   
-
-    extend public Primitive3D apply(AweObject model, str materialPropKey, Primitive3D prim) {
-        str pickSurfaceID = model.toS # materialPropKey;
-        Material m = getMaterial(model, materialPropKey);
-        if(!m) return prim;
-        m.apply(prim, new FetchEnv3D());
-        AweBindingSnapperPickSurface surface(this.owner, prim, pickSurfaceID);
-        surface.configurator = model;
-        surface.propKey = materialPropKey;
-        prim.setOwner(surface);
-        userMaterials.registerEmptyKey(pickSurfaceID);
-        return prim;
-    }
-
-    extend private Material getMaterial(AweObject model, str materialPropKey) {
-        var aweMaterial = model.get(materialPropKey).?AweMaterial;
-        if(!aweMaterial)
-            //TODO: do something better when they try to apply a prop that doesn't exist or is not a material?
-            return material("plain_red");
-
-        return material(aweMaterial.id);
-    }
-
-    extend public void clear() {
-        //resets material keys
-        this.userMaterials.remove();
+        for(s in snappers) {
+            if(s as AweSnapper){
+                var models = s.allModels();
+                for(model in models) {
+                    bool invalidate = false;
+                    for(key, value in model.props) {
+                        if(value as AweMaterial) {
+                            if(value.schemeName == gs.name) {
+                                var materialID = gs.setting.get(value.schemeKey).str;
+                                if(materialID) {
+                                    value.id = materialID;
+                                    invalidate = true;
+                                    applied = true;
+                                }
+                            }
+                        }
+                    }
+                    if(invalidate) {
+                        model.invalidate();
+                    }
+                }
+            }
+        }
+        return applied;
     }
 }
