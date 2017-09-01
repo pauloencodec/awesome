@@ -42,12 +42,19 @@ use cm.format.json;
 
 public class AweMaterialDomain extends OfficeMaterialDomain {
 
-    public constructor(AweMaterialTreeItem root) {
+    private AweMaterialFactory _factory;
+    extend public AweMaterialFactory factory() {
+        if(this._factory) return this._factory;
+        return new AweMaterialFactory();
+    }
+
+    public constructor(AweMaterialTreeItem root, AweMaterialFactory factory = null) {
+        this._factory = factory;
         super(convertTree(root));
     }
 
-    public constructor(str jsonUrl) {
-        this(loadJsonUrl(jsonUrl));
+    public constructor(str jsonUrl, AweMaterialFactory factory = null) {
+        this(loadJsonUrl(jsonUrl), factory);
     }
 
     extend public AweMaterialTreeItem loadJsonUrl(str jsonUrl) {
@@ -60,18 +67,18 @@ public class AweMaterialDomain extends OfficeMaterialDomain {
         AweJsonSerializer json();
         var jsonObj = parseToJson(jsonContent).JsonObject;
         var tree = json.fromJson(jsonObj, AweMaterialTreeItem).AweMaterialTreeItem;
-        pln(#tree.children[7].key);
         return tree;
     }
 
     public bool useCOM() { return true; }
 
     extend public Material fetchMaterial(str materialID) {
-        return material(materialID);
+        return this.factory().fetchMaterial(materialID);
     }
 
     extend public MaterialTreeViewItem convertTree(AweMaterialTreeItem aweRoot) {
-        MaterialTreeViewItem cetRoot(material("plain_green"));
+        CachedMaterial justCauseCETWantsOne("justCause", plainYellowMaterial3D(), "?", MaterialCategory("Awesome"),  pkg=#"custom.awesome");
+        MaterialTreeViewItem cetRoot(justCauseCETWantsOne);
         
         for (child in aweRoot.children) {
             appendItem(cetRoot, child);
