@@ -37,12 +37,36 @@
 package custom.awesome.materials;
 
 public class AweMaterial {
+
     public str id;
     public str schemeName;
     public str schemeKey;
-    public constructor(str schemeName, str schemeKey, str id="plain_gray") {
+
+    private AweMaterialFactory _factory;
+
+    public constructor(str schemeName, str schemeKey, str id="plain_gray", AweMaterialFactory factory=null) {
         this.id = id;
         this.schemeName = schemeName;
         this.schemeKey = schemeKey;
-    }   
+        this._factory = factory;
+    }  
+    
+    extend public AweMaterialFactory factory() {
+        if(this._factory) return this._factory;
+        return new AweMaterialFactory();
+    }
+
+    /**
+     * use this to return the material to be used when something goes wrong
+     */
+     extend public Material fallbackMaterial() {
+        return factory.fallbackMaterial();
+    }
+
+    /**
+     * Override this to define a custom routine to fetch materials by their ids
+     */
+    extend public Material materialInstance() {
+        return factory.fetchMaterial(this.id);
+    }
 }

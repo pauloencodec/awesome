@@ -36,45 +36,33 @@
 
 package custom.awesome.materials;
 
-public class AweMaterialManager {
+/**
+ * the purpose of this class is to allow delegation of material fetching to the consuming extensions. It also creates instances of material props and material domains. 
+ */
+public class AweMaterialFactory {
+    public symbol pkg;
 
-    public Snapper owner;
-    public UserMaterials userMaterials();
-    public str->AweBindingSnapperPickSurface surfaces();
-
-    public constructor(Snapper owner) {
-        this.owner = owner;
+    public constructor(symbol pkg=#:package : caller eval) {
+        this.pkg = pkg;
     }   
-
-    extend public Primitive3D apply(AweObject model, str materialPropKey, Primitive3D prim) {
-        str pickSurfaceID = model.toS # materialPropKey;
-        Material m = getMaterial(model, materialPropKey);
-        if(!m) return prim;
-        m.apply(prim, new FetchEnv3D());
-        AweBindingSnapperPickSurface surface(this.owner, prim, pickSurfaceID);
-        surface.configurator = model;
-        surface.propKey = materialPropKey;
-        prim.setOwner(surface);
-        userMaterials.registerEmptyKey(pickSurfaceID);
-        return prim;
-    }
-
-    extend private Material getMaterial(AweObject model, str materialPropKey) {
-        var aweMaterial = model.get(materialPropKey).?AweMaterial;
-        if(!aweMaterial)
-            return fallbackMaterial();
-        return aweMaterial.materialInstance();
-    }
-
-    extend public void clear() {
-        //resets material keys
-        this.userMaterials.remove();
-    }
 
     /**
      * use this to return the material to be used when something goes wrong
      */
     extend public Material fallbackMaterial() {
         return material("plain_red");
+    }
+
+    /**
+     * Override this to define a custom routine to fetch materials by their ids
+     */
+    extend public Material fetchMaterial(str materialID) {
+        var m = material(materialID, this.pkg);
+        if(m) return m;
+        return this.fallbackMaterial();
+    }
+
+    extend public AweMaterial makeProp(str schemeName, str schemeKey, str initialMaterialID) {
+        return AweMaterial(schemeName, schemeKey, initialMaterialID, this);
     }
 }
