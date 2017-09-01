@@ -36,47 +36,26 @@
 
 package custom.awesome;
 
-public orientation orientation(line2D l2d) {
-    return orientation(l2d.direction.point);
+public orientation orientation(line l) {
+    return orientation(l.direction);
 } 
 
-public line2D offset(line2D l, double offsetDistance) {
-    orientation lineOrientation = l.orientation();
-    orientation offsetDirection(lineOrientation.perpendicular);
-    vector offset(offsetDirection, offsetDistance);
-    return l.offset(point2D(offset));
+public line offset(line l, vector offset) {
+    return line(l.p0 + offset, l.p1 + offset);
 }
 
-public line2D offset(line2D l, vector2D offset) {
-    return line2D(l.p0 + offset, l.p1 + offset);
+public line flip(line l) {
+    return line(l.p1, l.p0);
 }
 
-public line2D flip(line2D l) {
-    return line2D(l.p1, l.p0);
-}
-
-public line2D inverse(line2D l) {
+public line inverse(line l) {
     return l.flip();
 }
 
-public line toLine3D(line2D l, double z0, double z1) {
-    return line(l.p0.point + (0, 0, z0), l.p1.point + (0, 0, z1));
+public line2D toLine2D(line l) {
+    return line2D(l.p0.point2D, l.p1.point2D);
 }
 
-public line toLine3D(line2D l, double z) {
-    return l.toLine3D(z, z);
+public line toTheFloor(line l) {
+    return l.toLine2D().line;
 }
-
-public line2D shrunken(line2D l, double shrinkDistance) {
-    orientation lineOrientation = l.orientation();
-    vector2D offset = point2D(point(lineOrientation, shrinkDistance));
-    return line2D(l.p0 + offset, l.p1 - offset);
-}
-
-public rect rect(line2D l, double depth) {
-    rect r((0,0), (l.length, depth));
-    line2D referenceLine = l.offset(-depth/2);
-    r = r.orientBy(referenceLine);
-    return r;
-}
-
