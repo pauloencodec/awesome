@@ -38,7 +38,11 @@ package custom.awesome.materials;
 
 public class AweMaterial {
     public str id;
-    public constructor(str id) {
+    public str schemeName;
+    public str schemeKey;
+    public constructor(str schemeName, str schemeKey, str id="plain_gray") {
         this.id = id;
+        this.schemeName = schemeName;
+        this.schemeKey = schemeKey;
     }   
 }
