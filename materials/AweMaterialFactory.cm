@@ -65,4 +65,8 @@ public class AweMaterialFactory {
     extend public AweMaterial makeProp(str schemeName, str schemeKey, str initialMaterialID) {
         return AweMaterial(schemeName, schemeKey, initialMaterialID, this);
     }
+
+    extend public AweMaterialDomain makeDomain(str jsonUrl) {
+        return new AweMaterialDomain(jsonUrl, this);
+    }
 }
