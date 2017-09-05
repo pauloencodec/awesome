@@ -156,6 +156,10 @@ public class AweObject {
         return changed;
     }
 
+    extend public str getQuickPropertyLabel(str key, Object value) {
+        return null;
+    }
+
     extend public str[] quickPropertySort() { return null; }
 
     extend public void buildAnimationPropertiesFromSyntax(AnimationProperties props) {
