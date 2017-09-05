@@ -114,13 +114,25 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
         }
     }
 
+    extend public str->AweElectricalAnimationMode modesInstances() {
+        str->AweElectricalAnimationMode instances();
+
+        instances.put("View", new AweElectricalAnimationMode(this));
+        instances.put("Infeed", new AweElectricalAnimationInfeedMode(this));
+        instances.put("Add", new AweElectricalAnimationAddRouteMode(this));
+        instances.put("Remove", new AweElectricalAnimationDeleteRouteMode(this));
+        instances.put("Debug", new AweElectricalAnimationDebugMode(this));
+
+        return instances;
+    }
+
     extend private void launchMode() {
         str modeName = this.configurator.AweElectricalAnimationModel.mode;
-        if(modeName == "View") currentMode = new AweElectricalAnimationMode(this);
-        if(modeName == "Infeed") currentMode = new AweElectricalAnimationInfeedMode(this);
-        if(modeName == "Add") currentMode = new AweElectricalAnimationAddRouteMode(this);
-        if(modeName == "Remove") currentMode = new AweElectricalAnimationDeleteRouteMode(this);
-        if(modeName == "Debug") currentMode = new AweElectricalAnimationDebugMode(this);
+
+        currentMode = this.modesInstances.get(modeName);
+
+        currentMode.begin();
+
         showHint();
 
         updateSubConfigurators();
@@ -154,6 +166,8 @@ public aweObject AweElectricalAnimationModel {
     }
 
     public void modeChanged(str newMode) {
+        if (this.animation.?currentMode) this.animation.?currentMode.end();
+
         this.animation.?launchMode();
     }
 }
