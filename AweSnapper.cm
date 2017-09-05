@@ -559,7 +559,7 @@ public class AweSnapper extends Snapper {
     }
 
     public bool dbg_connectLinesIn3D() {
-        if (developMode) {
+        if (developMode and this.mainModel) {
             for (set in this.mainModel.connectorSets()) {
                 if (set.debug) return true;
             }

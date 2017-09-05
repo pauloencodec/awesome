@@ -36,48 +36,48 @@
 
 package custom.awesome;
 
-private DualMaterial3D _electricalMaterial;
+public orientation orientation(line l) {
+    return orientation(l.direction);
+} 
 
-public DualMaterial3D electricalMaterial() {
-    if (!_electricalMaterial) {
-        _electricalMaterial = transparentColorMaterial(211, 211, 211, 0.5);
-    }
-
-    return _electricalMaterial;
+public line offset(line l, vector offset) {
+    return line(l.p0 + offset, l.p1 + offset);
 }
 
-public Material3D getMaterialWithElectrical( Material3D material ) {
-    return material.applyViewLayers();
+public line flip(line l) {
+    return line(l.p1, l.p0);
 }
 
-public Material3D applyViewLayers(Material material) {
-    return material.material3D().applyViewLayers();
+public line inverse(line l) {
+    return l.flip();
 }
 
-public Material3D applyViewLayers(Material3D material) {
-    if (material as MaterialSelector3D) {
-        return material;
-    }
+public line2D toLine2D(line l) {
+    return line2D(l.p0.point2D, l.p1.point2D);
+}
+
+public line toTheFloor(line l) {
+    return l.setZ(0);
+}
+
+public line setZ(line l, double z0, double z1) {
+    l.p0.z = z0;
+    l.p1.z = z1;
     
-    MaterialSelector3D selector();
-
-    selector << option3D(electricalMaterial, #electrical);
-    selector << option3D(material, #normal);
-
-    selector.finalizeSelector();
-
-    return selector;
+    return l;
 }
 
-public DualMaterial3D transparentColorMaterial(int r=0, int g=0, int b=0, double opacity=0.75) {
-    return transparentColorMaterial(color(r, g, b), opacity);
+public line setZ(line l, double z) {
+    return l.setZ(z, z);
 }
 
-public DualMaterial3D transparentColorMaterial(color color, double opacity=0.75) {
-    DualMaterial3D dm();
+public line addZ(line l, double z0, double z1) {
+    l.p0.z += z0;
+    l.p1.z += z1;
     
-    dm._color = color;
-    dm.lw = transparencyMaterial3D(color, opacity);
-    
-    return dm;
+    return l;
+}
+
+public line addZ(line l, double z) {
+    return l.addZ(z, z);
 }
