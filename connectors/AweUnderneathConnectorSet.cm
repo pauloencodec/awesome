@@ -34,50 +34,26 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package custom.awesome.connectors;
 
-private DualMaterial3D _electricalMaterial;
+public class AweUnderneathConnectorSet extends AweConnectorSet {
+    public bool connect(AweConnectEnv me, AweConnectEnv other) {
+        if (!super(..)) return false;
+        if (!this.mustBeUnderneath) return true;
 
-public DualMaterial3D electricalMaterial() {
-    if (!_electricalMaterial) {
-        _electricalMaterial = transparentColorMaterial(211, 211, 211, 0.5);
+        var myRect = me.snapper.localBound().rect;
+        var otherRect = other.snapper.bound().rect;
+
+        var myRot = me.snapper.rotationIfConnected(me.connector, other.connector);
+        var myPos = me.snapper.positionIfConnected(me.connector, other.connector);
+        
+        myRect.rotate(myRot.yaw);
+        myRect.move(myPos.point2D);
+        
+        return otherRect.contains(myRect.center());
     }
 
-    return _electricalMaterial;
-}
-
-public Material3D getMaterialWithElectrical( Material3D material ) {
-    return material.applyViewLayers();
-}
-
-public Material3D applyViewLayers(Material material) {
-    return material.material3D().applyViewLayers();
-}
-
-public Material3D applyViewLayers(Material3D material) {
-    if (material as MaterialSelector3D) {
-        return material;
+    extend public bool mustBeUnderneath() {
+        return true;
     }
-    
-    MaterialSelector3D selector();
-
-    selector << option3D(electricalMaterial, #electrical);
-    selector << option3D(material, #normal);
-
-    selector.finalizeSelector();
-
-    return selector;
-}
-
-public DualMaterial3D transparentColorMaterial(int r=0, int g=0, int b=0, double opacity=0.75) {
-    return transparentColorMaterial(color(r, g, b), opacity);
-}
-
-public DualMaterial3D transparentColorMaterial(color color, double opacity=0.75) {
-    DualMaterial3D dm();
-    
-    dm._color = color;
-    dm.lw = transparencyMaterial3D(color, opacity);
-    
-    return dm;
 }

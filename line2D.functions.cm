@@ -55,6 +55,18 @@ public line2D flip(line2D l) {
     return line2D(l.p1, l.p0);
 }
 
+public line2D inverse(line2D l) {
+    return l.flip();
+}
+
+public line toLine3D(line2D l, double z0, double z1) {
+    return line(l.p0.point + (0, 0, z0), l.p1.point + (0, 0, z1));
+}
+
+public line toLine3D(line2D l, double z) {
+    return l.toLine3D(z, z);
+}
+
 public line2D shrunken(line2D l, double shrinkDistance) {
     orientation lineOrientation = l.orientation();
     vector2D offset = point2D(point(lineOrientation, shrinkDistance));
@@ -68,3 +80,6 @@ public rect rect(line2D l, double depth) {
     return r;
 }
 
+public line2D getLineFromPolar(point2D p, angle direction, double length) {
+    return line2D(p, p.polar(direction, length));
+}
