@@ -43,8 +43,10 @@ public class AweScheme {
     public AweSchemeItem[] items();
     public str key;
     public str label;
+    public AweObject model;
 
     public constructor(AweObject model, str label) {
+        this.model = model;
         this.key = model.class.toS;
         this.label = label;
         for(key, value in model.props){
@@ -74,7 +76,7 @@ public class AweScheme {
     }
 
     extend public void register() {
-        AweMaterialSchemeEditor scheme(this.key, this.label);
+        AweSchemeEditor scheme(this);
 
         for(item in this.items) {
             scheme.append(item.key, item.label, item.domain, initValue=item.initialValue);
@@ -90,6 +92,15 @@ public class AweScheme {
 
     extend public void showDialog() {
         buildSchemeManagerDialog(this.key);
+    }
+
+    extend public AweObject convert(OfficeGroupScheme gs) {
+        AweObject modelCopy = model.copy();
+        for(key, value in modelCopy.props) {
+            var schemeValue = gs.getSetting(key);
+            modelCopy.set(key, schemeValue);
+        }
+        return modelCopy;
     }
 }
 

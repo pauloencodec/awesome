@@ -495,7 +495,8 @@ public class AweObject {
     }
 
     /***************** schemes ******************/
-    extend public void applyScheme(AweObject schemeModel) {
+    extend public bool applyScheme(AweObject schemeModel) {
+        return false;
     }
 
 }
