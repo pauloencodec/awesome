@@ -90,10 +90,6 @@ public class AweScheme {
         }
     }
 
-    extend public void showDialog() {
-        buildSchemeManagerDialog(this.key);
-    }
-
     extend public AweObject convert(OfficeGroupScheme gs) {
         AweObject modelCopy = model.copy();
         for(key, value in modelCopy.props) {
@@ -114,25 +110,6 @@ public class AweSchemeItem {
     public SubSet domain;
 }
 
-public aweObject TestSchemeModel {
-    props(
-        double width = 12inch,
-        bool good = true
-    );
-
-    public aweObjectDomain(
-        distance width = DistanceEnum(12inch, 24inch, 36inch),
-        bool good = BoolSubSet()
-    );
-}
-
-{
-    TestSchemeModel model();
-    AweScheme scheme(model, "My nice esquema");
-
-    //this should be in the extension start event
-    scheme.register();
-
-    //this can go in a callbackbutton
-    scheme.showDialog();
+public void showAweScheme(Type schemeModelType) {
+    buildSchemeManagerDialog(schemeModelType.toS);
 }

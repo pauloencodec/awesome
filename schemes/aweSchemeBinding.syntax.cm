@@ -68,7 +68,7 @@ public member @visibility aweSchemeBindings '(' @bindings=[aweSchemeBinding ',']
     }
 
     return member {
-        @visibility void applyScheme(AweObject schemeModel) {
+        @visibility bool applyScheme(AweObject schemeModel) {
             bool applied = super(..);
 
             @ifs;
