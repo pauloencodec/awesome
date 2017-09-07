@@ -111,21 +111,14 @@ public class AweScheme {
         return modelCopy;
     }
 
-    extend private void applyMaterial(AweMaterial aweMaterial, str s, GroupScheme gs) {
-        Material m;
-        
-        if (Object o = gs.getSetting(s)) {
-            m = aweMaterial.factory.fetchMaterial(o.toS);
-            
-            if (!m) {
-                if (CustomerOwnMaterials coms = customerOwnMaterials(null)) {
-                    m = coms.find(o.toS);
-                }
-            }
+    extend private void applyMaterial(AweMaterial aweMaterial, str key, OfficeGroupScheme gs) {
+        var material = gs.getMaterial(key, "");
+        if(!material) {
+            var materialID = gs.getSetting(key).toS;
+            material = aweMaterial.factory.fetchMaterial(materialID);
         }
-        
-        if(m) {
-            aweMaterial.setMaterial(m);
+        if(material) {
+            aweMaterial.setMaterial(material);
         }
     }
 }
