@@ -494,6 +494,13 @@ public class AweObject {
         return null;
     }
 
+    /***************** schemes ******************/
+    public str->AweSchemeBinding schemeBindings();
+    extend public void addSchemeBinding(str propName, AweSchemeBinding binding) {
+        binding.modelPropKey = propName;
+        schemeBindings.put(propName, binding);
+    }
+
 }
 
 public definition @visibility aweObject @name=id @parentClass=["extends" type]? '{'  @props=["props" formalArgList ';']? @members=[classMember]* '}' {
