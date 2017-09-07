@@ -79,7 +79,14 @@ public class AweScheme {
         AweSchemeEditor scheme(this);
 
         for(item in this.items) {
-            scheme.append(item.key, item.label, item.domain, initValue=item.initialValue);
+            var value = item.initialValue;
+
+            //initial value for materials need to be the id
+            if(value in AweMaterial) {
+                value = value.AweMaterial.id;
+            }
+
+            scheme.append(item.key, item.label, item.domain, initValue=value);
         }
     
         if (!schemeManager)
@@ -93,10 +100,33 @@ public class AweScheme {
     extend public AweObject convert(OfficeGroupScheme gs) {
         AweObject modelCopy = model.copy();
         for(key, value in modelCopy.props) {
-            var schemeValue = gs.getSetting(key);
-            modelCopy.set(key, schemeValue);
+            if(value as AweMaterial) {
+                //materials are trickier...
+                applyMaterial(value, key, gs);
+            } else {
+                var schemeValue = gs.getSetting(key);
+                modelCopy.set(key, schemeValue);
+            }
         }
         return modelCopy;
+    }
+
+    extend private void applyMaterial(AweMaterial aweMaterial, str s, GroupScheme gs) {
+        Material m;
+        
+        if (Object o = gs.getSetting(s)) {
+            m = aweMaterial.factory.fetchMaterial(o.toS);
+            
+            if (!m) {
+                if (CustomerOwnMaterials coms = customerOwnMaterials(null)) {
+                    m = coms.find(o.toS);
+                }
+            }
+        }
+        
+        if(m) {
+            aweMaterial.setMaterial(m);
+        }
     }
 }
 
