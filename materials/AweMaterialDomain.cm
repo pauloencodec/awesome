@@ -72,14 +72,16 @@ public class AweMaterialDomain extends OfficeMaterialDomain {
 
     public bool useCOM() { return true; }
 
+    public bool defaultUseThumbnails() {
+        return true;
+    }
+
     extend public Material fetchMaterial(str materialID) {
         return this.factory().fetchMaterial(materialID);
     }
 
     extend public MaterialTreeViewItem convertTree(AweMaterialTreeItem aweRoot) {
-        CachedMaterial justCauseCETWantsOne("justCause", plainYellowMaterial3D(), "?", MaterialCategory("Awesome"),  pkg=#"custom.awesome");
-        MaterialTreeViewItem cetRoot(justCauseCETWantsOne);
-        
+        MaterialTreeViewItem cetRoot(fetchMaterial("~"));
         for (child in aweRoot.children) {
             appendItem(cetRoot, child);
         }
@@ -88,9 +90,7 @@ public class AweMaterialDomain extends OfficeMaterialDomain {
 
     extend public void appendItem(TreeViewItem treeItem, AweMaterialTreeItem dataItem) {
         var material = fetchMaterial(dataItem.key);
-        var thumbnail = getSizedPreviewImage(material, 0.64, 24);
-    
-        var item = new ImageMaterialTreeViewItem(material, dataItem.name, thumbnail);
+        var item = new MaterialTreeViewItem(material);
         treeItem.appendChild(item);
     
         for(child in dataItem.children) {

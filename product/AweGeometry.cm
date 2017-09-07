@@ -109,8 +109,8 @@ public class AweGeometry {
     }
 
     /**************** material ********************/
-    extend public Primitive3D applyMaterial(str materialPropKey, Primitive3D prim) {
+    extend public Primitive3D applyMaterial(AweObject model, str materialPropKey, Primitive3D prim) {
         if(!this.materialManager) return prim;
-        return this.materialManager.apply(this._model, materialPropKey, prim);
+        return this.materialManager.apply(model, materialPropKey, prim);
     }
 }

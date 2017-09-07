@@ -49,11 +49,16 @@ public class AweMaterialSchemeEditor extends OfficeGroupSchemeEditor {
                     for(key, value in model.props) {
                         if(value as AweMaterial) {
                             if(value.schemeName == gs.name) {
-                                var materialID = gs.setting.get(value.schemeKey).str;
-                                if(materialID) {
-                                    value.id = materialID;
-                                    invalidate = true;
+                                if(gs as OfficeGroupScheme) {
+                                    var material = gs.getMaterial(value.schemeKey, "");
+                                    if(material) {
+                                        value.setMaterial(material);
+                                    } else {
+                                        var materialID = gs.getSetting(value.schemeKey).toS;
+                                        value.setID(materialID);
+                                    }
                                     applied = true;
+                                    invalidate = true;
                                 }
                             }
                         }
