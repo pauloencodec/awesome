@@ -34,57 +34,12 @@
    END OF CETSC
 */
 
-package custom.awesome.materials;
+package custom.awesome.schemes;
+use cm.syntax;
 
-public class AweMaterial {
-
-    public str id;
-    private Material _materialInstance : copy=reference;
-
-    private AweMaterialFactory _factory;
-
-    public constructor(str id="plain_gray", AweMaterialFactory factory=null) {
-        this._factory = factory;
-        this.setID(id);
-    }  
-
-    public aweDynamicContract {
-        aweDynamic str toStr(str extraInfo);
-    }
-    
-    extend public AweMaterialFactory factory() {
-        if(this._factory) return this._factory;
-        return new AweMaterialFactory();
-    }
-
-    /**
-     * use this to return the material to be used when something goes wrong
-     */
-     extend public Material fallbackMaterial() {
-        return factory.fallbackMaterial();
-    }
-
-    /**
-     * Override this to define a custom routine to fetch materials by their ids
-     */
-    extend public Material materialInstance() {
-        if(this._materialInstance) return this._materialInstance;
-        return this.fallbackMaterial();
-    }
-
-    extend public void setMaterial(Material m) {
-        this.id = m.code;
-        this._materialInstance = m;
-    }
-
-    extend public void setID(str id) {
-        this.id = id;
-        this._materialInstance = factory.fetchMaterial(this.id);
-    }
-
-
-    /************* parts to str **************/
-    extend public str toStr(str extraInfo) { 
-        return this.id;
-    }
+public statement registerAweScheme '(' @schemeModel=type ',' @label=expr ')' ';' {
+    return statement {
+        AweScheme _scheme(new @schemeModel(), @label);
+        _scheme.register;
+    };
 }

@@ -62,8 +62,8 @@ public class AweMaterialFactory {
         return this.fallbackMaterial();
     }
 
-    extend public AweMaterial makeProp(str schemeName, str schemeKey, str initialMaterialID) {
-        return AweMaterial(schemeName, schemeKey, initialMaterialID, this);
+    extend public AweMaterial makeProp(str initialMaterialID) {
+        return AweMaterial(initialMaterialID, this);
     }
 
     extend public AweMaterialDomain makeDomain(str jsonUrl) {
