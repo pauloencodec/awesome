@@ -495,10 +495,7 @@ public class AweObject {
     }
 
     /***************** schemes ******************/
-    public str->AweSchemeBinding schemeBindings();
-    extend public void addSchemeBinding(str propName, AweSchemeBinding binding) {
-        binding.modelPropKey = propName;
-        schemeBindings.put(propName, binding);
+    extend public void applyScheme(AweObject schemeModel) {
     }
 
 }

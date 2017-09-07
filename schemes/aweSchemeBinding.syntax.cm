@@ -37,24 +37,43 @@
 package custom.awesome.schemes;
 use cm.syntax;
 
-public class AweSchemeBinding {
-    public constructor() {
-    }  
-    
-    public str schemeKey;
-    public str schemePropKey;
-    public str modelPropKey;
+public syntax <SId,SId,SId> aweSchemeBinding {
+    @propName=id "=" @schemeKey=id "." @schemePropKey=id {
+        <SId,SId,SId> bindingInfo = <propName, schemeKey, schemePropKey>;
+        return bindingInfo;
+    }
 }
 
-public expr schemeBinding '(' @schemeModelType=id '.' @schemeModelPropKey=id ')' {
-    str schemeKey = schemeModelType.toS;
-    str schemePropKey = schemeModelPropKey.toS;
+public member @visibility aweSchemeBindings '(' @bindings=[aweSchemeBinding ',']* @lastBinding=aweSchemeBinding ')' ';' {
+    <SId, SId, SId>[] allBindings();
+    for(b in bindings) {
+        allBindings << b;
+    }
+    allBindings << lastBinding;
 
-    return blockExpr {
-        AweSchemeBinding binding();
-        binding.schemeKey = @schemeKey;
-        binding.schemePropKey = @schemePropKey;
-        result binding;
+    SStatements ifs();
+
+    for(binding in allBindings) {
+
+        SId propName = binding.v0;
+        SId schemeKey = binding.v1;
+        SId schemePropKey = binding.v2;
+
+        ifs << statement {
+            if(schemeModel as @schemeKey) {
+                this.@propName = schemeModel.@schemePropKey;
+            }
+        };
+    }
+
+    pln(#ifs);
+
+    return member {
+        @visibility void applyScheme(AweObject schemeModel) {
+            super(..);
+
+            @ifs;
+        }
     };
 }
 
