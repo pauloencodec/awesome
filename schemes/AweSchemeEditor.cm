@@ -35,46 +35,34 @@
 */
 
 package custom.awesome.schemes;
-use cm.syntax;
 
-public syntax <SId,SId,SId> aweSchemeBinding {
-    @propName=id "=" @schemeKey=id "." @schemePropKey=id {
-        <SId,SId,SId> bindingInfo = <propName, schemeKey, schemePropKey>;
-        return bindingInfo;
+public class AweSchemeEditor extends OfficeGroupSchemeEditor {
+
+    public AweScheme scheme;
+
+    public constructor(AweScheme scheme) {
+        this.scheme = scheme;
+        super(scheme.key, scheme.label);
     }
-}
 
-public member @visibility aweSchemeBindings '(' @bindings=[aweSchemeBinding ',']* @lastBinding=aweSchemeBinding ')' ';' {
-    <SId, SId, SId>[] allBindings();
-    for(b in bindings) {
-        allBindings << b;
-    }
-    allBindings << lastBinding;
-
-    SStatements ifs();
-
-    for(binding in allBindings) {
-
-        SId propName = binding.v0;
-        SId schemeKey = binding.v1;
-        SId schemePropKey = binding.v2;
-
-        ifs << statement {
-            if(schemeModel as @schemeKey) {
-                this.@propName = schemeModel.@schemePropKey;
-                applied = true;
+    public bool applyScheme(Snapper{} snappers, GroupScheme gs) {
+        bool applied = false;
+        if(gs as OfficeGroupScheme) {
+            var schemeModel = this.scheme.convert(gs);
+            for(s in snappers) {
+                if(s as AweSnapper){
+                    var models = s.allModels();
+                    for(model in models) {
+                        bool invalidate = model.applyScheme(schemeModel);
+                        if(invalidate) {
+                            model.invalidate();
+                        }
+                    }
+                }
             }
-        };
-    }
 
-    return member {
-        @visibility void applyScheme(AweObject schemeModel) {
-            bool applied = super(..);
-
-            @ifs;
-
-            return applied;
         }
-    };
-}
 
+        return applied;
+    }
+}
