@@ -33,23 +33,32 @@
 
    END OF CETSC
 */
-package custom.awesome : 8.0.0;
 
-use custom.awesome.product;
-use custom.awesome.automations;
-use custom.awesome.materials;
-use custom.awesome.schemes;
+package custom.awesome.schemes;
+use cm.syntax;
 
-use cm.abstract.surface;
+public class AweSchemeBinding {
+    public constructor() {
+    }  
+    
+    public str schemeKey;
+    public str schemePropKey;
+    public str modelPropKey;
+}
 
-use cm.format.cm3D;
-use cm.geometry.advanced;
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.win;
-use cm.io;
-use cm.io.util;
-use cm.rs;
+public expr schemeBinding '(' @schemeModelType=id '.' @schemeModelPropKey=id ')' {
+    str schemeKey = schemeModelType.toS;
+    str schemePropKey = schemeModelPropKey.toS;
+
+    return blockExpr {
+        AweSchemeBinding binding();
+        binding.schemeKey = @schemeKey;
+        binding.schemePropKey = @schemePropKey;
+        result binding;
+    };
+}
+
+{
+    var binding = schemeBinding(TestSchemeModel.good);
+    pln(#binding.schemeKey);
+}
