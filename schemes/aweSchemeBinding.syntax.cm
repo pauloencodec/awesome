@@ -77,7 +77,3 @@ public member @visibility aweSchemeBindings '(' @bindings=[aweSchemeBinding ',']
     };
 }
 
-{
-    var binding = schemeBinding(TestSchemeModel.good);
-    pln(#binding.schemeKey);
-}
