@@ -41,15 +41,20 @@ public class AweMaterial {
     public str id;
     public str schemeName;
     public str schemeKey;
+    private Material _materialInstance : copy=reference;
 
     private AweMaterialFactory _factory;
 
     public constructor(str schemeName, str schemeKey, str id="plain_gray", AweMaterialFactory factory=null) {
-        this.id = id;
         this.schemeName = schemeName;
         this.schemeKey = schemeKey;
         this._factory = factory;
+        this.setID(id);
     }  
+
+    public aweDynamicContract {
+        aweDynamic str toStr(str extraInfo);
+    }
     
     extend public AweMaterialFactory factory() {
         if(this._factory) return this._factory;
@@ -67,6 +72,22 @@ public class AweMaterial {
      * Override this to define a custom routine to fetch materials by their ids
      */
     extend public Material materialInstance() {
-        return factory.fetchMaterial(this.id);
+        return this._materialInstance;
+    }
+
+    extend public void setMaterial(Material m) {
+        this.id = m.code;
+        this._materialInstance = m;
+    }
+
+    extend public void setID(str id) {
+        this.id = id;
+        this._materialInstance = factory.fetchMaterial(this.id);
+    }
+
+
+    /************* parts to str **************/
+    extend public str toStr(str extraInfo) { 
+        return this.id;
     }
 }
