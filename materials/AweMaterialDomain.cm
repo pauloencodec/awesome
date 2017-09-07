@@ -76,12 +76,12 @@ public class AweMaterialDomain extends OfficeMaterialDomain {
         return true;
     }
 
-    extend public Material fetchMaterial(str materialID) {
-        return this.factory().fetchMaterial(materialID);
+    extend public Material fetchMaterial(str materialID, str materialDescription=null) {
+        return this.factory().fetchMaterial(materialID, materialDescription);
     }
 
     extend public MaterialTreeViewItem convertTree(AweMaterialTreeItem aweRoot) {
-        MaterialTreeViewItem cetRoot(fetchMaterial("~"));
+        MaterialTreeViewItem cetRoot(fetchMaterial("plain_gray"));
         for (child in aweRoot.children) {
             appendItem(cetRoot, child);
         }
@@ -89,7 +89,7 @@ public class AweMaterialDomain extends OfficeMaterialDomain {
     }
 
     extend public void appendItem(TreeViewItem treeItem, AweMaterialTreeItem dataItem) {
-        var material = fetchMaterial(dataItem.key);
+        var material = fetchMaterial(dataItem.key, dataItem.name);
         var item = new MaterialTreeViewItem(material);
         treeItem.appendChild(item);
     

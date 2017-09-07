@@ -56,7 +56,7 @@ public class AweMaterialFactory {
     /**
      * Override this to define a custom routine to fetch materials by their ids
      */
-    extend public Material fetchMaterial(str materialID) {
+    extend public Material fetchMaterial(str materialID, str materialDescription=null) {
         var m = material(materialID, this.pkg);
         if(m) return m;
         return this.fallbackMaterial();
