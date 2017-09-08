@@ -58,7 +58,7 @@ public class AweMaterialDomain extends OfficeMaterialDomain {
     }
 
     extend public AweMaterialTreeItem loadJsonUrl(str jsonUrl) {
-        TextFile file(jsonUrl);
+        TextFile file(cmFindUrl(jsonUrl));
         var content = file.readAllContent();
         return loadJsonContent(content);
     }
