@@ -36,7 +36,7 @@
 
 package custom.awesome.materials;
 
-public class AweMaterial {
+public class AweMaterial extends AweModelAwareProp {
 
     public str id;
     private Material _materialInstance : copy=reference;
@@ -86,5 +86,17 @@ public class AweMaterial {
     /************* parts to str **************/
     extend public str toStr(str extraInfo) { 
         return this.id;
+    }
+
+
+    //becomes the id of picksurfaces created to own the prims this applies to
+    extend public str pickSurfaceKey() {
+        //TODO: deal with model mismatch when dropping new snappers
+        //return this.propKey # "#" # this.model.toS;
+        return this.propKey # "#";
+    }
+
+    extend public bool isOwnerOfPickSurface(str pickSurfaceKey) {
+        return this.pickSurfaceKey() == pickSurfaceKey;
     }
 }

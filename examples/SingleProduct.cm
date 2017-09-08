@@ -44,8 +44,7 @@ use custom.awesome.connectors;
 public aweObject MyCubeModel {
     props(
         double size = 1,
-        point origin = point(),
-        AweMaterial paint = AweMaterial("allsteel-tables", "laminate", "plain_red")
+        point origin = point()
     );
 
     public SingleCubeConnectorSet sideConnectors(this);
@@ -65,7 +64,7 @@ public class MyCubeProduct extends AweProduct {
     }
     public Primitive3D medium3D() {
         Box3D b(this.localBound());
-        this.applyMaterial("paint", b);
+        b.setMaterial(plainBlueMaterial3D());
         return b;
     }
 }

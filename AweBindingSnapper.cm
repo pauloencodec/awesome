@@ -154,7 +154,7 @@ public class AweBindingSnapper extends AweSnapper : abstract {
 
         for (m in allModels) {
             if (AweProduct product = getProductForModel(m)) {
-                var prim = product.get3D(env, this.materialManager);
+                var prim = product.get3D(env);
 
                 AweBindingSnapperPickSurface pick(this, prim, m.class.name);
                 
@@ -229,7 +229,22 @@ public class AweBindingSnapper extends AweSnapper : abstract {
         * Set material with key. The material 'key' must be registered through 'registerMaterial()'.
         */
     public void setUserMaterial(str key, Material m) {
-        //TODO: apply the material to the prop with propKey stored in the picksurface
+        var materialPropName = key.split('#').v0;
+        for(model in allModels()){
+            var potential = model.get(materialPropName);
+            if(potential as AweMaterial) {
+                if(potential.isOwnerOfPickSurface(key)) {
+                    potential.setMaterial(m);
+                    model.invalidate();
+                    return;
+                }
+            }
+        }
+    }
+
+    public str systemUserMaterialIdToLabel(str id) {
+        var propName = id.split('#').v0;
+        return propNameToLabel(propName);
     }
 
     extend private UserMaterials userMaterials() {

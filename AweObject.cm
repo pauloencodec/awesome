@@ -78,6 +78,7 @@ public class AweObject {
     }
 
     extend public void set(str propName, Object value) {
+        this.makePropModelAware(propName, value);
         Object oldValue = get(propName);
         this.props.put(propName, value);
         propChanged(propName, oldValue, value);
@@ -88,6 +89,34 @@ public class AweObject {
             }
         }
     }
+
+    /************** prop awereness ***********************/
+    extend private void makePropModelAware(str propName, Object value) {
+        if(value as AweModelAwareProp) {
+            value.model = this;
+            value.propKey = propName;
+        }
+    }
+
+    extend private void updatePropAwareness() {
+        for(key, value in this.props) {
+            makePropModelAware(key, value);
+        }
+    }
+
+    public Object copy(CopyEnv env, bool shallow=false) {
+        var c = super(..);
+        c.AweObject.updatePropAwareness();
+        c.AweObject.materialManager().?clear();
+        return c;
+    }
+    /*************************************/
+
+    extend public AweMaterialManager materialManager() {
+        return this.mainSnapper.AweBindingSnapper.?materialManager;
+    }
+    
+
             
     extend public void propChanged(str propName, Object oldValue, Object newValue) {
     }        
