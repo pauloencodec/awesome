@@ -57,6 +57,18 @@ public Primitive3D applyMaterial(Primitive3D p, Material material) {
     return p;
 }
 
+public Primitive3D applyMaterial(Primitive3D p, AweMaterial aweMaterial) {
+    var model = aweMaterial.model;
+    var snapper = model.?mainSnapper;
+    var materialManager = snapper.AweBindingSnapper.?materialManager;
+
+    if(materialManager) {
+        materialManager.registerPickSurface(p, aweMaterial);
+    }
+
+    return applyMaterial(p, aweMaterial.materialInstance);
+}
+
 private void outlinePrims(Primitive3D thisPrim, Primitive3D[] processed, TransformF[] transformStack=null, Material3D currentMaterial=null) {
     if(!transformStack) {
         transformStack = new (TransformF[])();
