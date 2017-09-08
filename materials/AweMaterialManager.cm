@@ -47,15 +47,17 @@ public class AweMaterialManager {
     }   
 
     extend public Primitive3D apply(AweObject model, str materialPropKey, Primitive3D prim) {
-        str pickSurfaceID = model.toS # materialPropKey;
         Material m = getMaterial(model, materialPropKey);
         if(!m) return prim;
         m.apply(prim, new FetchEnv3D());
-        AweBindingSnapperPickSurface surface(this.owner, prim, pickSurfaceID);
-        surface.configurator = model;
-        surface.propKey = materialPropKey;
-        prim.setOwner(surface);
-        userMaterials.registerEmptyKey(pickSurfaceID);
+
+        //TODO: activate this once all materials are being set via this method
+        // str pickSurfaceID = model.toS # materialPropKey;
+        // AweBindingSnapperPickSurface surface(this.owner, prim, pickSurfaceID);
+        // surface.configurator = model;
+        // surface.propKey = materialPropKey;
+        // prim.setOwner(surface);
+        // userMaterials.registerEmptyKey(pickSurfaceID);
         return prim;
     }
 

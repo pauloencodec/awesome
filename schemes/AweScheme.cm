@@ -114,8 +114,10 @@ public class AweScheme {
     extend private void applyMaterial(AweMaterial aweMaterial, str key, OfficeGroupScheme gs) {
         var material = gs.getMaterial(key, "");
         if(!material) {
-            var materialID = gs.getSetting(key).toS;
-            material = aweMaterial.factory.fetchMaterial(materialID);
+            var materialID = gs.getSetting(key).str;
+            if(materialID) {
+                material = aweMaterial.factory.fetchMaterial(materialID);
+            }
         }
         if(material) {
             aweMaterial.setMaterial(material);

@@ -80,12 +80,16 @@ public class AweBindingSnapper extends AweSnapper : abstract {
         return list;
     }
 
+    extend public AweProduct getProductForModel(AweObject model) {
+        return model.getProduct();
+    }
+
     public AweProduct[] allProducts() {
         bindProducts(this.root);
         AweProduct[] list();
 
         for (m in this.allModels()) {
-            if (AweProduct product = m.getProduct()) {
+            if (AweProduct product = getProductForModel(m)) {
                 list << product;
             }
         }
@@ -149,13 +153,13 @@ public class AweBindingSnapper extends AweSnapper : abstract {
         Awe3D all();
 
         for (m in allModels) {
-            if (AweProduct product = m.getProduct()) {
+            if (AweProduct product = getProductForModel(m)) {
                 var prim = product.get3D(env, this.materialManager);
 
-                // AweBindingSnapperPickSurface pick(this, prim, m.class.name);
+                AweBindingSnapperPickSurface pick(this, prim, m.class.name);
                 
-                // pick.configurator = m;
-                // prim.setOwner(pick);
+                pick.configurator = m;
+                prim.setOwner(pick);
                 
                 //selection highlight
                 if (m != root and this.activeConfigurator == m and env.reason != fetchReason3D.render) {
