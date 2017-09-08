@@ -181,7 +181,7 @@ public class AweConnectorCache {
             this._cache.put(this.getCacheKey(key), c);
         }
 
-        this.addToBuffer(c);
+        this.setupConnector(connector, connector.pos, connector.rot, connector.getId(), connector.rule);
 
         return c;
     }
