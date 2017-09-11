@@ -39,7 +39,6 @@ use cm.syntax;
 
 public statement registerAweScheme '(' @schemeModel=type ',' @label=expr ')' ';' {
     return statement {
-        AweScheme _scheme(new @schemeModel(), @label);
-        _scheme.register;
+        new AweScheme(new @schemeModel(), @label).register();
     };
 }
