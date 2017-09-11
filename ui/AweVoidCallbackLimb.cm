@@ -34,50 +34,56 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package custom.awesome.ui;
 
-private DualMaterial3D _electricalMaterial;
+public class AweVoidCallbackLimb extends LibraryLimb {
+    public function() callback=null;
+    
+    public constructor(
+        LibraryLimb parent,
+        function() callback,
+        symbol pkg=null,
+        str key=null,
+        Image image=null,
+        str label=null,
+        str toolTipText=null) {
 
-public DualMaterial3D electricalMaterial() {
-    if (!_electricalMaterial) {
-        _electricalMaterial = transparentColorMaterial(211, 211, 211, 0.5);
+        if (!key) {
+            key = cm.os.createGUID();
+        }
+        
+        super(parent, pkg, key, image=image, label="", toolTipText=toolTipText);
+
+        this.callback = callback;
     }
 
-    return _electricalMaterial;
-}
+    public Window build(Window w) {
+        var button = new AweVoidCallbackButton(w, this.callback, label=this.label, image=image, frameStyle=toolboxButtonFrameStyle);
 
-public Material3D getMaterialWithElectrical( Material3D material ) {
-    return material.applyViewLayers();
-}
+        button.key = this.key;
+        button.setToolTipText(this.toolTipText ?? this.label);
 
-public Material3D applyViewLayers(Material material) {
-    return material.material3D().applyViewLayers();
-}
-
-public Material3D applyViewLayers(Material3D material) {
-    if (material as MaterialSelector3D) {
-        return material;
+        return button;
     }
-    
-    MaterialSelector3D selector();
-
-    selector << option3D(electricalMaterial, #electrical);
-    selector << option3D(material, #normal);
-
-    selector.finalizeSelector();
-
-    return selector;
 }
 
-public DualMaterial3D transparentColorMaterial(int r=0, int g=0, int b=0, double opacity=0.75) {
-    return transparentColorMaterial(color(r, g, b), opacity);
+public class AweVoidCallbackButton extends Button {
+    public function() callback=null;
+
+    public constructor(Window parent, function() callback, FrameStyle frameStyle=pushButtonFrame, str label=null, Image image=null, alignment textSide=alignment.down) {
+        super(parent, frameStyle=frameStyle, label=label, image=image, textSide=textSide, margins=(2, 2));
+
+        this.callback = callback;
+        this.pressCb = function onButtonClick;
+    }
 }
 
-public DualMaterial3D transparentColorMaterial(color color, double opacity=0.75) {
-    DualMaterial3D dm();
-    
-    dm._color = color;
-    dm.lw = transparencyMaterial3D(color, opacity);
-    
-    return dm;
+private void onButtonClick(Control control) {
+    if (control as AweVoidCallbackButton) {
+        control.callback();
+    }
+}
+
+public void add(LibraryLimb container, function() callback, Image image, str tooltip) {
+    new AweVoidCallbackLimb(container, callback, image=image, toolTipText=tooltip);
 }

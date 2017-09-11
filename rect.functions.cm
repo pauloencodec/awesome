@@ -44,3 +44,35 @@ public rect orientBy(rect r, line2D l) {
     b.move(l.p0.point); 
     return b.rect;
 }
+
+public line2D topLine(rect r) {
+    return line2D(r.topLeft, r.p1);
+}
+
+public line2D bottomLine(rect r) {
+    return line2D(r.p0, r.bottomRight);
+}
+
+public line2D leftLine(rect r) {
+    return line2D(r.topLeft, r.p0);
+}
+
+public line2D rightLine(rect r) {
+    return line2D(r.p1, r.bottomRight);
+}
+
+public point2D midTop(rect r) {
+    return r.topLine().midPoint();
+}
+
+public point2D midBottom(rect r) {
+    return r.bottomLine().midPoint();
+}
+
+public point2D midLeft(rect r) {
+    return r.leftLine().midPoint();
+}
+
+public point2D midRight(rect r) {
+    return r.rightLine().midPoint();
+}

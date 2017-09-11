@@ -55,7 +55,8 @@ public class AweSnapper extends Snapper {
     private AwePart[] parts();
     public AweConnectorCache connectorCache(this);
 
-    public constructor() { 
+    public constructor() {
+        this.appendSelfToModels();
     }
 
     public AweObject activeConfigurator;
@@ -69,7 +70,7 @@ public class AweSnapper extends Snapper {
         return allModels.?count > 0 ? allModels.first() : null;        
     }
 
-    extend private void appendSelfToModels() {
+    extend public void appendSelfToModels() {
         for(m in allModels()) {
             m.appendSnapper(this);
         } 
@@ -176,12 +177,28 @@ public class AweSnapper extends Snapper {
         return super(..);
     }
 
+    public str quickPropertyObjectToLabel(str key, Object value, SubSet domain=null) {
+        for (m in this.allModels) {
+            if (this.activeConfigurator == m) {
+                if (str label = m.getQuickPropertyLabel(key, value)) {
+                    return label;
+                }
+            }
+        }
+        
+        return super(..);
+    }
+
     extend public void onPropertyChanged(str key, Object value) {
+    }
+
+    extend public void onModelPropertyChanged(str key, Object oldValue, Object newValue) {
+        this.groupChanged(new AweGroupAutomationPropChanged(this, key, oldValue, newValue));
     }
 
     extend public void addExtraAnimationProperties(AnimationProperties props) { }
 
-    extend public void extraAnimationPropertyChanged( str key, Object value) { }
+    extend public void extraAnimationPropertyChanged(str key, Object value) { }
 
     public Animation insertAnimation(StartInsertAnimationEnv env) {
         return new AweInsertAnimation(env);
@@ -244,6 +261,32 @@ public class AweSnapper extends Snapper {
         this.space.invalidateSelection();
     }
 
+    private bool _dropped = false;
+
+    public void dropped() {
+        if (!this._dropped) {
+            this._dropped = true;
+
+            this.groupChanged(new AweGroupAutomationFirstDrop(this));
+        }
+
+        super();
+    }
+
+    public void connected(Connector c0, Connector c1, bool snapped, bool attached) {
+        super(..);
+
+        if (!c0.isPassive()) {
+            this.groupChanged(new AweGroupAutomationConnected(this, c0, c1));
+        }
+    }
+
+    public void disconnected(Connector c0, Connector c1, bool wasSnapped, bool wasAttached) {
+        super(..);
+
+        this.groupChanged(new AweGroupAutomationDisconnected(this, c0, c1));
+    }
+
     public void invalidated(dirty3D flag3D) {
         this.appendSelfToModels();
         invalidateLights();
@@ -253,11 +296,106 @@ public class AweSnapper extends Snapper {
     public void invalidated(dirty2D flag2D) {
         this.appendSelfToModels();
         super(..);
-        
     }
 
     extend public str helpLink() {
         return null;
+    }
+    
+    /********** group changed ***********/
+    public str spawnerAutomationId;
+
+    public bool automatic() {
+        return this.spawnerAutomationId != null;
+    }
+
+    extend public bool shouldFireGroupChanged() {
+        return !disableGroupChangeTrigger and !this.automatic() and this.isAlive();
+    }
+
+    extend public void groupChanged(AweGroupAutomationTrigger trigger) {
+        if (!this.shouldFireGroupChanged()) return;
+
+        var group = this.groupModels();
+        str->AweGroupAutomation automations();
+
+        for (model in group) {
+            var modelGroupAutomations = model.getGroupAutomations();
+            
+            for(auto in modelGroupAutomations) {
+                if(!automations.get(auto.id)) {
+                    automations.put(auto.id, auto);
+                }
+            }
+        }
+    
+        disableGroupChangeTrigger = true;
+    
+        for (id, automation in automations) {
+            if (!automation.shouldRun(trigger)) continue;
+
+            var map = this.findAutomationSpawnSnappers(id, this.groupSnappers());            
+            var cloner = new AweAutomationPropertyCloner(map);
+
+            var newSnappers = automation.run(trigger, group, this.mainModel(), cloner);
+            
+            // if (newSnappers and newSnappers.any()) {
+            //     for (oldOne in map) {
+            //         if (oldOne.snapper !in newSnappers) {
+            //             this.space.remove(oldOne.snapper);
+            //         }
+            //     }
+    
+            //     for (newOne in newSnappers) {
+            //         this.space.put(newOne);
+    
+            //         newOne.spawnerAutomationId = id;
+            //         newOne.lonelyRemove = true;
+            //     }
+            // }
+        }
+        
+        disableGroupChangeTrigger = false;
+    }
+
+    extend private AweAutomationBoxToModelMapItem{} findAutomationSpawnSnappers(str id, Snapper{} snappers) {
+        AweAutomationBoxToModelMapItem{} found();
+        
+        for (AweSnapper s in snappers) {
+            if (s.spawnerAutomationId == id) {
+                found << new AweAutomationBoxToModelMapItem(s);
+            }
+        }
+
+        return found;
+    }
+
+    extend private Snapper{} groupSnappers(bool onlyDirectly=false) {
+        var snappers = onlyDirectly ? this.neighbors() : this.allConnected();
+    
+        if (onlyDirectly) {
+            Snapper{} nextLevelNeighbors();
+
+            for (snapper in snappers) {
+                nextLevelNeighbors += snapper.neighbors();
+            }
+
+            snappers += nextLevelNeighbors;
+        }
+
+        snappers << this;
+        
+        return snappers;
+    }
+
+    extend private AweObject{} groupModels(bool onlyDirectly=false) {
+        AweObject{} allModels();
+        
+        for (AweSnapper s in this.groupSnappers(onlyDirectly)) {
+            allModels += s.allModels();
+        }
+
+        return allModels;
     }
 
     /***********************************************************************
@@ -421,17 +559,19 @@ public class AweSnapper extends Snapper {
         invalidateLights();
         super(env);
     }
+
     public void suspended() {
         invalidateLights();
         super();
     }
+
     public void unsuspended() {
         super();
         invalidateLights();
     }
 
     public bool dbg_connectLinesIn3D() {
-        if (developMode) {
+        if (developMode and this.mainModel) {
             for (set in this.mainModel.connectorSets()) {
                 if (set.debug) return true;
             }
@@ -441,3 +581,4 @@ public class AweSnapper extends Snapper {
     }
 }
 
+private bool disableGroupChangeTrigger = false;

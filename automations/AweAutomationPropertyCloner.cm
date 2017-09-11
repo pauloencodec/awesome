@@ -34,50 +34,46 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package custom.awesome.automations;
 
-private DualMaterial3D _electricalMaterial;
+//compares new set of AweSnappers with the previous set and clones properties of things it deems the same
+public class AweAutomationPropertyCloner {
+    public AweAutomationBoxToModelMapItem{} oldGen;
 
-public DualMaterial3D electricalMaterial() {
-    if (!_electricalMaterial) {
-        _electricalMaterial = transparentColorMaterial(211, 211, 211, 0.5);
+    public constructor(AweAutomationBoxToModelMapItem{} oldGen) {
+        this.oldGen = oldGen;
+    }   
+
+    extend public AweSnapper bestMatch(AweSnapper newOne) {
+        //80% threshold? 
+        var threshold = 0.8;
+        var siblings = mainSpace().get(new GeometricBoxFinder(newOne.bound().grown(2m)));
+
+        for (AweSnapper snapper in siblings) {
+            var likelihood = compare(new AweAutomationBoxToModelMapItem(snapper), newOne);
+            
+            if (likelihood >= threshold) {
+                return snapper;
+            }
+        }
+
+        //poor thing found no match
+        return null;
     }
 
-    return _electricalMaterial;
-}
+    //returns the percentage likelihood of being the same thing. 1 = 100%
+    extend private double compare(AweAutomationBoxToModelMapItem oldOne, AweSnapper newOne) {
+        if (oldOne.model.?class != newOne.mainModel().?class) return 0;
 
-public Material3D getMaterialWithElectrical( Material3D material ) {
-    return material.applyViewLayers();
-}
+        var newBox = newOne.bound();
 
-public Material3D applyViewLayers(Material material) {
-    return material.material3D().applyViewLayers();
-}
+        //preventing division by 0 down the road
+        var newBoxVolume = newBox.volume();
+        
+        if (newBoxVolume <= 0) {
+            return 0;
+        }
 
-public Material3D applyViewLayers(Material3D material) {
-    if (material as MaterialSelector3D) {
-        return material;
+        return oldOne.bound.intersectionPercentage(newBox);
     }
-    
-    MaterialSelector3D selector();
-
-    selector << option3D(electricalMaterial, #electrical);
-    selector << option3D(material, #normal);
-
-    selector.finalizeSelector();
-
-    return selector;
-}
-
-public DualMaterial3D transparentColorMaterial(int r=0, int g=0, int b=0, double opacity=0.75) {
-    return transparentColorMaterial(color(r, g, b), opacity);
-}
-
-public DualMaterial3D transparentColorMaterial(color color, double opacity=0.75) {
-    DualMaterial3D dm();
-    
-    dm._color = color;
-    dm.lw = transparencyMaterial3D(color, opacity);
-    
-    return dm;
 }

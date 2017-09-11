@@ -45,7 +45,7 @@ public class AwePart extends OfficePart {
     private AwePartOption[] options : public readable;
     public AwePartHeader header();
 
-    public constructor(str catalog, str sku, int quantity=1) {
+    public constructor(str catalog, str sku, double quantity=1) {
         super();
 
         this.catalog = catalog;
@@ -55,7 +55,7 @@ public class AwePart extends OfficePart {
         this.data.setQuantity(quantity);
     }
 
-    public constructor(Snapper snapper, str catalog, str sku, int quantity=1) {
+    public constructor(Snapper snapper, str catalog, str sku, double quantity=1) {
         this.catalog = catalog;
         this.sku = sku;
         

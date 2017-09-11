@@ -118,3 +118,11 @@ public Object getBag(Connector c) {
     }
     return null;
 }
+
+public bool isPassive(Connector c) {
+    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
+        return conn.passive;
+    }
+    
+    return false;
+}

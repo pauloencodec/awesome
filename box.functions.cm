@@ -36,48 +36,74 @@
 
 package custom.awesome;
 
-private DualMaterial3D _electricalMaterial;
+public double intersectionPercentage(box a, box b) {
+    if (!a.intersects(b)) return 0;
 
-public DualMaterial3D electricalMaterial() {
-    if (!_electricalMaterial) {
-        _electricalMaterial = transparentColorMaterial(211, 211, 211, 0.5);
-    }
-
-    return _electricalMaterial;
-}
-
-public Material3D getMaterialWithElectrical( Material3D material ) {
-    return material.applyViewLayers();
-}
-
-public Material3D applyViewLayers(Material material) {
-    return material.material3D().applyViewLayers();
-}
-
-public Material3D applyViewLayers(Material3D material) {
-    if (material as MaterialSelector3D) {
-        return material;
-    }
+    var intersection = a * b;
     
-    MaterialSelector3D selector();
-
-    selector << option3D(electricalMaterial, #electrical);
-    selector << option3D(material, #normal);
-
-    selector.finalizeSelector();
-
-    return selector;
+    return intersection.volume() / a.volume();
 }
 
-public DualMaterial3D transparentColorMaterial(int r=0, int g=0, int b=0, double opacity=0.75) {
-    return transparentColorMaterial(color(r, g, b), opacity);
+public line upNorthLine(box b) {
+    return line(b.upNorthwest(), b.upNortheast());
 }
 
-public DualMaterial3D transparentColorMaterial(color color, double opacity=0.75) {
-    DualMaterial3D dm();
-    
-    dm._color = color;
-    dm.lw = transparencyMaterial3D(color, opacity);
-    
-    return dm;
+public line upSouthLine(box b) {
+    return line(b.upSouthwest(), b.upSoutheast());
+}
+
+public line upWestLine(box b) {
+    return line(b.upNorthwest(), b.upSouthwest());
+}
+
+public line upEastLine(box b) {
+    return line(b.upNortheast(), b.upSoutheast());
+}
+
+public line downNorthLine(box b) {
+    return line(b.downNorthwest(), b.downNortheast());
+}
+
+public line downSouthLine(box b) {
+    return line(b.downSouthwest(), b.downSoutheast());
+}
+
+public line downWestLine(box b) {
+    return line(b.downNorthwest(), b.downSouthwest());
+}
+
+public line downEastLine(box b) {
+    return line(b.downNortheast(), b.downSoutheast());
+}
+
+public point upNorth(box b) {
+    return b.upNorthLine().midPoint();
+}
+
+public point upSouth(box b) {
+    return b.upSouthLine().midPoint();
+}
+
+public point upWest(box b) {
+    return b.upWestLine().midPoint();
+}
+
+public point upEast(box b) {
+    return b.upEastLine().midPoint();
+}
+
+public point downNorth(box b) {
+    return b.downNorthLine().midPoint();
+}
+
+public point downSouth(box b) {
+    return b.downSouthLine().midPoint();
+}
+
+public point downWest(box b) {
+    return b.downWestLine().midPoint();
+}
+
+public point downEast(box b) {
+    return b.downEastLine().midPoint();
 }
