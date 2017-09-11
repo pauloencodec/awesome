@@ -232,7 +232,7 @@ public class AweBindingSnapper extends AweSnapper : abstract {
         var materialPropName = key.split('#').v0;
         for(model in allModels()){
             var potential = model.get(materialPropName);
-            if(potential as AweMaterial) {
+            if(potential as AweMaterialShell) {
                 if(potential.isOwnerOfPickSurface(key)) {
                     potential.setMaterial(m);
                     model.invalidate();

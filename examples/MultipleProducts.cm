@@ -46,7 +46,7 @@ public aweObject CubeModel {
     props(
         bool on=false,
         point origin=point(),
-        AweMaterial paint = AweMaterial("plain_green")
+        AweMaterialShell paint = AweMaterialShell("plain_green")
     );
     public aweObjectDomain(
         bool on=BoolSubSet()

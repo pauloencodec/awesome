@@ -45,7 +45,7 @@ public class AweMaterialManager {
         this.owner = owner;
     }   
 
-    extend public void registerPickSurface(Primitive3D prim, AweMaterial aweMaterial) {
+    extend public void registerPickSurface(Primitive3D prim, AweMaterialShell aweMaterial) {
         var pickSurfaceID = aweMaterial.pickSurfaceKey();
         AweBindingSnapperPickSurface surface(this.owner, prim, pickSurfaceID);
         surface.configurator = aweMaterial.model;

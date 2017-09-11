@@ -35,68 +35,24 @@
 */
 
 package custom.awesome.materials;
+use cm.abstract.office;
+use cm.win;
 
-public class AweMaterial extends AweModelAwareProp {
-
-    public str id;
-    private Material _materialInstance : copy=reference;
-
-    private AweMaterialFactory _factory;
-
-    public constructor(str id="plain_gray", AweMaterialFactory factory=null) {
-        this._factory = factory;
-        this.setID(id);
-    }  
-
-    public aweDynamicContract {
-        aweDynamic str toStr(str extraInfo);
-    }
+public class AweMaterial extends OfficeMaterial {
+    private Image thumbnailCache : stream = null, copy = null;
+    public Image sizedPreviewImage2(double scale, int sz=48, int w=-1, int h=-1, bool superQuality=false, bool force=false) {
+            if(!thumbnailCache) {
+                thumbnailCache = getSizedPreviewImage(this, 1, w=sz, h=sz, force=true);
+            }
+            return thumbnailCache;
+    }   
     
-    extend public AweMaterialFactory factory() {
-        if(this._factory) return this._factory;
-        return new AweMaterialFactory();
+    public Material3D thumbnailMaterial3D() {
+        if(this.material3D) return this.material3D;
+        return plainBlueMaterial3D();
     }
 
-    /**
-     * use this to return the material to be used when something goes wrong
-     */
-     extend public Material fallbackMaterial() {
-        return factory.fallbackMaterial();
-    }
-
-    /**
-     * Override this to define a custom routine to fetch materials by their ids
-     */
-    extend public Material materialInstance() {
-        if(this._materialInstance) return this._materialInstance;
-        return this.fallbackMaterial();
-    }
-
-    extend public void setMaterial(Material m) {
-        this.id = m.code;
-        this._materialInstance = m;
-    }
-
-    extend public void setID(str id) {
-        this.id = id;
-        this._materialInstance = factory.fetchMaterial(this.id);
-    }
-
-
-    /************* parts to str **************/
-    extend public str toStr(str extraInfo) { 
-        return this.id;
-    }
-
-
-    //becomes the id of picksurfaces created to own the prims this applies to
-    extend public str pickSurfaceKey() {
-        //TODO: deal with model mismatch when dropping new snappers
-        //return this.propKey # "#" # this.model.toS;
-        return this.propKey # "#";
-    }
-
-    extend public bool isOwnerOfPickSurface(str pickSurfaceKey) {
-        return this.pickSurfaceKey() == pickSurfaceKey;
+    public Image sizedPreviewImage(int w, int h, bool force=false) {
+        return getSizedPreviewImage(this, thumbnailScale(w), w=w, h=h, force=force);
     }
 }
