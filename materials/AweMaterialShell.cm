@@ -36,37 +36,67 @@
 
 package custom.awesome.materials;
 
-/**
- * the purpose of this class is to allow delegation of material fetching to the consuming extensions. It also creates instances of material props and material domains. 
- */
-public class AweMaterialFactory {
-    public symbol pkg;
+public class AweMaterialShell extends AweModelAwareProp {
 
-    public constructor(symbol pkg=#:package : caller eval) {
-        this.pkg = pkg;
-    }   
+    public str id;
+    private Material _materialInstance : copy=reference;
+
+    private AweMaterialFactory _factory;
+
+    public constructor(str id="plain_gray", AweMaterialFactory factory=null) {
+        this._factory = factory;
+        this.setID(id);
+    }  
+
+    public aweDynamicContract {
+        aweDynamic str toStr(str extraInfo);
+    }
+    
+    extend public AweMaterialFactory factory() {
+        if(this._factory) return this._factory;
+        return new AweMaterialFactory();
+    }
 
     /**
      * use this to return the material to be used when something goes wrong
      */
-    extend public Material fallbackMaterial() {
-        return material("plain_red");
+     extend public Material fallbackMaterial() {
+        return factory.fallbackMaterial();
     }
 
     /**
      * Override this to define a custom routine to fetch materials by their ids
      */
-    extend public Material fetchMaterial(str materialID, str materialDescription=null) {
-        var m = material(materialID, this.pkg);
-        if(m) return m;
+    extend public Material materialInstance() {
+        if(this._materialInstance) return this._materialInstance;
         return this.fallbackMaterial();
     }
 
-    extend public AweMaterialShell makeProp(str initialMaterialID) {
-        return AweMaterialShell(initialMaterialID, this);
+    extend public void setMaterial(Material m) {
+        this.id = m.code;
+        this._materialInstance = m;
     }
 
-    extend public AweMaterialDomain makeDomain(str jsonUrl) {
-        return new AweMaterialDomain(jsonUrl, this);
+    extend public void setID(str id) {
+        this.id = id;
+        this._materialInstance = factory.fetchMaterial(this.id);
+    }
+
+
+    /************* parts to str **************/
+    extend public str toStr(str extraInfo) { 
+        return this.id;
+    }
+
+
+    //becomes the id of picksurfaces created to own the prims this applies to
+    extend public str pickSurfaceKey() {
+        //TODO: deal with model mismatch when dropping new snappers
+        //return this.propKey # "#" # this.model.toS;
+        return this.propKey # "#";
+    }
+
+    extend public bool isOwnerOfPickSurface(str pickSurfaceKey) {
+        return this.pickSurfaceKey() == pickSurfaceKey;
     }
 }

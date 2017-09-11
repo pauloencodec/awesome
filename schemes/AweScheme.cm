@@ -82,8 +82,8 @@ public class AweScheme {
             var value = item.initialValue;
 
             //initial value for materials need to be the id
-            if(value in AweMaterial) {
-                value = value.AweMaterial.id;
+            if(value in AweMaterialShell) {
+                value = value.AweMaterialShell.id;
             }
 
             scheme.append(item.key, item.label, item.domain, initValue=value);
@@ -100,7 +100,7 @@ public class AweScheme {
     extend public AweObject convert(OfficeGroupScheme gs) {
         AweObject modelCopy = model.copy();
         for(key, value in modelCopy.props) {
-            if(value as AweMaterial) {
+            if(value as AweMaterialShell) {
                 //materials are trickier...
                 applyMaterial(value, key, gs);
             } else {
@@ -111,7 +111,7 @@ public class AweScheme {
         return modelCopy;
     }
 
-    extend private void applyMaterial(AweMaterial aweMaterial, str key, OfficeGroupScheme gs) {
+    extend private void applyMaterial(AweMaterialShell aweMaterial, str key, OfficeGroupScheme gs) {
         var material = gs.getMaterial(key, "");
         if(!material) {
             var materialID = gs.getSetting(key).str;
