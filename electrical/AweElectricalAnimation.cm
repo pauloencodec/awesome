@@ -63,8 +63,8 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
         this.showHint();
     }
 
-    public void configuratorChanged() {
-        updateSubConfigurators();
+    public void configuratorChanged(str key, Object value) {
+        updateSubConfigurators(rebuildProperties=!this.ignoreRebuildProperties(key));
         currentMode.configuratorChanged();
     }
 
@@ -140,10 +140,12 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
         this.refresh();
     }
 
-    extend public void updateSubConfigurators() {
+    extend public void updateSubConfigurators(bool rebuildProperties=true) {
         //mode configurators
         this.subConfigurators = currentMode.subConfigurators();
-        this.buildProperties();
+        if (rebuildProperties) {
+            this.buildProperties();
+        }
     }
 
     extend public void updateMap() {

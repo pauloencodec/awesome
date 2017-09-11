@@ -113,7 +113,6 @@ public class AweElectricalAnimationInfeedMode extends AweElectricalAnimationMode
     public void configuratorChanged() {
         this.animation.status.?updateStatus();
         this.animation.updateMap();
-        this.animation.updateSubConfigurators();
     }
     
 }
