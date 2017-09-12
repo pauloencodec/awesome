@@ -88,6 +88,8 @@ public class AweObject {
                 snapper.onModelPropertyChanged(propName, oldValue, value);
             }
         }
+
+        this.updateLimbDefaults();
     }
 
     /************** prop awereness ***********************/
@@ -526,6 +528,19 @@ public class AweObject {
     /***************** schemes ******************/
     extend public bool applyScheme(AweObject schemeModel) {
         return false;
+    }
+
+    /**************** update settings ****************/
+    //this is set by AweModelLimb if / when this model is placed by one
+    public str limbKey;
+
+    extend public void updateLimbDefaults() {
+        //limb settings
+        if(this.limbKey) {
+            custom.awesome.ui.modelLimbDefaults.put(this.limbKey, this.copy());
+        } else if(this.parent) {
+            this.parent.updateLimbDefaults();
+        }
     }
 
 }
