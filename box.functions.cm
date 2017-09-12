@@ -33,23 +33,77 @@
 
    END OF CETSC
 */
-package custom.awesome : 8.0.0;
 
-use custom.awesome.product;
-use custom.awesome.automations;
-use custom.awesome.materials;
-use custom.awesome.schemes;
+package custom.awesome;
 
-use cm.abstract.surface;
+public double intersectionPercentage(box a, box b) {
+    if (!a.intersects(b)) return 0;
 
-use cm.format.cm3D;
-use cm.geometry.advanced;
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.win;
-use cm.io;
-use cm.io.util;
-use cm.rs;
+    var intersection = a * b;
+    
+    return intersection.volume() / a.volume();
+}
+
+public line upNorthLine(box b) {
+    return line(b.upNorthwest(), b.upNortheast());
+}
+
+public line upSouthLine(box b) {
+    return line(b.upSouthwest(), b.upSoutheast());
+}
+
+public line upWestLine(box b) {
+    return line(b.upNorthwest(), b.upSouthwest());
+}
+
+public line upEastLine(box b) {
+    return line(b.upNortheast(), b.upSoutheast());
+}
+
+public line downNorthLine(box b) {
+    return line(b.downNorthwest(), b.downNortheast());
+}
+
+public line downSouthLine(box b) {
+    return line(b.downSouthwest(), b.downSoutheast());
+}
+
+public line downWestLine(box b) {
+    return line(b.downNorthwest(), b.downSouthwest());
+}
+
+public line downEastLine(box b) {
+    return line(b.downNortheast(), b.downSoutheast());
+}
+
+public point upNorth(box b) {
+    return b.upNorthLine().midPoint();
+}
+
+public point upSouth(box b) {
+    return b.upSouthLine().midPoint();
+}
+
+public point upWest(box b) {
+    return b.upWestLine().midPoint();
+}
+
+public point upEast(box b) {
+    return b.upEastLine().midPoint();
+}
+
+public point downNorth(box b) {
+    return b.downNorthLine().midPoint();
+}
+
+public point downSouth(box b) {
+    return b.downSouthLine().midPoint();
+}
+
+public point downWest(box b) {
+    return b.downWestLine().midPoint();
+}
+
+public point downEast(box b) {
+    return b.downEastLine().midPoint();
+}

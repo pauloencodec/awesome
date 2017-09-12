@@ -33,23 +33,36 @@
 
    END OF CETSC
 */
-package custom.awesome : 8.0.0;
 
-use custom.awesome.product;
-use custom.awesome.automations;
-use custom.awesome.materials;
-use custom.awesome.schemes;
+package custom.awesome.schemes;
 
-use cm.abstract.surface;
+public class AweSchemeEditor extends OfficeGroupSchemeEditor {
 
-use cm.format.cm3D;
-use cm.geometry.advanced;
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.win;
-use cm.io;
-use cm.io.util;
-use cm.rs;
+    public AweScheme scheme;
+
+    public constructor(AweScheme scheme) {
+        this.scheme = scheme;
+        super(scheme.key, scheme.label);
+    }
+
+    public bool applyScheme(Snapper{} snappers, GroupScheme gs) {
+        bool applied = false;
+        if(gs as OfficeGroupScheme) {
+            var schemeModel = this.scheme.convert(gs);
+            for(s in snappers) {
+                if(s as AweSnapper){
+                    var models = s.allModels();
+                    for(model in models) {
+                        bool invalidate = model.applyScheme(schemeModel);
+                        if(invalidate) {
+                            model.invalidate();
+                        }
+                    }
+                }
+            }
+
+        }
+
+        return applied;
+    }
+}

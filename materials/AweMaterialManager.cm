@@ -33,23 +33,29 @@
 
    END OF CETSC
 */
-package custom.awesome : 8.0.0;
 
-use custom.awesome.product;
-use custom.awesome.automations;
-use custom.awesome.materials;
-use custom.awesome.schemes;
+package custom.awesome.materials;
 
-use cm.abstract.surface;
+public class AweMaterialManager {
 
-use cm.format.cm3D;
-use cm.geometry.advanced;
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.win;
-use cm.io;
-use cm.io.util;
-use cm.rs;
+    public Snapper owner;
+    public UserMaterials userMaterials();
+
+    public constructor(Snapper owner) {
+        this.owner = owner;
+    }   
+
+    extend public void registerPickSurface(Primitive3D prim, AweMaterialShell aweMaterial) {
+        var pickSurfaceID = aweMaterial.pickSurfaceKey();
+        AweBindingSnapperPickSurface surface(this.owner, prim, pickSurfaceID);
+        surface.configurator = aweMaterial.model;
+        surface.propKey = aweMaterial.propKey;
+        prim.setOwner(surface);
+        this.userMaterials.registerEmptyKey(pickSurfaceID);
+    }
+
+    extend public void clear() {
+        //resets material keys
+        this.userMaterials.remove();
+    }
+}

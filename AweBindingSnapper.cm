@@ -80,12 +80,16 @@ public class AweBindingSnapper extends AweSnapper : abstract {
         return list;
     }
 
+    extend public AweProduct getProductForModel(AweObject model) {
+        return model.getProduct();
+    }
+
     public AweProduct[] allProducts() {
         bindProducts(this.root);
         AweProduct[] list();
 
         for (m in this.allModels()) {
-            if (AweProduct product = m.getProduct()) {
+            if (AweProduct product = getProductForModel(m)) {
                 list << product;
             }
         }
@@ -149,7 +153,7 @@ public class AweBindingSnapper extends AweSnapper : abstract {
         Awe3D all();
 
         for (m in allModels) {
-            if (AweProduct product = m.getProduct()) {
+            if (AweProduct product = getProductForModel(m)) {
                 var prim = product.get3D(env);
 
                 AweBindingSnapperPickSurface pick(this, prim, m.class.name);
@@ -207,8 +211,56 @@ public class AweBindingSnapper extends AweSnapper : abstract {
         
         return super(..);
     }
+
+    /***********************************************************************
+     * Material change
+     ***********************************************************************/
+
+     public AweMaterialManager materialManager(this);
+
+    /**
+     * Return true if material change is supported.
+     */
+    public bool supportsMaterialChange() {
+        return true;
+    }
+           
+    /**
+        * Set material with key. The material 'key' must be registered through 'registerMaterial()'.
+        */
+    public void setUserMaterial(str key, Material m) {
+        var materialPropName = key.split('#').v0;
+        for(model in allModels()){
+            var potential = model.get(materialPropName);
+            if(potential as AweMaterialShell) {
+                if(potential.isOwnerOfPickSurface(key)) {
+                    potential.setMaterial(m);
+                    model.invalidate();
+                    return;
+                }
+            }
+        }
+    }
+
+    public str systemUserMaterialIdToLabel(str id) {
+        var propName = id.split('#').v0;
+        return propNameToLabel(propName);
+    }
+
+    extend private UserMaterials userMaterials() {
+        return materialManager.?userMaterials;
+    }
+    
+        
+    /**
+        * Return registered user materials.
+        */
+    public UserMaterials getUserMaterials() {
+        return this.userMaterials();
+    }
 }
 
 public class AweBindingSnapperPickSurface extends PickSurface {
     public AweObject configurator;
+    public str propKey;
 }

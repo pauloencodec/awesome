@@ -64,7 +64,7 @@ public class MyCubeProduct extends AweProduct {
     }
     public Primitive3D medium3D() {
         Box3D b(this.localBound());
-        b.setMaterial(plainGreenMaterial3D);
+        b.setMaterial(plainBlueMaterial3D());
         return b;
     }
 }
@@ -112,5 +112,7 @@ public class SingleCubeConnectorSet extends AweConnectorSet {
 }
 
 {
-    SingleCubeSnapper().launch();
+    // SingleCubeSnapper().launch();
+    var m = material("PAL", #"custom.acs");
+    pln(#m);
 }

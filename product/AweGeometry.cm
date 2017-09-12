@@ -39,7 +39,7 @@ package custom.awesome.product;
 use custom.awesome.electrical;
 
 public class AweGeometry {
-    public Object _model;
+    public AweObject _model;
 
     private str->Point2D poi() : public readable;
     private str->Line2D loi() : public readable;
@@ -74,9 +74,14 @@ public class AweGeometry {
         }
     }
 
-   extend public void addPart(str catalog, str sku, int quantity=1) {
-        for (i in (1..quantity)) {
-            this.parts << new AwePart(catalog, sku);
+   extend public void addPart(str catalog, str sku, double quantity=1) {
+        if (quantity < 1) {
+            this.parts << new AwePart(catalog, sku, quantity);
+        }
+        else {
+            for (i in (1..quantity)) {
+                this.parts << new AwePart(catalog, sku);
+            }
         }
     }
 
@@ -101,5 +106,4 @@ public class AweGeometry {
     extend public void addLightPoint(point position, vector direction = (0,0,-1), double intensity=0.2) {
         lights << AweLightModel(position, direction, intensity);
     }
-
 }

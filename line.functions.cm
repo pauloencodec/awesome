@@ -33,23 +33,51 @@
 
    END OF CETSC
 */
-package custom.awesome : 8.0.0;
 
-use custom.awesome.product;
-use custom.awesome.automations;
-use custom.awesome.materials;
-use custom.awesome.schemes;
+package custom.awesome;
 
-use cm.abstract.surface;
+public orientation orientation(line l) {
+    return orientation(l.direction);
+} 
 
-use cm.format.cm3D;
-use cm.geometry.advanced;
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.win;
-use cm.io;
-use cm.io.util;
-use cm.rs;
+public line offset(line l, vector offset) {
+    return line(l.p0 + offset, l.p1 + offset);
+}
+
+public line flip(line l) {
+    return line(l.p1, l.p0);
+}
+
+public line inverse(line l) {
+    return l.flip();
+}
+
+public line2D toLine2D(line l) {
+    return line2D(l.p0.point2D, l.p1.point2D);
+}
+
+public line toTheFloor(line l) {
+    return l.setZ(0);
+}
+
+public line setZ(line l, double z0, double z1) {
+    l.p0.z = z0;
+    l.p1.z = z1;
+    
+    return l;
+}
+
+public line setZ(line l, double z) {
+    return l.setZ(z, z);
+}
+
+public line addZ(line l, double z0, double z1) {
+    l.p0.z += z0;
+    l.p1.z += z1;
+    
+    return l;
+}
+
+public line addZ(line l, double z) {
+    return l.addZ(z, z);
+}
