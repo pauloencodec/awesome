@@ -33,23 +33,48 @@
 
    END OF CETSC
 */
-package custom.awesome : 8.0.0;
 
-use custom.awesome.product;
-use custom.awesome.automations;
-use custom.awesome.materials;
-use custom.awesome.schemes;
+package custom.awesome.schemes;
+use cm.syntax;
 
-use cm.abstract.surface;
+public syntax <SId,SId,SId> aweSchemeBinding {
+    @propName=id "=" @schemeKey=id "." @schemePropKey=id {
+        <SId,SId,SId> bindingInfo = <propName, schemeKey, schemePropKey>;
+        return bindingInfo;
+    }
+}
 
-use cm.format.cm3D;
-use cm.geometry.advanced;
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.win;
-use cm.io;
-use cm.io.util;
-use cm.rs;
+public member @visibility aweSchemeBindings '(' @bindings=[aweSchemeBinding ',']* @lastBinding=aweSchemeBinding ')' ';' {
+    <SId, SId, SId>[] allBindings();
+    for(b in bindings) {
+        allBindings << b;
+    }
+    allBindings << lastBinding;
+
+    SStatements ifs();
+
+    for(binding in allBindings) {
+
+        SId propName = binding.v0;
+        SId schemeKey = binding.v1;
+        SId schemePropKey = binding.v2;
+
+        ifs << statement {
+            if(schemeModel as @schemeKey) {
+                this.@propName = schemeModel.@schemePropKey;
+                applied = true;
+            }
+        };
+    }
+
+    return member {
+        @visibility bool applyScheme(AweObject schemeModel) {
+            bool applied = super(..);
+
+            @ifs;
+
+            return applied;
+        }
+    };
+}
+
