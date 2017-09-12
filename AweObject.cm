@@ -80,7 +80,15 @@ public class AweObject {
     extend public void set(str propName, Object value) {
         this.makePropModelAware(propName, value);
         Object oldValue = get(propName);
-        this.props.put(propName, value);
+
+        //AweMaterialShell instance must never be replaced. instead, update the contents of the shell
+        if(oldValue as AweMaterialShell) {
+            if(value as AweMaterialShell) {
+                oldValue.setMaterial(value.materialInstance());
+            }
+        } else {
+            this.props.put(propName, value);
+        }
         propChanged(propName, oldValue, value);
 
         for (AweSnapper snapper in this.snappers) {
