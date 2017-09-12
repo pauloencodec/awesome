@@ -64,6 +64,7 @@ public class AweModelLimb extends SnapperLimb {
         }
         var model = templateModel.copy();
         model.limbKey = this.limbKey;
+        model.updateWithLatestSchemes();
         return model;
     }
     

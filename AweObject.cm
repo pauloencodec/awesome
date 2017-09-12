@@ -530,6 +530,13 @@ public class AweObject {
         return false;
     }
 
+    //invoked by AweModelLimb
+    extend public void updateWithLatestSchemes() {
+        for(model in getLatestAweSchemeModels()) {
+            this.applyScheme(model);
+        }
+    }
+
     /**************** update settings ****************/
     //this is set by AweModelLimb if / when this model is placed by one
     public str limbKey;
