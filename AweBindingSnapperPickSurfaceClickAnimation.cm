@@ -67,8 +67,8 @@ public class AweBindingSnapperPickSurfaceClickAnimation extends SnapperClickAnim
                 if (p.owner.AweBindingSnapperPickSurface) {
                     configurator = p.owner.AweBindingSnapperPickSurface.configurator;
                 }
-                else if (p.owner.AweBindingSnapper) {
-                    configurator = p.owner.AweBindingSnapper.root;
+                else if (p.owner.AweSnapper) {
+                    configurator = p.owner.AweSnapper.mainModel;
                 }
                 
                 if (configurator) {
