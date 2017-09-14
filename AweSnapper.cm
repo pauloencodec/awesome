@@ -177,6 +177,18 @@ public class AweSnapper extends Snapper {
         return super(..);
     }
 
+    public str quickPropertyObjectToLabel(str key, Object value, SubSet domain=null) {
+        for (m in this.allModels) {
+            if (this.activeConfigurator == m) {
+                if (str label = m.getQuickPropertyLabel(key, value)) {
+                    return label;
+                }
+            }
+        }
+        
+        return super(..);
+    }
+
     extend public void onPropertyChanged(str key, Object value) {
     }
 

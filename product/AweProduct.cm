@@ -62,7 +62,7 @@ public class AweProduct extends AweGeometry {
         return this;
     }
 
-    public constructor(Object model) {
+    public constructor(AweObject model) {
         this.updateModel(model);
     }   
 
@@ -84,7 +84,7 @@ public class AweProduct extends AweGeometry {
         return this.goi.get(key);
     }
 
-    extend public void updateModel(Object model) {
+    extend public void updateModel(AweObject model) {
         this._model = model;
         
         this.modelChanged();

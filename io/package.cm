@@ -41,3 +41,5 @@ use cm.io;
 use cm.io.util;
 use cm.basic;
 use cm.format.json;
+use cm.core;
+use cm.runtime;
