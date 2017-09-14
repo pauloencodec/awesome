@@ -53,6 +53,7 @@ public class AweObject {
 
     public constructor() {
         this.init();
+        this.appendGhosts(this.ghosts);
     }
 
     extend public void init() { 
@@ -488,7 +489,23 @@ public class AweObject {
     }
 
     /************** exposing connectors ***************/
+
+    //ID to connector.
+    //ID is ConnectorSetName.ConnectorID. i.e.: PanelConnetorSet.leftPoint
+    private str->Connector connectorIndex();
+
+    extend public Connector getConnectorById(str connectorFullId) {
+        return this.connectorIndex.get(connectorFullId);
+    }
+
     extend public Connector{} getConnectors(Snapper snapper=null) {
+
+        if(!connectorIndex) {
+            connectorIndex = new str->Connector();
+        }
+        connectorIndex.clear();
+
+
         Connector{} connectors();
         for(set in connectorSets) if(set.active()) {
             if(!set.connectorCache) {
@@ -501,8 +518,14 @@ public class AweObject {
                 c.setConnectorSet(set);
                 c.setModel(this);
                 connectors << c;
+
+                connectorIndex.put(set.class.toS() # "." # c.getId, c);
             }
         }
+
+        //ghosts
+        connectors += this.getGhostConnectors();
+
         return connectors;
     }
 
@@ -556,6 +579,24 @@ public class AweObject {
         } else if(this.parent) {
             this.parent.updateLimbDefaults();
         }
+    }
+
+    /*************** g-g-g-ghost! *****************/
+    public AweGhost{} ghosts();
+
+    extend public void appendGhosts(AweGhost{} ghosts) {
+
+    }
+
+    extend public Connector{} getGhostConnectors() {
+        Connector{} ghostConnectors();
+        for(ghost in this.ghosts) {
+            for(c in ghost.getConnectors()) {
+                c.setGhost(ghost);
+                ghostConnectors << c;
+            }
+        }
+        return ghostConnectors;
     }
 
 }

@@ -76,7 +76,7 @@ public class AweConnectorSet  {
     }
 
     extend public void connected(AweConnectEnv me, AweConnectEnv other) {
-
+        pln("opa");
     }
 
     extend public void disconnected(AweConnectEnv me, AweConnectEnv other) {
