@@ -105,6 +105,12 @@ public class AweGhost {
         var currentSnapper = ghostSnapper;
         this.hostSnapper().space.put(currentSnapper);
 
+        for(c in currentSnapper.connectors()) {
+            //set them free of ghosts
+            c.setGhost(null);
+            c.disconnectAll();
+        }
+
         //make a new one for next time
         this.instantiateGhost();
 
