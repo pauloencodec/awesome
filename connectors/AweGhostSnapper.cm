@@ -34,20 +34,14 @@
    END OF CETSC
 */
 
-package custom.awesome.examples;
-
-use custom.awesome.product;
-use custom.awesome;
-use custom.awesome.materials;
-use custom.awesome.schemes;
+package custom.awesome.connectors;
 use custom.awesome.snapper;
-use custom.awesome.connectors;
-use cm.format.cm3D;
-use cm.geometry.advanced;
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.win;
-use cm.io;
+
+public class AweGhostSnapper extends AweModelSnapper {
+    public bool animationTrySnap(Connector mySnap, Connector targetAttach, line mouseLine, bool connect=true, bool undoable=false, ModifyEnv env=null) {
+        var allowed = super(..);
+        // pln("fantasminha");
+        // pln(#allowed; #mySnap; #targetAttach);
+        return allowed;
+    }   
+}

@@ -109,6 +109,18 @@ public class AweSnapper extends Snapper {
 
     /************** connections ***************/
 
+    public bool animationTrySnap(Connector mySnap, Connector targetAttach, line mouseLine, bool connect=true, bool undoable=false, ModifyEnv env=null) {
+        var allowed = super(..);
+        if(allowed and AweGhost ghost = targetAttach.getGhost()) {
+            //user just connected this to a ghost
+            pln(#ghost);
+            // mySnap.disconnect(targetAttach);
+            ghost.deploy();
+            // return false;
+        }
+        return allowed;
+    }   
+
     extend public bool mustConnect() {
         return true;
     }

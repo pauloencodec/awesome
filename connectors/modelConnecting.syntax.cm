@@ -44,6 +44,8 @@ public member @visibility modelConnecting ';' {
 
         @visibility AweObject model: copy=null, stream=null;
 
+        @visibility AweGhost ghost: copy=null, stream=null;
+
         @visibility AweMagnet{} magnets;
 
         @visibility bool passive;
@@ -76,6 +78,7 @@ public member @visibility modelConnecting ';' {
         }
 
         public bool disconnect(Connector c, bool oneway=false) {
+            pln("connected this piroca");
             var success = super(..);
             if(success) {
                 AweObject thisModel = this.getModel();

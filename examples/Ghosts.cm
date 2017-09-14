@@ -1,0 +1,154 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.examples;
+
+public aweObject SomePanel {
+    props(
+        double width = 48inch,
+        double height = 60inch,
+        double thickness = 3inch
+    );
+
+    public AweProduct createProduct() {
+        return SomePanelProduct(this);
+    }
+
+    public SomePanelConnectorSet panelConnectors(this);
+
+    public void appendGhosts(AweGhost{} ghosts) {
+        //ghost post on left
+        ghosts << new AweGhost(this, "SomePanelConnectorSet.left", new SomePost(), "SomePostConnectorSet.left");
+        //ghost post on right
+        ghosts << new AweGhost(this, "SomePanelConnectorSet.right", new SomePost(), "SomePostConnectorSet.left");
+    }
+    
+}
+
+public class SomePanelProduct extends AweProduct {
+    
+    public AweModel<SomePanel> model;
+    
+    public box localBound() {
+        return box((0,0,0), (this.model.width, this.model.thickness, this.model.height));
+    }
+
+    public Graph graph() {
+        return GRect(this.localBound().rect);
+    }
+
+    public Primitive3D medium3D() {
+        var b = new Box3D(this.localBound());
+        b.setMaterial(plainBlueMaterial3D());
+        return b;
+    }
+}
+
+public class SomePanelConnectorSet extends AweConnectorSet {
+    
+    public SomePanel model;
+    public constructor(SomePanel panel) {
+        this.model = panel;
+    }
+
+    public void connectors(AweConnectorCache cache) {
+        
+        var halfThickness = this.model.thickness/2;
+
+        cache.makePoint("left", (0, halfThickness, 0), 180deg, magnets={AweMagnet: magnet(Panel-), magnet(Panel+)});
+        cache.makePoint("right", (this.model.width, halfThickness, 0), 0deg, magnets={AweMagnet: magnet(Panel-), magnet(Panel+)});
+    }
+}
+
+public aweObject SomePost {
+    props(
+        double height = 60inch,        
+        double thickness = 3inch
+    );
+
+    public AweProduct createProduct() {
+        return SomePostProduct(this);
+    }
+
+    public SomePostConnectorSet postConnectors(this);
+
+}
+
+public class SomePostProduct extends AweProduct {
+    
+    public AweModel<SomePost> model;
+    
+    public box localBound() {
+        return box((0,0,0), (this.model.thickness, this.model.thickness, this.model.height));
+    }
+
+    public Graph graph() {
+        return GRect(this.localBound().rect);
+    }
+
+    public Primitive3D medium3D() {
+        var b = new Box3D(this.localBound());
+        b.setMaterial(plainYellowMaterial3D());
+        return b;
+    }
+}
+
+public class SomePostConnectorSet extends AweConnectorSet {
+    
+    public SomePost model;
+    public constructor(SomePost post) {
+        this.model = post;
+    }
+
+    public void connectors(AweConnectorCache cache) {
+        
+        var halfThickness = this.model.thickness/2;
+        var thickness = this.model.thickness;
+
+        cache.makePoint("left", (0, halfThickness, 0), 180deg, magnet=magnet(Panel-));
+        cache.makePoint("top", (halfThickness, thickness, 0), 90deg, magnet=magnet(Panel-));
+        cache.makePoint("right", (thickness, halfThickness, 0), 0deg, magnet=magnet(Panel-));
+        cache.makePoint("bottom", (halfThickness, 0, 0), 270deg, magnet=magnet(Panel-));
+    }
+}
+
+{
+    // var snapper1 = new AweModelSnapper(new SomePost());
+    // activeSpace.put(snapper1);
+
+    var snapper2 = new AweModelSnapper(new SomePanel());
+    activeSpace.put(snapper2);
+}
