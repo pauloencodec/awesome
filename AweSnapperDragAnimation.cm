@@ -42,10 +42,23 @@ use custom.awesome.connectors;
 */
 public class AweSnapperDragAnimation extends DragAnimation {
 
-   
-    /**
-    * End.
-    */
+    public AweGhost activeGhost;
+    extend public void updateActiveGhost(SnapInfo info) {
+        if(info as ConnectSnapInfo) {
+            if(AweGhost ghost = info.attach.?getGhost()) {
+                this.activeGhost = ghost;
+            }
+        } else {
+            this.activeGhost = null;
+        }
+    }
+
+    public void drawGraphs(LayerBuffer lb) {
+        if(this.activeGhost) {
+            this.activeGhost.get2D().?draw(lb);
+        }
+    }
+    
     public PropObj end() {
         var snapper = this.activeGhost.?deploy();
         if(snapper) snapAllAligned(snapper);
@@ -53,6 +66,7 @@ public class AweSnapperDragAnimation extends DragAnimation {
     }
     
 
+    //Copied from DragAnimation then modified. Modifications are tagged with comment **** awesome modification ***.
     public void drag(AnimationMouseInfo mi) {
         setLastInfo(mi);
         dragOverDropZone(mi);
@@ -89,7 +103,9 @@ public class AweSnapperDragAnimation extends DragAnimation {
             SnapInfo last = currentSpace ? currentSpace.lastSnapped : null;
             SnapInfo info = skipSnapping ? null : selection.trySnap(mi, modifyEnv, filter);
 
-            this.updateActiveGhost(info);
+             /********* awesome modification *********/
+             this.updateActiveGhost(info);
+             /********* awesome modification *********/;
     
             if (skipSnapping) modifyEnv.restore(updateBsp=true);
     
@@ -112,20 +128,6 @@ public class AweSnapperDragAnimation extends DragAnimation {
         }
     }
 
-    extend public void updateActiveGhost(SnapInfo info) {
-        if(info as ConnectSnapInfo) {
-            if(AweGhost ghost = info.attach.?getGhost()) {
-                this.activeGhost = ghost;
-            }
-        } else {
-            this.activeGhost = null;
-        }
-    }
-
-    public void drawGraphs(LayerBuffer lb) {
-        if(this.activeGhost) {
-            this.activeGhost.get2D().?draw(lb);
-        }
-    }
+    
     
 }

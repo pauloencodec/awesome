@@ -43,7 +43,8 @@ public class AweGhostSnapper extends AweModelSnapper {
 
         //only keep ghosts if connected to two things at least
         if(this.connectedNeighbors().count <= 1) {
-            this.space.remove(this);
+            if(this in this.space and this.isAlive)
+                this.space.remove(this);
         }
     }
 }

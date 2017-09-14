@@ -152,5 +152,5 @@ public class SomePostConnectorSet extends AweConnectorSet {
     // activeSpace.put(snapper1);
 
     var snapper2 = new AweModelSnapper(new SomePanel());
-    activeSpace.put(snapper2);
+    launch(snapper2);
 }
