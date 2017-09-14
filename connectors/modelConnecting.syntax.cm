@@ -78,7 +78,6 @@ public member @visibility modelConnecting ';' {
         }
 
         public bool disconnect(Connector c, bool oneway=false) {
-            pln("connected this piroca");
             var success = super(..);
             if(success) {
                 AweObject thisModel = this.getModel();

@@ -63,67 +63,76 @@ public class AweGhost {
 
 
     extend private void instantiateGhost() {
+        this.ghostModel = this.ghostModel.copy();
         this.ghostSnapper = new AweGhostSnapper(this.ghostModel);
+        this.updatePosition();
     }
-    extend private void error(str message) {
-        //pln(message);
-    }
+
 
     extend public Snapper hostSnapper() {
         return this.hostModel.mainSnapper();
     }
 
-    extend public void deploy(bool connect=true) {
+    extend public void updatePosition() {
+
         var hostSnapper = this.hostSnapper();
         if(!hostSnapper) {
-            this.error("failed to deploy ghost, no host snapper");
             return;
         }
         var space = hostSnapper.space();
         if(!space) {
-            this.error("failed to deploy ghost, no host snapper space");
             return;
         }
         var hostConnector = this.hostConnector();
         if(!hostConnector) {
-            this.error("failed to deploy ghost, no host connector with id " # this.hostConnectionId);
             return;
         }
-        var ghostConnector = this.ghostModel.getConnectorById(this.ghostConnectionId);
+        var ghostConnector = this.ghostConnector();
+
         if(!ghostConnector) {
-            this.error("failed to deploy ghost, no ghost connector with id " # this.ghostConnectionId);
             return;
         }
         
-        if(connect) {
-            if(ghostSnapper !in space) {
-                space.put(ghostSnapper);
-            }
-            snapAndConnect(ghostSnapper, ghostConnector, hostConnector);
-
-            //update ghost instance
-            this.instantiateGhost();
-            
-        } else {
-            snapAndPosition(ghostSnapper, ghostConnector, hostConnector);
-        }
+        snapAndPosition(ghostSnapper, ghostConnector, hostConnector);
         
     }
 
-    extend public void retract() {
-        this.ghostSnapper.space.remove(this.ghostSnapper);
+    extend private Connector ghostConnector() {
+        return this.ghostModel.getConnectorById(this.ghostConnectionId);
     }
+
+    extend public Snapper deploy() {
+        var currentSnapper = ghostSnapper;
+        this.hostSnapper().space.put(currentSnapper);
+
+        //make a new one for next time
+        this.instantiateGhost();
+
+        snapAndPosition(currentSnapper, this.ghostConnector(), this.hostConnector());
+
+        return currentSnapper;
+    }
+
 
     extend public Connector{} getConnectors() {
         //host connector must be available
         if(!this.hostConnector() or this.hostConnector().isConnected) {
             return null;
         }
-        this.deploy(connect=false);
+        this.updatePosition();
         return this.ghostSnapper.connectors;
     }
 
     extend public Connector hostConnector() {
         return this.hostModel.?getConnectorById(this.hostConnectionId);
     }
+
+    extend public Graph get2D() {
+        this.updatePosition();
+        var graph = this.ghostSnapper.get2D();
+        graph.rotate(this.ghostSnapper.rot);
+        graph.move(this.ghostSnapper.pos);
+        return graph;
+    }
+
 }

@@ -589,6 +589,11 @@ public class AweObject {
     }
 
     extend public Connector{} getGhostConnectors() {
+        
+        //only if not being dragged
+        var currentAnimation = animation();
+        if(this.mainSnapper in animation.DragAnimation.?selection) return null;
+
         Connector{} ghostConnectors();
         for(ghost in this.ghosts) {
             for(c in ghost.getConnectors()) {

@@ -49,12 +49,14 @@ public aweObject SomePanel {
 
     public SomePanelConnectorSet panelConnectors(this);
 
+    /******************** example *****************************/
     public void appendGhosts(AweGhost{} ghosts) {
         //ghost post on left
         ghosts << new AweGhost(this, "SomePanelConnectorSet.left", new SomePost(), "SomePostConnectorSet.left");
         //ghost post on right
         ghosts << new AweGhost(this, "SomePanelConnectorSet.right", new SomePost(), "SomePostConnectorSet.left");
     }
+    /**************************************************/
     
 }
 
