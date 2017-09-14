@@ -102,21 +102,21 @@ public class AweGhost {
     }
 
     extend public Snapper deploy() {
-        var currentSnapper = ghostSnapper;
-        this.hostSnapper().space.put(currentSnapper);
+        var ghostSnapperCopy = ghostSnapper.copy();
+        this.hostSnapper().space.put(ghostSnapperCopy);
 
-        for(c in currentSnapper.connectors()) {
+        for(c in ghostSnapperCopy.connectors()) {
             //set them free of ghosts
             c.setGhost(null);
             c.disconnectAll();
         }
 
         //make a new one for next time
-        this.instantiateGhost();
+        //this.instantiateGhost();
 
-        snapAndPosition(currentSnapper, this.ghostConnector(), this.hostConnector());
+        snapAndPosition(ghostSnapperCopy, this.ghostConnector(), this.hostConnector());
 
-        return currentSnapper;
+        return ghostSnapperCopy;
     }
 
 
