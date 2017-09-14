@@ -33,23 +33,26 @@
 
    END OF CETSC
 */
-package custom.awesome : 8.0.0;
 
-use custom.awesome.product;
-use custom.awesome.automations;
-use custom.awesome.materials;
-use custom.awesome.schemes;
-
-use cm.abstract.surface;
-
-use cm.format.cm3D;
-use cm.geometry.advanced;
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
+package custom.awesome.materials;
+use cm.abstract.office;
 use cm.win;
-use cm.io;
-use cm.io.util;
-use cm.rs;
+
+public class AweMaterial extends OfficeMaterial {
+    private Image thumbnailCache : stream = null, copy = null;
+    public Image sizedPreviewImage2(double scale, int sz=48, int w=-1, int h=-1, bool superQuality=false, bool force=false) {
+            if(!thumbnailCache) {
+                thumbnailCache = getSizedPreviewImage(this, 1, w=sz, h=sz, force=true);
+            }
+            return thumbnailCache;
+    }   
+    
+    public Material3D thumbnailMaterial3D() {
+        if(this.material3D) return this.material3D;
+        return plainBlueMaterial3D();
+    }
+
+    public Image sizedPreviewImage(int w, int h, bool force=false) {
+        return getSizedPreviewImage(this, thumbnailScale(w), w=w, h=h, force=force);
+    }
+}

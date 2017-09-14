@@ -39,6 +39,7 @@ package custom.awesome.product;
 use custom.awesome;
 use custom.awesome.connectors;
 use custom.awesome.gallery;
+use custom.awesome.materials;
 
 use cm.application;
 use cm.basic;

@@ -45,7 +45,8 @@ the code creates a bunch of cubes, each a product, with independent configuratio
 public aweObject CubeModel {
     props(
         bool on=false,
-        point origin=point()
+        point origin=point(),
+        AweMaterialShell paint = AweMaterialShell("plain_green")
     );
     public aweObjectDomain(
         bool on=BoolSubSet()
