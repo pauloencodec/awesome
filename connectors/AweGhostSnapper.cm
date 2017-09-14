@@ -38,10 +38,12 @@ package custom.awesome.connectors;
 use custom.awesome.snapper;
 
 public class AweGhostSnapper extends AweModelSnapper {
-    public bool animationTrySnap(Connector mySnap, Connector targetAttach, line mouseLine, bool connect=true, bool undoable=false, ModifyEnv env=null) {
-        var allowed = super(..);
-        // pln("fantasminha");
-        // pln(#allowed; #mySnap; #targetAttach);
-        return allowed;
-    }   
+    public void disconnected(Connector c0, Connector c1, bool wasSnapped, bool wasAttached) {
+        super(..);
+
+        //only keep ghosts if connected to two things at least
+        if(this.connectedNeighbors().count <= 1) {
+            this.space.remove(this);
+        }
+    }
 }
