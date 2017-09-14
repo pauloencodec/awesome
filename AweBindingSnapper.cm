@@ -206,6 +206,14 @@ public class AweBindingSnapper extends AweSnapper : abstract {
         return super(..);
     }
 
+    public void selected() {
+        super();
+
+        if (!this.activeConfigurator) {
+            this.activeConfigurator = this.root;
+        }
+    }
+
     public Object loaded0(ObjectFormatter formatter, LoadFailInfo failInfo) {
         this.appendSelfToModels();
         
