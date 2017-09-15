@@ -1,0 +1,102 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.materials;
+
+public class AweMaterialShell extends AweModelAwareProp {
+
+    public str id;
+    private Material _materialInstance : copy=reference;
+
+    private AweMaterialFactory _factory;
+
+    public constructor(str id="plain_gray", AweMaterialFactory factory=null) {
+        this._factory = factory;
+        this.setID(id);
+    }  
+
+    public aweDynamicContract {
+        aweDynamic str toStr(str extraInfo);
+    }
+    
+    extend public AweMaterialFactory factory() {
+        if(this._factory) return this._factory;
+        return new AweMaterialFactory();
+    }
+
+    /**
+     * use this to return the material to be used when something goes wrong
+     */
+     extend public Material fallbackMaterial() {
+        return factory.fallbackMaterial();
+    }
+
+    /**
+     * Override this to define a custom routine to fetch materials by their ids
+     */
+    extend public Material materialInstance() {
+        if(this._materialInstance) return this._materialInstance;
+        return this.fallbackMaterial();
+    }
+
+    extend public void setMaterial(Material m) {
+        this.id = m.code;
+        this._materialInstance = m;
+    }
+
+    extend public void setID(str id) {
+        this.id = id;
+        this._materialInstance = factory.fetchMaterial(this.id);
+    }
+
+
+    /************* parts to str **************/
+    extend public str toStr(str extraInfo) { 
+        return this.id;
+    }
+
+
+    //becomes the id of picksurfaces created to own the prims this applies to
+    extend public str pickSurfaceKey() {
+        //TODO: deal with model mismatch when dropping new snappers
+        //return this.propKey # "#" # this.model.toS;
+        return this.propKey # "#";
+    }
+
+    extend public bool isOwnerOfPickSurface(str pickSurfaceKey) {
+        return this.pickSurfaceKey() == pickSurfaceKey;
+    }
+}

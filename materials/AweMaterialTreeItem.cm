@@ -33,23 +33,14 @@
 
    END OF CETSC
 */
-package custom.awesome : 8.0.0;
 
-use custom.awesome.product;
-use custom.awesome.automations;
-use custom.awesome.materials;
-use custom.awesome.schemes;
+package custom.awesome.materials;
 
-use cm.abstract.surface;
+public class AweMaterialTreeItem {
+    public constructor() {
+    }   
 
-use cm.format.cm3D;
-use cm.geometry.advanced;
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.win;
-use cm.io;
-use cm.io.util;
-use cm.rs;
+    public str name;
+    public str key;
+    public AweMaterialTreeItem[] children;
+}

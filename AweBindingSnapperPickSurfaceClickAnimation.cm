@@ -60,15 +60,24 @@ public class AweBindingSnapperPickSurfaceClickAnimation extends SnapperClickAnim
 
         if (owner as View3D) {
             PickIntersection3D[] picked = owner.pick(mi.windowViewMouseInfo.pos);
+            
             for (p in picked) {
-                if(p.owner.AweBindingSnapperPickSurface) {
-                    var configurator = p.owner.AweBindingSnapperPickSurface.configurator;
-                    if(configurator) {
-                        snapper.activeConfigurator = configurator;
-                        invalidateQuickPropertiesFor(snapper);
-                        snapper.invalidate();
-                    }
+                AweObject configurator;
+
+                if (p.owner.AweBindingSnapperPickSurface) {
+                    configurator = p.owner.AweBindingSnapperPickSurface.configurator;
                 }
+                else if (p.owner.AweSnapper) {
+                    configurator = p.owner.AweSnapper.mainModel;
+                }
+                
+                if (configurator) {
+                    snapper.activeConfigurator = configurator;
+                    
+                    invalidateQuickPropertiesFor(snapper);
+                    snapper.invalidate();
+                }
+
                 return;
             }
         } else { 

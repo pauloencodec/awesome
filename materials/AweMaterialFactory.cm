@@ -33,23 +33,40 @@
 
    END OF CETSC
 */
-package custom.awesome : 8.0.0;
 
-use custom.awesome.product;
-use custom.awesome.automations;
-use custom.awesome.materials;
-use custom.awesome.schemes;
+package custom.awesome.materials;
 
-use cm.abstract.surface;
+/**
+ * the purpose of this class is to allow delegation of material fetching to the consuming extensions. It also creates instances of material props and material domains. 
+ */
+public class AweMaterialFactory {
+    public symbol pkg;
 
-use cm.format.cm3D;
-use cm.geometry.advanced;
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.win;
-use cm.io;
-use cm.io.util;
-use cm.rs;
+    public constructor(symbol pkg=#:package : caller eval) {
+        this.pkg = pkg;
+    }   
+
+    /**
+     * use this to return the material to be used when something goes wrong
+     */
+    extend public Material fallbackMaterial() {
+        return material("plain_red");
+    }
+
+    /**
+     * Override this to define a custom routine to fetch materials by their ids
+     */
+    extend public Material fetchMaterial(str materialID, str materialDescription=null) {
+        var m = material(materialID, this.pkg);
+        if(m) return m;
+        return this.fallbackMaterial();
+    }
+
+    extend public AweMaterialShell makeProp(str initialMaterialID) {
+        return AweMaterialShell(initialMaterialID, this);
+    }
+
+    extend public AweMaterialDomain makeDomain(str jsonUrl) {
+        return new AweMaterialDomain(jsonUrl, this);
+    }
+}

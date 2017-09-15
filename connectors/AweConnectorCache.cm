@@ -220,7 +220,7 @@ public class AweConnectorCache {
 
     extend public void addToBuffer(Connector connector) {
         if (connector !in this._buffer) {
-            connector.setModel(currentProduct.?_model.?AweObject);
+            connector.setModel(currentProduct.?_model);
             this._buffer << connector;
         }
     }
