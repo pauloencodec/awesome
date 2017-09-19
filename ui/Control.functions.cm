@@ -36,6 +36,8 @@
 
 package custom.awesome.ui;
 
+use cm.abstract.picklist;
+
 public Display createLabel(Window parent, str text, int width, PointI pos=null, Control rightOf=null, alignment align=left) {
     Display label(parent, label=text, align=align);
     
