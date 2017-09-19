@@ -36,14 +36,18 @@
 
 package custom.awesome.picklist;
 
-use custom.awesome;
-use custom.awesome.io;
-use custom.awesome.ui;
-use custom.awesome.product;
-
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.win;
-use cm.format.json;
-use cm.abstract.picklist;
+public class AwePicklistGridCell extends PicklistGridCell : abstract {
+    extend public str getData(AwePicklistItem item): abstract {} 
+    
+    public str getData(int x, int y) {
+        if (PicklistDialog dialog = getPicklistDialog()) {
+            var item = dialog.getPicklistItem(y);
+            
+            if (item as AwePicklistItem) {
+                return this.getData(item);
+            }
+        }
+        
+        return "";
+    }
+}

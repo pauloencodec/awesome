@@ -83,3 +83,9 @@ public class AwePicklistDescriptionGridCell extends AwePicklistInputGridCell {
         return false;
     }
 }
+
+public class AwePicklistPriceGridCell extends AwePicklistGridCell {
+    public str getData(AwePicklistItem item) {
+        return item.price.toS();
+    }
+}
