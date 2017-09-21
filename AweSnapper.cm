@@ -262,6 +262,8 @@ public class AweSnapper extends Snapper {
         if (updateConnectors)  this.updateConnectors();
         if (tryAlignAllSnapped) this.realign(null);
 
+        this.parts.clear();
+
         invalidateQuickPropertiesFor(this);
         invalidate();
         this.space.invalidateSelection();
@@ -414,6 +416,8 @@ public class AweSnapper extends Snapper {
         if (products.count == 0 or this in visited) return;
         
         visited << this;
+
+        this.parts.clear();
 
         for( product in products ) {
             var parts = product.getParts();
