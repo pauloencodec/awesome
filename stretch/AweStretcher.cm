@@ -69,6 +69,28 @@ public class AweStretcher {
         return this.model.mainSnapper.AweSnapper;
     }
 
+    //Use this to decided who to propagate to. Opportunity to make animation props like the height of Fika panels?
+    extend public Snapper{} propagateToSnappers() {
+        return this.snapper().allConnected();
+    }
+
+    extend public AweStretcherConnector{} alignedStretcherConnectors(Connector reference) {
+        AweStretcherConnector{} aligned();
+        var spaceLine = this.snapper().toSpace(this.line);
+        var group = this.propagateToSnappers();
+
+        for(snapper in group) {
+            for(c in snapper.connectors()) {
+                if(c as AweStretcherConnector) {
+                    if(c != reference and c.spaceRot() == reference.spaceRot() and spaceLine.normalIntersectUnbounded(c.spacePos()).ip == reference.spacePos()) {
+                        aligned << c;
+                    }
+                }
+            }
+        }
+        return aligned;
+    }
+
     extend public Connector{} connectors() {
         this.stretcherA.setPos(this.line.p0);
         this.stretcherA.setRot(new orientation(this.line.p0 - this.line.midPoint));
@@ -84,12 +106,15 @@ public class AweStretcher {
         return domain.closest(length).double;
     }
 
-    extend public void update(Connector s, point p, AnimationMouseInfo mi, AweStretcherConnector{} propagateTo) {
+    extend public bool update(Connector s, point p, bool propagate) {
+        bool changed = false;
         if(s as AweStretcherConnector) {
             point anchor;
             vector stretch;
             line spaceLine = this.snapper().toSpace(this.line);
             point spaceP = this.snapper().toSpace(p);
+
+            
             if(s == this.stretcherA) {
                 stretch = spaceP - spaceLine.p0;
                 spaceLine.p0 += stretch;
@@ -103,6 +128,13 @@ public class AweStretcher {
             var currentValue = this.model.get(this.propKey).double;
             var newValue = this.lenghInDomain(spaceLine.length);
             if(currentValue != newValue) {
+                    
+                if(propagate) for(stretcherConnector in alignedStretcherConnectors(s)) {
+                    point pos = stretcherConnector.stretcher.line.normalIntersectUnbounded(stretcherConnector.snapper.toSnapper(spaceP)).ip;
+                    //pass propagate=true here to create a nice stack overflow
+                    stretcherConnector.stretcher.?update(stretcherConnector, pos, propagate=false);
+                }
+
                 this.model.set(this.propKey, newValue);
                 this.model.invalidate();
                 this.snapper().updateConnectors();
@@ -119,13 +151,13 @@ public class AweStretcher {
                 this.snapper().space.invalidate(this.snapper());
                 this.snapper().snapAllAligned();
 
-                for(stretcherConnector in propagateTo) {
-                    point pos = stretcherConnector.stretcher.line.normalIntersectUnbounded(stretcherConnector.snapper.toSnapper(spaceP)).ip;
-                    stretcherConnector.stretcher.?update(stretcherConnector, pos, mi, null);
-                }
+                changed  = true;
+                
             }
     
         }
+
+        return changed;
     }
 }
 
