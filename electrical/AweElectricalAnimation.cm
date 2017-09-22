@@ -44,13 +44,18 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
     public str fixedMode;
 
     public constructor(AweElectricalMap map=null, str fixedMode=null) {
+        this.fixedMode = fixedMode;
+
+        this(map);
+    }
+
+    public constructor(AweElectricalMap map=null) {
         super(maxInt);
         if(!map) {
             this.map = new AweElectricalMap(this.space);
         }
         status = new AweElectricalClusterInfo(this.map);
         this.configurator = new AweElectricalAnimationModel(this);
-        this.fixedMode = fixedMode;
 
         if (this.fixedMode) {
             this.configurator.AweElectricalAnimationModel.modeDomain = null;
