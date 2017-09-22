@@ -77,6 +77,7 @@ public class AweScheme {
 
     extend public void register() {
         AweSchemeEditor scheme(this);
+        scheme.latestConfig = this.model.copy();
 
         for(item in this.items) {
             var value = item.initialValue;
@@ -137,4 +138,14 @@ public class AweSchemeItem {
 
 public void showAweScheme(Type schemeModelType) {
     buildSchemeManagerDialog(schemeModelType.toS);
+}
+
+public AweObject{} getLatestAweSchemeModels() {
+    AweObject{} latest();
+    for(AweSchemeEditor editor in cm.abstract.schemeManager.groupSchemeEditors) {
+        if(editor.latestConfig) {
+            latest << editor.latestConfig;
+        }
+    }
+    return latest;
 }

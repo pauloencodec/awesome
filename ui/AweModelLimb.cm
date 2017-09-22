@@ -37,7 +37,8 @@
 package custom.awesome.ui;
 
 public class AweModelLimb extends SnapperLimb {
-    private AweObject model : public readable;
+    private AweObject originalModel : public readable;
+    private str limbKey;
 
     public constructor(
         LibraryLimb parent,
@@ -51,9 +52,20 @@ public class AweModelLimb extends SnapperLimb {
         if(!key)
             key = cm.os.createGUID();
         
-        this.model = model;
-
+        this.originalModel = model;
+        this.limbKey = this.originalModel.hash().toS;
         super(parent, pkg, key, image=image, label="", toolTipText=toolTipText);
+    }
+
+    extend public AweObject model() {
+        AweObject templateModel = modelLimbDefaults.get(this.limbKey);
+        if(!templateModel) {
+            templateModel = originalModel;
+        }
+        var model = templateModel.copy();
+        model.limbKey = this.limbKey;
+        model.updateWithLatestSchemes();
+        return model;
     }
     
     public Window build(Window w) {
@@ -78,4 +90,18 @@ public class AweModelLimb extends SnapperLimb {
     public Snapper getSnapper() {
         return new AweModelSnapper(this.model);
     }
+
+
+}
+
+//str is the hash of the original model passed during limb construction, works like a limb key
+//AweObject is the updated version of that limbs model. every time a model changes, the latest version is put here under the limb key.
+//that way, this holds a copy of the last state of a snapper build by the limb.
+//when the user uses the limb to place a new snapper, the limb then comes here to get the lastest and apply.
+private str->AweObject _modelLimbDefaults;
+public str->AweObject modelLimbDefaults() {
+    if(!_modelLimbDefaults) {
+        _modelLimbDefaults = new str->AweObject();
+    }
+    return _modelLimbDefaults;
 }
