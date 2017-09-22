@@ -36,50 +36,45 @@
 
 package custom.awesome.schemes;
 
-public class AweSchemeEditor extends OfficeGroupSchemeEditor {
-
-    public AweScheme scheme;
-
-    public constructor(AweScheme scheme) {
-        this.scheme = scheme;
-        super(scheme.key, scheme.label);
+public class AweEnumSchemeProperty extends ListSchemeProperty {
+    public void buildDropDown() {
+        str first;
+        if(domain as AweEnumSubSet) {
+            for (e in domain._members) if (e as AweEnum) {
+                if(!first) first = e.name;
+                ddtv.append(new TreeViewItem(e.name, e.value, value=e));
+            }
+            ddtv.trySelect(first);
+        } 
+        else if (domain as DistanceEnum) {
+            for (e in domain._members) {
+                if(!first) first = e.coreDistanceToS;
+                ddtv.append(new TreeViewItem(e.coreDistanceToS, e.coreDistanceToS, value=e));
+            }
+            ddtv.trySelect(first);
+        }
+        
+        super();
     }
 
-    public bool applyScheme(Snapper{} snappers, GroupScheme gs) {
-        bool applied = false;
-        if(gs as OfficeGroupScheme) {
-            var schemeModel = this.scheme.convert(gs);
-            for(s in snappers) {
-                if(s as AweSnapper){
-                    var models = s.allModels();
-                    for(model in models) {
-                        bool invalidate = model.applyScheme(schemeModel);
-                        if(invalidate) {
-                            model.invalidate();
-                        }
-                    }
+    public void doMoreToSetCurrentValue(Object value) {
+        if (control as DropDownTreeView) {
+            if (value as AweEnum) {
+                var succeeded = control.trySelect(value.name, invokeCallback=true);
+                if (succeeded) {
+                    control.refresh();
                 }
             }
-
         }
-
-        return applied;
     }
 
-    public SchemeProperty createProperty(str key,
-                                        str label,
-                                        Object o,
-                                        SubSet domain,
-                                        bool isSubProperty=false,
-                                        bool disabledAllowed=true,
-                                        bool forceDrop=false,
-                                        Image[] images=null) {
-        
-        if (domain in AweEnumSubSet or domain in DistanceEnum) {
-            return AweEnumSchemeProperty(key, label, o, domain=domain, isSubProperty=isSubProperty,
-                                         disabledAllowed=disabledAllowed, images=images);
+    public Object currentSaveValue() {
+        if (control as DropDownTreeView) {
+            var selected = control.anySelected();
+            if (selected) {
+                return selected.value;
+            }
         }
-        
-        return super(key, label, o, domain, isSubProperty, disabledAllowed, forceDrop, images);
+        return super();
     }
 }
