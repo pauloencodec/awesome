@@ -46,7 +46,6 @@ public class AweElectricalInfeedPoint extends AweElectricalComponent {
         this.position = position;
     }
 
-    public str id;
     public orientation orientation;
     public AweElectricalCableLine[] cables();
     public AweElectricalCableLine[] activeNetwork();
