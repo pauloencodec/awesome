@@ -54,6 +54,17 @@ public class AweStretcher {
         this.stretcherB = new AweStretcherConnector(this.snapper(), this);
     }   
 
+    extend public SubSet domain() {
+        //TODO: move this stuff to aweObject to something like getDomain("width");
+        Field domainField = this.model.class.field(this.propKey # "Domain");
+        if(domainField) {
+            Object value = this.model.get(domainField);
+            if(value as SubSet) return value;
+        }
+
+        return null;
+    }
+
     extend public AweSnapper snapper() {
         return this.model.mainSnapper.AweSnapper;
     }
@@ -67,7 +78,11 @@ public class AweStretcher {
         return {Connector: this.stretcherA, this.stretcherB };
     }
 
-    
+    extend public double lenghInDomain(double length) {
+        var domain = this.domain();
+        if(!domain) return length;
+        return domain.closest(length).double;
+    }
 
     extend public void update(Connector s, point p, AnimationMouseInfo mi, AweStretcherConnector{} propagateTo) {
         if(s as AweStretcherConnector) {
@@ -77,34 +92,38 @@ public class AweStretcher {
             point spaceP = this.snapper().toSpace(p);
             if(s == this.stretcherA) {
                 stretch = spaceP - spaceLine.p0;
-                this.line.p0 = p;
+                spaceLine.p0 += stretch;
                 anchor = this.stretcherB.spacePos();
             } else if(s == this.stretcherB) {
                 stretch = spaceP - spaceLine.p1;
-                this.line.p1 = p;
+                spaceLine.p1 += stretch;
                 anchor = this.stretcherA.spacePos();
             }
-    
-            this.model.set(this.propKey, this.line.length);
-            this.model.invalidate();
-            this.snapper().updateConnectors();
-    
-            point after;
-            if(s == this.stretcherA) {
-                after = this.stretcherB.spacePos();
-            } else if(s == this.stretcherB) {
-                after = this.stretcherA.spacePos();
-            }
-    
-            for(stretcherConnector in propagateTo) {
-                point pos = stretcherConnector.snapper.toSnapper(stretcherConnector.spacePos() + stretch);
-                stretcherConnector.stretcher.?update(stretcherConnector, pos, mi, null);
-            }
+            
+            var currentValue = this.model.get(this.propKey).double;
+            var newValue = this.lenghInDomain(spaceLine.length);
+            if(currentValue != newValue) {
+                this.model.set(this.propKey, newValue);
+                this.model.invalidate();
+                this.snapper().updateConnectors();
+        
+                point after;
+                if(s == this.stretcherA) {
+                    after = this.stretcherB.spacePos();
+                } else if(s == this.stretcherB) {
+                    after = this.stretcherA.spacePos();
+                }
+                
+                this.snapper.move(anchor - after);
+                this.snapper.snapAllAligned();
+                this.snapper().space.invalidate(this.snapper());
+                this.snapper().snapAllAligned();
 
-            this.snapper.move(anchor - after);
-            this.snapper.snapAllAligned();
-            this.snapper().space.invalidate(this.snapper());
-            this.snapper().snapAllAligned();
+                for(stretcherConnector in propagateTo) {
+                    point pos = stretcherConnector.stretcher.line.normalIntersectUnbounded(stretcherConnector.snapper.toSnapper(spaceP)).ip;
+                    stretcherConnector.stretcher.?update(stretcherConnector, pos, mi, null);
+                }
+            }
     
         }
     }
