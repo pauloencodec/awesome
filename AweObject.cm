@@ -80,7 +80,15 @@ public class AweObject {
     extend public void set(str propName, Object value) {
         this.makePropModelAware(propName, value);
         Object oldValue = get(propName);
-        this.props.put(propName, value);
+
+        //AweMaterialShell instance must never be replaced. instead, update the contents of the shell
+        if(oldValue as AweMaterialShell) {
+            if(value as AweMaterialShell) {
+                oldValue.setMaterial(value.materialInstance());
+            }
+        } else {
+            this.props.put(propName, value);
+        }
         propChanged(propName, oldValue, value);
 
         for (AweSnapper snapper in this.snappers) {
@@ -88,6 +96,8 @@ public class AweObject {
                 snapper.onModelPropertyChanged(propName, oldValue, value);
             }
         }
+
+        this.updateLimbDefaults();
     }
 
     /************** prop awereness ***********************/
@@ -528,6 +538,26 @@ public class AweObject {
         return false;
     }
 
+    //invoked by AweModelLimb
+    extend public void updateWithLatestSchemes() {
+        for(model in getLatestAweSchemeModels()) {
+            this.applyScheme(model);
+        }
+    }
+
+    /**************** update settings ****************/
+    //this is set by AweModelLimb if / when this model is placed by one
+    public str limbKey;
+
+    extend public void updateLimbDefaults() {
+        //limb settings
+        if(this.limbKey) {
+            custom.awesome.ui.modelLimbDefaults.put(this.limbKey, this.copy());
+        } else if(this.parent) {
+            this.parent.updateLimbDefaults();
+        }
+    }
+
 }
 
 public definition @visibility aweObject @name=id @parentClass=["extends" type]? '{'  @props=["props" formalArgList ';']? @members=[classMember]* '}' {
@@ -598,7 +628,6 @@ public definition @visibility aweObject @name=id @parentClass=["extends" type]? 
             @visibility class @name extends @baseClassName {
                 public constructor(@props) {
                     super();
-                    @initProps;
                 }
 
                 public void init() { 

@@ -39,6 +39,8 @@ package custom.awesome.schemes;
 use custom.awesome;
 use custom.awesome.materials;
 use custom.awesome.product;
+use cm.subset;
+use cm.win;
 use cm.core;
 use cm.geometry;
 use cm.geometry2D.advanced;
