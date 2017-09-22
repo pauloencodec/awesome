@@ -44,8 +44,6 @@ public class AweElectricalCableLine extends AweElectricalComponent {
         this.snapperLine = snapperLine;
     }
 
-    public str id;
-
     public Snapper snapper : copy=null;
     public bool powered;
     public bool infeedCable = false;
