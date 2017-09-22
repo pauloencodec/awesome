@@ -101,6 +101,25 @@ public class AweObject {
         this.updateLimbDefaults();
     }
 
+    extend public SubSet getDomain(str propName) {
+        return null;
+    }
+
+    public str->AweStretcher _stretchers : copy=null;
+
+    extend public AweStretcher[] getStretchers() {
+        var bound = this.mainSnapper.localBound();
+
+        AweStretcher[] result();
+
+        result <<? this.createStretcher("width", bound.upCenterlineX);
+        result <<? this.createStretcher("depth", bound.upCenterlineY);
+        result <<? this.createStretcher("height", bound.verticalCenterline, enableA=false, visiblePosOffsetB=(0, 0, snapShapeSize));
+        result <<? this.createStretcher("elevation", bound.verticalCenterline, enableA=false, visiblePosOffsetB=(0, 0, snapShapeSize));
+
+        return result;
+    }
+
     /************** prop awereness ***********************/
     extend private void makePropModelAware(str propName, Object value) {
         if(value as AweModelAwareProp) {
@@ -127,8 +146,6 @@ public class AweObject {
         return this.mainSnapper.AweBindingSnapper.?materialManager;
     }
     
-
-            
     extend public void propChanged(str propName, Object oldValue, Object newValue) {
     }        
 
@@ -614,6 +631,7 @@ public definition @visibility aweObject @name=id @parentClass=["extends" type]? 
     SMembers gettersSetters(noSrcRef);
     SMembers onChange(noSrcRef);
     SStatements initProps();
+    SStatements onPropChanged();
 
     if (props) {
         for (i in 0..(props.count - 1)) {
@@ -639,13 +657,21 @@ public definition @visibility aweObject @name=id @parentClass=["extends" type]? 
                     }
                     return @propInitialValue;
                 }
+
                 extend @visibility @propType @propName=(@propType newValue) {
                     @propType oldValue = this.@propName;
+
                     this.set(@propNameStr, newValue);
-                    this.@onChangeMethodName();
-                    this.@onChangeMethodName(newValue);
-                    this.@onChangeMethodName(oldValue, newValue);
+                    
                     return newValue;
+                }
+            };
+
+            onPropChanged << statement {
+                if (propName == @propNameStr) {
+                    this.@onChangeMethodName();
+                    this.@onChangeMethodName(newValue.?@propType);
+                    this.@onChangeMethodName(oldValue.?@propType, newValue.?@propType);
                 }
             };
 
@@ -667,6 +693,12 @@ public definition @visibility aweObject @name=id @parentClass=["extends" type]? 
             @visibility class @baseClassName extends @parentClass {
                 @gettersSetters;
                 @onChange;
+
+                @visibility void propChanged(str propName, Object oldValue, Object newValue) {
+                    super(..);
+                    
+                    @onPropChanged;
+                }
             }
         };
 
@@ -704,6 +736,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
     SStatements animationPropertiesChanged();
 
     SStatements applyFrom();
+    SStatements getDomain();
     
     for (i in 0..(domains.count-1)) {
         SFormalArg arg = domains[i];
@@ -821,6 +854,12 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                 this.@propName = value.@propType;
             }
         };
+
+        getDomain << statement {
+            if (propName == @propNameStr) {
+                return @domainName;
+            }
+        };
     }
 
     return member {
@@ -853,6 +892,12 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                 super(..);
                 @applyFrom;
             }
+        }
+
+        @visibility SubSet getDomain(str propName) {
+            @getDomain;
+
+            return super(..);
         }
     };
 }

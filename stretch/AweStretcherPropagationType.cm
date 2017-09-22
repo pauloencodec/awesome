@@ -33,24 +33,11 @@
 
    END OF CETSC
 */
-package custom.awesome : 8.0.0;
 
-use custom.awesome.product;
-use custom.awesome.automations;
-use custom.awesome.materials;
-use custom.awesome.schemes;
-use custom.awesome.stretch;
+package custom.awesome.stretch;
 
-use cm.abstract.surface;
-
-use cm.format.cm3D;
-use cm.geometry.advanced;
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.win;
-use cm.io;
-use cm.io.util;
-use cm.rs;
+public aweEnum AweStretcherPropagationType (
+    none = <"N", "None">,
+    directlyConnected = <"D", "Directly Connected">,
+    allConnected = <"A", "All Connected">
+);

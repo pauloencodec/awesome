@@ -39,6 +39,7 @@ package custom.awesome.stretch;
 use custom.awesome;
 use custom.awesome.basic3D;
 use custom.awesome.product;
+use custom.awesome.connectors;
 
 use cm.application;
 use cm.basic;
@@ -49,6 +50,3 @@ use cm.core3D;
 use cm.draw;
 use cm.win;
 use cm.os;
-
-public const str storageCm3DFolder = "custom/awesome/data/cm3d/storage";
-public str storageProfilesFolder = "custom/panels/assets/cm3D/profiles/stride/";

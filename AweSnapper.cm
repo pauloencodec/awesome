@@ -39,7 +39,6 @@ package custom.awesome;
 use custom.awesome.connectors;
 use custom.awesome.gallery;
 use custom.awesome.electrical;
-use custom.awesome.stretch;
 
 private alias SnapperArray = Snapper{};
 
@@ -147,26 +146,11 @@ public class AweSnapper extends Snapper {
             }
         }
 
-        if(this !in AweGhostSnapper) {
+        var stretchers = this.mainModel.getStretchers();
 
-            var bound = this.localBound();
-            if(!this.myEstico) {
-                this.myEstico = new custom.awesome.stretch.AweStretcher(
-                    line(
-                        bound.upWest,
-                        bound.upEast
-                        ),
-                    this.mainModel,
-                    "width"
-                );
-            }
-            this.myEstico.line = line(
-                bound.upWest,
-                bound.upEast
-            );
-    
-            for(stretcher in this.myEstico.connectors()) {
-                collection << stretcher;
+        if (stretchers and stretchers.any()) {
+            for (s in stretchers) {
+                s.addToConnectors(collection);
             }
         }
 
@@ -184,7 +168,6 @@ public class AweSnapper extends Snapper {
             return t; 
         }
     }
-
 
     public bool buildQuickProperties(QuickProperties props) { 
         if (this.activeConfigurator) {
@@ -615,31 +598,57 @@ public class AweSnapper extends Snapper {
     }
 
 
-    public custom.awesome.stretch.AweStretcher myEstico;
     /***********************************************************************
      * Stretch
      ***********************************************************************/
 
-    /**
-     * Return true if s is a 'stretch snap'.
-     */
-     public bool stretchable(Connector s) { return s in custom.awesome.stretch.AweStretcherConnector; }
-     
-     
-
+    public bool stretchable(Connector s) { return s in AweStretcherConnector; }
     
-    
+    public bool stretch(Connector s, point p, AnimationMouseInfo mi) {
+        if (s as AweStretcherConnector) {
+            var propagation = AweStretcherPropagationType.none;
 
-    /**
-    * Stretch this so that 's' is repositioned at 'p'
-    * in snapper coordinates or at least close to 'p'.
-    */
-    public bool stretch(Connector s, point p, AnimationMouseInfo mi) { 
-        return this.myEstico.update(s, p, propagate=true);
+            if (isShiftKeyDown()) {
+                propagation = AweStretcherPropagationType.directlyConnected;
+            }
+            else if (isControlKeyDown()) {
+                propagation = AweStretcherPropagationType.allConnected;
+            }
+
+            return s.stretcher.update(s, p, propagation);
+        }
+
+        return super(..);
     }
 
+    public void endStretch(Connector s) {
+        super(..);
+
+        if (s as AweStretcherConnector) {
+            this.invalidate3D();
+            this.invalidate2D();
+        }
+    }
+
+    public point visiblePosition(Connector c, point p, Connector t) {
+        if (c as AweStretcherConnector) {
+            return p + c.visiblePosOffset;
+        }
+        
+        return super(..);
+    }
+
+    extend public AweStretcher getActiveStretcher() {
+        if (isAbortingAnimation or isEndingAnimation) return null;
+
+        if (animation as LineStretchAnimation) {
+            if (?AweStretcherConnector snap = animation.snap) {
+                return snap.stretcher;
+            }
+        }
+    
+        return null;
+    }
 }
-
-
 
 private bool disableGroupChangeTrigger = false;
