@@ -40,7 +40,7 @@ use cm.runtime, cm.basic;
 public class AweConnectorSet  {
     public constructor() { }
 
-    public AweConnectorCache connectorCache;
+    public AweConnectorCache connectorCache : copy=null;
     public bool selected = true;
     public AweObject[] connectedModels();
 

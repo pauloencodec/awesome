@@ -39,6 +39,7 @@ package custom.awesome;
 use custom.awesome.connectors;
 use custom.awesome.gallery;
 use custom.awesome.electrical;
+use custom.awesome.stretch;
 
 private alias SnapperArray = Snapper{};
 
@@ -143,6 +144,29 @@ public class AweSnapper extends Snapper {
         for(m in allModels) {
             for(c in m.getConnectors(this)) {
                 collection << c;
+            }
+        }
+
+        if(this !in AweGhostSnapper) {
+
+            var bound = this.localBound();
+            if(!this.myEstico) {
+                this.myEstico = new custom.awesome.stretch.AweStretcher(
+                    line(
+                        bound.upWest,
+                        bound.upEast
+                        ),
+                    this.mainModel,
+                    "width"
+                );
+            }
+            this.myEstico.line = line(
+                bound.upWest,
+                bound.upEast
+            );
+    
+            for(stretcher in this.myEstico.connectors()) {
+                collection << stretcher;
             }
         }
 
@@ -396,7 +420,7 @@ public class AweSnapper extends Snapper {
         return snappers;
     }
 
-    extend private AweObject{} groupModels(bool onlyDirectly=false) {
+    extend public AweObject{} groupModels(bool onlyDirectly=false) {
         AweObject{} allModels();
         
         for (AweSnapper s in this.groupSnappers(onlyDirectly)) {
@@ -589,6 +613,69 @@ public class AweSnapper extends Snapper {
         
         return false;
     }
+
+
+    public custom.awesome.stretch.AweStretcher myEstico;
+    /***********************************************************************
+     * Stretch
+     ***********************************************************************/
+
+    /**
+     * Return true if s is a 'stretch snap'.
+     */
+     public bool stretchable(Connector s) { return s in custom.awesome.stretch.AweStretcherConnector; }
+     
+     
+
+    
+    
+    /**
+    * Begin stretch, always called before stretch.
+    */
+
+    public AweStretcherConnector{} alignedStretcherConnectors;
+    public void beginStretch(Connector s) { 
+        alignedStretcherConnectors = this.alignedStretcherConnectors(s);
+        
+    }
+
+    extend public AweStretcherConnector{} alignedStretcherConnectors(Connector reference) {
+        AweStretcherConnector{} aligned();
+        var spaceLine = this.toSpace(this.myEstico.line);
+        var group = this.allConnected();
+
+        for(snapper in group) {
+            for(c in snapper.connectors()) {
+                if(c as AweStretcherConnector) {
+                    if(c != reference and c.spaceRot() == reference.spaceRot() and spaceLine.normalIntersectUnbounded(c.spacePos()).ip == reference.spacePos()) {
+                        aligned << c;
+                    }
+                }
+            }
+        }
+        return aligned;
+    }
+
+
+    /**
+    * Stretch this so that 's' is repositioned at 'p'
+    * in snapper coordinates or at least close to 'p'.
+    */
+    public bool stretch(Connector s, point p, AnimationMouseInfo mi) { 
+        this.myEstico.update(s, p, mi, alignedStretcherConnectors);
+
+        return true; 
+    }
+
+
+    /**
+    * End stretch, called when stretch is finished.
+    */
+    public void endStretch(Connector s) { 
+        alignedStretcherConnectors = null;
+    }
 }
+
+
 
 private bool disableGroupChangeTrigger = false;

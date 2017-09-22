@@ -43,6 +43,10 @@ public aweObject SomePanel {
         double thickness = 3inch
     );
 
+    public aweObjectDomain(
+        distance width = new DistanceEnum(48inch, 60inch, 72inch)
+    );
+
     public AweProduct createProduct() {
         return SomePanelProduct(this);
     }
