@@ -108,16 +108,17 @@ public class AweObject {
     public str->AweStretcher _stretchers : copy=null;
 
     extend public AweStretcher[] getStretchers() {
-        var bound = this.mainSnapper.localBound();
+        return null;
+        // var bound = this.mainSnapper.localBound();
 
-        AweStretcher[] result();
+        // AweStretcher[] result();
 
-        result <<? this.createStretcher("width", bound.upCenterlineX);
-        result <<? this.createStretcher("depth", bound.upCenterlineY);
-        result <<? this.createStretcher("height", bound.verticalCenterline, enableA=false, visiblePosOffsetB=(0, 0, snapShapeSize));
-        result <<? this.createStretcher("elevation", bound.verticalCenterline, enableA=false, visiblePosOffsetB=(0, 0, snapShapeSize));
+        // result <<? this.createStretcher("width", bound.upCenterlineX);
+        // result <<? this.createStretcher("depth", bound.upCenterlineY);
+        // result <<? this.createStretcher("height", bound.verticalCenterline, enableA=false, visiblePosOffsetB=(0, 0, snapShapeSize));
+        // result <<? this.createStretcher("elevation", bound.verticalCenterline, enableA=false, visiblePosOffsetB=(0, 0, snapShapeSize));
 
-        return result;
+        // return result;
     }
 
     /************** prop awereness ***********************/
