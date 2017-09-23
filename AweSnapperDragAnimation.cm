@@ -58,6 +58,25 @@ public class AweSnapperDragAnimation extends DragAnimation {
             this.activeGhost.get2D().?draw(lb);
         }
     }
+
+    public Primitive3D get3D(FetchEnv3D env) {
+        if(this.activeGhost) {
+            return this.activeGhost.get3D(env);
+        }
+        return null;
+    }
+
+    public Primitive3D toSpace(Primitive3D prim) {
+        if(this.activeGhost and prim) {
+            prim.setPosRot(this.activeGhost.ghostSnapper.pos, this.activeGhost.ghostSnapper.rot);
+            prim = safeInstance3D([Primitive3D: prim]);
+        }
+        return prim;
+    }
+
+    public bool deny3D() {
+        return false;
+    }
     
     public PropObj end() {
         var snapper = this.activeGhost.?deploy();
