@@ -141,4 +141,14 @@ public class AweGhost {
         return graph;
     }
 
+    extend public Primitive3D get3D(FetchEnv3D env) {
+        this.updatePosition();
+        var prims = this.ghostSnapper.get3D(env);
+        prims.rotate(this.ghostSnapper.rot);
+        prims.move(this.ghostSnapper.pos);
+        return prims;
+    }
+
+    
+
 }
