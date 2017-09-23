@@ -44,13 +44,12 @@ public class AweSnapperDragAnimation extends DragAnimation {
 
     public AweGhost activeGhost;
     extend public void updateActiveGhost(SnapInfo info) {
+        this.activeGhost = null;
         if(info as ConnectSnapInfo) {
             if(AweGhost ghost = info.attach.?getGhost()) {
                 this.activeGhost = ghost;
             }
-        } else {
-            this.activeGhost = null;
-        }
+        } 
     }
 
     public void drawGraphs(LayerBuffer lb) {

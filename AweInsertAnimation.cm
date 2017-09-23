@@ -92,6 +92,7 @@ public class AweInsertAnimation extends InsertAnimation {
     public AweGhost activeGhost;
     extend public void updateActiveGhost(SnapInfo info) {
         AweGhost previousGhost = this.activeGhost;
+        this.activeGhost = null;
         if(info as ConnectSnapInfo) {
             if(AweGhost ghost = info.snap.?getGhost()) {
                 this.activeGhost = ghost;
@@ -99,8 +100,6 @@ public class AweInsertAnimation extends InsertAnimation {
             if(AweGhost ghost = info.attach.?getGhost()) {
                 this.activeGhost = ghost;
             }
-        } else {
-            this.activeGhost = null;
         }
         if(this.activeGhost != previousGhost) {
             this.space.invalidate(this);
