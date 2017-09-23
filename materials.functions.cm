@@ -81,3 +81,11 @@ public DualMaterial3D transparentColorMaterial(color color, double opacity=0.75)
     
     return dm;
 }
+
+public Material3D getMaterial3D(AweMaterialShell aweMaterial) {
+    return aweMaterial.materialInstance.material3D;
+}
+
+public Material getMaterial(AweMaterialShell aweMaterial) {
+    return aweMaterial.materialInstance;
+}
