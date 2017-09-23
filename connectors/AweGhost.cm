@@ -126,7 +126,7 @@ public class AweGhost {
             return null;
         }
         this.updatePosition();
-        return this.ghostSnapper.connectors;
+        return this.ghostModel.getConnectors(this.ghostSnapper, ghostMode=true);
     }
 
     extend public Connector hostConnector() {

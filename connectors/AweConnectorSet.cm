@@ -56,6 +56,10 @@ public class AweConnectorSet  {
         return !this.optional() or this.selected;
     }
 
+    extend public void connectors(AweConnectorCache cc, bool ghostMode) {
+        this.connectors(cc);
+    }
+
     extend public void connectors(AweConnectorCache cc) {
     }
 

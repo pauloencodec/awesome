@@ -516,7 +516,7 @@ public class AweObject {
         return this.connectorIndex.get(connectorFullId);
     }
 
-    extend public Connector{} getConnectors(Snapper snapper=null) {
+    extend public Connector{} getConnectors(Snapper snapper=null, bool ghostMode=false) {
 
         if(!connectorIndex) {
             connectorIndex = new str->Connector();
@@ -531,7 +531,7 @@ public class AweObject {
                 set.connectorCache = new AweConnectorCache(snapper);
             }
             set.connectorCache.clearBuffer();
-            set.connectors(set.connectorCache);
+            set.connectors(set.connectorCache, ghostMode=ghostMode);
             for(c in set.connectorCache.buffer) {
                 c.setConnectorSet(set);
                 c.setModel(this);
