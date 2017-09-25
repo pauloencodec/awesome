@@ -653,6 +653,12 @@ public class AweSnapper extends Snapper {
     
         return null;
     }
+
+    public Connector{} snaps() {
+        FilteredConnectorSet c(AweNoGhostConnnectorFilter());
+        connectors(c);
+        return c.set;
+    }
 }
 
 private bool disableGroupChangeTrigger = false;

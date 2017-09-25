@@ -508,22 +508,29 @@ public class AweObject {
 
     /************** exposing connectors ***************/
 
-    //ID to connector.
-    //ID is ConnectorSetName.ConnectorID. i.e.: PanelConnetorSet.leftPoint
-    private str->Connector connectorIndex();
-
     extend public Connector getConnectorById(str connectorFullId) {
-        return this.connectorIndex.get(connectorFullId);
+        var snapper = this.mainSnapper();
+        for(set in connectorSets) if(set.active()) {
+            if(!set.connectorCache) {
+                if(!snapper) continue;
+                set.connectorCache = new AweConnectorCache(snapper);
+            }
+            set.connectorCache.clearBuffer();
+            set.connectors(set.connectorCache, ghostMode=false);
+            for(c in set.connectorCache.buffer) {
+                if(connectorFullId == set.class.toS() # "." # c.getId) {
+                    c.setModel(this);
+                    return c;
+                }
+            }
+        }
+        return null;
     }
 
     extend public Connector{} getConnectors(Snapper snapper=null, bool ghostMode=false) {
-
-        if(!connectorIndex) {
-            connectorIndex = new str->Connector();
+        if(snapper) {
+            this.appendSnapper(snapper);
         }
-        connectorIndex.clear();
-
-
         Connector{} connectors();
         for(set in connectorSets) if(set.active()) {
             if(!set.connectorCache) {
@@ -536,13 +543,14 @@ public class AweObject {
                 c.setConnectorSet(set);
                 c.setModel(this);
                 connectors << c;
-
-                connectorIndex.put(set.class.toS() # "." # c.getId, c);
             }
         }
 
         //ghosts
-        connectors += this.getGhostConnectors();
+        var ghostConnectors = this.getGhostConnectors();
+        for(c in ghostConnectors) {
+            connectors << c; 
+        }
 
         return connectors;
     }
@@ -607,11 +615,6 @@ public class AweObject {
     }
 
     extend public Connector{} getGhostConnectors() {
-        
-        //only if not being dragged
-        var currentAnimation = animation();
-        if(this.mainSnapper in animation.DragAnimation.?selection) return null;
-
         Connector{} ghostConnectors();
         for(ghost in this.ghosts) {
             for(c in ghost.getConnectors()) {

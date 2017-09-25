@@ -98,7 +98,8 @@ public class AweGhost {
     }
 
     extend private Connector ghostConnector() {
-        return this.ghostModel.getConnectorById(this.ghostConnectionId);
+        var connector = this.ghostModel.getConnectorById(this.ghostConnectionId);
+        return connector;
     }
 
     extend public Snapper deploy() {
@@ -108,11 +109,11 @@ public class AweGhost {
         for(c in ghostSnapperCopy.connectors()) {
             //set them free of ghosts
             c.setGhost(null);
+            if(!c.getModel)
+                c.setModel(ghostSnapperCopy.mainModel);
             c.disconnectAll();
         }
 
-        //make a new one for next time
-        //this.instantiateGhost();
 
         snapAndPosition(ghostSnapperCopy, this.ghostConnector(), this.hostConnector());
 

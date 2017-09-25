@@ -139,14 +139,16 @@ public class SomePostConnectorSet extends AweConnectorSet {
         this.model = post;
     }
 
-    public void connectors(AweConnectorCache cache) {
+    public void connectors(AweConnectorCache cache, bool ghostMode) {
         
         var halfThickness = this.model.thickness/2;
         var thickness = this.model.thickness;
 
-        cache.makePoint("left", (0, halfThickness, 0), 180deg, magnet=magnet(Panel-));
+        if(!ghostMode) {
+            cache.makePoint("left", (0, halfThickness, 0), 180deg, magnet=magnet(Panel-));
+            cache.makePoint("right", (thickness, halfThickness, 0), 0deg, magnet=magnet(Panel-));
+        }
         cache.makePoint("top", (halfThickness, thickness, 0), 90deg, magnet=magnet(Panel-));
-        cache.makePoint("right", (thickness, halfThickness, 0), 0deg, magnet=magnet(Panel-));
         cache.makePoint("bottom", (halfThickness, 0, 0), 270deg, magnet=magnet(Panel-));
     }
 }
