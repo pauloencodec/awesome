@@ -75,11 +75,13 @@ public class AweMaterialShell extends AweModelAwareProp {
     extend public void setMaterial(Material m) {
         this.id = m.code;
         this._materialInstance = m;
+        this.model.?updateLimbDefaults();
     }
 
     extend public void setID(str id) {
         this.id = id;
         this._materialInstance = factory.fetchMaterial(this.id);
+        this.model.?updateLimbDefaults();
     }
 
 
