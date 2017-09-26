@@ -62,21 +62,92 @@ public class AweSifCatalog {
         this.file3Index.?close();
     }
 
-    extend public str[] getModelOptionKeys(str basemodel) {
-        var lines = this.file2Index.get(basemodel);
-        return lines;
-    }
+
 
     extend public AweSifModel model(str basemodelKey) {
         var lines = this.file2Index.get(basemodelKey);
-        return null;
+        var map = this.mapFirst(lines);
+        str[] optionKeys();
+        int optionIndex = 0;
+        while(str key = map.get("G" # optionIndex)) {
+            optionIndex++;
+            optionKeys << key;
+        }
+        AweSifModel m();
+        m.code=map.get("PN");
+        m.description=map.get("PD");
+        m.basePrice=double(map.get("P1")).v;
+        m.optionKeys = optionKeys;
+        return m;
     }
 
     extend private <str, str> break(str line) {
         return line.split('=');
     }
+
+    extend private <str,str>[] seq(str[] lines) {
+        <str,str>[] seq();
+        for(line in lines) {
+            seq << this.break(line);
+        }
+        return seq;
+    }
+
+    extend private str->str[] map(str[] lines) {
+        str->str[] map();
+        for(line in lines) {
+            var parts = this.break(line);
+            if(!map.get(parts.v0)) {
+                map.put(parts.v0, new str[]());
+            }
+            map.get(parts.v0) << parts.v1;
+        }
+        return map;
+    }
+
+    extend private str->str mapFirst(str[] lines) {
+        str->str map();
+        for(line in lines) {
+            var parts = this.break(line);
+            if(map.get(parts.v0)) {
+                continue;
+            }
+            map.put(parts.v0, parts.v1);
+        }
+        return map;
+    }
+
+    extend public AweSifOptionSelection getSelection(str optionKey, str optionValue) {
+        return null;
+    }
+
+    extend public AweSifOptionSelection[] getImidiateSelections(str optionKey) {
+        AweSifOptionSelection[] selections();
+        var lines = this.file3Index.get(optionKey);
+        var seq = this.seq(lines);
+        return selections;
+    }
+
+    extend private str->AweSifOptionSelection getAllPossibilities(str optionKey, str->AweSifOptionSelection visited=null) {
+        if(!visited) visited = new str->AweSifOptionSelection();
+        var lines = this.file3Index.get(optionKey);
+        var seq = this.seq(lines);
+        return visited;
+    }
+
+    extend public str[] possibleOptionValues(str completeOptionValue) {
+        str[] values();
+        values << completeOptionValue;
+        var noPrice = completeOptionValue.split(')').v1;
+        if(noPrice and noPrice != "" and noPrice != completeOptionValue) {
+            values << noPrice;
+        }
+        return values;
+    }
 }
 
+
+ 
 {
     AweSifCatalog seatingCatalog("ALC", 
         Url("C:\\Users\\User\\Downloads\\ALC.1"),
@@ -84,5 +155,5 @@ public class AweSifCatalog {
         Url("C:\\Users\\User\\Downloads\\ALC.3")
     );
 
-    pln(#seatingCatalog.getModelOptionKeys("TR-MWMFC"));
+    pln(#seatingCatalog.model("TR-MWMFC").optionKeys);
 }
