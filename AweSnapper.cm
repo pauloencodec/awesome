@@ -109,6 +109,8 @@ public class AweSnapper extends Snapper {
 
     /************** connections ***************/
 
+
+
     extend public bool mustConnect() {
         return true;
     }
@@ -144,7 +146,19 @@ public class AweSnapper extends Snapper {
             }
         }
 
+        var stretchers = this.mainModel.getStretchers();
+
+        if (stretchers and stretchers.any()) {
+            for (s in stretchers) {
+                s.addToConnectors(collection);
+            }
+        }
+
         super(collection);
+    }
+
+    public Animation leftDragAnimation(StartDragAnimationEnv env) {
+        return new AweSnapperDragAnimation(env);
     }
 
     public double connectLineAlignConnector(ConnectLine s, Connector c, double t) {
@@ -154,7 +168,6 @@ public class AweSnapper extends Snapper {
             return t; 
         }
     }
-
 
     public bool buildQuickProperties(QuickProperties props) { 
         if (this.activeConfigurator) {
@@ -261,6 +274,10 @@ public class AweSnapper extends Snapper {
         invalidateQuickPropertiesFor(this);
         invalidate();
         this.space.invalidateSelection();
+
+        for(m in this.allModels()) {
+            m.updateLimbDefaults();
+        }
     }
 
     private bool _dropped = false;
@@ -390,7 +407,7 @@ public class AweSnapper extends Snapper {
         return snappers;
     }
 
-    extend private AweObject{} groupModels(bool onlyDirectly=false) {
+    extend public AweObject{} groupModels(bool onlyDirectly=false) {
         AweObject{} allModels();
         
         for (AweSnapper s in this.groupSnappers(onlyDirectly)) {
@@ -582,6 +599,65 @@ public class AweSnapper extends Snapper {
         }
         
         return false;
+    }
+
+
+    /***********************************************************************
+     * Stretch
+     ***********************************************************************/
+
+    public bool stretchable(Connector s) { return s in AweStretcherConnector; }
+    
+    public bool stretch(Connector s, point p, AnimationMouseInfo mi) {
+        if (s as AweStretcherConnector) {
+            var propagation = AweStretcherPropagationType.none;
+
+            if (isShiftKeyDown()) {
+                propagation = AweStretcherPropagationType.directlyConnected;
+            }
+            else if (isControlKeyDown()) {
+                propagation = AweStretcherPropagationType.allConnected;
+            }
+
+            return s.stretcher.update(s, p, propagation);
+        }
+
+        return super(..);
+    }
+
+    public void endStretch(Connector s) {
+        super(..);
+
+        if (s as AweStretcherConnector) {
+            this.invalidate3D();
+            this.invalidate2D();
+        }
+    }
+
+    public point visiblePosition(Connector c, point p, Connector t) {
+        if (c as AweStretcherConnector) {
+            return p + c.visiblePosOffset;
+        }
+        
+        return super(..);
+    }
+
+    extend public AweStretcher getActiveStretcher() {
+        if (isAbortingAnimation or isEndingAnimation) return null;
+
+        if (animation as LineStretchAnimation) {
+            if (?AweStretcherConnector snap = animation.snap) {
+                return snap.stretcher;
+            }
+        }
+    
+        return null;
+    }
+
+    public Connector{} snaps() {
+        FilteredConnectorSet c(AweNoGhostConnnectorFilter());
+        connectors(c);
+        return c.set;
     }
 }
 

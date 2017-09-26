@@ -43,8 +43,12 @@ public class AweAnimation extends ObsoleteStateMouseAnimation {
 
     public sorted str->AweObject subConfigurators();
 
-    extend public void configuratorChanged() {
+    extend public void configuratorChanged(str key, Object value) {
 
+    }
+
+    extend public str{} keysThatIgnoreRebuildProperties() {
+        return null;
     }
 
     public void buildProperties() {
@@ -73,10 +77,26 @@ public class AweAnimation extends ObsoleteStateMouseAnimation {
             for(key, value in subConfigurators) {
                 value.animationPropertyChanged(..);
             }
-            configuratorChanged();
+            configuratorChanged(key, value);
         }
 
-        this.buildProperties();
+        bool ignoreRebuildProperties = this.ignoreRebuildProperties(key);
+
+        if (!this.ignoreRebuildProperties(key)) {
+            this.buildProperties();
+        }
+    }
+
+    extend public bool ignoreRebuildProperties(str key) {
+        str{} allIgnoreKeys();
+
+        for (configKey, subConfigurator in this.subConfigurators) {
+            for (ignoreKey in this.keysThatIgnoreRebuildProperties) {
+                allIgnoreKeys << configKey # ignoreKey;
+            }
+        }
+
+        return (key in allIgnoreKeys);
     }
 
     extend public void setViewMode(ViewMode viewMode) {

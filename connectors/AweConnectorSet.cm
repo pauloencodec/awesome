@@ -40,7 +40,7 @@ use cm.runtime, cm.basic;
 public class AweConnectorSet  {
     public constructor() { }
 
-    public AweConnectorCache connectorCache;
+    public AweConnectorCache connectorCache : copy=null;
     public bool selected = true;
     public AweObject[] connectedModels();
 
@@ -54,6 +54,10 @@ public class AweConnectorSet  {
 
     extend public bool active() {
         return !this.optional() or this.selected;
+    }
+
+    extend public void connectors(AweConnectorCache cc, bool ghostMode) {
+        this.connectors(cc);
     }
 
     extend public void connectors(AweConnectorCache cc) {
@@ -76,7 +80,6 @@ public class AweConnectorSet  {
     }
 
     extend public void connected(AweConnectEnv me, AweConnectEnv other) {
-
     }
 
     extend public void disconnected(AweConnectEnv me, AweConnectEnv other) {

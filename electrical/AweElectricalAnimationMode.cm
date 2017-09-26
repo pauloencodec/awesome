@@ -65,4 +65,12 @@ public class AweElectricalAnimationMode {
 
     extend public void configuratorChanged() {
     }
+
+    extend public void begin() {
+
+    }
+
+    extend public void end() {
+        
+    }
 }

@@ -44,6 +44,8 @@ public member @visibility modelConnecting ';' {
 
         @visibility AweObject model: copy=null, stream=null;
 
+        @visibility AweGhost ghost: copy=null, stream=null;
+
         @visibility AweMagnet{} magnets;
 
         @visibility bool passive;
