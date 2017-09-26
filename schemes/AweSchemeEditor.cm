@@ -42,6 +42,7 @@ public class AweSchemeEditor extends OfficeGroupSchemeEditor {
     public AweObject latestConfig;
 
     public constructor(AweScheme scheme) {
+        pln("ctor scheme ", scheme);
         this.scheme = scheme;
         super(scheme.key, scheme.label);
     }
