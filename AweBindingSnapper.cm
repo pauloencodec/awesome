@@ -35,6 +35,7 @@
 */
 
 package custom.awesome;
+use custom.awesome.connectors;
 
 public class AweBindingSnapper extends AweSnapper : abstract {
     //the data root
@@ -135,17 +136,27 @@ public class AweBindingSnapper extends AweSnapper : abstract {
         }
     }
 
-    public void drawGraphs(LayerBuffer lb, View view, GeometricFinder finder=null) {
+    extend public Graph get2D() {
+        AweGraph graph();
         var allP = this.allProducts();
         
         if (allP) {
             for (p in allP) { 
-                if (Graph graph = p.get2D()) { 
-                    graph.draw(lb);
+                if (Graph g = p.get2D()) { 
+                    graph << g;
                 }
             }
         }
 
+        if (AweStretcher stretcher = this.getActiveStretcher()) {
+            graph <<? stretcher.get2D();
+        }
+
+        return graph;
+    }
+
+    public void drawGraphs(LayerBuffer lb, View view, GeometricFinder finder=null) {
+        this.get2D().?draw(lb);
         super(..);
     }
 
@@ -168,6 +179,10 @@ public class AweBindingSnapper extends AweSnapper : abstract {
 
                 all << prim;
             }
+        }
+
+        if (AweStretcher stretcher = this.getActiveStretcher()) {
+            all <<? stretcher.get3D(env);
         }
         
         return all;

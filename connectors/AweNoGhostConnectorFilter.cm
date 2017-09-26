@@ -34,20 +34,12 @@
    END OF CETSC
 */
 
-package custom.awesome.examples;
+package custom.awesome.connectors;
 
-use custom.awesome.product;
-use custom.awesome;
-use custom.awesome.materials;
-use custom.awesome.schemes;
-use custom.awesome.snapper;
-use custom.awesome.connectors;
-use cm.format.cm3D;
-use cm.geometry.advanced;
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.win;
-use cm.io;
+public class AweNoGhostConnnectorFilter extends ConnectorFilter {
+    public bool accepts(Connector c) {
+        if(c == null) return false;
+        //no ghosts!
+        return c.getGhost() == null;
+    }
+}

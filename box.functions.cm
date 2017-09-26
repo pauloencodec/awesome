@@ -76,6 +76,28 @@ public line downEastLine(box b) {
     return line(b.downNortheast(), b.downSoutheast());
 }
 
+public line upCenterlineX(box b) {
+    return line(b.upWest, b.upEast);
+}
+
+public line downCenterlineX(box b) {
+    return line(b.downWest, b.downEast);
+}
+
+public line upCenterlineY(box b) {
+    return line(b.upNorth, b.upSouth);
+}
+
+public line downCenterlineY(box b) {
+    return line(b.downNorth, b.downSouth);
+}
+
+public line verticalCenterline(box b) {
+    var center = b.center();
+
+    return line((center.x, center.y, b.p0.z), (center.x, center.y, b.p1.z));
+}
+
 public point upNorth(box b) {
     return b.upNorthLine().midPoint();
 }
