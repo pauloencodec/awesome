@@ -36,12 +36,13 @@
 
 package custom.awesome.sif;
 
+public class AweSifOptionSelection {
+    public constructor() {
+    }   
 
-public class AweSifModel {
+    public str optionKey;
+    public str optionDescription;
+    public double upcharge;
 
-    public constructor() { }
-    public str code = null;
-    public str description = null;
-    public double basePrice = 0;
-    public str[] optionKeys = null;
+    public AweSifOptionSelection parentSelection;
 }
