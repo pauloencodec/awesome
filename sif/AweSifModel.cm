@@ -36,53 +36,12 @@
 
 package custom.awesome.sif;
 
-public class AweSifCatalog {
-    
-    private AweSifFileIndex file2Index;
-    private AweSifFileIndex file3Index;
 
-    public str catalogCode;
-
-    public constructor(str catalogCode, Url file1Url, Url file2Url, Url file3Url) {
-        this.catalogCode = catalogCode;
-
-        double t0 = microTime();
-        this.indexFiles(file1Url, file2Url, file3Url);
-        double t1 = microTime;
-        pln(" --- ", (t1 - t0)/1e3);
-    }   
-
-    extend private void indexFiles(Url file1Url, Url file2Url, Url file3Url) {
-        file2Index = new AweSifFileIndex(file2Url, "PN");
-        file3Index = new AweSifFileIndex(file3Url, "PO");
-    }
-
-    extend public void close() {
-        this.file2Index.?close();
-        this.file3Index.?close();
-    }
-
-    extend public str[] getModelOptionKeys(str basemodel) {
-        var lines = this.file2Index.get(basemodel);
-        return lines;
-    }
-
-    extend public AweSifModel model(str basemodelKey) {
-        var lines = this.file2Index.get(basemodelKey);
-        return null;
-    }
-
-    extend private <str, str> break(str line) {
-        return line.split('=');
-    }
-}
-
-{
-    AweSifCatalog seatingCatalog("ALC", 
-        Url("C:\\Users\\User\\Downloads\\ALC.1"),
-        Url("C:\\Users\\User\\Downloads\\ALC.2"),
-        Url("C:\\Users\\User\\Downloads\\ALC.3")
+public aweObject AweSifModel {
+    props(
+        str code = null,
+        str description = null,
+        double basePrice = 0,
+        StrArray optionKeys = null
     );
-
-    pln(#seatingCatalog.getModelOptionKeys("TR-MWMFC"));
 }
