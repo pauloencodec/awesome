@@ -78,11 +78,18 @@ public class AweSnapperDragAnimation extends DragAnimation {
     }
     
     public PropObj end() {
-        var snapper = this.activeGhost.?deploy();
-        if(snapper) snapAllAligned(snapper);
+        if(this.activeGhost) {
+            var snapper = this.activeGhost.deploy();
+            this.space.undoableInsert(snapper);
+            modifyEnv << snapper;
+            this.selection << snapper;
+            this.toInsertInBsp << snapper;
+            if(snapper) snapAllAligned(snapper);
+            snapAllAligned(this.selection.main);
+        }
         return super(..);
     }
-    
+
 
     //Copied from DragAnimation then modified. Modifications are tagged with comment **** awesome modification ***.
     public void drag(AnimationMouseInfo mi) {
