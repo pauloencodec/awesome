@@ -53,7 +53,6 @@ public class AweObject {
 
     public constructor() {
         this.init();
-        this.appendGhosts(this.ghosts);
     }
 
     extend public void init() { 
@@ -608,15 +607,23 @@ public class AweObject {
     }
 
     /*************** g-g-g-ghost! *****************/
-    public AweGhost{} ghosts();
+    private AweGhost{} _ghosts : copy=null, stream=null;
 
     extend public void appendGhosts(AweGhost{} ghosts) {
 
     }
 
+    extend public AweGhost{} getGhosts() {
+        if(!this._ghosts) {
+            init this._ghosts();
+            this.appendGhosts(this._ghosts);
+        }
+        return this._ghosts;
+    }
+
     extend public Connector{} getGhostConnectors() {
         Connector{} ghostConnectors();
-        for(ghost in this.ghosts) {
+        for(ghost in this.getGhosts()) {
             for(c in ghost.getConnectors()) {
                 c.setGhost(ghost);
                 ghostConnectors << c;
