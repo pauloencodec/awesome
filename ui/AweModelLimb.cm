@@ -107,3 +107,7 @@ public str->AweObject modelLimbDefaults() {
     }
     return _modelLimbDefaults;
 }
+
+{
+    _modelLimbDefaults = null;
+}
