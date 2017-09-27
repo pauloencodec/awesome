@@ -97,6 +97,49 @@ public class AweMaterialDomain extends OfficeMaterialDomain {
             appendItem(item, child);
         }
     }
+
+    public aweDynamicContract {
+        aweDynamic QuickProperty customQuickProperty(str key, str label, Object value);
+    }
+
+    extend public QuickProperty customQuickProperty(str key, str label, Object value) {
+        return null;
+        // return new AweMaterialQuickProperty(key, label, value, value.class, this);
+    }
+}
+
+public class AweMaterialQuickProperty extends QuickProperty {
+    //OfficeMaterialSelection
+    public void build(QuickProperties props) {
+        super(props);
+pln(#value);
+        var choice = new AweOfficeMaterialSelection(props, domain=domain.MaterialDomain, selected=value.AweMaterialShell.materialInstance, callback=function selectChoice);
+
+        choice._domain = domain.MaterialDomain;
+        
+        choice.autoSize();
+        choice.h = 18;
+
+        this.controls = [Control: choice];
+
+        choice.schemeProperty = new MaterialSchemeProperty(key, label, value.AweMaterialShell.materialInstance, domain=choice._domain,
+        isSubProperty=false,
+        disabledAllowed=false,
+        images=null);
+    }
+}
+
+public class AweOfficeMaterialSelection extends SchemePropertyMaterialChoice {
+    public MaterialDomain _domain;
+}
+
+private void selectChoice(Control c) {
+    if (c as AweOfficeMaterialSelection) {
+	Material m = c.selected;
+	pln(#c._domain);
+	showOfficeMaterialDialog(c.ancestor, c._domain, m, null, c.schemeProperty);
+	
+    }
 }
 
 {
