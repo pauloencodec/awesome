@@ -67,6 +67,7 @@ public class AweScheme {
     extend private void addItem(str key, Object value) {
         var domainName = key # "Domain";
         var domainField = this.model.class.field(domainName);
+        if (!domainField) return;
         var domainValue = this.model.get(domainField);
         if(domainValue as SubSet) {
             AweSchemeItem item();
@@ -95,7 +96,6 @@ public class AweScheme {
 
         for(item in this.items) {
             var value = item.initialValue;
-
             //initial value for materials need to be the id
             if(value in AweMaterialShell) {
                 value = value.AweMaterialShell.id;
