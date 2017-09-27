@@ -44,7 +44,7 @@ public class ToStrShell extends AweDynamicShell {
 }
 
 public class AweObject {
-    public str->Object props();
+    public str->Object props() : copy=null;
     public str _galleryId;
     public str _label;
 
@@ -135,11 +135,34 @@ public class AweObject {
     }
 
     public Object copy(CopyEnv env, bool shallow=false) {
-        var c = super(..);
-        c.AweObject.updatePropAwareness();
-        c.AweObject.materialManager().?clear();
-        return c;
+        var newCopy = super(..);
+
+        if (newCopy as AweObject) {
+            init newCopy.props();
+    
+            for (key, value in this.props) {
+                newCopy.props.put(key, this.copyProp(env, key, value));
+            }
+
+            newCopy.updatePropAwareness();
+            newCopy.materialManager().?clear();
+        }
+
+        return newCopy;
     }
+
+    extend public Object copyProp(CopyEnv env, str key, Object value) {
+        if (value as AweEnum) {
+            return value;
+        }
+
+        if (value) {
+            return value.copy(env);
+        }
+
+        return value;
+    }
+
     /*************************************/
 
     extend public AweMaterialManager materialManager() {
@@ -554,7 +577,8 @@ public class AweObject {
         return connectors;
     }
 
-    private Field{} _connectorSetFields;
+    private Field{} _connectorSetFields : copy=null, stream=null;
+
     extend public AweConnectorSet{} connectorSets() {
         if(!_connectorSetFields) {
             init _connectorSetFields();
