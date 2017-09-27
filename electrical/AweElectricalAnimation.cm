@@ -41,6 +41,13 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
     public AweElectricalMap map;
     public AweElectricalClusterInfo status;
     public AweElectricalAnimationMode currentMode;
+    public str fixedMode;
+
+    public constructor(AweElectricalMap map=null, str fixedMode=null) {
+        this.fixedMode = fixedMode;
+
+        this(map);
+    }
 
     public constructor(AweElectricalMap map=null) {
         super(maxInt);
@@ -49,8 +56,17 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
         }
         status = new AweElectricalClusterInfo(this.map);
         this.configurator = new AweElectricalAnimationModel(this);
+
+        if (this.fixedMode) {
+            this.configurator.AweElectricalAnimationModel.modeDomain = null;
+        }
+
         launchMode();
     }   
+
+    extend public str modeName() {
+        return this.fixedMode ?? this.configurator.AweElectricalAnimationModel.mode;
+    }
 
     public void begin() {
         super();
@@ -63,8 +79,8 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
         this.showHint();
     }
 
-    public void configuratorChanged() {
-        updateSubConfigurators();
+    public void configuratorChanged(str key, Object value) {
+        updateSubConfigurators(rebuildProperties=!this.ignoreRebuildProperties(key));
         currentMode.configuratorChanged();
     }
 
@@ -87,7 +103,6 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
         
         Awe3D prims();
 
-        str modeName = this.configurator.AweElectricalAnimationModel.mode;
         prims << currentMode.?get3D();
         return prims;
     }
@@ -96,9 +111,8 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
         if (activeView as View2D) { 
             message("This animation is only supported for 3D views.");
         } else {
-            str modeName = this.configurator.AweElectricalAnimationModel.mode;
             str txt;
-            switch (modeName) {
+            switch (this.modeName) {
                 case "Add": 
                     txt = "Click on two points, one after the other, to route power. A power line will be created from point A to point B."; 
                 case "Infeed": 
@@ -114,13 +128,23 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
         }
     }
 
+    extend public str->AweElectricalAnimationMode modesInstances() {
+        str->AweElectricalAnimationMode instances();
+
+        instances.put("View", new AweElectricalAnimationMode(this));
+        instances.put("Infeed", new AweElectricalAnimationInfeedMode(this));
+        instances.put("Add", new AweElectricalAnimationAddRouteMode(this));
+        instances.put("Remove", new AweElectricalAnimationDeleteRouteMode(this));
+        instances.put("Debug", new AweElectricalAnimationDebugMode(this));
+
+        return instances;
+    }
+
     extend private void launchMode() {
-        str modeName = this.configurator.AweElectricalAnimationModel.mode;
-        if(modeName == "View") currentMode = new AweElectricalAnimationMode(this);
-        if(modeName == "Infeed") currentMode = new AweElectricalAnimationInfeedMode(this);
-        if(modeName == "Add") currentMode = new AweElectricalAnimationAddRouteMode(this);
-        if(modeName == "Remove") currentMode = new AweElectricalAnimationDeleteRouteMode(this);
-        if(modeName == "Debug") currentMode = new AweElectricalAnimationDebugMode(this);
+        currentMode = this.modesInstances.get(this.modeName);
+
+        currentMode.begin();
+
         showHint();
 
         updateSubConfigurators();
@@ -128,10 +152,12 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
         this.refresh();
     }
 
-    extend public void updateSubConfigurators() {
+    extend public void updateSubConfigurators(bool rebuildProperties=true) {
         //mode configurators
         this.subConfigurators = currentMode.subConfigurators();
-        this.buildProperties();
+        if (rebuildProperties) {
+            this.buildProperties();
+        }
     }
 
     extend public void updateMap() {
@@ -154,10 +180,12 @@ public aweObject AweElectricalAnimationModel {
     }
 
     public void modeChanged(str newMode) {
+        if (this.animation.?currentMode) this.animation.?currentMode.end();
+
         this.animation.?launchMode();
     }
 }
 
 {
-    animate(new AweElectricalAnimation());
+    animate(new AweElectricalAnimation(fixedMode="Debug"));
 }

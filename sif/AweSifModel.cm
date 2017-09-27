@@ -34,16 +34,18 @@
    END OF CETSC
 */
 
-package custom.awesome.schemes;
+package custom.awesome.sif;
 
-use custom.awesome;
-use custom.awesome.materials;
-use custom.awesome.product;
-use cm.subset;
-use cm.win;
-use cm.core;
-use cm.geometry;
-use cm.geometry2D.advanced;
-use cm.core3D;
-use cm.abstract;
-use cm.abstract.office;
+
+public class AweSifModel {
+
+    public constructor() { }
+    public str code = null;
+    public str description = null;
+    public double basePrice = 0;
+    public str[] optionKeys = null;
+
+    public str toS() {
+        return format("@code; - @description;");
+    }
+}

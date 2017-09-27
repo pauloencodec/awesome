@@ -62,6 +62,10 @@ public class AwePointIndex {
         return index.get(pointToKey(p));
     }
 
+    extend public void removeObj(point p) {
+        index.remove(pointToKey(p));
+    }
+    
     //forces points into a 3d grid to avoid different keys for points that are very close. sometimes small precision differences emerge from converting toSpace and toSnapper.
     extend public point digitalize(point p) {
 
@@ -98,6 +102,10 @@ public definition @visibility awePointIndex @name=id "for" @t=type '{' @members=
             extend @visibility @t get(point p) {
                 return this.getObj(p).@t;
             }
+
+            extend @visibility void remove(point p) {
+                this.removeObj(p);
+            }
         }
     };
 }
@@ -108,5 +116,7 @@ public awePointIndex PointToStrIndex for str {
 {
     PointToStrIndex x();
     x.put((0,1,1), "Jao");
+    pln(#x.get((0,1,1)));
+    x.remove((0,1,1));
     pln(#x.get((0,1,1)));
 }

@@ -35,9 +35,9 @@
 */
 
 package custom.awesome.schemes;
-use cm.subset;
-use cm.basic;
-use cm.runtime;
+// use cm.subset;
+// use cm.basic;
+// use cm.runtime;
 
 public class AweScheme {
     public AweSchemeItem[] items();
@@ -49,20 +49,34 @@ public class AweScheme {
         this.model = model;
         this.key = model.class.toS;
         this.label = label;
-        for(key, value in model.props){
-            var domainName = key # "Domain";
-            var domainField = model.class.field(domainName);
-            var domainValue = model.get(domainField);
-            if(domainValue as SubSet) {
-                AweSchemeItem item();
-                item.key = key;
-                item.initialValue = value;
-                item.domain = domainValue;
-                item.label = getLabel(model, key);
-                this.items << item;
+        var sortOrder = model.quickPropertySort();
+        if (sortOrder and sortOrder.any) {
+            for (key in sortOrder) {
+                var value = model.props.get(key);
+                if (value)
+                    this.addItem(key, value);
+            }
+        }
+        else {
+            for (key, value in model.props) {
+                this.addItem(key, value);
             }
         }
     } 
+
+    extend private void addItem(str key, Object value) {
+        var domainName = key # "Domain";
+        var domainField = this.model.class.field(domainName);
+        var domainValue = this.model.get(domainField);
+        if(domainValue as SubSet) {
+            AweSchemeItem item();
+            item.key = key;
+            item.initialValue = value;
+            item.domain = domainValue;
+            item.label = getLabel(this.model, key);
+            this.items << item;
+        }
+    }
 
     extend private str getLabel(AweObject model, str key) {
         var labelFieldName = key # "Label";
@@ -77,6 +91,7 @@ public class AweScheme {
 
     extend public void register() {
         AweSchemeEditor scheme(this);
+        scheme.latestConfig = this.model.copy();
 
         for(item in this.items) {
             var value = item.initialValue;
@@ -137,4 +152,14 @@ public class AweSchemeItem {
 
 public void showAweScheme(Type schemeModelType) {
     buildSchemeManagerDialog(schemeModelType.toS);
+}
+
+public AweObject{} getLatestAweSchemeModels() {
+    AweObject{} latest();
+    for(AweSchemeEditor editor in cm.abstract.schemeManager.groupSchemeEditors) {
+        if(editor.latestConfig) {
+            latest << editor.latestConfig;
+        }
+    }
+    return latest;
 }

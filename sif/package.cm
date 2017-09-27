@@ -34,16 +34,18 @@
    END OF CETSC
 */
 
-package custom.awesome.schemes;
+package custom.awesome.sif;
 
+use custom.awesome.product;
 use custom.awesome;
 use custom.awesome.materials;
-use custom.awesome.product;
-use cm.subset;
-use cm.win;
+use custom.awesome.schemes;
+use cm.format.cm3D;
+use cm.geometry.advanced;
+use cm.application;
+use cm.basic;
 use cm.core;
-use cm.geometry;
-use cm.geometry2D.advanced;
 use cm.core3D;
-use cm.abstract;
-use cm.abstract.office;
+use cm.draw;
+use cm.win;
+use cm.io;

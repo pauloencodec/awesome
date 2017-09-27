@@ -34,16 +34,15 @@
    END OF CETSC
 */
 
-package custom.awesome.schemes;
+package custom.awesome.sif;
 
-use custom.awesome;
-use custom.awesome.materials;
-use custom.awesome.product;
-use cm.subset;
-use cm.win;
-use cm.core;
-use cm.geometry;
-use cm.geometry2D.advanced;
-use cm.core3D;
-use cm.abstract;
-use cm.abstract.office;
+public class AweSifOptionSelection {
+    public constructor() {
+    }   
+
+    public str optionKey;
+    public str optionDescription;
+    public double upcharge;
+
+    public AweSifOptionSelection parentSelection;
+}
