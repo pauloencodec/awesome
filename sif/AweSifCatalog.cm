@@ -62,6 +62,10 @@ public class AweSifCatalog {
         this.file3Index.?close();
     }
 
+    extend public str{} allBaseModels() {
+        return file2Index.index.keys;
+    }
+
 
 
     extend public AweSifModel model(str basemodelKey) {
@@ -76,7 +80,7 @@ public class AweSifCatalog {
         AweSifModel m();
         m.code=map.get("PN");
         m.description=map.get("PD");
-        m.basePrice=double(map.get("P1")).v;
+        m.basePrice=safeDouble(map.get("P1"));
         m.optionKeys = optionKeys;
         return m;
     }
@@ -155,5 +159,14 @@ public class AweSifCatalog {
         Url("C:\\Users\\User\\Downloads\\ALC.3")
     );
 
-    pln(#seatingCatalog.model("TR-MWMFC").optionKeys);
+    double t0=_microTime();
+    for(key, value in seatingCatalog.file2Index.index) {
+        var part = key;
+        var description = seatingCatalog.model(part).description;
+        // pln(#part; #description);
+    }
+    double t1=_microTime();
+    pln(#us(t1-t0));
+    
+    // pln(#seatingCatalog.model("TR-MWMFC").optionKeys);
 }
