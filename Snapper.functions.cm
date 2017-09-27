@@ -75,7 +75,7 @@ public aweEnum ConnectLinePosition (
 
 //source: source snapper connector
 //target: other snapper connector
-public void snapAndConnect(Snapper snapper, Connector source, Connector target, ConnectLinePosition position=ConnectLinePosition.mid) {
+public void snapAndPosition(Snapper snapper, Connector source, Connector target, ConnectLinePosition position=ConnectLinePosition.mid) {
     snapper.doSnap(source, target, line());
 
     var sourceLine = source.ConnectLine;
@@ -113,6 +113,13 @@ public void snapAndConnect(Snapper snapper, Connector source, Connector target, 
             }
         }
     }
+
+}
+
+//source: source snapper connector
+//target: other snapper connector
+public void snapAndConnect(Snapper snapper, Connector source, Connector target, ConnectLinePosition position=ConnectLinePosition.mid) {
+    snapAndPosition(..);
 
     snapper.connect(source, target, undoable=false);
 }
