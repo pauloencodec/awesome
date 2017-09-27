@@ -39,6 +39,7 @@ use custom.awesome.product;
 use custom.awesome.automations;
 use custom.awesome.materials;
 use custom.awesome.schemes;
+use custom.awesome.stretch;
 
 use cm.abstract.surface;
 
