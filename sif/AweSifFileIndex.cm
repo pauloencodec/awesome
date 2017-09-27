@@ -117,7 +117,11 @@ public class AweSifFileIndex {
 }
 
 {
+    double t0 = _microTime();
     AweSifFileIndex index(Url("C:\\Users\\User\\Downloads\\ALC.3"), "PO");
+    double t1 = _microTime();
+    pln(#us(t1-t0));
+    
     pln(index.get("19CYLIND"));
     pln(index.get("19HWB"));
     
