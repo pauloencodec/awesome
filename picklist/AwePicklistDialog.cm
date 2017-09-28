@@ -79,14 +79,8 @@ public class AwePicklistDialog extends PicklistDialog {
         this.updatePicklistGridWindow(this.sRes);
     }
 
-    extend private AwePicklistItem[] search(str catalog, str partNumber, str description) {
-        AwePicklistItem[] result();
-
-        for (i in (0..5)) {
-            result << new AwePicklistItem("AWS" # i, "ZQWEOR" # i, "Further Beam" # i, i * 7.25);
-        }
-
-        return result;
+    extend public AwePicklistItem[] search(str catalog, str partNumber, str description) {
+        return this.owner.search(catalog, partNumber, description);
     }
 
     public <str, str>[] dbSearch(str partNo, str desc) {
