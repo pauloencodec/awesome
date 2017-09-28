@@ -34,20 +34,17 @@
    END OF CETSC
 */
 
-package custom.awesome.examples;
-
-use custom.awesome.product;
-use custom.awesome;
-use custom.awesome.materials;
-use custom.awesome.schemes;
+package custom.awesome.connectors;
 use custom.awesome.snapper;
-use custom.awesome.connectors;
-use cm.format.cm3D;
-use cm.geometry.advanced;
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.win;
-use cm.io;
+
+public class AweGhostSnapper extends AweModelSnapper {
+    public void disconnected(Connector c0, Connector c1, bool wasSnapped, bool wasAttached) {
+        super(..);
+
+        //only keep ghosts if connected to two things at least
+        if(this.connectedNeighbors().count <= 1) {
+            if(this in this.space and this.isAlive)
+                this.space.remove(this);
+        }
+    }
+}

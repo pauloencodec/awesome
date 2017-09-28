@@ -55,4 +55,8 @@ public class AweMaterial extends OfficeMaterial {
     public Image sizedPreviewImage(int w, int h, bool force=false) {
         return getSizedPreviewImage(this, thumbnailScale(w), w=w, h=h, force=force);
     }
+
+    public Object copy(CopyEnv env, bool shallow=false) {
+        return this;
+    }
 }

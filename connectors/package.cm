@@ -86,6 +86,21 @@ public void setModel(Connector c, AweObject model) {
     }
 }
 
+public AweGhost getGhost(Connector c) {
+    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
+        return conn.ghost;
+    }
+    
+    return null;
+}
+
+public void setGhost(Connector c, AweGhost ghost) {
+    aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
+        conn.ghost = ghost;
+    }
+}
+
+
 public AweConnectorSet getConnectorSet(Connector c) {
     aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
         return conn.connectorSet;

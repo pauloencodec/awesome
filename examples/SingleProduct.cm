@@ -36,8 +36,6 @@
 
 package custom.awesome.examples;
 
-use custom.awesome.connectors;
-
 /* just one product */
 
 //the cube model

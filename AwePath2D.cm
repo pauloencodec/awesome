@@ -72,7 +72,11 @@ public class AwePath2D extends EdgedPath {
     extend public AwePath2D go(double x, double y) {
         return go((x,y));
     }
-    
+
+    extend public AwePath2D polarGo(angle a, double radius) {
+        return go(new point2D(a,radius));
+    }
+        
     extend public AwePath2D up(double distance) {
         return go(0, distance);
     }

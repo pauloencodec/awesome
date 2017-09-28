@@ -38,7 +38,11 @@ package custom.awesome;
 
 public class AweEnumSubSet extends ObjectSubSet : inherit constructors {
     public constructor(AweEnum[] members) {
-        super(members.:Object[]);
+        super();
+
+        for (entry in members) {
+            this._members << entry;
+        }
     }
 
     public bool contains(Object o) {
