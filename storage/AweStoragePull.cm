@@ -89,7 +89,7 @@ public class AweStoragePull {
         pull.setFillColor(white);
 
         if (this.pos != null) {
-            pull.move((this.pos.v.x, this.pos.v.y, 0));
+            pull.move((this.pos.v.x, 0, this.pos.v.y));
         }
 
         return pull;
