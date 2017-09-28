@@ -39,15 +39,26 @@ package custom.awesome.sif;
 public class AweSifFileIndex {
 
     public str-><int, int> index();
-    private Stream stream;
+    private Url fileUrl;
+    
+    private Stream _stream : stream=null;
+
+    extend private Stream stream() {
+        if (!this._stream) {
+            this._stream = this.fileUrl.openForRead();
+
+            this._stream.setPos(0);
+        }
+
+        return this._stream;
+    }
 
     public constructor(Url fileUrl, str headerCode) {
         this.indexFile(..);
     }   
 
     extend private void indexFile(Url fileUrl, str headerCode) {
-        stream = fileUrl.openForRead();
-        stream.setPos(0);
+        this.fileUrl = fileUrl;
 
         str currentHeaderValue = null;
         int currentStartPos = 0;
@@ -67,7 +78,6 @@ public class AweSifFileIndex {
         //last line
         if(currentHeaderValue)
             this.appendItem(currentHeaderValue, currentStartPos, lastPos);
-        pln("done");
     }
 
     extend private void appendItem(str headerValue, int startPos, int endPos) {
@@ -94,6 +104,7 @@ public class AweSifFileIndex {
     extend public str[] get(str headerValue) {
 
         var item = this.index.get(headerValue);
+        
         if(!item) return null;
 
         stream.setPos(item.v0);
@@ -109,22 +120,9 @@ public class AweSifFileIndex {
     }
 
     extend public void close() {
-        if(stream) {
-            stream.close();
-            stream = null;
+        if (this._stream) {
+            this._stream.close();
+            this._stream = null;
         }
     }
-}
-
-{
-    double t0 = _microTime();
-    AweSifFileIndex index(Url("C:\\Users\\User\\Downloads\\ALC.3"), "PO");
-    double t1 = _microTime();
-    pln(#us(t1-t0));
-    
-    pln(index.get("19CYLIND"));
-    pln(index.get("19HWB"));
-    
-    pln(index.get("VTUPHL2"));
-    
 }

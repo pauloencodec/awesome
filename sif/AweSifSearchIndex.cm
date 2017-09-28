@@ -44,6 +44,7 @@ public class AweSifSearchIndex {
 
     public constructor(AweSifCatalog source) {
         this.source = source;
+        
         this.process();
     }   
 
@@ -69,7 +70,7 @@ public class AweSifSearchIndex {
     }
 
     extend public void processCode(str code) {
-        var tokens = this.tokenizeBasemodel(code);
+        var tokens = this.tokenize(code, 1);
         for(token in tokens) {
             var list = modelList(token, this.basemodelIndex);
             list << code;
@@ -84,13 +85,15 @@ public class AweSifSearchIndex {
         }
     }
 
-    extend public AweSifModel[] search(str code="", str description="") {
+    extend public AweSifModel[] search(str code=null, str description=null) {
         str{} modelsFound();
         
         if(!description.emptyOrOnlyWhiteSpace) {
             var descriptionTokens = this.tokenizeDescription(description);
+
             for(token in descriptionTokens) {
                 var models = this.descriptionIndex.get(token);
+
                 if(modelsFound.empty) {
                     modelsFound = models;
                 } else {
@@ -100,7 +103,8 @@ public class AweSifSearchIndex {
         }
 
         if(!code.emptyOrOnlyWhiteSpace) {
-            var models = this.basemodelIndex.get(this.cleanBasemodel(code));
+            var models = this.basemodelIndex.get(this.clean(code));
+
             if(modelsFound.empty) {
                 modelsFound = models;
             } else {
@@ -115,22 +119,25 @@ public class AweSifSearchIndex {
         return found.seq;
     }
 
-    extend public str{} tokenizeBasemodel(str basemodel) {
-        basemodel = this.cleanBasemodel(basemodel);
+    extend public str{} tokenize(str term, int startIndex=0) {
+        term = this.clean(term);
         
         str{} tokens();
-        tokens << basemodel;
+        
+        tokens << term;
     
-        for(i in (2..basemodel.count)) {
-            tokens << basemodel.substring(0,i);
+        for(i in (startIndex..term.count)) {
+            tokens << this.clean(term.substring(0, i));
         }
+
         return tokens;
     }
 
-    extend public str cleanBasemodel(str basemodel) {
+    extend public str clean(str term) {
         StrBuf clean();
-        for(c in basemodel) {
-            if(c.isLetter) {
+
+        for(c in term) {
+            if(c.isLetter or c.isDigit) {
                 clean << c.toLower();
             }
         }
@@ -138,32 +145,24 @@ public class AweSifSearchIndex {
     }
     
     extend public str{} tokenizeDescription(str description) {
-        str{} tokens();
         description = description.toLower();
+
+        str{} tokens();
         CmScanner scanner(description);
+        
         var allTokens = scanner.tokenize(" /-,.");
-        for(token in allTokens) {
-            if(token.count > 1 and token.Double == null) {
-                tokens << token;
+        
+        for (token in allTokens) {
+            if (token.count > 1) {
+                if (token.Double == null) {
+                    tokens += this.tokenize(token, 2);
+                }
+                else {
+                    tokens << token;
+                }
             }
         }
+
         return tokens;
-    }
-}
-
-
-
-{
-    // pln(#tokenizeBasemodel("abcdefg"));
-    // pln(#tokenizeDescription("Trooper LT/íAdj Arms w/CTB133 disc 7/3/16"));
-    AweSifCatalog seatingCatalog("ALC", 
-        Url("C:\\Users\\User\\Downloads\\ALC.1"),
-        Url("C:\\Users\\User\\Downloads\\ALC.2"),
-        Url("C:\\Users\\User\\Downloads\\ALC.3")
-    );
-    AweSifSearchIndex search(seatingCatalog);
-    var found = search.search("MIWKANO", "Work Chair knit");
-    for(f in found) {
-        pln(#f);
     }
 }
