@@ -41,7 +41,7 @@ public class AweMaterialShell extends AweModelAwareProp {
     public str id;
     private Material _materialInstance : copy=reference;
 
-    private AweMaterialFactory _factory;
+    private AweMaterialFactory _factory : copy=reference;
 
     public constructor(str id="plain_gray", AweMaterialFactory factory=null) {
         this._factory = factory;
