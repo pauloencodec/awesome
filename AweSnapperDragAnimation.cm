@@ -52,10 +52,21 @@ public class AweSnapperDragAnimation extends DragAnimation {
         } 
     }
 
+    public SnapInfo activeSnapInfo;
+    
     public void drawGraphs(LayerBuffer lb) {
         if(this.activeGhost) {
             this.activeGhost.get2D().?draw(lb);
         }
+
+        if(activeSnapInfo as ConnectSnapInfo) {
+            Line2D lineA = activeSnapInfo.attach().?snapper.?AweSnapper.?referenceLineInSpace();
+            Line2D lineB = activeSnapInfo.snap().?snapper.?AweSnapper.?referenceLineInSpace();
+            if(lineA and lineB) {
+                AweAngleGraph angleGraph(lineA.v, lineB.v);
+                angleGraph.draw(lb);
+            }
+        } 
     }
 
     public Primitive3D get3D(FetchEnv3D env) {
@@ -128,9 +139,10 @@ public class AweSnapperDragAnimation extends DragAnimation {
             SnapInfo last = currentSpace ? currentSpace.lastSnapped : null;
             SnapInfo info = skipSnapping ? null : selection.trySnap(mi, modifyEnv, filter);
 
-             /********* awesome modification *********/
-             this.updateActiveGhost(info);
-             /********* awesome modification *********/;
+            /********* awesome modification *********/
+            this.activeSnapInfo = info;
+            this.updateActiveGhost(info);
+            /********* awesome modification *********/;
     
             if (skipSnapping) modifyEnv.restore(updateBsp=true);
     

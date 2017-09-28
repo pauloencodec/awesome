@@ -101,15 +101,24 @@ public class AweInsertAnimation extends InsertAnimation {
                 this.activeGhost = ghost;
             }
         }
-        if(this.activeGhost != previousGhost) {
-            this.space.invalidate(this);
-        }
+        this.space.invalidate(this);
     }
+
+    public SnapInfo activeSnapInfo;
 
     public void drawGraphs(LayerBuffer lb) {
         if(this.activeGhost) {
             this.activeGhost.get2D().?draw(lb);
         }
+
+        if(activeSnapInfo as ConnectSnapInfo) {
+            Line2D lineA = activeSnapInfo.attach().?snapper.?AweSnapper.?referenceLineInSpace();
+            Line2D lineB = activeSnapInfo.snap().?snapper.?AweSnapper.?referenceLineInSpace();
+            if(lineA and lineB) {
+                AweAngleGraph angleGraph(lineA.v, lineB.v);
+                angleGraph.draw(lb);
+            }
+        } 
     }
 
     public Primitive3D get3D(FetchEnv3D env) {
@@ -147,6 +156,7 @@ public class AweInsertAnimation extends InsertAnimation {
     public bool snapAllAlignedAtEnd() {
         return this.activeGhost == null;
     }
+
     
 
 
@@ -197,10 +207,8 @@ public class AweInsertAnimation extends InsertAnimation {
             SnapInfo last = currentSpace ? currentSpace.lastSnapped : null;
             //double t1 = microTime;
             SnapInfo info = skipSnapping ? null : selection.trySnap(mi, modifyEnv, filter);
-            
-            /********* awesome modification *********/
+            this.activeSnapInfo = info;
             this.updateActiveGhost(info);
-            /********* awesome modification *********/
 
             //SnapInfo info = skipSnapping ? null : trySnap(mi, modifyEnv, filter);
             if (skipSnapping) modifyEnv.restore(updateBsp=true);
