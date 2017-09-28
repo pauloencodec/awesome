@@ -34,19 +34,64 @@
    END OF CETSC
 */
 
-package custom.awesome.sif;
+package custom.awesome.io;
 
-use custom.awesome.product;
-use custom.awesome;
-use custom.awesome.io;
-use custom.awesome.materials;
-use custom.awesome.schemes;
-use cm.format.cm3D;
-use cm.geometry.advanced;
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.win;
-use cm.io;
+public class AweSerializer {
+    private Url fileUrl;
+    private File file;
+    private RobustFormatter formatter;
+
+    public constructor(Url fileUrl) {
+        if (!fileUrl) {
+            bug("fileUrl cannot be null");
+        }
+
+        this.fileUrl = fileUrl;
+    }
+
+    extend public void serialize(Object data) {
+        if (!data) {
+            bug("data cannot be null");
+        }
+
+        if (!this.fileUrl.isWritable()) {
+            bug("File must be writable: " # this.fileUrl);
+        }
+
+        this.fileUrl.unsafe = true;
+
+        if (this.file = this.fileUrl.openForWrite()) {
+            this.formatter = new RobustFormatter(file);
+
+            formatter.putObject(data);
+        }
+    }
+
+    extend public Object deserialize() {
+        if (!this.fileUrl.isReadable()) {
+            bug("File must be readable: " # this.fileUrl);
+        }
+
+        if (this.file = this.fileUrl.openForRead()) {
+            this.formatter = new RobustFormatter(file);
+            
+            return formatter.getObject();
+        }
+
+        return null;
+    }
+
+    extend public void close() {
+        if (this.file) {
+            this.file.close();
+            this.file = null;
+        }
+
+        if (this.formatter) {
+            this.formatter.close();
+            this.formatter = null;
+        }
+    }
+}
+
+init defUsing(AweSerializer, "close");

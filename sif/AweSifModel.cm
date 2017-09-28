@@ -40,6 +40,7 @@ package custom.awesome.sif;
 public class AweSifModel {
 
     public constructor() { }
+    public str catalog = null;
     public str code = null;
     public str description = null;
     public double basePrice = 0;

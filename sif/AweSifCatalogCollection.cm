@@ -39,9 +39,9 @@ package custom.awesome.sif;
 public class AweSifCatalogCollection {
     private str->AweSifCatalog map();
 
-    public constructor(AweSifCatalog{}  catalogs) {
-        for(c in catalogs) {
-            this.put(c.catalogCode, c);
+    public constructor(AweSifCatalog{}  catalogs=null) {
+        for (c in catalogs) {
+            this.add(c);
         }
     }
     
@@ -49,8 +49,18 @@ public class AweSifCatalogCollection {
         return this.map.get(catalogCode);
     }
 
+    extend public AweSifCatalogCollection operator<<(AweSifCatalog catalog) {
+        this.add(catalog);
+
+        return this;
+    }
+
     extend public void put(str catalogCode, AweSifCatalog catalog) {
         this.map.put(catalogCode, catalog);
+    }
+
+    extend public void add(AweSifCatalog catalog) {
+        this.put(catalog.catalogCode, catalog);
     }
 
     extend public str getCatalogCode(str basemodel) {
@@ -65,13 +75,15 @@ public class AweSifCatalogCollection {
             //try to find it 
             var model = this.extractModel(sku);
             if(model) {
-                var catalogCode = this.getCatalogCode(model);
+                catalogCode = this.getCatalogCode(model);
             }
         }
+
         //couldn't find it? give up
         if(!catalogCode or catalogCode.emptyOrOnlyWhiteSpace) return null;
 
         var catalog = this.get(catalogCode);
+        
         if(!catalog) {
             //don't have it
             return null;
@@ -84,5 +96,28 @@ public class AweSifCatalogCollection {
         var tokens = scanner.tokenize("$.~");
         if(tokens and !tokens.empty) return tokens.first();
         return null;
+    }
+
+    extend public AweSifModel[] search(str catalog=null, str code=null, str description=null) {
+        AweSifCatalog[] catalogs();
+
+        if (catalog.?emptyOrOnlyWhiteSpace()) {
+            catalogs = this.map.values;
+        }
+        else {
+            catalogs <<? this.get(catalog);
+        }
+
+        AweSifModel[] result();
+
+        for (catalog in catalogs) {
+            for (item in catalog.searchIndex.search(code, description)) {
+                if (result.count() >= 50) return result;
+                
+                result << item;
+            }
+        }
+
+        return result;
     }
 }
