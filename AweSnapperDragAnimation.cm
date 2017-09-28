@@ -84,7 +84,7 @@ public class AweSnapperDragAnimation extends DragAnimation {
             modifyEnv << snapper;
             this.selection << snapper;
             this.toInsertInBsp << snapper;
-            
+            snapper.snapAllAligned();
             snapAllAligned(this.selection.main);
         }
         return super(..);
