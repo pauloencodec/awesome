@@ -39,6 +39,7 @@ package custom.awesome.picklist;
 use custom.awesome;
 use custom.awesome.io;
 use custom.awesome.ui;
+use custom.awesome.sif;
 use custom.awesome.product;
 
 use cm.application;
