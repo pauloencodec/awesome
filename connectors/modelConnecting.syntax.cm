@@ -126,5 +126,18 @@ public member @visibility modelConnecting ';' {
 
             return magnetSetsAttract(this.magnets, connector.getMagnets());
         }
+
+        /**
+        * Return the distance from this connection to the mouse line 'l' (space-coordinetes).
+        */
+        public double distance(line l) {
+            AweConnectEnv me(this);
+            if(me.set) {
+                //delegate to set
+                return me.set.distance(this, l);
+            } else {
+                return super(..);
+            }
+        }
     };
 }
