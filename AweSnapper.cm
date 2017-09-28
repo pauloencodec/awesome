@@ -685,6 +685,17 @@ public class AweSnapper extends Snapper {
         connectors(c);
         return c.set;
     }
+
+    //return a line here to display connection angle during try snap
+    extend public Line2D referenceLine() {
+        return this.mainModel().?referenceLine();
+    }
+
+    extend public Line2D referenceLineInSpace() {
+        var l = this.referenceLine();
+        if(!l) return null;
+        return this.toSpace(l.v);
+    }
 }
 
 private bool disableGroupChangeTrigger = false;
