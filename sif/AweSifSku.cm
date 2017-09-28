@@ -36,20 +36,26 @@
 
 package custom.awesome.sif;
 
-public class AweSifOptionSelection {
+public class AweSifSku {
     public constructor() {
     }   
 
-    public str optionKey;
-    public str optionDescription;
-    public str selectionKey;
-    public str selectionDescription;
-    public str suboptionKey;
-    public double upcharge;
+    public bool complete;
+    public str fullSku;
+    public AweSifModel model;
+    public AweSifOptionSelection[] selections();
 
-    public AweSifOptionSelection parentSelection;
+    extend public double totalPrice() {
+        double price = 0;
+        if(model) price += model.basePrice;
+        for(selection in this.selections) {
+            price += selection.upcharge;
+        }
+        return price;
+    }
 
     public str toS() {
-        return format("@selectionKey; @selectionDescription;");
+        return format("@fullSku; complete=@complete;");
     }
+
 }
