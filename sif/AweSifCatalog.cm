@@ -79,8 +79,9 @@ public class AweSifCatalog {
         }
         AweSifModel m();
         m.code=map.get("PN");
+        if(!m.code or m.code.emptyOrOnlyWhiteSpace) return null;
         m.description=map.get("PD");
-        m.basePrice=safeDouble(map.get("P1"));
+        m.basePrice=safeDouble(map.get("P1").?Double);
         m.optionKeys = optionKeys;
         return m;
     }
@@ -121,7 +122,41 @@ public class AweSifCatalog {
         return map;
     }
 
-    extend public AweSifOptionSelection getSelection(str optionKey, str optionValue) {
+    /************** finding option values **************/
+
+    extend public AweSifOptionSelection[] getSelections(str optionKey, str optionValue) {
+        var leafSelection = this.findLeafSelection(optionKey, optionValue, null);
+        if(leafSelection) {
+            //flatten them out
+            AweSifOptionSelection[] selections();
+            selections << leafSelection;
+            var currentSelection = leafSelection;
+            while(AweSifOptionSelection parent = currentSelection.parentSelection) {
+                currentSelection = parent;
+                selections << currentSelection;
+            }
+            selections.reverse();
+            return selections;
+        }
+        return null;
+    }
+
+    extend public AweSifOptionSelection findLeafSelection(str optionKey, str optionValue, AweSifOptionSelection parentSelection) {
+        var selections = getImidiateSelections(optionKey);
+        for(selection in selections) {
+            selection.parentSelection = parentSelection;
+            var key = parentSelection ? parentSelection.selectionKey # selection.selectionKey : selection.selectionKey;
+            if(!optionValue.emptyOrOnlyWhiteSpace and optionValue in this.possibleOptionValues(key)) {
+                return selection;
+            } else {
+                if(selection.suboptionKey) {
+                    var maybe = this.findLeafSelection(selection.suboptionKey, optionValue, selection);
+                    if(maybe)  {
+                        return maybe;
+                    }
+                }
+            }
+        }
         return null;
     }
 
@@ -129,7 +164,40 @@ public class AweSifCatalog {
         AweSifOptionSelection[] selections();
         var lines = this.file3Index.get(optionKey);
         var seq = this.seq(lines);
+        var optionMap = this.mapFirst(lines);
+
+        str key = null;
+
+        str->str selectionMap();
+
+        for(parts in seq) {
+            if(parts.v0 == "ON") {
+                if(key) {
+                    selections << composeSelection(key, optionMap, selectionMap);
+                    key = null;
+                    selectionMap.clear();
+                }
+                key = parts.v1;
+            } else {
+                selectionMap.put(parts.v0, parts.v1);
+            }
+        }
+
+        //last one
+        selections << composeSelection(key, optionMap, selectionMap);
+
         return selections;
+    }
+
+    extend private AweSifOptionSelection composeSelection(str selectionKey, str->str optionMap, str->str selectionMap) {
+        var selection = new AweSifOptionSelection();
+        selection.optionKey = optionMap.get("PO");
+        selection.optionDescription = optionMap.get("OG");
+        selection.selectionKey = selectionKey;
+        selection.selectionDescription = selectionMap.get("OD");
+        selection.suboptionKey = selectionMap.get("SO");
+        selection.upcharge = safeDouble(selectionMap.get("O1").?Double);
+        return selection;
     }
 
     extend private str->AweSifOptionSelection getAllPossibilities(str optionKey, str->AweSifOptionSelection visited=null) {
@@ -139,34 +207,55 @@ public class AweSifCatalog {
         return visited;
     }
 
-    extend public str[] possibleOptionValues(str completeOptionValue) {
-        str[] values();
+    extend public str{} possibleOptionValues(str completeOptionValue) {
+        str{} values();
         values << completeOptionValue;
-        var noPrice = completeOptionValue.split(')').v1;
+        var noPrice = completeOptionValue.split('.').v1;
         if(noPrice and noPrice != "" and noPrice != completeOptionValue) {
             values << noPrice;
         }
         return values;
     }
-}
 
+    /********************* sku parsing *******************/
+    extend public AweSifSku parseSku(str sku) {
+        AweSifSku parsed();
+        parsed.fullSku = sku;
+        var skuParts = this.breakdownSku(sku);
+        if(!skuParts or skuParts.empty) return null;
+        str modelCode;
+        str[] options();
+        for(part in skuParts) {
+            if(!modelCode) {
+                //first
+                modelCode = part;
+            } else {
+                options << part;
+            }
+        }
+        if(!modelCode) return null;
+        var model = this.model(modelCode);
+        if(!model) return null;
 
- 
-{
-    AweSifCatalog seatingCatalog("ALC", 
-        Url("C:\\Users\\User\\Downloads\\ALC.1"),
-        Url("C:\\Users\\User\\Downloads\\ALC.2"),
-        Url("C:\\Users\\User\\Downloads\\ALC.3")
-    );
+        parsed.model = model;
 
-    double t0=_microTime();
-    for(key, value in seatingCatalog.file2Index.index) {
-        var part = key;
-        var description = seatingCatalog.model(part).description;
-        // pln(#part; #description);
+        parsed.complete = model.optionKeys.?count == options.count;
+
+        for(optionValue in options, index=i) {
+            if(model.optionKeys.count >= i + 1) {
+                str optionKey = model.optionKeys[i];
+                var selections = this.getSelections(optionKey, optionValue);
+                if(!selections) parsed.complete = false;
+                if(!parsed.selections) init parsed.selections();
+                parsed.selections += selections;
+            }
+        }
+        return parsed;
     }
-    double t1=_microTime();
-    pln(#us(t1-t0));
-    
-    // pln(#seatingCatalog.model("TR-MWMFC").optionKeys);
+
+    extend public str[] breakdownSku(str sku) {
+        CmScanner scanner(sku);
+        var tokens = scanner.tokenize("$.~");
+        return tokens;
+    }
 }
