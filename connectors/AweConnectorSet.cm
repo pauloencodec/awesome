@@ -40,9 +40,8 @@ use cm.runtime, cm.basic;
 public class AweConnectorSet  {
     public constructor() { }
 
-    public AweConnectorCache connectorCache : copy=null;
+    public AweConnectorCache connectorCache : copy=null, stream=null;
     public bool selected = true;
-    public AweObject[] connectedModels();
 
     extend public str name() {
         return null;
@@ -54,6 +53,20 @@ public class AweConnectorSet  {
 
     extend public bool active() {
         return !this.optional() or this.selected;
+    }
+
+    extend public AweObject{} connectedModels() {
+        AweObject{} result();
+        
+        if (!this.connectorCache) {
+            return result;
+        }
+
+        for (c in this.connectorCache.buffer) {
+            result <<? c.getModel();
+        }
+
+        return result;
     }
 
     extend public void connectors(AweConnectorCache cc, bool ghostMode) {

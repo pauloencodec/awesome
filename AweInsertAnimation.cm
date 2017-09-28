@@ -138,7 +138,7 @@ public class AweInsertAnimation extends InsertAnimation {
             modifyEnv << snapper;
             this.selection << snapper;
             this.toInsertInBsp << snapper;
-            if(snapper) snapAllAligned(snapper);
+            
             snapAllAligned(this.selection.main);
         }
         return super(..);

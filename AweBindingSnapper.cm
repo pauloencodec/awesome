@@ -239,7 +239,15 @@ public class AweBindingSnapper extends AweSnapper : abstract {
      * Material change
      ***********************************************************************/
 
-     public AweMaterialManager materialManager(this);
+     private AweMaterialManager _materialManager : copy=null, stream=null;
+
+     extend public AweMaterialManager materialManager() {
+         if (!this._materialManager) {
+             this._materialManager = new AweMaterialManager(this);
+         }
+
+         return this._materialManager;
+     }
 
     /**
      * Return true if material change is supported.

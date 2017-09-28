@@ -49,6 +49,9 @@ public class AweMagnet {
         return this.key == other.key and this.positive != other.positive;
     }
 
+    public Object copy(CopyEnv env, bool shallow=false) {
+        return this;
+    }
 }
 
 public bool magnetSetsAttract(AweMagnet{} oneSet, AweMagnet{} otherSet) {
@@ -62,10 +65,25 @@ public bool magnetSetsAttract(AweMagnet{} oneSet, AweMagnet{} otherSet) {
     return false;
 }
 
+public str->AweMagnet magnetCache();
+
+public AweMagnet createMagnet(str key, bool charge) {
+    var cacheKey = key # charge;
+    var magnet = magnetCache.get(cacheKey);
+
+    if (!magnet) {
+        magnet = new AweMagnet(key, charge);
+
+        magnetCache.put(cacheKey, magnet);
+    }
+
+    return magnet;
+}
+
 public expr magnet '(' @key=id @charge=magnetCharge ')'  {
     str keyStr = key.name;
     return blockExpr {
-        result AweMagnet(@keyStr, @charge.v);
+        result createMagnet(@keyStr, @charge.v);
     };
 }
 
