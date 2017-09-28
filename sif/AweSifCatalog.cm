@@ -66,6 +66,10 @@ public class AweSifCatalog {
         return file2Index.index.keys;
     }
 
+    extend public bool containsModel(str basemodel) {
+        return basemodel in this.allBaseModels();
+    }
+
 
 
     extend public AweSifModel model(str basemodelKey) {
