@@ -54,6 +54,8 @@ public class AweModelLimb extends SnapperLimb {
         
         this.originalModel = model;
         this.limbKey = this.originalModel.hash().toS;
+        
+        
         super(parent, pkg, key, image=image, label="", toolTipText=toolTipText);
     }
 
@@ -62,8 +64,8 @@ public class AweModelLimb extends SnapperLimb {
         if(!templateModel) {
             templateModel = originalModel;
         }
+        this.originalModel.limbKey = this.limbKey;
         var model = templateModel.copy();
-        model.limbKey = this.limbKey;
         model.updateWithLatestSchemes();
         return model;
     }
@@ -104,4 +106,8 @@ public str->AweObject modelLimbDefaults() {
         _modelLimbDefaults = new str->AweObject();
     }
     return _modelLimbDefaults;
+}
+
+{
+    _modelLimbDefaults = null;
 }

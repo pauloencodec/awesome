@@ -1,0 +1,151 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.connectors;
+use custom.awesome.snapper;
+
+/**
+ * A ghost keeps a snapper ready to be put in space and connected to a host.
+ */
+public class AweGhost {
+    public constructor(AweObject hostModel, str hostConnectionId, AweObject ghostModel, str ghostConnectionId) {
+        
+        this.hostModel = hostModel;
+        this.hostConnectionId = hostConnectionId;
+
+        this.ghostModel = ghostModel;
+        this.ghostConnectionId = ghostConnectionId;
+
+        this.instantiateGhost();
+
+    }   
+
+    public AweObject ghostModel;
+    public str ghostConnectionId;
+
+    public AweObject hostModel;
+    public str hostConnectionId;
+
+    public AweModelSnapper ghostSnapper;
+
+
+    extend private void instantiateGhost() {
+        this.ghostModel = this.ghostModel.copy();
+        this.ghostSnapper = new AweGhostSnapper(this.ghostModel);
+        this.updatePosition();
+    }
+
+
+    extend public Snapper hostSnapper() {
+        return this.hostModel.mainSnapper();
+    }
+
+    extend public void updatePosition() {
+
+        var hostSnapper = this.hostSnapper();
+        if(!hostSnapper) {
+            return;
+        }
+        var space = hostSnapper.space();
+        if(!space) {
+            return;
+        }
+        var hostConnector = this.hostConnector();
+        if(!hostConnector) {
+            return;
+        }
+        var ghostConnector = this.ghostConnector();
+
+        if(!ghostConnector) {
+            return;
+        }
+        
+        snapAndPosition(ghostSnapper, ghostConnector, hostConnector);
+        
+    }
+
+    extend private Connector ghostConnector() {
+        var connector = this.ghostModel.getConnectorById(this.ghostConnectionId);
+        return connector;
+    }
+
+    extend public Snapper deploy() {
+        var ghostSnapperCopy = ghostSnapper.copy();
+
+        for(c in ghostSnapperCopy.connectors()) {
+            //set them free of ghosts
+            c.setGhost(null);
+            if(!c.getModel)
+                c.setModel(ghostSnapperCopy.mainModel);
+            c.disconnectAll();
+        }
+
+        return ghostSnapperCopy;
+    }
+
+
+    extend public Connector{} getConnectors() {
+        //host connector must be available
+        if(!this.hostConnector() or this.hostConnector().isConnected) {
+            return null;
+        }
+        this.updatePosition();
+        return this.ghostModel.getConnectors(this.ghostSnapper, ghostMode=true);
+    }
+
+    extend public Connector hostConnector() {
+        return this.hostModel.?getConnectorById(this.hostConnectionId);
+    }
+
+    extend public Graph get2D() {
+        this.updatePosition();
+        var graph = this.ghostSnapper.get2D();
+        graph.rotate(this.ghostSnapper.rot);
+        graph.move(this.ghostSnapper.pos);
+        return graph;
+    }
+
+    extend public Primitive3D get3D(FetchEnv3D env) {
+        this.updatePosition();
+        var prims = this.ghostSnapper.get3D(env);
+        prims.rotate(this.ghostSnapper.rot);
+        prims.move(this.ghostSnapper.pos);
+        return prims;
+    }
+
+    
+
+}

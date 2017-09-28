@@ -58,12 +58,14 @@ public member @visibility aweSchemeBindings '(' @bindings=[aweSchemeBinding ',']
         SId propName = binding.v0;
         SId schemeKey = binding.v1;
         SId schemePropKey = binding.v2;
+        str schemeKeyStr = schemeKey.name;
 
         ifs << statement {
-            if(schemeModel as @schemeKey) {
-                this.@propName = schemeModel.@schemePropKey;
-                applied = true;
-            }
+            if(schemeModel.class.name == @schemeKeyStr)
+                if(schemeModel as @schemeKey) {
+                    this.@propName = schemeModel.@schemePropKey;
+                    applied = true;
+                }
         };
     }
 
@@ -77,4 +79,3 @@ public member @visibility aweSchemeBindings '(' @bindings=[aweSchemeBinding ',']
         }
     };
 }
-

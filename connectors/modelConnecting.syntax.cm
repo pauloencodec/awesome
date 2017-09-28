@@ -44,6 +44,8 @@ public member @visibility modelConnecting ';' {
 
         @visibility AweObject model: copy=null, stream=null;
 
+        @visibility AweGhost ghost: copy=null, stream=null;
+
         @visibility AweMagnet{} magnets;
 
         @visibility bool passive;
@@ -65,7 +67,6 @@ public member @visibility modelConnecting ';' {
                 AweConnectEnv other(c);
                 if(me.set) {
                     me.set.connected(me, other);
-                    me.set.connectedModels << otherModel;
                 }
 
                 if (this.snapper in AweSnapper) {
@@ -89,7 +90,6 @@ public member @visibility modelConnecting ';' {
                 AweConnectEnv other(c);
                 if(me.set) {
                     me.set.disconnected(me, other);
-                    me.set.connectedModels.exclude(otherModel);
                 }
 
                 if (this.snapper in AweSnapper) {
