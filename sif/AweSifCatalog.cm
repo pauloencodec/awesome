@@ -139,6 +139,7 @@ public class AweSifCatalog {
         m.description=map.get("PD");
         m.basePrice=safeDouble(map.get("P1").?Double);
         m.optionKeys = optionKeys;
+        m.map = map;
         return m;
     }
 
@@ -311,7 +312,7 @@ public class AweSifCatalog {
 
     extend public str[] breakdownSku(str sku) {
         CmScanner scanner(sku);
-        var tokens = scanner.tokenize("$.~");
+        var tokens = scanner.tokenize(".");
         return tokens;
     }
 }

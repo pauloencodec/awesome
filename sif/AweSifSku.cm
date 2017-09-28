@@ -54,6 +54,10 @@ public class AweSifSku {
         return price;
     }
 
+    extend public str getData(str key) {
+        return this.model.map.get(key);
+    }
+
     public str toS() {
         return format("@fullSku; complete=@complete;");
     }

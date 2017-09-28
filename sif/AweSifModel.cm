@@ -46,6 +46,8 @@ public class AweSifModel {
     public double basePrice = 0;
     public str[] optionKeys = null;
 
+    public str->str map();
+
     public str toS() {
         return format("@code; - @description;");
     }
