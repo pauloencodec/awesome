@@ -82,13 +82,13 @@ public class AweObject {
         Object oldValue = get(propName);
 
         //AweMaterialShell instance must never be replaced. instead, update the contents of the shell
-        if(oldValue as AweMaterialShell) {
-            if(value as AweMaterialShell) {
-                oldValue.setMaterial(value.materialInstance());
-            }
-        } else {
+        if (value in AweMaterialShell and oldValue in AweMaterialShell) {
+            oldValue.AweMaterialShell.setMaterial(value.AweMaterialShell.materialInstance());
+        }
+        else {
             this.props.put(propName, value);
         }
+
         propChanged(propName, oldValue, value);
 
         for (AweSnapper snapper in this.snappers) {
@@ -606,19 +606,8 @@ public class AweObject {
     }
 
     /***************** schemes ******************/
-    extend public bool applyScheme(AweObject schemeModel) {
+    extend public bool applyScheme(AweSchemeApplier applier) {
         return false;
-    }
-
-    extend public bool applyScheme(AweObject schemeModel, str schemeKey) {
-        return this.applyScheme(schemeModel);
-    }
-
-    //invoked by AweModelLimb
-    extend public void updateWithLatestSchemes() {
-        for(model in getLatestAweSchemeModels()) {
-            this.applyScheme(model);
-        }
     }
 
     /**************** update settings ****************/

@@ -37,30 +37,58 @@
 package custom.awesome.schemes;
 
 public class AweSchemeApplier {
-
+    public str schemeKey;
     public AweObject schemeModel;
     public str->bool enableFilter=null; 
 
-    public constructor(AweObject schemeModel, str->bool enableFilter=null) {
+    public constructor(AweObject schemeModel, str schemeKey, str->bool enableFilter=null) {
+        this.schemeKey = schemeKey;
         this.schemeModel = schemeModel;
         this.enableFilter = enableFilter;
     }   
 
-    extend public bool apply(AweObject target, str->str schemeToTargetPropNameMap=null) {
+    extend public bool apply(AweObject target, str->str targetToSchemePropNameMap=null) {
         var applied = false;
-        for(key, value in schemeModel.props) {
-            if(this.propEnabled(key)) {
-                var targetKey = schemeToTargetPropNameMap.?get(key);
-                if(!targetKey) targetKey = key;
-                target.set(targetKey, value);
-                applied = true;
-            }
+
+        for (targetKey in target.props.keys) {
+            var schemePropKey = targetToSchemePropNameMap.?get(targetKey);
+
+            if (!schemePropKey) schemePropKey = targetKey;
+
+            applied = this.apply(target, targetKey, schemePropKey);
         }
+
         return applied;
     }
 
+    extend public bool apply(AweObject target, str modelPropKey, str schemePropKey=null) {
+        if (!schemePropKey) {
+            schemePropKey = modelPropKey;
+        }
+
+        if (this.propEnabled(schemePropKey)) {
+            var value = this.schemeModel.get(schemePropKey);
+
+            if (!value) return false;
+
+            var domain = target.getDomain(modelPropKey);
+
+            if (!domain or value in domain) {
+                target.set(modelPropKey, value);
+                
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     extend public bool propEnabled(str propKey) {
-        if(enableFilter and !enableFilter.get(propKey)) return false;
+        if(enableFilter and !enableFilter.get(schemeKey # ":" # propKey)) return false;
         return true;
+    }
+
+    extend public bool is(Type modelType) {
+        return this.schemeModel.class == modelType;
     }
 }

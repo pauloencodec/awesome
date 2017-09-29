@@ -46,32 +46,46 @@ public syntax <SId,SId,SId> aweSchemeBinding {
 
 public member @visibility aweSchemeBindings '(' @bindings=[aweSchemeBinding ',']* @lastBinding=aweSchemeBinding ')' ';' {
     <SId, SId, SId>[] allBindings();
-    for(b in bindings) {
+
+    for (b in bindings) {
         allBindings << b;
     }
+
     allBindings << lastBinding;
 
     SStatements ifs();
 
-    for(binding in allBindings) {
-
+    for (binding in allBindings) {
         SId propName = binding.v0;
+        str propNameStr = binding.v0.name;
         SId schemeKey = binding.v1;
         SId schemePropKey = binding.v2;
+        str schemePropKeyStr = binding.v2.name;
         str schemeKeyStr = schemeKey.name;
 
         ifs << statement {
-            if(schemeModel.class.name == @schemeKeyStr)
-                if(schemeModel as @schemeKey) {
-                    this.@propName = schemeModel.@schemePropKey;
-                    applied = true;
+            if (applier.is(@schemeKey)) {
+                if (applier.propEnabled(@schemePropKeyStr)) {
+                    if (schemeModel as @schemeKey) {
+                        var domain = this.getDomain(@propNameStr);
+                        var value = schemeModel.@schemePropKey;
+
+                        if (!domain or value in domain) {
+                            this.@propName = schemeModel.@schemePropKey;
+    
+                            applied = true;
+                        }
+                    }
                 }
+            }
         };
     }
 
     return member {
-        @visibility bool applyScheme(AweObject schemeModel) {
+        @visibility bool applyScheme(AweSchemeApplier applier) {
             bool applied = super(..);
+
+            var schemeModel = applier.schemeModel;
 
             @ifs;
 

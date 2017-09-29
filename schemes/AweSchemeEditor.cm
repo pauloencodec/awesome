@@ -57,9 +57,9 @@ public class AweSchemeEditor extends OfficeGroupSchemeEditor {
             for (AweSnapper s in snappers) {
                 for (model in s.allModels()) {
                     for (schemeModel in schemeModels) {
-                        var schemeApplier = new AweSchemeApplier(schemeModel, this.enableFilter);
-                        
-                        if (model.applyScheme(schemeModel, this.scheme.key)) {
+                        var schemeApplier = new AweSchemeApplier(schemeModel, this.scheme.key, this.enableFilter);
+
+                        if (model.applyScheme(schemeApplier)) {
                             applied = true;
                         }
                     }
