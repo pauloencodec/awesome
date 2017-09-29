@@ -34,36 +34,33 @@
    END OF CETSC
 */
 
-package custom.awesome.connectors;
+package custom.awesome.schemes;
 
+public class AweSchemeApplier {
 
-public class AweConnectEnv {
-    public AweConnectorSet set;
-    public AweObject model;
-    public Snapper snapper;
-    public Connector connector;
-    public str id;
-    public Object bag;
+    public AweObject schemeModel;
+    public str->bool enableFilter=null; 
 
-    public constructor auto();
+    public constructor(AweObject schemeModel, str->bool enableFilter=null) {
+        this.schemeModel = schemeModel;
+        this.enableFilter = enableFilter;
+    }   
 
-    public constructor(Connector connector) {
-        this(set=connector.getConnectorSet, model=connector.getModel, snapper=connector.snapper, connector=connector, id=connector.getId, bag=connector.getBag);
-    }
-}
-
-public <AweConnectEnv, AweConnectEnv> aweConnectEnv(SnapInfo info) {
-    AweConnectEnv snap;
-    AweConnectEnv attach;
-
-    if(info as ConnectSnapInfo) {
-        if(info.snap())
-            snap = new AweConnectEnv(info.snap());
-        if(info.attach())
-            attach = new AweConnectEnv(info.attach());
+    extend public bool apply(AweObject target, str->str schemeToTargetPropNameMap=null) {
+        var applied = false;
+        for(key, value in schemeModel.props) {
+            if(this.propEnabled(key)) {
+                var targetKey = schemeToTargetPropNameMap.?get(key);
+                if(!targetKey) targetKey = key;
+                target.set(targetKey, value);
+                applied = true;
+            }
+        }
+        return applied;
     }
 
-    return <snap, attach>;
+    extend public bool propEnabled(str propKey) {
+        if(enableFilter and !enableFilter.get(propKey)) return false;
+        return true;
+    }
 }
-
-
