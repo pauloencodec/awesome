@@ -1,0 +1,313 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.picklist;
+
+private str _lastCatalogSearch = "";
+
+public class AwePicklistDialog extends PicklistDialog {
+    public FormattedTextField searchCatalog;
+    
+    public int sResCatalogColumn = -1;
+    public int sResPriceColumn = -1;
+
+    public int plCatalogColumn = -1;
+    public int plPriceColumn = -1;
+    
+    private AwePicklistItem[] searchResult;
+    
+    public void search() {
+        str catalog = searchCatalog.textIfAny();
+        str partNo = searchPartNo.textIfAny();
+        str desc = searchDesc.textIfAny();
+        
+        if (catalog == null and partNo == null and desc == null) {
+            this.clearSearchView();
+            return;
+        }
+    
+        this.searchResult = this.search(catalog, partNo, desc);
+    
+        this.sRes.removeAllRows();
+    
+        for (item in this.searchResult, index=i) {
+            int row = this.sRes.appendRow(label=(i + 1).toS(), update=false);
+            
+            this.sRes.setCell(sResCatalogColumn, row, new NameGridCell(item.catalog, align=left));
+            this.sRes.setCell(sResPartColumn, row, new NameGridCell(item.partNo, align=left));
+            this.sRes.setCell(sResDescColumn, row, new NameGridCell(item.description, align=left));
+            this.sRes.setCell(sResPriceColumn, row, new NameGridCell(item.price.toS(), align=left));
+            
+            this.sRes.setRowHeight(row, gridRowHeight);
+    
+            if (i == 1999) break;
+        }
+    
+        this.updatePicklistGridWindow(this.sRes);
+    }
+
+    extend public AwePicklistItem[] search(str catalog, str partNumber, str description) {
+        return this.owner.search(catalog, partNumber, description);
+    }
+
+    public <str, str>[] dbSearch(str partNo, str desc) {
+        return null;
+    }
+
+    public void updateLastSearch(Control control) {
+        super(..);
+        
+        if (control == this.searchCatalog) {
+            _lastCatalogSearch = this.searchCatalog.textIfAny();
+        }
+    }
+
+    public void clearSearchView() {
+        super();
+
+        _lastCatalogSearch = "";
+    }
+
+    public void buildSearchTab(Window parent) {
+        this.searchTab = new Card(parent, label="Search");
+    
+        var catalogLabel = this.searchTab.createLabel("Catalog", 100, pos=(12, 12));
+        var partNumberLabel = this.searchTab.createLabel("Part Number", 150, rightOf=catalogLabel);
+        var descriptionLabel = this.searchTab.createLabel("Description", 200, rightOf=partNumberLabel);
+
+        this.searchCatalog = this.searchTab.createTextField(100, below=catalogLabel);
+        
+        this.searchPartNo = this.searchTab.createTextField(150, rightOf=searchCatalog);
+       
+        this.searchPartNo.posChangedCallback = this.internalPartNoSearchPosChangedCB;
+        this.searchPartNo.enterKeyCallback = this.internalPartNoSearchEnterKeyCB;
+    
+        this.searchDesc = this.searchTab.createTextField(300, rightOf=searchPartNo);
+        
+        this.searchDesc.posChangedCallback = this.internalDescSearchPosChangedCB;
+        this.searchDesc.enterKeyCallback = this.internalDescSearchEnterKeyCB;
+    
+        this.searchButton = this.searchTab.createButton("Search", icon("search2"), callback=function searchCallback, rightOf=this.searchDesc);
+
+        this.searchButton.y -= 5;
+    
+        this.buildSearchResultGridWindow(this.searchTab);
+        
+        this.searchTab.autoSize();    
+    }
+
+    public void buildSearchResultGridWindow(Card parent) {
+        this.sRes = new PicklistScrollableGridWindow(parent, horizontalBar=false, click2Cb=function addCallback);
+        
+        this.sRes.setBackground(picklistBackground);
+        this.sRes.cellBackground = picklistBackground;
+        this.sRes.linePen = lightGrayPen;
+    
+        this.sRes.below(this.searchCatalog, 10);
+
+        this.sResCatalogColumn = this.sRes.appendColumn(label="Catalog");
+        this.sResPartColumn = this.sRes.appendColumn(label="Part Number");
+        this.sResDescColumn = this.sRes.appendColumn(label="Description");
+        this.sResPriceColumn = this.sRes.appendColumn(label="Price");
+    
+        this.sRes.setRowHeight(-1, gridRowHeight);
+    
+        int i = 0;
+        
+        while (i < 11) {
+            this.sRes.appendRow(label=(i + 1).toS());
+            this.sRes.setRowHeight(i, gridRowHeight);
+            i++;
+        }
+
+        this.sRes.setColumnWidth(this.sResCatalogColumn, 100);
+        this.sRes.setColumnWidth(this.sResPartColumn, 150);
+        this.sRes.setColumnWidth(this.sResDescColumn, 400);
+        this.sRes.setColumnWidth(this.sResPriceColumn, 100);
+    
+        this.sRes.autoSize();
+        this.sRes.vScrollAlwaysVisible = true;
+
+        this.clearSearchView();
+    }
+
+    public void buildPicklistContent() {
+        int col = this.plContent.currentC;
+        int row = this.plContent.currentR;
+    
+        this.plContent.removeAllRows();
+        
+        var list = this.getPicklistList();
+    
+        int count = max(10, list ? list.count : 0);
+        int i = 0;
+
+        while (i < count) {
+            this.plContent.appendRow(label=(i + 1).toS(), update=false);
+    
+            this.plContent.setCell(this.plCatalogColumn, i, new AwePicklistCatalogGridCell());
+            this.plContent.setCell(this.plPartColumn, i, new AwePicklistPartNumberGridCell());
+            this.plContent.setCell(this.plDescColumn, i, new AwePicklistDescriptionGridCell());
+            this.plContent.setCell(this.plPriceColumn, i, new AwePicklistPriceGridCell());
+            this.plContent.setCell(this.plQtyColumn, i, new PicklistQtyGridCell());
+    
+            this.plContent.setRowHeight(i, gridRowHeight + 2);
+
+            i++;
+        }
+        
+        if (row > -1 and col > -1) {
+            if (row >= list.count) {
+                row = min(count, list.count) - 1;
+            }
+
+            this.plContent.select(col, row);
+        }
+    
+        this.updatePicklistGridWindow(this.plContent);
+    }
+
+    extend private void buildPicklistContentGrid() {
+        this.plContent = new PicklistScrollableGridWindow(partSub, horizontalBar=false);
+        
+        this.plContent.setBackground(picklistBackground);
+        this.plContent.cellBackground = picklistBackground;
+        this.plContent.linePen = lightGrayPen;
+        this.plContent.setPos((12, 12));
+
+        this.plCatalogColumn = this.plContent.appendColumn(label="Catalog");
+        this.plPartColumn = this.plContent.appendColumn(label="Part Number");
+        this.plDescColumn = this.plContent.appendColumn(label="Description");
+        this.plPriceColumn = this.plContent.appendColumn(label="Price");
+        this.plQtyColumn = this.plContent.appendColumn(label="Quantity");
+
+        this.plContent.setRowHeight(-1, gridRowHeight);
+    
+        this.buildPicklistContent();
+    
+        this.plContent.setColumnWidth(this.plCatalogColumn, 100);
+        this.plContent.setColumnWidth(this.plPartColumn, 150);
+        this.plContent.setColumnWidth(this.plDescColumn, 440);
+        this.plContent.setColumnWidth(this.plPriceColumn, 100);
+        this.plContent.setColumnWidth(this.plQtyColumn, 60);
+            
+        this.plContent.autoSize();
+        
+        if (this.plContent.h > 300) {
+            this.plContent.h = 300;
+        }
+
+        this.plContent.vScrollAlwaysVisible = true;
+    }
+
+    public void buildPartsSubWindow() {
+        this.partSub = new GroupBox(this, frameStyle=etchedFrame, label="Articles", font=boldSystemFont);
+        
+        this.partSub.below(this.addButton);
+    
+        this.buildPicklistContentGrid();
+    
+        this.plusQtyButton = this.partSub.createButton(label="Qty", image=icon("plus"), tooltip="Increase quantity", callback=internalPlusQtyCB, below=this.plContent); 
+        this.reduceQtyButton = this.partSub.createButton(label="Qty", image=icon("minus"), tooltip="Reduce quantity", callback=internalReduceQtyCB, below=this.plContent);    
+        this.removeButton = this.partSub.createButton(image=icon("delete"), tooltip="Remove article", callback=internalRemoveCB, below=this.plContent);
+        
+        this.plusQtyButton.alignCenterX(this.plContent);
+        this.plusQtyButton.x -= (plusQtyButton.w) / 2;
+        
+        this.reduceQtyButton.alignCenterX(plContent);
+        this.reduceQtyButton.x += (reduceQtyButton.w) / 2;
+        
+        this.removeButton.rightOf(this.reduceQtyButton, 20);
+    
+        this.partSub.autoSize();
+    }
+
+    public bool useSpecials() {
+        return true;
+    }
+
+    public void buildSpecialTab(Window parent) {
+        if (!this.useSpecials()) return;
+
+        this.specialTab = new AwePicklistFreeformTab(this.mainCard, this.owner);
+    }
+
+    public PicklistItem currentAddItem() {
+        if (mainCard.currentCardIndex == 0) {
+            var index = sRes.currentR;
+
+            if (index >= 0) {
+                if (this.searchResult.count > 0 and index < this.searchResult.count()) {
+                    return itemManager.createItem(proxy, [Object: this.searchResult[index]]);
+                }
+            }
+        }
+        
+        if (mainCard.currentCardIndex == 1) {
+            if (?AwePicklistFreeformTab card = mainCard.selectedCard) {
+                if (AwePicklistItem item = card.getItem()) {
+                    return itemManager.createItem(proxy, [Object: item]);
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    public PicklistItemManager createItemManager() {
+        return new AwePicklistItemManager();
+    }
+
+    public str picklistKey() {
+        return this.owner.picklistKey;
+    }
+
+    extend public AwePicklist owner() {
+        return this.proxy.snapper.AwePicklist;
+    }
+}
+
+private void addCallback(Control control) {
+    if (PicklistDialog dialog = control.parentFrame.PicklistDialog) {
+        dialog.add();
+    }
+}
+
+private void searchCallback(Control control) {
+    if (PicklistDialog dialog = getPicklistDialog()) {
+        dialog.search();
+    }
+}

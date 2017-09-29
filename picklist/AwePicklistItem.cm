@@ -34,31 +34,46 @@
    END OF CETSC
 */
 
-package custom.awesome.connectors;
-use custom.awesome.snapper;
+package custom.awesome.picklist;
 
-public class AweGhostSnapper extends AweModelSnapper {
+public class AwePicklistItem extends PicklistItem {
+    public str catalog;
+    public double price;
 
-    public AweSnapper hostSnapper : copy=null, stream=null;
+    private str _partNumber;
+    private str _description;
 
-    public void disconnected(Connector c0, Connector c1, bool wasSnapped, bool wasAttached) {
-        super(..);
+    public constructor(str catalog, str partNumber, str description=null, double price=0, double quantity=1) {
+        super(partNumber, quantity);
 
-        //only keep ghosts if connected to two things at least
-        if(this.connectedNeighbors().count <= 1) {
-            if(this in this.space and this.isAlive)
-                this.space.remove(this);
-        }
+        this.catalog = catalog;
+        this._partNumber = partNumber;
+        this._description = description;
+        this.price = price;
+    }
+    
+    public str partNo() {
+        return this._partNumber;
+    }
+    
+    public str partNo=(str v) {
+        return (this._partNumber = v);
+    }
+    
+    public str description() {
+        return this._description;
     }
 
-    //return a line here to display connection angle during try snap
-    public Line2D referenceLine() {
-        return this.hostSnapper.?mainModel().?referenceLine();
+    extend public str description=(str v) {
+        return (this._description = v);
     }
 
-    public Line2D referenceLineInSpace() {
-        var l = this.referenceLine();
-        if(!l) return null;
-        return this.hostSnapper.?toSpace(l.v);
+    extend public AwePart getPart(Snapper owner) {
+        var part = new AwePart(owner, this.catalog, this.partNo, this.quantity);
+
+        part.data.setDescription(this.description);
+        part.data.setListPrice(this.price);
+
+        return part;
     }
 }

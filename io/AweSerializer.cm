@@ -34,31 +34,64 @@
    END OF CETSC
 */
 
-package custom.awesome.connectors;
-use custom.awesome.snapper;
+package custom.awesome.io;
 
-public class AweGhostSnapper extends AweModelSnapper {
+public class AweSerializer {
+    private Url fileUrl;
+    private File file;
+    private RobustFormatter formatter;
 
-    public AweSnapper hostSnapper : copy=null, stream=null;
+    public constructor(Url fileUrl) {
+        if (!fileUrl) {
+            bug("fileUrl cannot be null");
+        }
 
-    public void disconnected(Connector c0, Connector c1, bool wasSnapped, bool wasAttached) {
-        super(..);
+        this.fileUrl = fileUrl;
+    }
 
-        //only keep ghosts if connected to two things at least
-        if(this.connectedNeighbors().count <= 1) {
-            if(this in this.space and this.isAlive)
-                this.space.remove(this);
+    extend public void serialize(Object data) {
+        if (!data) {
+            bug("data cannot be null");
+        }
+
+        if (!this.fileUrl.isWritable()) {
+            bug("File must be writable: " # this.fileUrl);
+        }
+
+        this.fileUrl.unsafe = true;
+
+        if (this.file = this.fileUrl.openForWrite()) {
+            this.formatter = new RobustFormatter(file);
+
+            formatter.putObject(data);
         }
     }
 
-    //return a line here to display connection angle during try snap
-    public Line2D referenceLine() {
-        return this.hostSnapper.?mainModel().?referenceLine();
+    extend public Object deserialize() {
+        if (!this.fileUrl.isReadable()) {
+            bug("File must be readable: " # this.fileUrl);
+        }
+
+        if (this.file = this.fileUrl.openForRead()) {
+            this.formatter = new RobustFormatter(file);
+            
+            return formatter.getObject();
+        }
+
+        return null;
     }
 
-    public Line2D referenceLineInSpace() {
-        var l = this.referenceLine();
-        if(!l) return null;
-        return this.hostSnapper.?toSpace(l.v);
+    extend public void close() {
+        if (this.file) {
+            this.file.close();
+            this.file = null;
+        }
+
+        if (this.formatter) {
+            this.formatter.close();
+            this.formatter = null;
+        }
     }
 }
+
+init defUsing(AweSerializer, "close");
