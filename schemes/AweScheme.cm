@@ -35,46 +35,67 @@
 */
 
 package custom.awesome.schemes;
-// use cm.subset;
-// use cm.basic;
-// use cm.runtime;
 
 public class AweScheme {
     public AweSchemeItem[] items();
     public str key;
     public str label;
-    public AweObject model;
+    public str[] keys();
+    public str->str tabLabels();
+    public str->AweObject models();
+
+    extend public bool tabbed() {
+        return this.models.count() > 1;
+    }
+
+    public constructor(str key, str label) {
+        this.key = key;
+        this.label = label;
+    }
 
     public constructor(AweObject model, str label) {
-        this.model = model;
-        this.key = model.class.toS;
+        this.key = model.class.toS();
         this.label = label;
+
+        this.add(label, model);
+    }
+
+    extend public void add(str label, AweObject model) {
+        var modelKey = model.class.toS();
+        
+        this.keys << modelKey;
+        this.tabLabels.put(modelKey, label);
+
+        this.models.put(modelKey, model);
+
         var sortOrder = model.quickPropertySort();
+        
         if (sortOrder and sortOrder.any) {
             for (key in sortOrder) {
-                var value = model.props.get(key);
-                if (value)
-                    this.addItem(key, value);
+                if (Object value = model.props.get(key)) {
+                    this.addItem(model, key, value);
+                }
             }
         }
         else {
             for (key, value in model.props) {
-                this.addItem(key, value);
+                this.addItem(model, key, value);
             }
         }
-    } 
+    }
 
-    extend private void addItem(str key, Object value) {
-        var domainName = key # "Domain";
-        var domainField = this.model.class.field(domainName);
-        if (!domainField) return;
-        var domainValue = this.model.get(domainField);
-        if(domainValue as SubSet) {
+    extend private void addItem(AweObject model, str key, Object value) {
+        if (!this.isVisible(model, key)) return;
+        
+        if (SubSet domain = model.getDomain(key)) {
             AweSchemeItem item();
+            
             item.key = key;
             item.initialValue = value;
-            item.domain = domainValue;
-            item.label = getLabel(this.model, key);
+            item.domain = domain;
+            item.label = this.getLabel(model, key);
+            item.model = model;
+
             this.items << item;
         }
     }
@@ -83,83 +104,124 @@ public class AweScheme {
         var labelFieldName = key # "Label";
         var labelField = model.class.field(labelFieldName);
         var labelValue = model.get(labelField);
-        if(labelValue as str) {
+
+        if (labelValue as str) {
             return labelValue;
-        } else {
-            return key;
         }
+
+        return key;
+    }
+
+    extend private bool isVisible(AweObject model, str key) {
+        var field = model.class.field(key # "Visible");
+        var value = model.get(field);
+
+        if (value as bool) {
+            return value and model.getDomain(key) != null;
+        }
+
+        return true;
     }
 
     extend public void register() {
-        AweSchemeEditor scheme(this);
-        scheme.latestConfig = this.model.copy();
+        AweSchemeEditor schemeEditor(this);
 
-        for(item in this.items) {
-            var value = item.initialValue;
-            //initial value for materials need to be the id
-            if(value in AweMaterialShell) {
-                value = value.AweMaterialShell.id;
+        for (key in this.keys) {
+            var model = this.models.get(key);
+
+            for (item in this.items) {
+                if (item.model == model) {
+                    if (!this.isVisible(model, item.key));
+
+                    var value = item.initialValue;
+                    
+                    if (value in AweMaterialShell) {
+                        value = value.AweMaterialShell.id;
+                    }
+
+                    var propKey = this.getKey(key, item.key);
+
+                    if (this.tabbed) {
+                        schemeEditor.appendWithPropertyTab(propKey, item.label, item.domain, propertyTab=key, initValue=value);
+                    }
+                    else {
+                        schemeEditor.append(propKey, item.label, item.domain, initValue=value);
+                    }
+                }
             }
-
-            scheme.append(item.key, item.label, item.domain, initValue=value);
         }
     
-        if (!schemeManager)
-        initSchemeManager();
+        if (!schemeManager) {
+            initSchemeManager();
+        }
       
         if (schemeManager) {
-            schemeManager.registerEditor(scheme);
+            schemeManager.registerEditor(schemeEditor);
         }
     }
 
-    extend public AweObject convert(OfficeGroupScheme gs) {
-        AweObject modelCopy = model.copy();
-        for(key, value in modelCopy.props) {
-            if(value as AweMaterialShell) {
-                //materials are trickier...
-                applyMaterial(value, key, gs);
-            } else {
-                var schemeValue = gs.getSetting(key);
-                modelCopy.set(key, schemeValue);
+    extend public AweObject[] convert(OfficeGroupScheme gs) {
+        AweObject[] result();
+        
+        for (key, model in this.models) {
+            AweObject modelCopy = model.copy();
+            
+            for (propKey, value in modelCopy.props) {
+                var fullKey = this.getKey(key, propKey);
+
+                if (value as AweMaterialShell) {
+                    applyMaterial(value, fullKey, gs);
+                }
+                else {
+                    var schemeValue = gs.getSetting(fullKey);
+
+                    modelCopy.set(propKey, schemeValue);
+                }
+
+                result << modelCopy;
             }
         }
-        return modelCopy;
+
+        return result;
+    }
+
+    extend private str getKey(str modelKey, str propKey) {
+        return modelKey # ":" # propKey;
     }
 
     extend private void applyMaterial(AweMaterialShell aweMaterial, str key, OfficeGroupScheme gs) {
         var material = gs.getMaterial(key, "");
-        if(!material) {
-            var materialID = gs.getSetting(key).str;
-            if(materialID) {
-                material = aweMaterial.factory.fetchMaterial(materialID);
+        
+        if (!material) {
+            var materialId = gs.getSetting(key).str;
+
+            if (materialId) {
+                material = aweMaterial.factory.fetchMaterial(materialId);
             }
         }
-        if(material) {
+
+        if (material) {
             aweMaterial.setMaterial(material);
         }
     }
 }
 
 public class AweSchemeItem {
-    
-    public constructor() { }
+    public constructor() {
+    }
 
     public str key;
     public str label;
     public Object initialValue;
     public SubSet domain;
+
+    public AweObject model;
 }
 
 public void showAweScheme(Type schemeModelType) {
-    buildSchemeManagerDialog(schemeModelType.toS);
+    showAweScheme(schemeModelType.toS());
 }
 
-public AweObject{} getLatestAweSchemeModels() {
-    AweObject{} latest();
-    for(AweSchemeEditor editor in cm.abstract.schemeManager.groupSchemeEditors) {
-        if(editor.latestConfig) {
-            latest << editor.latestConfig;
-        }
-    }
-    return latest;
+public void showAweScheme(str schemeKey) {
+    buildSchemeManagerDialog(schemeKey);
 }
