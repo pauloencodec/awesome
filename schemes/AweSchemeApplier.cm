@@ -46,11 +46,11 @@ public class AweSchemeApplier {
         this.enableFilter = enableFilter;
     }   
 
-    extend public bool apply(AweObject target, str->str map=null) {
+    extend public bool apply(AweObject target, str->str schemeToTargetPropNameMap=null) {
         var applied = false;
         for(key, value in schemeModel.props) {
             if(this.propEnabled(key)) {
-                var targetKey = map.?get(key);
+                var targetKey = schemeToTargetPropNameMap.?get(key);
                 if(!targetKey) targetKey = key;
                 target.set(targetKey, value);
                 applied = true;
