@@ -36,14 +36,14 @@
 
 package custom.awesome.schemes;
 
-public class AweMultiSchemeEditor extends OfficeGroupSchemeEditor {
-    public AweMultiScheme scheme;
+public class AweSchemeEditor extends OfficeGroupSchemeEditor {
+    public AweScheme scheme;
     public AweObject[] latestConfigs;
 
-    public constructor(AweMultiScheme scheme) {
+    public constructor(AweScheme scheme) {
         this.scheme = scheme;
 
-        super(scheme.key, scheme.label, tabbed=true);
+        super(scheme.key, scheme.label, tabbed=scheme.tabbed);
     }
 
     public bool applyScheme(Snapper{} snappers, GroupScheme gs) {
@@ -57,7 +57,7 @@ public class AweMultiSchemeEditor extends OfficeGroupSchemeEditor {
             for (AweSnapper s in snappers) {
                 for (model in s.allModels()) {
                     for (schemeModel in schemeModels) {
-                        if (model.applyScheme(schemeModel)) {
+                        if (model.applyScheme(schemeModel, this.scheme.key)) {
                             applied = true;
                         }
                     }
@@ -73,56 +73,7 @@ public class AweMultiSchemeEditor extends OfficeGroupSchemeEditor {
     }
 
     public str tabDisplayName(str tabKey) {
-        return tabKey;
-    }
-
-    public SchemeProperty createProperty(str key,
-                                        str label,
-                                        Object o,
-                                        SubSet domain,
-                                        bool isSubProperty=false,
-                                        bool disabledAllowed=true,
-                                        bool forceDrop=false,
-                                        Image[] images=null) {
-        
-        if (domain in AweEnumSubSet or domain in DistanceEnum) {
-            return AweEnumSchemeProperty(key, label, o, domain=domain, isSubProperty=isSubProperty,
-                                         disabledAllowed=disabledAllowed, images=images);
-        }
-        
-        return super(key, label, o, domain, isSubProperty, disabledAllowed, forceDrop, images);
-    }
-}
-
-public class AweSchemeEditor extends OfficeGroupSchemeEditor {
-    public AweScheme scheme;
-    public AweObject latestConfig;
-
-    public constructor(AweScheme scheme) {
-        this.scheme = scheme;
-        super(scheme.key, scheme.label);
-    }
-
-    public bool applyScheme(Snapper{} snappers, GroupScheme gs) {
-        bool applied = false;
-        if(gs as OfficeGroupScheme) {
-            var schemeModel = this.scheme.convert(gs);
-            this.latestConfig = schemeModel;
-            for(s in snappers) {
-                if(s as AweSnapper){
-                    var models = s.allModels();
-                    for(model in models) {
-                        bool invalidate = model.applyScheme(schemeModel);
-                        if(invalidate) {
-                            model.invalidate();
-                        }
-                    }
-                }
-            }
-
-        }
-
-        return applied;
+        return this.scheme.tabLabels.get(tabKey);
     }
 
     public SchemeProperty createProperty(str key,

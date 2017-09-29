@@ -610,6 +610,10 @@ public class AweObject {
         return false;
     }
 
+    extend public bool applyScheme(AweObject schemeModel, str schemeKey) {
+        return this.applyScheme(schemeModel);
+    }
+
     //invoked by AweModelLimb
     extend public void updateWithLatestSchemes() {
         for(model in getLatestAweSchemeModels()) {
