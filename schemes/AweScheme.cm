@@ -39,6 +39,140 @@ package custom.awesome.schemes;
 // use cm.basic;
 // use cm.runtime;
 
+public class AweMultiScheme {
+    public AweSchemeItem[] items();
+    public str key;
+    public str label;
+    public str[] keys();
+    public str->AweObject models();
+
+    public constructor(str label) {
+        this.key = label;
+        this.label = label;
+    }
+
+    extend public void add(str label, AweObject model) {
+        this.keys << label;
+
+        this.models.put(label, model);
+
+        var sortOrder = model.quickPropertySort();
+        
+        if (sortOrder and sortOrder.any) {
+            for (key in sortOrder) {
+                if (Object value = model.props.get(key)) {
+                    this.addItem(model, key, value);
+                }
+            }
+        }
+        else {
+            for (key, value in model.props) {
+                this.addItem(model, key, value);
+            }
+        }
+    }
+
+    extend private void addItem(AweObject model, str key, Object value) {
+        var domainName = key # "Domain";
+        var domainField = model.class.field(domainName);
+        
+        if (!domainField) return;
+        
+        var domainValue = model.get(domainField);
+        
+        if (domainValue as SubSet) {
+            AweSchemeItem item();
+            
+            item.key = key;
+            item.initialValue = value;
+            item.domain = domainValue;
+            item.label = getLabel(model, key);
+            item.model = model;
+
+            this.items << item;
+        }
+    }
+
+    extend private str getLabel(AweObject model, str key) {
+        var labelFieldName = key # "Label";
+        var labelField = model.class.field(labelFieldName);
+        var labelValue = model.get(labelField);
+        if(labelValue as str) {
+            return labelValue;
+        } else {
+            return key;
+        }
+    }
+
+    extend public void register() {
+        AweMultiSchemeEditor schemeEditor(this);
+
+        schemeEditor.latestConfigs = this.models.values;
+
+        for (key in this.keys) {
+            var model = this.models.get(key);
+
+            for (item in this.items) {
+                if (item.model == model) {
+                    var value = item.initialValue;
+                    
+                    if (value in AweMaterialShell) {
+                        value = value.AweMaterialShell.id;
+                    }
+        
+                    schemeEditor.appendWithPropertyTab(key # ":" # item.key, item.label, item.domain, propertyTab=key, initValue=value);
+                }
+            }
+        }
+    
+        if (!schemeManager) {
+            initSchemeManager();
+        }
+      
+        if (schemeManager) {
+            schemeManager.registerEditor(schemeEditor);
+        }
+    }
+
+    extend public AweObject[] convert(OfficeGroupScheme gs) {
+        AweObject[] result();
+        
+        for (key, model in this.models) {
+            AweObject modelCopy = model.copy();
+            
+            for (propKey, value in modelCopy.props) {
+                var fullKey = key # ":" # propKey;
+
+                if (value as AweMaterialShell) {
+                    applyMaterial(value, fullKey, gs);
+                }
+                else {
+                    var schemeValue = gs.getSetting(fullKey);
+
+                    modelCopy.set(propKey, schemeValue);
+                }
+
+                result << modelCopy;
+            }
+        }
+
+        return result;
+    }
+
+    extend private void applyMaterial(AweMaterialShell aweMaterial, str key, OfficeGroupScheme gs) {
+        var material = gs.getMaterial(key, "");
+        if(!material) {
+            var materialID = gs.getSetting(key).str;
+            if(materialID) {
+                material = aweMaterial.factory.fetchMaterial(materialID);
+            }
+        }
+        if(material) {
+            aweMaterial.setMaterial(material);
+        }
+    }
+}
+
 public class AweScheme {
     public AweSchemeItem[] items();
     public str key;
@@ -148,6 +282,8 @@ public class AweSchemeItem {
     public str label;
     public Object initialValue;
     public SubSet domain;
+
+    public AweObject model;
 }
 
 public void showAweScheme(Type schemeModelType) {
@@ -161,5 +297,12 @@ public AweObject{} getLatestAweSchemeModels() {
             latest << editor.latestConfig;
         }
     }
+
+    for(AweMultiSchemeEditor editor in cm.abstract.schemeManager.groupSchemeEditors) {
+        if(editor.latestConfigs) {
+            latest += editor.latestConfigs;
+        }
+    }
+
     return latest;
 }
