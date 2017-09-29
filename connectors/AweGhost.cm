@@ -59,12 +59,13 @@ public class AweGhost {
     public AweObject hostModel;
     public str hostConnectionId;
 
-    public AweModelSnapper ghostSnapper;
+    public AweGhostSnapper ghostSnapper;
 
 
     extend private void instantiateGhost() {
         this.ghostModel = this.ghostModel.copy();
         this.ghostSnapper = new AweGhostSnapper(this.ghostModel);
+        this.ghostSnapper.hostSnapper = this.hostSnapper().?AweSnapper;
         this.updatePosition();
     }
 

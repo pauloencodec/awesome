@@ -660,6 +660,12 @@ public class AweObject {
         return ghostConnectors;
     }
 
+    /************** reference line ************/
+    //return a line here to display connection angle during try snap
+    extend public Line2D referenceLine() {
+        return null;
+    }
+
 }
 
 public definition @visibility aweObject @name=id @parentClass=["extends" type]? '{'  @props=["props" formalArgList ';']? @members=[classMember]* '}' {

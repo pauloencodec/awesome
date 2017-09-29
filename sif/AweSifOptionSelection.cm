@@ -34,31 +34,22 @@
    END OF CETSC
 */
 
-package custom.awesome.connectors;
-use custom.awesome.snapper;
+package custom.awesome.sif;
 
-public class AweGhostSnapper extends AweModelSnapper {
+public class AweSifOptionSelection {
+    public constructor() {
+    }   
 
-    public AweSnapper hostSnapper : copy=null, stream=null;
+    public str optionKey;
+    public str optionDescription;
+    public str selectionKey;
+    public str selectionDescription;
+    public str suboptionKey;
+    public double upcharge;
 
-    public void disconnected(Connector c0, Connector c1, bool wasSnapped, bool wasAttached) {
-        super(..);
+    public AweSifOptionSelection parentSelection;
 
-        //only keep ghosts if connected to two things at least
-        if(this.connectedNeighbors().count <= 1) {
-            if(this in this.space and this.isAlive)
-                this.space.remove(this);
-        }
-    }
-
-    //return a line here to display connection angle during try snap
-    public Line2D referenceLine() {
-        return this.hostSnapper.?mainModel().?referenceLine();
-    }
-
-    public Line2D referenceLineInSpace() {
-        var l = this.referenceLine();
-        if(!l) return null;
-        return this.hostSnapper.?toSpace(l.v);
+    public str toS() {
+        return format("@selectionKey; @selectionDescription;");
     }
 }

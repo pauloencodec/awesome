@@ -34,31 +34,42 @@
    END OF CETSC
 */
 
-package custom.awesome.connectors;
-use custom.awesome.snapper;
+package custom.awesome.picklist;
 
-public class AweGhostSnapper extends AweModelSnapper {
-
-    public AweSnapper hostSnapper : copy=null, stream=null;
-
-    public void disconnected(Connector c0, Connector c1, bool wasSnapped, bool wasAttached) {
-        super(..);
-
-        //only keep ghosts if connected to two things at least
-        if(this.connectedNeighbors().count <= 1) {
-            if(this in this.space and this.isAlive)
-                this.space.remove(this);
+public class AwePicklist extends Picklist : abstract {
+    public constructor() {
+        if (!registeredPicklistEnv(this.picklistKey)) {
+            registerPicklistEnv(this.picklistKey, this.picklistEnv);
         }
     }
 
-    //return a line here to display connection angle during try snap
-    public Line2D referenceLine() {
-        return this.hostSnapper.?mainModel().?referenceLine();
+    public PicklistDialog picklistDialog(Window window=null) {
+        return new AwePicklistDialog(window ?? anyFrameWindow(), this.proxy);
     }
 
-    public Line2D referenceLineInSpace() {
-        var l = this.referenceLine();
-        if(!l) return null;
-        return this.hostSnapper.?toSpace(l.v);
+    extend public str name() : abstract {}
+    
+    extend public PicklistEnv picklistEnv() {
+        return new AwePicklistEnv(this);
+    }
+
+    extend public AwePicklistItem[] search(str catalog, str partNumber, str description) {
+        return null;
+    }
+
+    public void drawGraphs(LayerBuffer lb, View v, GeometricFinder finder=null) {
+        super(..);
+
+        var bound = this.localBound();
+
+        new GText(bound.rect.midTop(), this.name, down, textColor=this.borderColor).draw(lb);
+    }
+
+    public color borderColor() {
+        return color(0, 80, 82);
+    }
+        
+    public color listColor() {
+        return color(230);
     }
 }

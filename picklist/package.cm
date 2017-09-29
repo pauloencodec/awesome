@@ -34,31 +34,17 @@
    END OF CETSC
 */
 
-package custom.awesome.connectors;
-use custom.awesome.snapper;
+package custom.awesome.picklist;
 
-public class AweGhostSnapper extends AweModelSnapper {
+use custom.awesome;
+use custom.awesome.io;
+use custom.awesome.ui;
+use custom.awesome.sif;
+use custom.awesome.product;
 
-    public AweSnapper hostSnapper : copy=null, stream=null;
-
-    public void disconnected(Connector c0, Connector c1, bool wasSnapped, bool wasAttached) {
-        super(..);
-
-        //only keep ghosts if connected to two things at least
-        if(this.connectedNeighbors().count <= 1) {
-            if(this in this.space and this.isAlive)
-                this.space.remove(this);
-        }
-    }
-
-    //return a line here to display connection angle during try snap
-    public Line2D referenceLine() {
-        return this.hostSnapper.?mainModel().?referenceLine();
-    }
-
-    public Line2D referenceLineInSpace() {
-        var l = this.referenceLine();
-        if(!l) return null;
-        return this.hostSnapper.?toSpace(l.v);
-    }
-}
+use cm.application;
+use cm.basic;
+use cm.core;
+use cm.win;
+use cm.format.json;
+use cm.abstract.picklist;

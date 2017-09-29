@@ -465,23 +465,23 @@ public class AweSnapper extends Snapper {
     }
 
     extend public AwePart[] getParts() {
-        AwePart[] parts();
+        AwePart[] result();
 
         var products = this.allProducts();
         
-        if (products.count == 0) return parts;
-        
+        if (products.count == 0) return result;
+
         for (product in products) {
             var parts = product.getParts();
 
             for (part in parts) {
                 part.data.setOwner(this);
                 
-                parts << part;
+                result << part;
             }
         }
 
-        return parts;
+        return result;
     }
 
     public bool denyParts() {
@@ -698,6 +698,17 @@ public class AweSnapper extends Snapper {
         FilteredConnectorSet c(AweNoGhostConnnectorFilter());
         connectors(c);
         return c.set;
+    }
+
+    //return a line here to display connection angle during try snap
+    extend public Line2D referenceLine() {
+        return this.mainModel().?referenceLine();
+    }
+
+    extend public Line2D referenceLineInSpace() {
+        var l = this.referenceLine();
+        if(!l) return null;
+        return this.toSpace(l.v);
     }
 }
 
