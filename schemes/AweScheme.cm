@@ -85,6 +85,8 @@ public class AweScheme {
     }
 
     extend private void addItem(AweObject model, str key, Object value) {
+        if (!this.isVisible(model, key)) return;
+        
         if (SubSet domain = model.getDomain(key)) {
             AweSchemeItem item();
             
@@ -110,6 +112,17 @@ public class AweScheme {
         return key;
     }
 
+    extend private bool isVisible(AweObject model, str key) {
+        var field = model.class.field(key # "Visible");
+        var value = model.get(field);
+
+        if (value as bool) {
+            return value and model.getDomain(key) != null;
+        }
+
+        return true;
+    }
+
     extend public void register() {
         AweSchemeEditor schemeEditor(this);
 
@@ -118,6 +131,8 @@ public class AweScheme {
 
             for (item in this.items) {
                 if (item.model == model) {
+                    if (!this.isVisible(model, item.key));
+
                     var value = item.initialValue;
                     
                     if (value in AweMaterialShell) {
