@@ -49,7 +49,9 @@ public class AweSnapperDragAnimation extends DragAnimation {
             if(AweGhost ghost = info.attach.?getGhost()) {
                 this.activeGhost = ghost;
             }
-        } 
+        }
+        var envs = aweConnectEnv(info);
+        this.activeGhost.?prepare(envs.v0, envs.v1);
     }
 
     public SnapInfo activeSnapInfo;
