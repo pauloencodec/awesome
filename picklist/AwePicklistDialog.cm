@@ -39,7 +39,7 @@ package custom.awesome.picklist;
 private str _lastCatalogSearch = "";
 
 public class AwePicklistDialog extends PicklistDialog {
-    public FormattedTextField searchCatalog;
+    public DropDownTreeView searchCatalog;
     
     public int sResCatalogColumn = -1;
     public int sResPriceColumn = -1;
@@ -50,9 +50,13 @@ public class AwePicklistDialog extends PicklistDialog {
     private AwePicklistItem[] searchResult;
     
     public void search() {
-        str catalog = searchCatalog.textIfAny();
+        str catalog = searchCatalog.getSelection().?key;
         str partNo = searchPartNo.textIfAny();
         str desc = searchDesc.textIfAny();
+
+        if (catalog.empty()) {
+            catalog = null;
+        }
         
         if (catalog == null and partNo == null and desc == null) {
             this.clearSearchView();
@@ -66,10 +70,10 @@ public class AwePicklistDialog extends PicklistDialog {
         for (item in this.searchResult, index=i) {
             int row = this.sRes.appendRow(label=(i + 1).toS(), update=false);
             
-            this.sRes.setCell(sResCatalogColumn, row, new NameGridCell(item.catalog, align=left));
+            this.sRes.setCell(sResCatalogColumn, row, new NameGridCell(item.catalog, align=middle));
             this.sRes.setCell(sResPartColumn, row, new NameGridCell(item.partNo, align=left));
             this.sRes.setCell(sResDescColumn, row, new NameGridCell(item.description, align=left));
-            this.sRes.setCell(sResPriceColumn, row, new NameGridCell(item.price.toS(), align=left));
+            this.sRes.setCell(sResPriceColumn, row, new NameGridCell(item.price.toS(), align=alignment.right));
             
             this.sRes.setRowHeight(row, gridRowHeight);
     
@@ -91,7 +95,7 @@ public class AwePicklistDialog extends PicklistDialog {
         super(..);
         
         if (control == this.searchCatalog) {
-            _lastCatalogSearch = this.searchCatalog.textIfAny();
+            _lastCatalogSearch = this.searchCatalog.getSelection().?key;
         }
     }
 
@@ -101,6 +105,10 @@ public class AwePicklistDialog extends PicklistDialog {
         _lastCatalogSearch = "";
     }
 
+    extend public str[] getCatalogs() {
+        return this.owner.getCatalogs();
+    }
+
     public void buildSearchTab(Window parent) {
         this.searchTab = new Card(parent, label="Search");
     
@@ -108,7 +116,15 @@ public class AwePicklistDialog extends PicklistDialog {
         var partNumberLabel = this.searchTab.createLabel("Part Number", 150, rightOf=catalogLabel);
         var descriptionLabel = this.searchTab.createLabel("Description", 200, rightOf=partNumberLabel);
 
-        this.searchCatalog = this.searchTab.createTextField(100, below=catalogLabel);
+        TreeViewItem root();
+
+        root.appendChild(new TreeViewItem("", "All"));
+
+        for (catalog in this.getCatalogs()) {
+            root.appendChild(new TreeViewItem(catalog, catalog));
+        }
+
+        this.searchCatalog = this.searchTab.createDropDown(100, root, "", function searchCallback, below=catalogLabel);
         
         this.searchPartNo = this.searchTab.createTextField(150, rightOf=searchCatalog);
        

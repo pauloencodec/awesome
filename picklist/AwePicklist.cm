@@ -57,6 +57,10 @@ public class AwePicklist extends Picklist : abstract {
         return null;
     }
 
+    extend public str[] getCatalogs() {
+        return null;
+    }
+
     public void drawGraphs(LayerBuffer lb, View v, GeometricFinder finder=null) {
         super(..);
 

@@ -99,6 +99,12 @@ public class AweSifCatalogCollection {
     }
 
     extend public AweSifModel[] search(str catalog=null, str code=null, str description=null) {
+        AweSifModel[] result();
+        
+        if (code.emptyOrOnlyWhiteSpace() and description.emptyOrOnlyWhiteSpace()) {
+            return result;
+        }
+
         AweSifCatalog[] catalogs();
 
         if (catalog.?emptyOrOnlyWhiteSpace()) {
@@ -107,8 +113,6 @@ public class AweSifCatalogCollection {
         else {
             catalogs <<? this.get(catalog);
         }
-
-        AweSifModel[] result();
 
         for (catalog in catalogs) {
             for (item in catalog.searchIndex.search(code, description)) {
