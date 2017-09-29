@@ -38,11 +38,13 @@ package custom.awesome.schemes;
 
 public class AweSchemeApplier {
     public str schemeKey;
+    public str schemeTabKey;
     public AweObject schemeModel;
     public str->bool enableFilter=null; 
 
     public constructor(AweObject schemeModel, str schemeKey, str->bool enableFilter=null) {
         this.schemeKey = schemeKey;
+        this.schemeTabKey = schemeModel.class.toS();
         this.schemeModel = schemeModel;
         this.enableFilter = enableFilter;
     }   
@@ -84,8 +86,7 @@ public class AweSchemeApplier {
     }
 
     extend public bool propEnabled(str propKey) {
-        if(enableFilter and !enableFilter.get(schemeKey # ":" # propKey)) return false;
-        return true;
+        return !enableFilter or enableFilter.get(this.schemeTabKey # ":" # propKey);
     }
 
     extend public bool is(Type modelType) {

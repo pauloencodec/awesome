@@ -38,7 +38,6 @@ package custom.awesome.schemes;
 
 public class AweSchemeEditor extends OfficeGroupSchemeEditor {
     public AweScheme scheme;
-    public AweObject[] latestConfigs;
 
     public constructor(AweScheme scheme) {
         this.scheme = scheme;
@@ -51,8 +50,6 @@ public class AweSchemeEditor extends OfficeGroupSchemeEditor {
 
         if (gs as OfficeGroupScheme) {
             var schemeModels = this.scheme.convert(gs);
-            
-            this.latestConfigs = schemeModels;
             
             for (AweSnapper s in snappers) {
                 for (model in s.allModels()) {
