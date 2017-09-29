@@ -199,7 +199,7 @@ public class AweSifCatalog {
     }
 
     extend public AweSifOptionSelection findLeafSelection(str optionKey, str optionValue, AweSifOptionSelection parentSelection) {
-        var selections = getImidiateSelections(optionKey);
+        var selections = getImmediateSelections(optionKey);
         for(selection in selections) {
             selection.parentSelection = parentSelection;
             var key = parentSelection ? parentSelection.selectionKey # selection.selectionKey : selection.selectionKey;
@@ -217,7 +217,7 @@ public class AweSifCatalog {
         return null;
     }
 
-    extend public AweSifOptionSelection[] getImidiateSelections(str optionKey) {
+    extend public AweSifOptionSelection[] getImmediateSelections(str optionKey) {
         AweSifOptionSelection[] selections();
         var lines = this.file3Index.get(optionKey);
         var seq = this.seq(lines);
