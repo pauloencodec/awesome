@@ -34,15 +34,58 @@
    END OF CETSC
 */
 
-package custom.awesome.io;
+package custom.awesome.picklist;
 
-use custom.awesome;
+public class AwePicklistCatalogGridCell extends AwePicklistInputGridCell {
+    public str getData(AwePicklistItem item) {
+        return item.catalog;
+    }
 
-use cm.format.prc;
-use cm.io;
-use cm.io.util;
-use cm.io.object;
-use cm.basic;
-use cm.format.json;
-use cm.core;
-use cm.runtime;
+    public bool setData(AwePicklistItem item, str data) {
+        if (data != item.catalog) {
+            item.catalog = data;
+
+            return true;
+        }
+
+        return false;
+    }
+}
+
+public class AwePicklistPartNumberGridCell extends AwePicklistInputGridCell {
+    public str getData(AwePicklistItem item) {
+        return item.partNo;
+    }
+
+    public bool setData(AwePicklistItem item, str data) {
+        if (data != item.partNo) {
+            item.partNo = data;
+
+            return true;
+        }
+
+        return false;
+    }
+}
+
+public class AwePicklistDescriptionGridCell extends AwePicklistInputGridCell {
+    public str getData(AwePicklistItem item) {
+        return item.description;
+    }
+
+    public bool setData(AwePicklistItem item, str data) {
+        if (data != item.description) {
+            item.description = data;
+
+            return true;
+        }
+
+        return false;
+    }
+}
+
+public class AwePicklistPriceGridCell extends AwePicklistGridCell {
+    public str getData(AwePicklistItem item) {
+        return item.price.toS();
+    }
+}

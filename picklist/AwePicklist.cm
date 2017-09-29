@@ -34,15 +34,42 @@
    END OF CETSC
 */
 
-package custom.awesome.io;
+package custom.awesome.picklist;
 
-use custom.awesome;
+public class AwePicklist extends Picklist : abstract {
+    public constructor() {
+        if (!registeredPicklistEnv(this.picklistKey)) {
+            registerPicklistEnv(this.picklistKey, this.picklistEnv);
+        }
+    }
 
-use cm.format.prc;
-use cm.io;
-use cm.io.util;
-use cm.io.object;
-use cm.basic;
-use cm.format.json;
-use cm.core;
-use cm.runtime;
+    public PicklistDialog picklistDialog(Window window=null) {
+        return new AwePicklistDialog(window ?? anyFrameWindow(), this.proxy);
+    }
+
+    extend public str name() : abstract {}
+    
+    extend public PicklistEnv picklistEnv() {
+        return new AwePicklistEnv(this);
+    }
+
+    extend public AwePicklistItem[] search(str catalog, str partNumber, str description) {
+        return null;
+    }
+
+    public void drawGraphs(LayerBuffer lb, View v, GeometricFinder finder=null) {
+        super(..);
+
+        var bound = this.localBound();
+
+        new GText(bound.rect.midTop(), this.name, down, textColor=this.borderColor).draw(lb);
+    }
+
+    public color borderColor() {
+        return color(0, 80, 82);
+    }
+        
+    public color listColor() {
+        return color(230);
+    }
+}

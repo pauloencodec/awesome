@@ -36,13 +36,62 @@
 
 package custom.awesome.io;
 
-use custom.awesome;
+public class AweSerializer {
+    private Url fileUrl;
+    private File file;
+    private RobustFormatter formatter;
 
-use cm.format.prc;
-use cm.io;
-use cm.io.util;
-use cm.io.object;
-use cm.basic;
-use cm.format.json;
-use cm.core;
-use cm.runtime;
+    public constructor(Url fileUrl) {
+        if (!fileUrl) {
+            bug("fileUrl cannot be null");
+        }
+
+        this.fileUrl = fileUrl;
+    }
+
+    extend public void serialize(Object data) {
+        if (!data) {
+            bug("data cannot be null");
+        }
+
+        if (!this.fileUrl.isWritable()) {
+            bug("File must be writable: " # this.fileUrl);
+        }
+
+        this.fileUrl.unsafe = true;
+
+        if (this.file = this.fileUrl.openForWrite()) {
+            this.formatter = new RobustFormatter(file);
+
+            formatter.putObject(data);
+        }
+    }
+
+    extend public Object deserialize() {
+        if (!this.fileUrl.isReadable()) {
+            bug("File must be readable: " # this.fileUrl);
+        }
+
+        if (this.file = this.fileUrl.openForRead()) {
+            this.formatter = new RobustFormatter(file);
+            
+            return formatter.getObject();
+        }
+
+        return null;
+    }
+
+    extend public void close() {
+        if (this.file) {
+            this.file.close();
+            this.file = null;
+        }
+
+        if (this.formatter) {
+            this.formatter.close();
+            this.formatter = null;
+        }
+    }
+}
+
+init defUsing(AweSerializer, "close");

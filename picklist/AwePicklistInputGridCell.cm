@@ -34,15 +34,44 @@
    END OF CETSC
 */
 
-package custom.awesome.io;
+package custom.awesome.picklist;
 
-use custom.awesome;
+public class AwePicklistInputGridCell extends PicklistInputGridCell : abstract {
+    extend public str getData(AwePicklistItem item): abstract {} 
+    extend public bool setData(AwePicklistItem item, str data) : abstract {}
+    
+    public str getData(int x, int y) {
+        if (PicklistDialog dialog = getPicklistDialog()) {
+            var item = dialog.getPicklistItem(y);
+            
+            if (item as AwePicklistItem) {
+                return this.getData(item);
+            }
+        }
+        
+        return "";
+    }
 
-use cm.format.prc;
-use cm.io;
-use cm.io.util;
-use cm.io.object;
-use cm.basic;
-use cm.format.json;
-use cm.core;
-use cm.runtime;
+    public bool setData(int x, int y, str data) {
+        if (PicklistDialog dialog = getPicklistDialog()) {
+            PicklistItem item = dialog.getPicklistItem(y);
+            
+            if (item as AwePicklistItem) {
+                var changed = this.setData(item, data);
+
+                if (changed) {
+                    dialog.proxy.partsChanged(resizeNeeded=false);
+                    session.mainWorld.invalidateWorldPrice();
+                    
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+
+    public bool affectsOptions() {
+	    return true;
+    }
+}

@@ -34,15 +34,32 @@
    END OF CETSC
 */
 
-package custom.awesome.io;
+package custom.awesome.sif;
 
-use custom.awesome;
+public class AweSifSku {
+    public constructor() {
+    }   
 
-use cm.format.prc;
-use cm.io;
-use cm.io.util;
-use cm.io.object;
-use cm.basic;
-use cm.format.json;
-use cm.core;
-use cm.runtime;
+    public bool complete;
+    public str fullSku;
+    public AweSifModel model;
+    public AweSifOptionSelection[] selections();
+
+    extend public double totalPrice() {
+        double price = 0;
+        if(model) price += model.basePrice;
+        for(selection in this.selections) {
+            price += selection.upcharge;
+        }
+        return price;
+    }
+
+    extend public str getData(str key) {
+        return this.model.map.get(key);
+    }
+
+    public str toS() {
+        return format("@fullSku; complete=@complete;");
+    }
+
+}

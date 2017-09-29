@@ -1,0 +1,318 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.sif;
+
+private const str indexFileExtension = ".idx";
+
+public class AweSifCatalog {
+    public str catalogCode;
+
+    private AweSifFileIndex file2Index;
+    private AweSifFileIndex file3Index;
+
+    private AweSifSearchIndex _searchIndex;
+
+    extend public AweSifSearchIndex searchIndex() {
+        if (!this._searchIndex) {
+            this._searchIndex = new AweSifSearchIndex(this);
+        }
+
+        return this._searchIndex;
+    }
+
+    public constructor(str catalogCode, Url file1Url, Url file2Url, Url file3Url) {
+        this.catalogCode = catalogCode;
+
+        // var indexFile1 = new Url(file2Url # ".idx");
+        var indexFile2 = new Url(this.getIndexFilePath(file2Url));
+        var indexFile3 = new Url(this.getIndexFilePath(file3Url));
+
+        if (indexFile2.isReadable() and indexFile3.isReadable()) {
+            this.file2Index = this.getSerializedIndex(indexFile2);
+            this.file3Index = this.getSerializedIndex(indexFile3);
+        }
+        else {
+            this.indexFiles(file1Url, file2Url, file3Url);
+        }
+    }
+
+    public constructor(str catalog, Url folderPath) {
+        var path = folderPath.toS();
+
+        if (!path.endsWith("/")) {
+            path #= "/";
+        }
+        
+        path #= catalog;
+
+        this(catalog, new Url(path # ".1"), new Url(path # ".2"), new Url(path # ".3"));
+    }
+
+    extend private void indexFiles(Url file1Url, Url file2Url, Url file3Url) {
+        file2Index = new AweSifFileIndex(file2Url, "PN");
+        file3Index = new AweSifFileIndex(file3Url, "PO");
+
+        this.serializeIndex(file2Url, this.file2Index);
+        this.serializeIndex(file3Url, this.file3Index);
+    }
+
+    extend private void serializeIndex(Url fileUrl, AweSifFileIndex index) {
+        using (AweSerializer serializer(this.getIndexFilePath(fileUrl))) {
+            serializer.serialize(index);
+        }
+    }
+
+    extend private AweSifFileIndex getSerializedIndex(Url fileUrl) {
+        using (AweSerializer serializer(fileUrl)) {
+            if (?AweSifFileIndex index = serializer.deserialize()) {
+                return index;
+            }
+        }
+
+        return null;
+    }
+
+    extend private str getIndexFilePath(Url fileUrl) {
+        return fileUrl # indexFileExtension;
+    }
+
+    extend public void close() {
+        this.file2Index.?close();
+        this.file3Index.?close();
+    }
+
+    extend public str{} allBaseModels() {
+        return file2Index.index.keys;
+    }
+
+    extend public bool containsModel(str basemodel) {
+        return basemodel in this.allBaseModels();
+    }
+
+    extend public AweSifModel model(str basemodelKey) {
+        var lines = this.file2Index.get(basemodelKey);
+        var map = this.mapFirst(lines);
+        str[] optionKeys();
+        int optionIndex = 0;
+        while(str key = map.get("G" # optionIndex)) {
+            optionIndex++;
+            optionKeys << key;
+        }
+        AweSifModel m();
+        m.catalog = this.catalogCode;
+        m.code=map.get("PN");
+        if(!m.code or m.code.emptyOrOnlyWhiteSpace) return null;
+        m.description=map.get("PD");
+        m.basePrice=safeDouble(map.get("P1").?Double);
+        m.optionKeys = optionKeys;
+        m.map = map;
+        return m;
+    }
+
+    extend private <str, str> break(str line) {
+        return line.split('=');
+    }
+
+    extend private <str,str>[] seq(str[] lines) {
+        <str,str>[] seq();
+        for(line in lines) {
+            seq << this.break(line);
+        }
+        return seq;
+    }
+
+    extend private str->str[] map(str[] lines) {
+        str->str[] map();
+        for(line in lines) {
+            var parts = this.break(line);
+            if(!map.get(parts.v0)) {
+                map.put(parts.v0, new str[]());
+            }
+            map.get(parts.v0) << parts.v1;
+        }
+        return map;
+    }
+
+    extend private str->str mapFirst(str[] lines) {
+        str->str map();
+        for(line in lines) {
+            var parts = this.break(line);
+            if(map.get(parts.v0)) {
+                continue;
+            }
+            map.put(parts.v0, parts.v1);
+        }
+        return map;
+    }
+
+    /************** finding option values **************/
+
+    extend public AweSifOptionSelection[] getSelections(str optionKey, str optionValue) {
+        var leafSelection = this.findLeafSelection(optionKey, optionValue, null);
+        if(leafSelection) {
+            //flatten them out
+            AweSifOptionSelection[] selections();
+            selections << leafSelection;
+            var currentSelection = leafSelection;
+            while(AweSifOptionSelection parent = currentSelection.parentSelection) {
+                currentSelection = parent;
+                selections << currentSelection;
+            }
+            selections.reverse();
+            return selections;
+        }
+        return null;
+    }
+
+    extend public AweSifOptionSelection findLeafSelection(str optionKey, str optionValue, AweSifOptionSelection parentSelection) {
+        var selections = getImidiateSelections(optionKey);
+        for(selection in selections) {
+            selection.parentSelection = parentSelection;
+            var key = parentSelection ? parentSelection.selectionKey # selection.selectionKey : selection.selectionKey;
+            if(!optionValue.emptyOrOnlyWhiteSpace and optionValue in this.possibleOptionValues(key)) {
+                return selection;
+            } else {
+                if(selection.suboptionKey) {
+                    var maybe = this.findLeafSelection(selection.suboptionKey, optionValue, selection);
+                    if(maybe)  {
+                        return maybe;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    extend public AweSifOptionSelection[] getImidiateSelections(str optionKey) {
+        AweSifOptionSelection[] selections();
+        var lines = this.file3Index.get(optionKey);
+        var seq = this.seq(lines);
+        var optionMap = this.mapFirst(lines);
+
+        str key = null;
+
+        str->str selectionMap();
+
+        for(parts in seq) {
+            if(parts.v0 == "ON") {
+                if(key) {
+                    selections << composeSelection(key, optionMap, selectionMap);
+                    key = null;
+                    selectionMap.clear();
+                }
+                key = parts.v1;
+            } else {
+                selectionMap.put(parts.v0, parts.v1);
+            }
+        }
+
+        //last one
+        selections << composeSelection(key, optionMap, selectionMap);
+
+        return selections;
+    }
+
+    extend private AweSifOptionSelection composeSelection(str selectionKey, str->str optionMap, str->str selectionMap) {
+        var selection = new AweSifOptionSelection();
+        selection.optionKey = optionMap.get("PO");
+        selection.optionDescription = optionMap.get("OG");
+        selection.selectionKey = selectionKey;
+        selection.selectionDescription = selectionMap.get("OD");
+        selection.suboptionKey = selectionMap.get("SO");
+        selection.upcharge = safeDouble(selectionMap.get("O1").?Double);
+        return selection;
+    }
+
+    extend private str->AweSifOptionSelection getAllPossibilities(str optionKey, str->AweSifOptionSelection visited=null) {
+        if(!visited) visited = new str->AweSifOptionSelection();
+        var lines = this.file3Index.get(optionKey);
+        var seq = this.seq(lines);
+        return visited;
+    }
+
+    extend public str{} possibleOptionValues(str completeOptionValue) {
+        str{} values();
+        values << completeOptionValue;
+        var noPrice = completeOptionValue.split('.').v1;
+        if(noPrice and noPrice != "" and noPrice != completeOptionValue) {
+            values << noPrice;
+        }
+        return values;
+    }
+
+    /********************* sku parsing *******************/
+    extend public AweSifSku parseSku(str sku) {
+        AweSifSku parsed();
+        parsed.fullSku = sku;
+        var skuParts = this.breakdownSku(sku);
+        if(!skuParts or skuParts.empty) return null;
+        str modelCode;
+        str[] options();
+        for(part in skuParts) {
+            if(!modelCode) {
+                //first
+                modelCode = part;
+            } else {
+                options << part;
+            }
+        }
+        if(!modelCode) return null;
+        var model = this.model(modelCode);
+        if(!model) return null;
+
+        parsed.model = model;
+
+        parsed.complete = model.optionKeys.?count == options.count;
+
+        for(optionValue in options, index=i) {
+            if(model.optionKeys.count >= i + 1) {
+                str optionKey = model.optionKeys[i];
+                var selections = this.getSelections(optionKey, optionValue);
+                if(!selections) parsed.complete = false;
+                if(!parsed.selections) init parsed.selections();
+                parsed.selections += selections;
+            }
+        }
+        return parsed;
+    }
+
+    extend public str[] breakdownSku(str sku) {
+        CmScanner scanner(sku);
+        var tokens = scanner.tokenize(".");
+        return tokens;
+    }
+}

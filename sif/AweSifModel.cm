@@ -34,15 +34,21 @@
    END OF CETSC
 */
 
-package custom.awesome.io;
+package custom.awesome.sif;
 
-use custom.awesome;
 
-use cm.format.prc;
-use cm.io;
-use cm.io.util;
-use cm.io.object;
-use cm.basic;
-use cm.format.json;
-use cm.core;
-use cm.runtime;
+public class AweSifModel {
+
+    public constructor() { }
+    public str catalog = null;
+    public str code = null;
+    public str description = null;
+    public double basePrice = 0;
+    public str[] optionKeys = null;
+
+    public str->str map();
+
+    public str toS() {
+        return format("@code; - @description;");
+    }
+}

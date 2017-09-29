@@ -34,15 +34,22 @@
    END OF CETSC
 */
 
-package custom.awesome.io;
+package custom.awesome.sif;
 
-use custom.awesome;
+public class AweSifOptionSelection {
+    public constructor() {
+    }   
 
-use cm.format.prc;
-use cm.io;
-use cm.io.util;
-use cm.io.object;
-use cm.basic;
-use cm.format.json;
-use cm.core;
-use cm.runtime;
+    public str optionKey;
+    public str optionDescription;
+    public str selectionKey;
+    public str selectionDescription;
+    public str suboptionKey;
+    public double upcharge;
+
+    public AweSifOptionSelection parentSelection;
+
+    public str toS() {
+        return format("@selectionKey; @selectionDescription;");
+    }
+}

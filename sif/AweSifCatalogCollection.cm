@@ -1,0 +1,123 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.sif;
+
+public class AweSifCatalogCollection {
+    private str->AweSifCatalog map();
+
+    public constructor(AweSifCatalog{}  catalogs=null) {
+        for (c in catalogs) {
+            this.add(c);
+        }
+    }
+    
+    extend public AweSifCatalog get(str catalogCode) {
+        return this.map.get(catalogCode);
+    }
+
+    extend public AweSifCatalogCollection operator<<(AweSifCatalog catalog) {
+        this.add(catalog);
+
+        return this;
+    }
+
+    extend public void put(str catalogCode, AweSifCatalog catalog) {
+        this.map.put(catalogCode, catalog);
+    }
+
+    extend public void add(AweSifCatalog catalog) {
+        this.put(catalog.catalogCode, catalog);
+    }
+
+    extend public str getCatalogCode(str basemodel) {
+        for(code, catalog in this.map) {
+            if(catalog.containsModel(basemodel)) return code;
+        }
+        return null;
+    }
+
+    extend public AweSifSku parseSku(str sku, str catalogCode=null) {
+        if(!catalogCode or catalogCode.emptyOrOnlyWhiteSpace) {
+            //try to find it 
+            var model = this.extractModel(sku);
+            if(model) {
+                catalogCode = this.getCatalogCode(model);
+            }
+        }
+
+        //couldn't find it? give up
+        if(!catalogCode or catalogCode.emptyOrOnlyWhiteSpace) return null;
+
+        var catalog = this.get(catalogCode);
+        
+        if(!catalog) {
+            //don't have it
+            return null;
+        }
+        return catalog.parseSku(sku);
+    }
+
+    extend private str extractModel(str sku) {
+        CmScanner scanner(sku);
+        var tokens = scanner.tokenize("$.~");
+        if(tokens and !tokens.empty) return tokens.first();
+        return null;
+    }
+
+    extend public AweSifModel[] search(str catalog=null, str code=null, str description=null) {
+        AweSifCatalog[] catalogs();
+
+        if (catalog.?emptyOrOnlyWhiteSpace()) {
+            catalogs = this.map.values;
+        }
+        else {
+            catalogs <<? this.get(catalog);
+        }
+
+        AweSifModel[] result();
+
+        for (catalog in catalogs) {
+            for (item in catalog.searchIndex.search(code, description)) {
+                if (result.count() >= 50) return result;
+                
+                result << item;
+            }
+        }
+
+        return result;
+    }
+}
