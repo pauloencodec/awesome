@@ -101,6 +101,10 @@ public class AweInsertAnimation extends InsertAnimation {
                 this.activeGhost = ghost;
             }
         }
+
+        var envs = aweConnectEnv(info);
+        this.activeGhost.?prepare(envs.v0, envs.v1);
+        
         this.space.invalidate(this);
     }
 

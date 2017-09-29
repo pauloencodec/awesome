@@ -52,4 +52,18 @@ public class AweConnectEnv {
     }
 }
 
+public <AweConnectEnv, AweConnectEnv> aweConnectEnv(SnapInfo info) {
+    AweConnectEnv snap;
+    AweConnectEnv attach;
+
+    if(info as ConnectSnapInfo) {
+        if(info.snap())
+            snap = new AweConnectEnv(info.snap());
+        if(info.attach())
+            attach = new AweConnectEnv(info.attach());
+    }
+
+    return <snap, attach>;
+}
+
 
