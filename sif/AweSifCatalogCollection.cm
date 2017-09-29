@@ -120,4 +120,12 @@ public class AweSifCatalogCollection {
 
         return result;
     }
+
+    extend public str[] getCatalogKeys() {
+        var catalogs = this.map.keys.seq;
+
+        catalogs.sort();
+
+        return catalogs;
+    }
 }
