@@ -45,6 +45,12 @@ public class AweSifFileIndex {
 
     extend private Stream stream() {
         if (!this._stream) {
+            var url = this.fileUrl.toS();
+            var index = url.indexOf("custom");
+            var relative = url.substring(index, url.count);
+            
+            this.fileUrl = cmFindUrl(relative);
+
             this._stream = this.fileUrl.openForRead();
 
             this._stream.setPos(0);
@@ -52,7 +58,7 @@ public class AweSifFileIndex {
 
         return this._stream;
     }
-
+    
     public constructor(Url fileUrl, str headerCode) {
         this.indexFile(..);
     }   
