@@ -38,17 +38,22 @@ package custom.awesome.ui;
 
 use cm.abstract.picklist;
 
-public Display createLabel(Window parent, str text, int width, PointI pos=null, Control rightOf=null, alignment align=left) {
+public Display createLabel(Window parent, str text, int width, PointI pos=null, Window rightOf=null, Window below=null, alignment align=left) {
     Display label(parent, label=text, align=align);
     
-    label.w = width;
+    if (width > 0) {
+        label.w = width;
+    }
+    else {
+        label.autoSize();
+    }
 
-    label.position(pos=pos, rightOf=rightOf);
+    label.position(pos=pos, rightOf=rightOf, below=below);
 
     return label;
 }
 
-public FormattedTextField createTextField(Window parent, int width, PointI pos=null, Control rightOf=null, Control below=null) {
+public FormattedTextField createTextField(Window parent, int width, PointI pos=null, Window rightOf=null, Window below=null) {
     FormattedTextField field(parent, brush=picklistBackground, frameStyle=thick3DFrame, font=smallSystemFont);
 
     field.autoSize();
@@ -59,7 +64,7 @@ public FormattedTextField createTextField(Window parent, int width, PointI pos=n
     return field;
 }
 
-public DoubleField createDoubleField(Window parent, int width, double value=0, PointI pos=null, Control rightOf=null, Control below=null) {
+public DoubleField createDoubleField(Window parent, int width, double value=0, PointI pos=null, Window rightOf=null, Window below=null) {
     DoubleField field(parent, brush=picklistBackground, frameStyle=thick3DFrame, value=value, font=smallSystemFont);
     
     field.autoSize();
@@ -70,21 +75,24 @@ public DoubleField createDoubleField(Window parent, int width, double value=0, P
     return field;
 }
 
-public DropDownTreeView createDropDown(Window parent, int width, TreeViewItem root, str selectedKey=null, function(Control c) callback=null, PointI pos=null, Control rightOf=null, Control below=null) {
-    DropDownTreeView dropDown(parent, callback=callback, brush=picklistBackground, frameStyle=thick3DFrame, font=smallSystemFont, listBoxStyle=true);
+public DropDownTreeView createDropDown(Window parent, int width, TreeViewItem root, str selectedKey=null, function(Control c) callback=null, bool treeView=false, PointI pos=null, Window rightOf=null, Window below=null) {
+    DropDownTreeView dropDown(parent, callback=callback, brush=picklistBackground, frameStyle=thick3DFrame, font=smallSystemFont, listBoxStyle=!treeView);
 
     dropDown.setRoot(root);
     dropDown.trySelect(selectedKey);
-
+    
     dropDown.autoSize();
-    dropDown.w = width;
+
+    if (width > 0) {
+        dropDown.w = width;
+    }
 
     dropDown.position(pos=pos, rightOf=rightOf, below=below);
     
     return dropDown;
 }
 
-public Button createButton(Window parent, str label=null, Image image=null, str tooltip=null, function(Control c) callback=null, PointI pos=null, Control rightOf=null, Control below=null) {
+public Button createButton(Window parent, str label=null, Image image=null, str tooltip=null, function(Control c) callback=null, PointI pos=null, Window rightOf=null, Window below=null) {
     Button button(parent, label=label, image=image, callback=callback);
     
     if (tooltip) {
@@ -96,7 +104,7 @@ public Button createButton(Window parent, str label=null, Image image=null, str 
     return button;
 }
 
-public void position(Control control, PointI pos=null, Control rightOf=null, Control below=null) {
+public void position(Window control, PointI pos=null, Window rightOf=null, Window below=null) {
     if (pos) {
         control.setPos(pos.v);
     }

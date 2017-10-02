@@ -43,6 +43,8 @@ public class AwePicklistItem extends PicklistItem {
     private str _partNumber;
     private str _description;
 
+    public AweSifSku sifSku;
+
     public constructor(str catalog, str partNumber, str description=null, double price=0, double quantity=1) {
         super(partNumber, quantity);
 

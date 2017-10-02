@@ -240,6 +240,21 @@ public class AweSifCatalog {
         return items;
     }
 
+    extend public str getOptionDescription(str optionKey) {
+        var lines = this.file3Index.get(optionKey);
+        var optionMap = this.mapFirst(lines);
+        return optionMap.get("OG");
+    }
+
+    extend public AweSifOptionSelection getFirstOptionSelection(str optionKey) {
+        var selections = this.getImmediateSelections(optionKey);
+        if(selections and !selections.empty) {
+            return selections.first();
+        }
+
+        return null;
+    }
+
     extend public AweSifOptionSelection[] getImmediateSelections(str optionKey) {
         AweSifOptionSelection[] selections();
         var lines = this.file3Index.get(optionKey);
@@ -298,6 +313,16 @@ public class AweSifCatalog {
     }
 
     /********************* sku parsing *******************/
+    extend public str getDefaultSku(str basemodel) {
+        var model = this.model(basemodel);
+        str sku = model.code;
+        
+        for(key in model.optionKeys) {
+            sku #= "." # this.splitOptionKey(this.getFirstOptionSelection(key).?selectionKey);
+        }
+        return sku;
+    }
+
     extend public AweSifSku parseSku(str sku) {
         AweSifSku parsed();
         parsed.fullSku = sku;

@@ -38,74 +38,87 @@ package custom.awesome.sif;
 use cm.abstract.office;
 
 public class AweSifOptionMaterialDomain extends OfficeMaterialDomain {
-    
-        private AweMaterialFactory _factory;
-        extend public AweMaterialFactory factory() {
-            if(this._factory) return this._factory;
-            return new AweMaterialFactory();
-        }
+    private AweMaterialFactory _factory;
 
+    extend public AweMaterialFactory factory() {
+        if (this._factory) return this._factory;
+
+        return new AweMaterialFactory();
+    }
+
+    public constructor(AweSifOptionTreeItem[] tree, AweMaterialFactory factory=null) {
+        this._factory = factory;
+
+        super(this.buildTree(tree));
+    }
+
+    public constructor(AweSifCatalog catalog, str rootOptionKey, AweMaterialFactory factory=null) {
+        this(catalog.getOptionTree(rootOptionKey), factory);
+    }
     
-        public constructor(AweSifCatalog catalog, str rootOptionKey, AweMaterialFactory factory = null) {
-            this._factory = factory;
-            super(buildTree(catalog, rootOptionKey));
-        }
-       
-        public bool useCOM() { return true; }
-    
-        public bool defaultUseThumbnails() {
-            return true;
-        }
-    
-        extend public Material fetchMaterial(str materialID, str materialDescription=null) {
-            var material = this.factory().fetchMaterial(materialID, materialDescription);
-            return material;
-        }
-    
-        extend public MaterialTreeViewItem buildTree(AweSifCatalog catalog, str rootOptionKey) {
-            MaterialTreeViewItem cetRoot(fetchMaterial("plain_gray"));
-            var sifTree = catalog.getOptionTree(rootOptionKey);
-            for (item in sifTree) {
-                appendItem(cetRoot, item);
-            }
-            return cetRoot;
-            return null;
-        }
-    
-        extend public void appendItem(TreeViewItem treeItem, AweSifOptionTreeItem sifItem) {
-            var material = fetchMaterial(sifItem.key, sifItem.label);
-            var item = new MaterialTreeViewItem(material);
-            treeItem.appendChild(item);
+    public bool useCOM() { return true; }
+    public bool defaultUseThumbnails() { return true; }
+
+    extend private Material fetchMaterial(str id, str materialDescription=null) {
+        return this.factory().fetchMaterial(id, materialDescription);
+    }
+
+    extend private MaterialTreeViewItem buildTree(AweSifOptionTreeItem[] tree) {
+        MaterialTreeViewItem root(this.factory.fallbackMaterial());
         
-            for(child in sifItem.children) {
-                appendItem(item, child);
-            }
+        for (item in tree) {
+            this.appendItem(root, item);
         }
+
+        return root;
     }
 
-    private bool isMaterialOption(AweSifOptionTreeItem[] tree, AweMaterialFactory factory) {
-        var itemCount = 0;
-        var materialCount = 0;
-        var flat = flattenOptionTree(tree);
-        for(item in flat) {
-            var material = factory.fetchMaterial(item.key);
-            if(material)
-                materialCount ++;
-
-            itemCount ++;
-        }
-
-        double threshold = .8;
-        return materialCount / itemCount > threshold;
+    extend private void appendItem(TreeViewItem treeItem, AweSifOptionTreeItem sifItem) {
+        var item = new MaterialTreeViewItem(fetchMaterial(sifItem.key, sifItem.label));
         
+        treeItem.appendChild(item);
+    
+        for (child in sifItem.children) {
+            this.appendItem(item, child);
+        }
+    }
+}
+
+public bool isMaterialOption(AweSifOptionTreeItem[] tree, AweMaterialFactory factory) {
+    return false;
+    double itemCount = 0;
+    double materialCount = 0;
+    var flat = flattenOptionTree(tree);
+    var fallback = factory.fallbackMaterial().id;
+    var maxCount = 50;
+
+    for (item in flat) {
+        if (item.key.contains("~") or item.key.contains("$")) continue;
+
+        var material = factory.fetchMaterial(item.key);
+        
+        if (material and material.id != fallback) {
+            materialCount++;
+        }
+
+        itemCount++;
+
+        if (itemCount > maxCount) {
+            break;
+        }
     }
 
-    private AweSifOptionTreeItem[] flattenOptionTree(AweSifOptionTreeItem[] tree) {
-        AweSifOptionTreeItem[] flat();
-        for(item in tree) {
-            flat << item;
-            if(item.children)
-                flat += flattenOptionTree(item.children);
-        }
-        return flat;
+    double threshold = .8;
+
+    return materialCount / itemCount > threshold;
+}
+
+private AweSifOptionTreeItem[] flattenOptionTree(AweSifOptionTreeItem[] tree) {
+    AweSifOptionTreeItem[] flat();
+    for(item in tree) {
+        flat << item;
+        if(item.children)
+            flat += flattenOptionTree(item.children);
     }
+    return flat;
+}

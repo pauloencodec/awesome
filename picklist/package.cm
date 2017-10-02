@@ -41,10 +41,13 @@ use custom.awesome.io;
 use custom.awesome.ui;
 use custom.awesome.sif;
 use custom.awesome.product;
+use custom.awesome.materials;
 
 use cm.application;
 use cm.basic;
 use cm.core;
 use cm.win;
 use cm.format.json;
+use cm.abstract;
+use cm.abstract.office;
 use cm.abstract.picklist;

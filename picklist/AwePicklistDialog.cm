@@ -46,6 +46,8 @@ public class AwePicklistDialog extends PicklistDialog {
 
     public int plCatalogColumn = -1;
     public int plPriceColumn = -1;
+
+    public Button editButton;
     
     private AwePicklistItem[] searchResult;
     
@@ -70,10 +72,10 @@ public class AwePicklistDialog extends PicklistDialog {
         for (item in this.searchResult, index=i) {
             int row = this.sRes.appendRow(label=(i + 1).toS(), update=false);
             
-            this.sRes.setCell(sResCatalogColumn, row, new NameGridCell(item.catalog, align=middle));
+            this.sRes.setCell(sResCatalogColumn, row, new NameGridCell(item.catalog, align=left));
             this.sRes.setCell(sResPartColumn, row, new NameGridCell(item.partNo, align=left));
             this.sRes.setCell(sResDescColumn, row, new NameGridCell(item.description, align=left));
-            this.sRes.setCell(sResPriceColumn, row, new NameGridCell(item.price.toS(), align=alignment.right));
+            this.sRes.setCell(sResPriceColumn, row, new NameGridCell(item.price.toS(), align=left));
             
             this.sRes.setRowHeight(row, gridRowHeight);
     
@@ -169,10 +171,10 @@ public class AwePicklistDialog extends PicklistDialog {
             i++;
         }
 
-        this.sRes.setColumnWidth(this.sResCatalogColumn, 100);
-        this.sRes.setColumnWidth(this.sResPartColumn, 150);
-        this.sRes.setColumnWidth(this.sResDescColumn, 400);
-        this.sRes.setColumnWidth(this.sResPriceColumn, 100);
+        this.sRes.setColumnWidth(this.sResCatalogColumn, 60);
+        this.sRes.setColumnWidth(this.sResPartColumn, 200);
+        this.sRes.setColumnWidth(this.sResDescColumn, 420);
+        this.sRes.setColumnWidth(this.sResPriceColumn, 50);
     
         this.sRes.autoSize();
         this.sRes.vScrollAlwaysVisible = true;
@@ -228,17 +230,17 @@ public class AwePicklistDialog extends PicklistDialog {
         this.plPartColumn = this.plContent.appendColumn(label="Part Number");
         this.plDescColumn = this.plContent.appendColumn(label="Description");
         this.plPriceColumn = this.plContent.appendColumn(label="Price");
-        this.plQtyColumn = this.plContent.appendColumn(label="Quantity");
+        this.plQtyColumn = this.plContent.appendColumn(label="Qty");
 
         this.plContent.setRowHeight(-1, gridRowHeight);
     
         this.buildPicklistContent();
     
-        this.plContent.setColumnWidth(this.plCatalogColumn, 100);
-        this.plContent.setColumnWidth(this.plPartColumn, 150);
-        this.plContent.setColumnWidth(this.plDescColumn, 440);
-        this.plContent.setColumnWidth(this.plPriceColumn, 100);
-        this.plContent.setColumnWidth(this.plQtyColumn, 60);
+        this.plContent.setColumnWidth(this.plCatalogColumn, 50);
+        this.plContent.setColumnWidth(this.plPartColumn, 300);
+        this.plContent.setColumnWidth(this.plDescColumn, 420);
+        this.plContent.setColumnWidth(this.plPriceColumn, 50);
+        this.plContent.setColumnWidth(this.plQtyColumn, 30);
             
         this.plContent.autoSize();
         
@@ -256,23 +258,42 @@ public class AwePicklistDialog extends PicklistDialog {
     
         this.buildPicklistContentGrid();
     
-        this.plusQtyButton = this.partSub.createButton(label="Qty", image=icon("plus"), tooltip="Increase quantity", callback=internalPlusQtyCB, below=this.plContent); 
-        this.reduceQtyButton = this.partSub.createButton(label="Qty", image=icon("minus"), tooltip="Reduce quantity", callback=internalReduceQtyCB, below=this.plContent);    
-        this.removeButton = this.partSub.createButton(image=icon("delete"), tooltip="Remove article", callback=internalRemoveCB, below=this.plContent);
+        this.plusQtyButton = this.partSub.createButton(label="Qty", image=icon("plus"), tooltip="Increase quantity", callback=this.internalPlusQtyCB, below=this.plContent); 
+        this.reduceQtyButton = this.partSub.createButton(label="Qty", image=icon("minus"), tooltip="Reduce quantity", callback=this.internalReduceQtyCB, below=this.plContent);    
+        this.removeButton = this.partSub.createButton(image=icon("delete"), tooltip="Remove article", callback=this.internalRemoveCB, below=this.plContent);
+
+        this.editButton = this.partSub.createButton(image=icon("edit"), tooltip="Edit article", callback=function editCallback, below=this.plContent);
         
         this.plusQtyButton.alignCenterX(this.plContent);
-        this.plusQtyButton.x -= (plusQtyButton.w) / 2;
+        this.plusQtyButton.x -= this.plusQtyButton.w / 2;
         
-        this.reduceQtyButton.alignCenterX(plContent);
-        this.reduceQtyButton.x += (reduceQtyButton.w) / 2;
+        this.reduceQtyButton.alignCenterX(this.plContent);
+        this.reduceQtyButton.x += this.reduceQtyButton.w / 2;
         
-        this.removeButton.rightOf(this.reduceQtyButton, 20);
+        this.editButton.rightOf(this.reduceQtyButton, 20);
+        this.removeButton.rightOf(this.editButton, 20);
     
         this.partSub.autoSize();
     }
 
     public bool useSpecials() {
         return true;
+    }
+
+    extend public void edit() {
+        var index = this.plContent.currentR;
+
+        if (index > -1) {
+            if (?AwePicklistItem item = this.getPicklistItem(index)) {
+                if (item.catalog) {
+                    if (AweSifCatalog catalog = this.owner.sifRepository.get(item.catalog)) {
+                        AwePicklistSifConfiguratorDialog dialog(this, catalog, this.owner.materialFactory, item);
+
+                        dialog.open();
+                    }
+                }
+            }
+        }
     }
 
     public void buildSpecialTab(Window parent) {
@@ -287,7 +308,18 @@ public class AwePicklistDialog extends PicklistDialog {
 
             if (index >= 0) {
                 if (this.searchResult.count > 0 and index < this.searchResult.count()) {
-                    return itemManager.createItem(proxy, [Object: this.searchResult[index]]);
+                    var item = itemManager.createItem(proxy, [Object: this.searchResult[index]]).copy();
+
+                    if (item as AwePicklistItem) {
+                        if (item.catalog) {
+                            if (AweSifCatalog catalog = this.owner.sifRepository.get(item.catalog)) {
+                                item.partNo = catalog.getDefaultSku(item.partNo);
+                                item.sifSku = catalog.parseSku(item.partNo);
+                            }
+                        }
+                    }
+
+                    return item;
                 }
             }
         }
@@ -325,5 +357,11 @@ private void addCallback(Control control) {
 private void searchCallback(Control control) {
     if (PicklistDialog dialog = getPicklistDialog()) {
         dialog.search();
+    }
+}
+
+private void editCallback(Control control) {
+    if (AwePicklistDialog dialog = control.parentFrame.AwePicklistDialog) {
+        dialog.edit();
     }
 }

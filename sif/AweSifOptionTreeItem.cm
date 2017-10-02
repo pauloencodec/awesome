@@ -46,6 +46,6 @@ public class AweSifOptionTreeItem {
     public AweSifOptionTreeItem[] children;
 
     public str toS() {
-        return format("@key, @label, @children");
+        return format("@key; - @label; > [children: @children;]");
     }
 }
