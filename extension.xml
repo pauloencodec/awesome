@@ -3,7 +3,7 @@
   <main>custom.awesome</main>
   <name>Awesome Library</name>
   <type>code</type>
-  <version>0.0.24.0</version>
+  <version>0.0.28.0</version>
   <packages>
     <package id="custom.awesome" />
     <package id="custom.awesome.automations" />
@@ -22,6 +22,8 @@
     <package id="custom.awesome.storage" />
     <package id="custom.awesome.ui" />  
     <package id="custom.awesome.stretch" />  
+    <package id="custom.awesome.picklist" />  
+    <package id="custom.awesome.sif" />  
     <package id="custom.genericOffice"/>
     <package id="custom.genericOffice.worksurface"/>
     <package id="custom.genericOffice.storage"/>

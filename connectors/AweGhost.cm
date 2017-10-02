@@ -147,6 +147,17 @@ public class AweGhost {
         return prims;
     }
 
-    
+    extend public void prepare(AweConnectEnv snap, AweConnectEnv attach) {
+        this.prepare();
+    }
+
+    extend public void prepare() {
+        
+    }
+
+    extend public void invalidate() {
+        this.ghostSnapper.refresh(true, true);
+        this.ghostSnapper.invalidate();
+    }
 
 }
