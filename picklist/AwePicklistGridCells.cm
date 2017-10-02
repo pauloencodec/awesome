@@ -84,8 +84,24 @@ public class AwePicklistDescriptionGridCell extends AwePicklistInputGridCell {
     }
 }
 
-public class AwePicklistPriceGridCell extends AwePicklistGridCell {
+public class AwePicklistPriceGridCell extends AwePicklistInputGridCell {
     public str getData(AwePicklistItem item) {
         return item.price.toS();
+    }
+
+    public bool setData(AwePicklistItem item, str data) {
+        var price = data.Double;
+
+        if (price) {
+            price = safeDouble(price);
+
+            if (price != item.price) {
+                item.price = price.v;
+    
+                return true;
+            }
+        }
+
+        return false;
     }
 }
