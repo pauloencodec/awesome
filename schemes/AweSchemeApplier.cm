@@ -35,61 +35,61 @@
 */
 
 package custom.awesome.schemes;
-use cm.syntax;
 
-public syntax <SId,SId,SId> aweSchemeBinding {
-    @propName=id "=" @schemeKey=id "." @schemePropKey=id {
-        <SId,SId,SId> bindingInfo = <propName, schemeKey, schemePropKey>;
-        return bindingInfo;
-    }
-}
+public class AweSchemeApplier {
+    public str schemeKey;
+    public str schemeTabKey;
+    public AweObject schemeModel;
+    public str->bool enableFilter=null; 
 
-public member @visibility aweSchemeBindings '(' @bindings=[aweSchemeBinding ',']* @lastBinding=aweSchemeBinding ')' ';' {
-    <SId, SId, SId>[] allBindings();
+    public constructor(AweObject schemeModel, str schemeKey, str->bool enableFilter=null) {
+        this.schemeKey = schemeKey;
+        this.schemeTabKey = schemeModel.class.toS();
+        this.schemeModel = schemeModel;
+        this.enableFilter = enableFilter;
+    }   
 
-    for (b in bindings) {
-        allBindings << b;
-    }
+    extend public bool apply(AweObject target, str->str targetToSchemePropNameMap=null) {
+        var applied = false;
 
-    allBindings << lastBinding;
+        for (targetKey in target.props.keys) {
+            var schemePropKey = targetToSchemePropNameMap.?get(targetKey);
 
-    SStatements ifs();
+            if (!schemePropKey) schemePropKey = targetKey;
 
-    for (binding in allBindings) {
-        SId propName = binding.v0;
-        str propNameStr = binding.v0.name;
-        SId schemeKey = binding.v1;
-        SId schemePropKey = binding.v2;
-        str schemePropKeyStr = binding.v2.name;
-        str schemeKeyStr = schemeKey.name;
-
-        ifs << statement {
-            if (applier.is(@schemeKey)) {
-                if (applier.propEnabled(@schemePropKeyStr)) {
-                    if (schemeModel as @schemeKey) {
-                        var domain = this.getDomain(@propNameStr);
-                        var value = schemeModel.@schemePropKey;
-
-                        if (!domain or value in domain) {
-                            this.@propName = schemeModel.@schemePropKey;
-    
-                            applied = true;
-                        }
-                    }
-                }
-            }
-        };
-    }
-
-    return member {
-        @visibility bool applyScheme(AweSchemeApplier applier) {
-            bool applied = super(..);
-
-            var schemeModel = applier.schemeModel;
-
-            @ifs;
-
-            return applied;
+            applied = this.apply(target, targetKey, schemePropKey);
         }
-    };
+
+        return applied;
+    }
+
+    extend public bool apply(AweObject target, str modelPropKey, str schemePropKey=null) {
+        if (!schemePropKey) {
+            schemePropKey = modelPropKey;
+        }
+
+        if (this.propEnabled(schemePropKey)) {
+            var value = this.schemeModel.get(schemePropKey);
+
+            if (!value) return false;
+
+            var domain = target.getDomain(modelPropKey);
+
+            if (!domain or value in domain) {
+                target.set(modelPropKey, value);
+                
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    extend public bool propEnabled(str propKey) {
+        return !enableFilter or enableFilter.get(this.schemeTabKey # ":" # propKey);
+    }
+
+    extend public bool is(Type modelType) {
+        return this.schemeModel.class == modelType;
+    }
 }
