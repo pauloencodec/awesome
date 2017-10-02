@@ -58,7 +58,7 @@ public class AweSifFileIndex {
 
         return this._stream;
     }
-
+    
     public constructor(Url fileUrl, str headerCode) {
         this.indexFile(..);
     }   
