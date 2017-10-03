@@ -199,7 +199,7 @@ public class AweSifCatalog {
     }
 
     extend public AweSifOptionSelection findLeafSelection(str optionKey, str optionValue, AweSifOptionSelection parentSelection) {
-        var selections = getImidiateSelections(optionKey);
+        var selections = getImmediateSelections(optionKey);
         for(selection in selections) {
             selection.parentSelection = parentSelection;
             var key = parentSelection ? parentSelection.selectionKey # selection.selectionKey : selection.selectionKey;
@@ -217,7 +217,45 @@ public class AweSifCatalog {
         return null;
     }
 
-    extend public AweSifOptionSelection[] getImidiateSelections(str optionKey) {
+    extend private str splitOptionKey(str key) {
+        //only get what's on the right side of the ".""if there's one
+        var parts = key.split('.');
+        if(parts.v1) return parts.v1;
+        return key;
+    }
+
+    extend public AweSifOptionTreeItem[] getOptionTree(str rootOptionKey, str parentKey=null) {
+        AweSifOptionTreeItem[] items();
+        var selections = this.getImmediateSelections(rootOptionKey);
+        for(sel in selections) {
+            AweSifOptionTreeItem item();
+            item.key = this.splitOptionKey(parentKey # sel.selectionKey);
+            item.label = sel.selectionDescription;
+            if(sel.suboptionKey) {
+                item.children = this.getOptionTree(sel.suboptionKey, item.key);
+            }
+            items << item;
+        }
+
+        return items;
+    }
+
+    extend public str getOptionDescription(str optionKey) {
+        var lines = this.file3Index.get(optionKey);
+        var optionMap = this.mapFirst(lines);
+        return optionMap.get("OG");
+    }
+
+    extend public AweSifOptionSelection getFirstOptionSelection(str optionKey) {
+        var selections = this.getImmediateSelections(optionKey);
+        if(selections and !selections.empty) {
+            return selections.first();
+        }
+
+        return null;
+    }
+
+    extend public AweSifOptionSelection[] getImmediateSelections(str optionKey) {
         AweSifOptionSelection[] selections();
         var lines = this.file3Index.get(optionKey);
         var seq = this.seq(lines);
@@ -275,6 +313,16 @@ public class AweSifCatalog {
     }
 
     /********************* sku parsing *******************/
+    extend public str getDefaultSku(str basemodel) {
+        var model = this.model(basemodel);
+        str sku = model.code;
+        
+        for(key in model.optionKeys) {
+            sku #= "." # this.splitOptionKey(this.getFirstOptionSelection(key).?selectionKey);
+        }
+        return sku;
+    }
+
     extend public AweSifSku parseSku(str sku) {
         AweSifSku parsed();
         parsed.fullSku = sku;
@@ -316,3 +364,16 @@ public class AweSifCatalog {
         return tokens;
     }
 }
+// {
+
+//     AweSifCatalog seatingCatalog("ALC", 
+//             Url("C:\\Users\\User\\Downloads\\ALC.1"),
+//             Url("C:\\Users\\User\\Downloads\\ALC.2"),
+//             Url("C:\\Users\\User\\Downloads\\ALC.3")
+//         );
+    
+//         var tree = seatingCatalog.getOptionTree("19HWB");
+//         for(i in tree) {
+//             pln(#i);
+//         }
+// }
