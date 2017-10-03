@@ -38,34 +38,31 @@ package custom.awesome.picklist;
 
 use custom.awesome.schemes;
 
-public class AwePicklistSifConfiguratorDialog extends DialogWindow {
+public class AwePicklistSifConfiguratorControl extends GroupBox {
     public AweSifCatalog catalog;
     public AweMaterialFactory materialFactory;
     public AwePicklistItem item;
     
-    public str label;
     public ScrollableSubWindow propertiesWindow;
-    public GroupBox groupBox;
 
     public DropDownTreeView[] options();
 
     public constructor(Window parent, AweSifCatalog catalog, AweMaterialFactory materialFactory, AwePicklistItem item) {
-        super(parent, size=(600, 400), label="SIF Configurator");
+        if (!item.sifSku) {
+            item.sifSku = this.catalog.parseSku(this.item.partNo);
+        }
+        
+        super(parent, size=(515, 289), font=boldSystemFont, label=item.description);
 
         this.catalog = catalog;
         this.materialFactory = materialFactory;
         this.item = item;
+
+        this.build();
     }
 
-    extend public bool build() {
-        if (!item.sifSku) {
-            item.sifSku = this.catalog.parseSku(this.item.partNo);            
-        }
-
-        if (!item.sifSku) return false;
-
-        this.groupBox = new GroupBox(this, font=boldSystemFont, label=this.item.description, pos=(10, 5));
-        this.propertiesWindow = new ScrollableSubWindow(this.groupBox, frameStyle=noFrame, horizontalBar=false);
+    extend public void build() {
+        this.propertiesWindow = new ScrollableSubWindow(this, frameStyle=noFrame, horizontalBar=false);
 
         var basemodelLabel = this.propertiesWindow.createLabel("Basemodel", 150, pos=(12, 12), align=alignment.right);
         var basemodel = this.propertiesWindow.createLabel(item.sifSku.model.code, 250, rightOf=basemodelLabel);
@@ -79,8 +76,6 @@ public class AwePicklistSifConfiguratorDialog extends DialogWindow {
         Control lastDisplay = basemodelLabel;
 
         for (optionKey in item.sifSku.model.optionKeys, index=i) {
-            Display display;
-            
             var propertyName = this.catalog.getOptionDescription(optionKey);
             
             lastDisplay = this.propertiesWindow.createLabel(propertyName, 150, below=lastDisplay, align=alignment.right);
@@ -89,42 +84,24 @@ public class AwePicklistSifConfiguratorDialog extends DialogWindow {
             lastDisplay.setMargins(0, 0, 5, 2);
             
             var optionTree = this.catalog.getOptionTree(optionKey);
+            var root = this.buildTree(optionTree, optionKey);
+            var selected = item.sifSku.getFullSelectionKey(optionKey);
             
-            Control control;
+            var control = this.propertiesWindow.createDropDown(300, root, selectedKey=selected, treeView=true);
             
-            if (optionTree.isMaterialOption(this.materialFactory)) {
-                var domain = new AweSifOptionMaterialDomain(optionTree, this.materialFactory);
-                
-                control = new AweOfficeMaterialSelection(this.propertiesWindow, domain=domain, callback=function selectChoice);
-                
-                control.AweOfficeMaterialSelection.materialDomain = domain;
-                
-                control.autoSize();
-                control.h = 18;
-            }
-            else {
-                var root = this.buildTree(optionTree, optionKey);
-                var selected = item.sifSku.getFullSelectionKey(optionKey);
-                
-                control = this.propertiesWindow.createDropDown(350, root, selectedKey=selected, treeView=true);
-                
-                options << control.DropDownTreeView;
-            }
-
             control.setMargins(0, 0, 0, 2);
             control.rightOf(lastDisplay);
+
+            this.options << control;
         }
         
-        this.groupBox.extendBottomRight(10, 35);
-        this.propertiesWindow.extendBottomRight(10, 20);
+        this.propertiesWindow.extendBottomRight(10, 50);
 
-        var closeButton = this.createButton("Close", icon("close"), callback=function onClose, below=this.groupBox);
-        var saveButton = this.createButton("Save", icon("Save"), callback=function onSave, rightOf=closeButton);
+        var closeButton = this.createButton("Discard", icon("close"), callback=function onClose, below=this.propertiesWindow);
+        var saveButton = this.createButton("Accept", icon("ok-blue"), callback=function onSave, rightOf=closeButton);
         
-        closeButton.alignRight(this.groupBox, 75);
-        saveButton.alignRight(this.groupBox, 0);
-
-        return true;
+        closeButton.below(this.propertiesWindow);
+        saveButton.alignRight(this.propertiesWindow, 0);
     }
 
     extend private void save() {
@@ -141,8 +118,6 @@ public class AwePicklistSifConfiguratorDialog extends DialogWindow {
                 
                 picklist.picklistSnapper.invalidate();
                 session.mainWorld.invalidateWorldPrice();
-
-                this.close();
             }
         }
         else {
@@ -179,37 +154,18 @@ public class AwePicklistSifConfiguratorDialog extends DialogWindow {
             this.appendItem(item, child);
         }
     }
-
-    extend public void open() {
-        var built = this.build();
-        
-        if (built) {
-            this.show();
-        }
-    }
 }
 
 private void onClose(Control c) {
-    if (?DialogWindow dialog = c.parentFrame) {
-        dialog.close();
+    if (?AwePicklistDialog dialog = c.parentFrame) {
+        dialog.cancelEdit(true);
     }
 }
 
 private void onSave(Control c) {
-    if (?AwePicklistSifConfiguratorDialog dialog = c.parentFrame) {
+    if (?AwePicklistSifConfiguratorControl dialog = c.parent) {
         dialog.save();
-    }
-}
 
-public class AweOfficeMaterialSelection extends OfficeMaterialSelection {
-    public MaterialDomain materialDomain;
-}
-
-private void selectChoice(Control c) {
-    if (c as AweOfficeMaterialSelection) {
-	Material m = c.selected;
-	
-	showOfficeMaterialDialog(c.ancestor, c.materialDomain, m, null, null);
-	
+        onClose(c);
     }
 }
