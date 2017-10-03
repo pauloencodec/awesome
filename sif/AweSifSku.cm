@@ -58,6 +58,24 @@ public class AweSifSku {
         return this.model.map.get(key);
     }
 
+    extend public str getSelectionKey(str optionKey) {
+        for (selection in this.selections) {
+            if (selection.optionKey == optionKey) {
+                return this.splitOptionKey(selection.selectionKey);
+            }
+        }
+
+        return null;
+    }
+
+    extend private str splitOptionKey(str key) {
+        var parts = key.split('.');
+
+        if (parts.v1) return parts.v1;
+        
+        return key;
+    }
+
     public str toS() {
         return format("@fullSku; complete=@complete;");
     }

@@ -1,0 +1,218 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.picklist;
+
+use custom.awesome.schemes;
+
+public class AwePicklistSifConfiguratorDialog extends DialogWindow {
+    public AweSifCatalog catalog;
+    public AweMaterialFactory materialFactory;
+    public AwePicklistItem item;
+    
+    public str label;
+    public ScrollableSubWindow propertiesWindow;
+    public GroupBox groupBox;
+
+    public DropDownTreeView[] options();
+
+    public constructor(Window parent, AweSifCatalog catalog, AweMaterialFactory materialFactory, AwePicklistItem item) {
+        super(parent, size=(600, 400), label="SIF Configurator");
+
+        this.catalog = catalog;
+        this.materialFactory = materialFactory;
+        this.item = item;
+    }
+
+    extend public bool build() {
+        if (!item.sifSku) {
+            item.sifSku = this.catalog.parseSku(this.item.partNo);            
+        }
+
+        if (!item.sifSku) return false;
+
+        this.groupBox = new GroupBox(this, font=boldSystemFont, label=this.item.description, pos=(10, 5));
+        this.propertiesWindow = new ScrollableSubWindow(this.groupBox, frameStyle=noFrame, horizontalBar=false);
+
+        var basemodelLabel = this.propertiesWindow.createLabel("Basemodel", 150, pos=(12, 12), align=alignment.right);
+        var basemodel = this.propertiesWindow.createLabel(item.sifSku.model.code, 250, rightOf=basemodelLabel);
+
+        basemodel.setFont(boldSystemFont);
+        basemodel.h = 25;
+        basemodelLabel.h = 25;
+        basemodel.setMargins(0, 0, 0, 5);
+        basemodelLabel.setMargins(0, 0, 5, 5);
+
+        Control lastDisplay = basemodelLabel;
+
+        for (optionKey in item.sifSku.model.optionKeys, index=i) {
+            Display display;
+            
+            var propertyName = this.catalog.getOptionDescription(optionKey);
+            
+            lastDisplay = this.propertiesWindow.createLabel(propertyName, 150, below=lastDisplay, align=alignment.right);
+
+            lastDisplay.h = 20;
+            lastDisplay.setMargins(0, 0, 5, 2);
+            
+            var optionTree = this.catalog.getOptionTree(optionKey);
+            
+            Control control;
+            
+            if (optionTree.isMaterialOption(this.materialFactory)) {
+                var domain = new AweSifOptionMaterialDomain(optionTree, this.materialFactory);
+                
+                control = new AweOfficeMaterialSelection(this.propertiesWindow, domain=domain, callback=function selectChoice);
+                
+                control.AweOfficeMaterialSelection.materialDomain = domain;
+                
+                control.autoSize();
+                control.h = 18;
+            }
+            else {
+                var root = this.buildTree(optionTree, optionKey);
+                var selected = item.sifSku.getSelectionKey(optionKey) ?? root.children.first().key;
+                
+                pln(#selected);
+                
+                control = this.propertiesWindow.createDropDown(350, root, selectedKey=selected, treeView=true);
+                
+                options << control.DropDownTreeView;
+            }
+
+            // control.h = 25;
+            control.setMargins(0, 0, 0, 2);
+            control.rightOf(lastDisplay);
+        }
+        
+        this.groupBox.extendBottomRight(10, 35);
+        this.propertiesWindow.extendBottomRight(10, 20);
+
+        var closeButton = this.createButton("Close", icon("close"), callback=function onClose, below=this.groupBox);
+        var saveButton = this.createButton("Save", icon("Save"), callback=function onSave, rightOf=closeButton);
+        
+        closeButton.alignRight(this.groupBox, 75);
+        saveButton.alignRight(this.groupBox, 0);
+
+        return true;
+    }
+
+    extend private void save() {
+        var sku = this.getSku();
+        var sifSku = this.catalog.parseSku(sku);
+
+        if (sifSku.complete) {
+            this.item.partNo = sifSku.fullSku;
+            this.item.sifSku = sifSku;
+            this.item.price = sifSku.totalPrice();
+
+            if (?PicklistDialog picklist = this.parent) {
+                picklist.buildPicklistContent();
+                
+                picklist.picklistSnapper.invalidate();
+                session.mainWorld.invalidateWorldPrice();
+
+                this.close();
+            }
+        }
+        else {
+
+        }
+    }
+
+    extend private str getSku() {
+        var sku = this.item.sifSku.model.code;
+
+        for (option in this.options) {
+            sku #= "." # option.getSelection().key;
+        }
+
+        return sku;
+    }
+
+    extend private TreeViewItem buildTree(AweSifOptionTreeItem[] tree, str rootOptionKey) {
+        TreeViewItem root("root", rootOptionKey);
+
+        for (item in tree) {
+            this.appendItem(root, item);
+        }
+
+        return root;
+    }
+
+    extend private void appendItem(TreeViewItem treeItem, AweSifOptionTreeItem sifItem) {
+        var item = new TreeViewItem(sifItem.key, sifItem.key # " - " # sifItem.label);
+
+        treeItem.appendChild(item);
+    
+        for (child in sifItem.children) {
+            this.appendItem(item, child);
+        }
+    }
+
+    extend public void open() {
+        var built = this.build();
+        
+        if (built) {
+            this.show();
+        }
+    }
+}
+
+private void onClose(Control c) {
+    if (?DialogWindow dialog = c.parentFrame) {
+        dialog.close();
+    }
+}
+
+private void onSave(Control c) {
+    if (?AwePicklistSifConfiguratorDialog dialog = c.parentFrame) {
+        dialog.save();
+    }
+}
+
+public class AweOfficeMaterialSelection extends OfficeMaterialSelection {
+    public MaterialDomain materialDomain;
+}
+
+private void selectChoice(Control c) {
+    if (c as AweOfficeMaterialSelection) {
+	Material m = c.selected;
+	
+	showOfficeMaterialDialog(c.ancestor, c.materialDomain, m, null, null);
+	
+    }
+}
