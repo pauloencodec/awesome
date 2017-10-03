@@ -104,16 +104,13 @@ public class AwePicklistSifConfiguratorDialog extends DialogWindow {
             }
             else {
                 var root = this.buildTree(optionTree, optionKey);
-                var selected = item.sifSku.getSelectionKey(optionKey) ?? root.children.first().key;
-                
-                pln(#selected);
+                var selected = item.sifSku.getFullSelectionKey(optionKey);
                 
                 control = this.propertiesWindow.createDropDown(350, root, selectedKey=selected, treeView=true);
                 
                 options << control.DropDownTreeView;
             }
 
-            // control.h = 25;
             control.setMargins(0, 0, 0, 2);
             control.rightOf(lastDisplay);
         }
@@ -149,7 +146,7 @@ public class AwePicklistSifConfiguratorDialog extends DialogWindow {
             }
         }
         else {
-
+            //error msg?
         }
     }
 
