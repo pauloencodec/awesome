@@ -36,7 +36,7 @@
 
 package custom.awesome;
 
-public class AweModelPickerAnimation extends AwePointsAnimation : abstract {
+public class AweModelPickerAnimation extends AweAnimation : abstract {
 
     public AweObject mainSelection;
     public AweObject{} allSelected;
@@ -48,6 +48,7 @@ public class AweModelPickerAnimation extends AwePointsAnimation : abstract {
             this.configurator.AweModelPickerAnimationConfigurator.pickModeDomain = new ObjectSubSet(pickModes.:Object[]);
             this.configurator.AweModelPickerAnimationConfigurator.pickMode = pickModes.first();
         }
+        super();
     }   
 
     /************* protocol ***************/
@@ -145,16 +146,25 @@ public class AweModelPickerAnimation extends AwePointsAnimation : abstract {
         Awe3D prims();
         for(m in allSelected) {
             if(AweProduct product = m.?getProduct()) {
-                Primitive3D prim = Box3D(product.localBound().grown(0.001));
-                prim.setMaterial(plainYellowMaterial3D());
+                Awe3D prim();
+                var b = Box3D(product.localBound().grown(0.001));
+                b.setMaterial(this.highlightMaterial());
+                prim << b;
+                var frame = frameBox3D(product.localBound().grown(0.002));
+                prim << frame;
+                frame.setMaterial(plainYellowMaterial3D());
                 if(Snapper s = product._model.?mainSnapper) {
-                    prim = s.toSpace(prim);
+                    prim = Awe3D(s.toSpace(prim));
                 }
                 prims << prim;
             }
 
         }
         return prims;
+    }
+
+    extend public Material3D highlightMaterial() {
+        return plainYellowMaterial3D();
     }
 
 }
