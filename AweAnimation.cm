@@ -101,6 +101,30 @@ public class AweAnimation extends ObsoleteStateMouseAnimation {
 
     extend public void setViewMode(ViewMode viewMode) {
         this.viewMode = viewMode;
+        var space = this.space ? this.space : activeSpace();
+        this.previousViewMode = space.viewMode;
         space.setViewMode( viewMode );
+    }
+
+    public PropObj end() {
+        var space = this.space ? this.space : activeSpace();
+        if (space) {
+            space.endAnimateDrawSequence(this);
+            space.hide(this);
+            space.setViewMode( null );
+        }
+
+        return super(..);
+    }
+
+    public void abort() {
+        if (space) {
+            space.abortAnimateDraw(this);
+            space.hide(this);
+        }
+
+
+        this.setViewMode(null);
+        super(..);
     }
 }

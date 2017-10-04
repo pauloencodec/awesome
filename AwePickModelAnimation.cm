@@ -36,7 +36,7 @@
 
 package custom.awesome;
 
-public class AweModelPickerAnimation extends AweAnimation : abstract {
+public class AweModelPickerAnimation extends AwePointsAnimation : abstract {
 
     public AweObject mainSelection;
     public AweObject{} allSelected;
@@ -84,12 +84,36 @@ public class AweModelPickerAnimation extends AweAnimation : abstract {
                 }
             }
         }
-        this.mainSelection = model;
-        
+
+        tryPick(model);
+        space.invalidate(this);
+
+    }
+
+    extend public void tryPick(AweObject newModel) {
+        if(newModel != this.mainSelection) {
+            if(this.pick(newModel)) {
+                this.mainSelection = newModel;
+            }
+        }
     }
 
     extend public AweObject{} selectGroup(AweObject mainSelection) {
         //TODO
+        return null;
+    }
+
+    /************** 3d ******************/
+    public bool deny3D() {
+	    return false;
+    }
+   
+    public Primitive3D get3D(FetchEnv3D env) {
+        if(AweProduct product = this.mainSelection.?getProduct()) {
+            var prim = Box3D(product.bound().grown(0.001));
+            prim.setMaterial(plainYellowMaterial3D());
+            return prim;
+        }
         return null;
     }
 
@@ -144,5 +168,6 @@ public class AwePickAnythingAnimation extends AweModelPickerAnimation {
 }
 
 {
-    new AwePickAnythingAnimation().animate();
+    var picker = new AwePickAnythingAnimation();
+    picker.animate();
 }
