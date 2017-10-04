@@ -83,3 +83,7 @@ public rect rect(line2D l, double depth) {
 public line2D getLineFromPolar(point2D p, angle direction, double length) {
     return line2D(p, p.polar(direction, length));
 }
+
+public bool inline(line2D a, line2D b) {
+    return a.isParallell(b) and a.distanceUnbounded(b.p0) == 0;
+}
