@@ -39,6 +39,7 @@ package custom.awesome;
 public class AweModelPickerAnimation extends AweAnimation : abstract {
 
     public AweObject mainSelection;
+    public AweObject{} allSelected;
 
     public constructor() {
         this.configurator = new AweModelPickerAnimationConfigurator();
@@ -64,6 +65,34 @@ public class AweModelPickerAnimation extends AweAnimation : abstract {
         }
         return false;
     }
+
+    /************ action **************/
+
+    public void move(AnimationMouseInfo mi) {
+        AweObject model;
+        WindowView owner = mi.ownerView;
+        if (owner as View3D) {
+            PickIntersection3D[] picked = owner.pick(mi.windowViewMouseInfo.pos);
+            for (p in picked) {
+                if (p.owner.AweBindingSnapperPickSurface) {
+                    model = p.owner.AweBindingSnapperPickSurface.configurator;
+                    break;
+                }
+                else if (p.owner.AweSnapper) {
+                    model = p.owner.AweSnapper.mainModel;
+                    break;
+                }
+            }
+        }
+        this.mainSelection = model;
+        
+    }
+
+    extend public AweObject{} selectGroup(AweObject mainSelection) {
+        //TODO
+        return null;
+    }
+
 }
 
 public aweObject AweModelPickerAnimationConfigurator {
