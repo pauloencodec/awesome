@@ -36,17 +36,7 @@
 
 package custom.awesome.stretch;
 
-public class AweStretcherConnector extends AweConnectPoint {
-    public AweStretcher stretcher;
-    public point visiblePosOffset;
-
-    public constructor(Snapper snapper, AweStretcher stretcher, point visiblePosOffset=point()) {
-        super(snapper);
-
-        this.stretcher = stretcher;
-        this.visiblePosOffset = visiblePosOffset;
-    }
-
+public class AweStretchableConnector extends AweConnectPoint {
     public bool isEnabled() { return true; }
     public bool connectable() { return false; }
     public bool isConnected() { return false; }
@@ -56,4 +46,16 @@ public class AweStretcherConnector extends AweConnectPoint {
     public Connector connection() { return null; }
     public Connector{} connections() { return null; }
     public bool isConnectedTo(Connector c) { return false; }
+}
+
+public class AweStretcherConnector extends AweStretchableConnector {
+    public AweStretcher stretcher;
+    public point visiblePosOffset;
+
+    public constructor(Snapper snapper, AweStretcher stretcher, point visiblePosOffset=point()) {
+        super(snapper);
+
+        this.stretcher = stretcher;
+        this.visiblePosOffset = visiblePosOffset;
+    }
 }
