@@ -291,6 +291,8 @@ public class AweSnapper extends TaggableSnapper {
         invalidate();
         this.space.invalidateSelection();
 
+        if (updateConnectors) this.space.?updateSelectionConnectors();
+
         for(m in this.allModels()) {
             m.updateLimbDefaults();
         }
@@ -660,7 +662,7 @@ public class AweSnapper extends TaggableSnapper {
      * Stretch
      ***********************************************************************/
 
-    public bool stretchable(Connector s) { return s in AweStretcherConnector; }
+    public bool stretchable(Connector s) { return s in AweStretchableConnector; }
     
     public bool stretch(Connector s, point p, AnimationMouseInfo mi) {
         if (s as AweStretcherConnector) {
@@ -682,7 +684,7 @@ public class AweSnapper extends TaggableSnapper {
     public void endStretch(Connector s) {
         super(..);
 
-        if (s as AweStretcherConnector) {
+        if (s as AweStretchableConnector) {
             this.invalidate3D();
             this.invalidate2D();
         }
