@@ -94,13 +94,22 @@ public class AweModelPickerAnimation extends AwePointsAnimation : abstract {
         if(newModel != this.mainSelection) {
             if(this.pick(newModel)) {
                 this.mainSelection = newModel;
+                init this.allSelected();
+                this.allSelected = this.selectGroup(this.mainSelection);
             }
         }
     }
 
     extend public AweObject{} selectGroup(AweObject mainSelection) {
-        //TODO
-        return null;
+        AweObject{} group();
+        var connected = mainSelection.?mainSnapper().AweSnapper.?groupModels();
+        for(c in connected) {
+            if(this.groupPick(c)) {
+                group << c;
+            }
+        }
+        group << mainSelection;
+        return group;
     }
 
     /************** 3d ******************/
@@ -109,12 +118,16 @@ public class AweModelPickerAnimation extends AwePointsAnimation : abstract {
     }
    
     public Primitive3D get3D(FetchEnv3D env) {
-        if(AweProduct product = this.mainSelection.?getProduct()) {
-            var prim = Box3D(product.bound().grown(0.001));
-            prim.setMaterial(plainYellowMaterial3D());
-            return prim;
+        Awe3D prims();
+        for(m in allSelected) {
+            if(AweProduct product = m.?getProduct()) {
+                var prim = Box3D(product.bound().grown(0.001));
+                prim.setMaterial(plainYellowMaterial3D());
+                prims << prim;
+            }
+
         }
-        return null;
+        return prims;
     }
 
 }
