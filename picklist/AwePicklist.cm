@@ -48,6 +48,8 @@ public class AwePicklist extends Picklist : abstract {
     }
 
     extend public str name() : abstract {}
+    extend public AweSifCatalogCollection sifRepository() : abstract {}
+    extend public AweMaterialFactory materialFactory() : abstract {}
     
     extend public PicklistEnv picklistEnv() {
         return new AwePicklistEnv(this);
@@ -57,12 +59,20 @@ public class AwePicklist extends Picklist : abstract {
         return null;
     }
 
+    extend public str[] getCatalogs() {
+        return null;
+    }
+
     public void drawGraphs(LayerBuffer lb, View v, GeometricFinder finder=null) {
         super(..);
 
         var bound = this.localBound();
 
         new GText(bound.rect.midTop(), this.name, down, textColor=this.borderColor).draw(lb);
+    }
+
+    public double calculateWidth() {
+        return 1.625;
     }
 
     public color borderColor() {

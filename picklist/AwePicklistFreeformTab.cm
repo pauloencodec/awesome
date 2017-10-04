@@ -67,18 +67,22 @@ public class AwePicklistFreeformTab extends Card {
 
     extend public void build() {
         var catalogLabel = this.createLabel("Catalog", 100, pos=(12, 12));
-        var partNumberLabel = this.createLabel("Part Number", 150, rightOf=catalogLabel);
-        var descriptionLabel = this.createLabel("Description", 225, rightOf=partNumberLabel);
+        var partNumberLabel = this.createLabel("Part Number", 225, rightOf=catalogLabel);
+        var descriptionLabel = this.createLabel("Description", 275, rightOf=partNumberLabel);
         var priceLabel = this.createLabel("Price", 50, rightOf=descriptionLabel);
         var quantityLabel = this.createLabel("Quantity", 50, rightOf=priceLabel);
         
         this.catalogTextField = this.createTextField(100, below=catalogLabel);
-        this.partNumberTextField = this.createTextField(150, rightOf=catalogTextField);
-        this.descriptionTextField = this.createTextField(225, rightOf=partNumberTextField);
+        this.partNumberTextField = this.createTextField(225, rightOf=catalogTextField);
+        this.descriptionTextField = this.createTextField(275, rightOf=partNumberTextField);
         this.priceTextField = this.createDoubleField(50, 1, rightOf=descriptionTextField);
         this.quantityTextField = this.createDoubleField(50, rightOf=priceTextField);
         
-        this.createButton("Add", image=icon("plus"), callback=function addSpecialCB, rightOf=quantityTextField);
+        var addButton = this.createButton("Add", image=icon("plus"), callback=function addSpecialCB, rightOf=quantityTextField);
+
+        addButton.x += 5;
+        addButton.y -= 5;
+
         this.createButton("Import SIF File", image=icon("open"), callback=function importSifFileCallback, below=catalogTextField);
                  
         this.autoSize();

@@ -40,6 +40,8 @@ public class AweScheme {
     public AweSchemeItem[] items();
     public str key;
     public str label;
+    public bool allowDisable;
+
     public str[] keys();
     public str->str tabLabels();
     public str->AweObject models();
@@ -48,15 +50,15 @@ public class AweScheme {
         return this.models.count() > 1;
     }
 
-    public constructor(str key, str label) {
+    public constructor(str key, str label, bool allowDisable=true) {
         this.key = key;
         this.label = label;
+        this.allowDisable = allowDisable;
     }
 
-    public constructor(AweObject model, str label) {
-        this.key = model.class.toS();
-        this.label = label;
-
+    public constructor(AweObject model, str label, bool allowDisable=true) {
+        this(model.class.toS(), label, allowDisable);
+        
         this.add(label, model);
     }
 
@@ -114,18 +116,33 @@ public class AweScheme {
 
     extend private bool isVisible(AweObject model, str key) {
         var field = model.class.field(key # "Visible");
-        var value = model.get(field);
 
-        if (value as bool) {
-            return value and model.getDomain(key) != null;
+        if (field) {
+            var value = model.get(field);
+    
+            if (value as bool) {
+                return value and model.getDomain(key) != null;
+            }
         }
 
         return true;
     }
 
     extend public void register() {
-        AweSchemeEditor schemeEditor(this);
+        var schemeEditor = this.createEditor();
+    
+        if (!schemeManager) {
+            initSchemeManager();
+        }
+      
+        if (schemeManager) {
+            schemeManager.registerEditor(schemeEditor);
+        }
+    }
 
+    extend public AweSchemeEditor createEditor() {
+        AweSchemeEditor schemeEditor(this);
+        
         for (key in this.keys) {
             var model = this.models.get(key);
 
@@ -142,22 +159,16 @@ public class AweScheme {
                     var propKey = this.getKey(key, item.key);
 
                     if (this.tabbed) {
-                        schemeEditor.appendWithPropertyTab(propKey, item.label, item.domain, propertyTab=key, initValue=value);
+                        schemeEditor.appendWithPropertyTab(propKey, item.label, item.domain, propertyTab=key, initValue=value, allowDisable=this.allowDisable);
                     }
                     else {
-                        schemeEditor.append(propKey, item.label, item.domain, initValue=value);
+                        schemeEditor.append(propKey, item.label, item.domain, initValue=value, allowDisable=this.allowDisable);
                     }
                 }
             }
         }
-    
-        if (!schemeManager) {
-            initSchemeManager();
-        }
-      
-        if (schemeManager) {
-            schemeManager.registerEditor(schemeEditor);
-        }
+
+        return schemeEditor;
     }
 
     extend public AweObject[] convert(OfficeGroupScheme gs) {
