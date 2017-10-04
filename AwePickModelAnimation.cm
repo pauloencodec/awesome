@@ -67,7 +67,7 @@ public class AweModelPickerAnimation extends AwePointsAnimation : abstract {
     }
 
     extend public void clicked(AweObject main, AweObject{} all) {
-        
+
     }
 
     /************ action **************/
@@ -76,6 +76,13 @@ public class AweModelPickerAnimation extends AwePointsAnimation : abstract {
         if(this.mainSelection) {
             this.clicked(this.mainSelection, this.allSelected);
         }
+        this.resetSelection();
+        space.invalidate(this);
+        super(..);
+    }
+
+    public void increaseState() {
+        //don't
     }
 
     public void move(AnimationMouseInfo mi) {
@@ -101,13 +108,20 @@ public class AweModelPickerAnimation extends AwePointsAnimation : abstract {
     }
 
     extend public void tryPick(AweObject newModel) {
-        if(newModel != this.mainSelection) {
+        if(!newModel) {
+            this.resetSelection();
+        } else if(newModel != this.mainSelection) {
             if(this.pick(newModel)) {
                 this.mainSelection = newModel;
                 init this.allSelected();
                 this.allSelected = this.selectGroup(this.mainSelection);
             }
         }
+    }
+
+    extend public void resetSelection() {
+        this.mainSelection = null;
+        this.allSelected = null;
     }
 
     extend public AweObject{} selectGroup(AweObject mainSelection) {
@@ -131,8 +145,11 @@ public class AweModelPickerAnimation extends AwePointsAnimation : abstract {
         Awe3D prims();
         for(m in allSelected) {
             if(AweProduct product = m.?getProduct()) {
-                var prim = Box3D(product.bound().grown(0.001));
+                Primitive3D prim = Box3D(product.localBound().grown(0.001));
                 prim.setMaterial(plainYellowMaterial3D());
+                if(Snapper s = product._model.?mainSnapper) {
+                    prim = s.toSpace(prim);
+                }
                 prims << prim;
             }
 
