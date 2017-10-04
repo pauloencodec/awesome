@@ -36,7 +36,7 @@
 
 package custom.awesome;
 
-public class AweAnimation extends ObsoleteStateMouseAnimation {
+public class AweAnimation extends SpaceAnimation {
     
     public AweObject configurator;
     public ViewMode viewMode;
