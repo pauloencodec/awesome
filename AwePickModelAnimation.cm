@@ -1,0 +1,119 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome;
+
+public class AweModelPickerAnimation extends AweAnimation : abstract {
+
+    public AweObject mainSelection;
+
+    public constructor() {
+        this.configurator = new AweModelPickerAnimationConfigurator();
+        var pickModes = this.pickModes();
+        if(pickModes and !pickModes.empty) {
+            this.configurator.AweModelPickerAnimationConfigurator.pickModeDomain = new ObjectSubSet(pickModes.:Object[]);
+            this.configurator.AweModelPickerAnimationConfigurator.pickMode = pickModes.first();
+        }
+    }   
+
+    /************* protocol ***************/
+    extend public bool pick(AweObject model) : abstract { }
+
+    extend public AweModelGroupPicker[] pickModes() {
+        return [AweModelGroupPicker: new AweSingleModelGroupPicker(), new AweSameClassModelGroupPicker()];
+    }
+
+    extend public bool groupPick(AweObject model) {
+        if(configurator as AweModelPickerAnimationConfigurator) {
+            if(configurator.pickMode) {
+                return configurator.pickMode.pick(model, this.mainSelection);
+            }
+        }
+        return false;
+    }
+}
+
+public aweObject AweModelPickerAnimationConfigurator {
+    props(
+        AweModelGroupPicker pickMode = null
+    );
+
+    public aweObjectDomain(
+        AweModelGroupPicker pickMode = null
+    );
+}
+
+public class AweModelGroupPicker : abstract {
+    public constructor() { }
+    extend public str name() : abstract { } 
+    extend public bool pick(AweObject model, AweObject mainSelection) : abstract { }
+
+    public str toS() {
+        return this.name();
+    }
+}
+
+public class AweSingleModelGroupPicker extends AweModelGroupPicker {
+    public bool pick(AweObject model, AweObject mainSelection) {
+        return false;
+    }
+
+    public str name() {
+        return "Single";
+    }
+}
+
+
+public class AweSameClassModelGroupPicker extends AweModelGroupPicker {
+    public bool pick(AweObject model, AweObject mainSelection) {
+        return model.class == mainSelection.class;
+    }
+
+    public str name() {
+        return "Same Kind";
+    }
+}
+
+/*************** testing ******************/
+public class AwePickAnythingAnimation extends AweModelPickerAnimation {
+    public bool pick(AweObject model) {
+        return true;
+    }
+}
+
+{
+    new AwePickAnythingAnimation().animate();
+}
