@@ -632,6 +632,11 @@ public class AweSnapper extends Snapper {
      * Stretch
      ***********************************************************************/
 
+    public void updateConnectors() {
+        this.space.?updateSelectionConnectors();
+        super(..);
+    }
+
     public bool stretchable(Connector s) { return s in AweStretcherConnector; }
     
     public bool stretch(Connector s, point p, AnimationMouseInfo mi) {
@@ -650,7 +655,6 @@ public class AweSnapper extends Snapper {
             else if (isControlKeyDown()) {
                 propagation = AweStretcherPropagationType.allConnected;
             }
-
             return s.stretcher.update(s, p, propagation);
         }
 

@@ -60,4 +60,29 @@ public class AweStretcherConnector extends AweConnectPoint {
     public Animation standardStretchAnimation() {
         return new AweStretcherAnimation(this.stretchAnimationEnv());
     }
+
+    extend public point anchor() {
+        return this.stretcher.?getAnchor(this);
+    }
+
+    extend public bool pointInDomain(point p) {
+        var newLength = p.distance(this.anchor());
+        return newLength in this.stretcher.?domain();
+    }
+
+    //takes in stretch plane, return the point in local coordinates if the plane works for this domain. null instead.
+    extend public Point viablePoint(plane pl) {
+        var projection = pl.project(this.spacePos());
+        if(!this.isAimingAt(projection)) return null;
+        if(this.pointInDomain(projection)) {
+            return this.snapper.toSnapper(projection);
+        }
+        return null;
+    }
+
+    extend private bool isAimingAt(point p) {
+        var d = this.spacePos().distance(p);
+        var inFrontPoint = this.spacePos() + point(this.spaceRot(), d);
+        return inFrontPoint == p;
+    }
 }

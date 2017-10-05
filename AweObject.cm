@@ -108,20 +108,35 @@ public class AweObject {
         return null;
     }
 
-    public str->AweStretcher _stretchers : copy=null;
-
-    extend public AweStretcher[] getStretchers() {
-        var bound = this.mainSnapper.localBound();
-
-        AweStretcher[] result();
-
-        result <<? this.createStretcher("width", bound.upCenterlineX);
-        result <<? this.createStretcher("depth", bound.upCenterlineY);
-        result <<? this.createStretcher("height", bound.verticalCenterline, enableA=false, visiblePosOffsetB=(0, 0, snapShapeSize));
-        result <<? this.createStretcher("elevation", bound.verticalCenterline, enableA=false, visiblePosOffsetB=(0, 0, snapShapeSize));
-
-        return result;
+    public AweStretcher{} _stretchers : copy=null, stream=null;
+    extend public AweStretcher{} getStretchers() {
+        if(!this._stretchers) {
+            this._stretchers = this.createStretchers();
+        }
+        AweStretcher{} active();
+        for(s in this._stretchers) {
+            if(this.hasDomainOptions(s.propKey)) {
+                active << s;
+            }
+        }
+        return active;
     }
+
+    extend private bool hasDomainOptions(str propKey) {
+        var domain = this.getDomain(propKey);
+        return domain and domain.count > 1;
+    }
+    
+    extend public AweStretcher{} createStretchers() {
+        //default stretchers for everyone.
+        return {AweStretcher:
+            new AweHeightStretcher(this),
+            new AweWidthStretcher(this),
+            new AweDepthStretcher(this),
+            new AweElevationStretcher(this)
+        };
+    }
+
 
     /************** prop awereness ***********************/
     extend private void makePropModelAware(str propName, Object value) {

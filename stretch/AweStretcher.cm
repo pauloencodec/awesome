@@ -36,8 +36,12 @@
 
 package custom.awesome.stretch;
 
-public class AweStretcher {
-    public line line;
+public class AweStretcher : abstract {
+    
+    /************ protocol ****************/
+    extend public line line() : abstract { }
+    extend public bool shouldFollow(AweStretcherEnv leader, AweStretcherEnv me) : abstract { }
+
     public AweObject model;
     public str propKey;
 
@@ -47,8 +51,7 @@ public class AweStretcher {
     private bool enableA;
     private bool enableB;
 
-    public constructor(line line, AweObject model, str propKey, bool enableA=true, bool enableB=true, point visiblePosOffsetA=point(), point visiblePosOffsetB=point()) {
-        this.line = line;
+    public constructor(AweObject model, str propKey, bool enableA=true, bool enableB=true, point visiblePosOffsetA=point(), point visiblePosOffsetB=point()) {
         this.model = model;
         this.propKey = propKey;
 
@@ -58,6 +61,9 @@ public class AweStretcher {
         this.enableA = enableA;
         this.enableB = enableB;
     }   
+
+    
+
 
     extend public SubSet domain() {
         return this.model.getDomain(this.propKey);
@@ -125,7 +131,7 @@ public class AweStretcher {
         return domain.closest(length).safeDouble();
     }
 
-    extend private point getAnchor(AweStretcherConnector connector) {
+    extend public point getAnchor(AweStretcherConnector connector) {
         if (connector == this.stretcherA) {
             return this.stretcherB.spacePos();
         }
@@ -161,13 +167,6 @@ public class AweStretcher {
             var newValue = this.lenghInDomain(spaceLine.length);
 
             if (currentValue != newValue) {
-                if (propagation != AweStretcherPropagationType.none) {
-                    for (c in this.alignedStretcherConnectors(s, propagation)) {
-                        point pos = c.stretcher.line.normalIntersectUnbounded(c.snapper.toSnapper(spacePos)).ip;
-                        
-                        c.stretcher.?update(c, pos, propagation=AweStretcherPropagationType.none);
-                    }
-                }
 
                 this.model.set(this.propKey, newValue);
                 this.model.invalidate();
@@ -176,23 +175,70 @@ public class AweStretcher {
                 var after = this.getAnchor(s);
                 
                 this.snapper.move(anchor - after);
-                this.snapper.snapAllAligned();
                 this.snapper.space.invalidate(this.snapper);
-                this.snapper.snapAllAligned();
+                this.snapper.updateConnectors();
+                
 
                 changed  = true;
 
                 if (animation as AweStretcherAnimation) {
                     animation.updateProperties();
                 }
+                
+            }
+
+        }
+        if(changed) {
+            this.propagate(s.AweStretcherConnector, propagation);
+        }
+        return changed;
+    }
+
+    extend public void propagate(AweStretcherConnector leader, AweStretcherPropagationType propagation) {
+        if (propagation == AweStretcherPropagationType.none) return;
+        var group = this.propagateToSnappers(propagation);
+        plane stretchPlane = new plane(leader.spaceRot().direction, leader.spacePos());
+
+        if (group and group.any()) {
+            for (snapper in group) {
+                for (AweStretcherConnector c in snapper.connectors()) if (c != leader) {
+                    if (Point followerNewPosition = c.viablePoint(stretchPlane)) {
+                        AweStretcherEnv leaderEnv(leader);
+                        AweStretcherEnv followerEnv(c, followerNewPosition);
+
+                        AweStretcher followerStretcher = followerEnv.stretcher;
+
+                        if(followerStretcher.?shouldFollow(leaderEnv, followerEnv)) {
+                            followerStretcher.update(c, followerNewPosition.v, AweStretcherPropagationType.none);
+                            followerStretcher.model.invalidate();
+                        }
+                    }
+                }
             }
         }
-
-        return changed;
     }
 
     extend public bool isVertical() {
         return this.line.p0.z != this.line.p1.z;
+    }
+
+    /**************** 3d ************/
+    extend private point[] stretchDomainPoints() {
+        point[] points();
+
+        var currentLength = this.model.props.get(this.propKey).safeDouble();
+        for(connector in this.connectors()) {
+            for(distance length in this.domain().members) {
+                if(length > currentLength) {
+                    var difference = length - currentLength;
+                    var increment = point(connector.rot(), difference);
+                    points << increment + connector.pos();
+                }
+            }
+        }
+
+
+        return points;
     }
 
     extend private Primitive3D getText3D() {
@@ -267,7 +313,15 @@ public class AweStretcher {
             result << backArrow << backText;
         }
 
+        for(p in this.stretchDomainPoints()) {
+            var ball = new Sphere3D(p, 1inch);
+            ball.setMaterial(plainBlueMaterial3D());
+            result << ball;
+        }
+
         result.setMaterial(this.getDimensionMaterial());
+
+        
 
         return result;
     }
@@ -338,28 +392,3 @@ public class AweStretcher {
     }
 }
 
-public AweStretcher createStretcher(AweObject model, str propKey, line line, bool enableA=true, bool enableB=true, point visiblePosOffsetA=point(), point visiblePosOffsetB=point()) {
-    if (propKey in model.props) {
-        var domain = model.getDomain(propKey);
-
-        if (!domain or domain.count <= 1) return null;
-
-        if (!model._stretchers) {
-            init model._stretchers();
-        }
-        
-        var stretcher = model._stretchers.get(propKey);
-
-        if (!stretcher) {
-            stretcher = new AweStretcher(line, model, propKey, enableA, enableB, visiblePosOffsetA, visiblePosOffsetB);
-
-            model._stretchers.put(propKey, stretcher);
-        }
-
-        stretcher.line = line;
-
-        return stretcher;
-    }
-
-    return null;
-}
