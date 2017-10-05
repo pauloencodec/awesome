@@ -61,6 +61,12 @@ public class AwePicklistPartNumberGridCell extends AwePicklistInputGridCell {
         if (data != item.partNo) {
             item.partNo = data;
 
+            if (?AwePicklistDialog dialog = getPicklistDialog()) {
+                if (AweSifCatalog catalog = dialog.getCatalog(item)) {
+                    item.sifSku = catalog.parseSku(item.partNo);
+                }
+            }
+
             return true;
         }
 
