@@ -80,19 +80,17 @@ public class AweStretcher {
         return null;
     }
 
-    extend public AweStretcherConnector{} alignedStretcherConnectors(Connector reference, AweStretcherPropagationType propagation) {
+    extend public AweStretcherConnector{} alignedStretcherConnectors(Connector ref, AweStretcherPropagationType propagation) {
         AweStretcherConnector{} aligned();
         var group = this.propagateToSnappers(propagation);
 
         if (group and group.any()) {
             var spaceLine = this.snapper().toSpace(this.line);
 
-            for(snapper in group) {
-                for(c in snapper.connectors()) {
-                    if(c as AweStretcherConnector) {
-                        if(c != reference and c.spaceRot() == reference.spaceRot() and spaceLine.normalIntersectUnbounded(c.spacePos()).ip == reference.spacePos()) {
-                            aligned << c;
-                        }
+            for (snapper in group) {
+                for (AweStretcherConnector c in snapper.connectors()) if (c != ref) {
+                    if (c.spaceRot() == ref.spaceRot() and spaceLine.normalIntersectUnbounded(c.spacePos()).ip == ref.spacePos()) {
+                        aligned << c;
                     }
                 }
             }
