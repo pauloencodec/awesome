@@ -117,7 +117,7 @@ public class AweSnapper extends Snapper {
     extend public symbol{} allCategories() {
         symbol{} categories();
 
-        categories += this.mainModel.getCategories().set;
+        categories +=? this.mainModel.?getCategories().?set;
 
         // Explicitly add categories parents as well, since Configura won't show symbols that don't
         // expose the parent category when only the parent is set to be visible
