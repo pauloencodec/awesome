@@ -114,6 +114,20 @@ public class AweSnapper extends Snapper {
         }
     }
 
+    extend public symbol{} allCategories() {
+        symbol{} categories();
+
+        categories +=? this.mainModel.?getCategories().?set;
+
+        return categories;        
+    }
+
+    public void addSystemCategoriesTo(symbol{} categories) {
+        super(categories);
+        
+        categories += this.allCategories();
+    }
+
     /************** connections ***************/
 
 
