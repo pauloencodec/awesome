@@ -180,7 +180,11 @@ public class AweStretcher {
                 this.snapper.space.invalidate(this.snapper);
                 this.snapper.snapAllAligned();
 
-                changed  = true;   
+                changed  = true;
+
+                if (animation as AweStretcherAnimation) {
+                    animation.updateProperties();
+                }
             }
         }
 

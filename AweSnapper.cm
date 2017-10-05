@@ -636,6 +636,12 @@ public class AweSnapper extends Snapper {
     
     public bool stretch(Connector s, point p, AnimationMouseInfo mi) {
         if (s as AweStretcherConnector) {
+            if (animation as AweStretcherAnimation) {
+                if (animation.animationProperties.locked(s.stretcher.propKey)) {
+                    return super(..);
+                }
+            }
+
             var propagation = AweStretcherPropagationType.none;
 
             if (isShiftKeyDown()) {

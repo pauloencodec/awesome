@@ -104,6 +104,10 @@ public class AweObject {
         return null;
     }
 
+    extend public str getLabel(str propName) {
+        return null;
+    }
+
     public str->AweStretcher _stretchers : copy=null;
 
     extend public AweStretcher[] getStretchers() {
@@ -771,6 +775,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
 
     SStatements applyFrom();
     SStatements getDomain();
+    SStatements getLabel();
     
     for (i in 0..(domains.count-1)) {
         SFormalArg arg = domains[i];
@@ -899,6 +904,12 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                 return @domainName;
             }
         };
+
+        getLabel << statement {
+            if (propName == @propNameStr) {
+                return @labelName ?? @propNameStr;
+            }
+        };
     }
 
     return member {
@@ -935,6 +946,12 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
 
         @visibility SubSet getDomain(str propName) {
             @getDomain;
+
+            return super(..);
+        }
+
+        @visibility str getLabel(str propName) {
+            @getLabel;
 
             return super(..);
         }

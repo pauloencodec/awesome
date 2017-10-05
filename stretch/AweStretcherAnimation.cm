@@ -36,28 +36,41 @@
 
 package custom.awesome.stretch;
 
-public class AweStretcherConnector extends AweConnectPoint {
-    public AweStretcher stretcher;
-    public point visiblePosOffset;
+public class AweStretcherAnimation extends LineStretchAnimation {
+    public void buildProperties() {
+        this.destroyAnimationProperties();
+        this.createAnimationProperties();
 
-    public constructor(Snapper snapper, AweStretcher stretcher, point visiblePosOffset=point()) {
-        super(snapper);
+        var key = this.stretcher.propKey;
+        var domain = this.stretcher.domain;
 
-        this.stretcher = stretcher;
-        this.visiblePosOffset = visiblePosOffset;
+        if (domain.count <= 9) {
+            this.animationProperties.append3(key, this.stretcher.model.getLabel(key), this.stretcher.model.get(key).distance, domain);
+        }
+        else {
+            this.animationProperties.append2(key, this.stretcher.model.getLabel(key), this.stretcher.model.get(key).distance, domain);
+        }
+
+        this.animationProperties.finalize();
     }
 
-    public bool isEnabled() { return true; }
-    public bool connectable() { return false; }
-    public bool isConnected() { return false; }
-    public bool connect(Connector c, bool oneway=false) { return false; }
-    public bool disconnect(Connector c, bool oneway=false) { return false; }
-    public bool multipleConnects() { return false; }
-    public Connector connection() { return null; }
-    public Connector{} connections() { return null; }
-    public bool isConnectedTo(Connector c) { return false; }
+    extend public void updateProperties() {
+        var key = this.stretcher.propKey;
 
-    public Animation standardStretchAnimation() {
-        return new AweStretcherAnimation(this.stretchAnimationEnv());
+        this.animationProperties.setDistance(key, this.stretcher.model.get(key).distance);
+    }
+
+    public void propertyChange(str key, Object value) {
+        var newValue = value.safeDouble();
+        var oldValue = this.stretcher.model.get(key).safeDouble();
+
+        var diff = newValue - oldValue;
+        var newPos = this.snap.pos() + point(this.snap.rot(), diff);
+
+        this.stretcher.update(this.snap, newPos, AweStretcherPropagationType.none);
+    }
+
+    extend public AweStretcher stretcher() {
+        return this.snap.AweStretcherConnector.stretcher;
     }
 }

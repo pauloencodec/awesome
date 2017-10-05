@@ -95,23 +95,11 @@ public class AweScheme {
             item.key = key;
             item.initialValue = value;
             item.domain = domain;
-            item.label = this.getLabel(model, key);
+            item.label = model.getLabel(key);
             item.model = model;
 
             this.items << item;
         }
-    }
-
-    extend private str getLabel(AweObject model, str key) {
-        var labelFieldName = key # "Label";
-        var labelField = model.class.field(labelFieldName);
-        var labelValue = model.get(labelField);
-
-        if (labelValue as str) {
-            return labelValue;
-        }
-
-        return key;
     }
 
     extend private bool isVisible(AweObject model, str key) {
