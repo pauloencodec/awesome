@@ -117,7 +117,7 @@ public class AweSnapper extends Snapper {
     extend public symbol{} allCategories() {
         symbol{} categories();
 
-        categories += this.mainModel.getCategories().set;
+        categories +=? this.mainModel.?getCategories().?set;
 
         return categories;        
     }
