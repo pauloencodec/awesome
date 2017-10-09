@@ -62,9 +62,6 @@ public class AweStretcher : abstract {
         this.enableB = enableB;
     }   
 
-    
-
-
     extend public SubSet domain() {
         return this.model.getDomain(this.propKey);
     }
@@ -143,15 +140,6 @@ public class AweStretcher : abstract {
         return point();
     }
 
-    extend private void updateStretchLine(AweStretcherConnector connector, line& spaceLine, point spacePos) {
-        if (connector == this.stretcherA) {
-            spaceLine.p0 += spacePos - spaceLine.p0;
-        }
-        else if (connector == this.stretcherB) {
-            spaceLine.p1 += spacePos - spaceLine.p1;
-        }
-    }
-
     extend public bool update(Connector s, point p, AweStretcherPropagationType propagation) {
         bool changed = false;
 
@@ -170,6 +158,7 @@ public class AweStretcher : abstract {
                 this.snapper.move(anchor - after);
                 changed  = true;
                 if (animation as AweStretcherAnimation) {
+                    animation.space.invalidate(animation);
                     animation.updateProperties();
                 }
             }
@@ -214,24 +203,6 @@ public class AweStretcher : abstract {
     }
 
     /**************** 3d ************/
-    extend private point[] stretchDomainPoints() {
-        point[] points();
-
-        var currentLength = this.model.props.get(this.propKey).safeDouble();
-        for(connector in this.connectors()) {
-            for(distance length in this.domain().members) {
-                if(length > currentLength) {
-                    var difference = length - currentLength;
-                    var increment = point(connector.rot(), difference);
-                    points << increment + connector.pos();
-                }
-            }
-        }
-
-
-        return points;
-    }
-
     extend private Primitive3D getText3D() {
         var dimension = this.model.props.get(this.propKey).safeDouble();
 
@@ -278,44 +249,30 @@ public class AweStretcher : abstract {
 
     extend public Primitive3D get3D(FetchEnv3D env) {
         Awe3D result();
+        var text = this.getText3D();
+        result << text;
 
-        
+        var arrowLength = this.line.length / 2 - text.localBound().w / 2;
+        var arrow = this.getArrow3D(arrowLength);
+        result << arrow;
 
-        // var text = this.getText3D();
+        if (this.isVertical()) {
+            var backArrow = arrow.copy();
+            var backText = text.copy();
 
-        // result << text;
-
-        // var arrowLength = this.line.length / 2 - text.localBound().w / 2;
-        // var arrow = this.getArrow3D(arrowLength);
-
-        // result << arrow;
-
-        // if (this.isVertical()) {
-        //     var backArrow = arrow.copy();
-        //     var backText = text.copy();
-
-        //     var y = this.snapper.localBound.p0.y;
-        //     var offset = 3inch;
+            var y = this.snapper.localBound.p0.y;
+            var offset = 3inch;
             
-        //     arrow.move((0, y - offset, 0));
-        //     backArrow.move((0, y + offset, 0));
+            arrow.move((0, y - offset, 0));
+            backArrow.move((0, y + offset, 0));
 
-        //     text.move((0, y - offset, 0));
-        //     backText.move((0, y + offset, 0));
+            text.move((0, y - offset, 0));
+            backText.move((0, y + offset, 0));
 
-        //     result << backArrow << backText;
-        // }
+            result << backArrow << backText;
+        }
 
-        // for(p in this.stretchDomainPoints()) {
-        //     var ball = new Sphere3D(p, 1inch);
-        //     ball.setMaterial(plainBlueMaterial3D());
-        //     result << ball;
-        // }
-
-        // result.setMaterial(this.getDimensionMaterial());
-
-        
-
+        result.setMaterial(this.getDimensionMaterial());
         return result;
     }
 

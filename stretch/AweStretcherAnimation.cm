@@ -76,5 +76,13 @@ public class AweStretcherAnimation extends LineStretchAnimation {
 
     /************ 3d ****************/
     public bool deny3D() { return false; }
-    public Primitive3D get3D(FetchEnv3D env) { return this.stretcher().?get3D(env); }
+    public Primitive3D get3D(FetchEnv3D env) { 
+        Awe3D prims();
+        var prim = this.stretcher().?get3D(env); 
+        prims << this.toSpace(prim);
+        return prims;
+    }
+    public Primitive3D toSpace(Primitive3D prim) {
+        return this.stretcher().snapper.toSpace(prim);
+    }
 }
