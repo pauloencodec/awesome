@@ -159,6 +159,7 @@ public class AweStretcher : abstract {
                 this.snapper.updateConnectors();
                 var after = this.getAnchor(s);
                 this.snapper.move(anchor - after);
+                this.snapper.realign();
                 changed  = true;
                 if (animation as AweStretcherAnimation) {
                     animation.space.invalidate(animation);
