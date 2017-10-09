@@ -40,7 +40,10 @@ public class AweStretcher : abstract {
     
     /************ protocol ****************/
     extend public line line() : abstract { }
-    extend public bool shouldFollow(AweStretcherEnv leader, AweStretcherEnv me) : abstract { }
+    extend public AweStretcherSpread[] spreads() { return [AweStretcherSpread: new AweStretcherSpreadNone(this), new AweStretcherSpreadAll(this)]; }
+    /**************************************/
+
+    public AweStretcherSpread spread;
 
     public AweObject model;
     public str propKey;
@@ -70,37 +73,8 @@ public class AweStretcher : abstract {
         return this.model.mainSnapper.AweSnapper;
     }
 
-    //Use this to decided who to propagate to. Opportunity to make animation props like the height of Fika panels?
-    extend public Snapper{} propagateToSnappers(AweStretcherPropagationType propagation) {
-        if (propagation == AweStretcherPropagationType.directlyConnected) {
-            return this.snapper.connectedNeighbors();
-        }
-
-        if (propagation == AweStretcherPropagationType.allConnected) {
-            return this.snapper.allConnected();
-        }
-        
-        return null;
-    }
-
-    extend public AweStretcherConnector{} alignedStretcherConnectors(Connector ref, AweStretcherPropagationType propagation) {
-        AweStretcherConnector{} aligned();
-        var group = this.propagateToSnappers(propagation);
-
-        if (group and group.any()) {
-            var spaceLine = this.snapper().toSpace(this.line);
-
-            for (snapper in group) {
-                for (AweStretcherConnector c in snapper.connectors()) if (c != ref) {
-                    if (c.spaceRot() == ref.spaceRot() and spaceLine.normalIntersectUnbounded(c.spacePos()).ip == ref.spacePos()) {
-                        aligned << c;
-                    }
-                }
-            }
-        }
-
-        return aligned;
-    }
+    
+    
 
     extend public Connector{} connectors() {
         this.stretcherA.setPos(this.line.p0);
@@ -140,7 +114,7 @@ public class AweStretcher : abstract {
         return point();
     }
 
-    extend public bool update(Connector s, point p, AweStretcherPropagationType propagation) {
+    extend public bool update(Connector s, point p, bool tryPropagate = true) {
         bool changed = false;
 
         if (s as AweStretcherConnector) {
@@ -168,8 +142,8 @@ public class AweStretcher : abstract {
             }
 
         }
-        if(changed) {
-            this.propagate(s.AweStretcherConnector, propagation);
+        if(changed and tryPropagate) {
+            this.propagate(s.AweStretcherConnector);
         }
         return changed;
     }
@@ -178,9 +152,10 @@ public class AweStretcher : abstract {
         return new plane(connector.spaceRot().direction, connector.spacePos());
     }
 
-    extend public void propagate(AweStretcherConnector leader, AweStretcherPropagationType propagation) {
-        if (propagation == AweStretcherPropagationType.none) return;
-        var group = this.propagateToSnappers(propagation);
+    extend public void propagate(AweStretcherConnector leader) {
+        if(!this.spread) return;
+        var group = this.spread.targetSnappers();
+
         plane stretchPlane = this.connectorPlane(leader);
 
         if (group and group.any()) {
@@ -192,8 +167,8 @@ public class AweStretcher : abstract {
 
                         AweStretcher followerStretcher = followerEnv.stretcher;
 
-                        if(followerStretcher.?shouldFollow(leaderEnv, followerEnv)) {
-                            followerStretcher.update(c, followerNewPosition.v, AweStretcherPropagationType.none);
+                        if(this.spread.spreadTo(followerEnv, leaderEnv)) {
+                            followerStretcher.update(c, followerNewPosition.v, tryPropagate=false);
                             followerStretcher.model.invalidate();
                         }
                     }

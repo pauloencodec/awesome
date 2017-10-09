@@ -46,8 +46,4 @@ public class AweWidthStretcher extends AweStretcher {
         var bound = this.model.getProduct().localBound();
         return bound.upCenterlineX;
     }
-
-    public bool shouldFollow(AweStretcherEnv leader, AweStretcherEnv me) {
-        return false;
-    }  
 }

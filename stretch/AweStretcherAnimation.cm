@@ -41,6 +41,7 @@ public class AweStretcherAnimation extends LineStretchAnimation {
         this.destroyAnimationProperties();
         this.createAnimationProperties();
 
+        /************ length domain *************/
         var key = this.stretcher.propKey;
         var domain = this.stretcher.domain;
 
@@ -50,6 +51,13 @@ public class AweStretcherAnimation extends LineStretchAnimation {
         else {
             this.animationProperties.append2(key, this.stretcher.model.getLabel(key), this.stretcher.model.get(key).distance, domain);
         }
+
+        /************ spread ************/
+        if(!this.stretcher.spread and this.stretcher.spreads and !this.stretcher.spreads.empty) {
+            this.stretcher.spread = this.stretcher.spreads.first();
+        }
+        this.animationProperties.append3("spread", "Spread", this.stretcher.spread, new ObjectSubSet(this.stretcher.spreads().:Object[]), lockable=false);
+
 
         this.animationProperties.finalize();
     }
@@ -61,13 +69,18 @@ public class AweStretcherAnimation extends LineStretchAnimation {
     }
 
     public void propertyChange(str key, Object value) {
-        var newValue = value.safeDouble();
-        var oldValue = this.stretcher.model.get(key).safeDouble();
-
-        var diff = newValue - oldValue;
-        var newPos = this.snap.pos() + point(this.snap.rot(), diff);
-
-        this.stretcher.update(this.snap, newPos, AweStretcherPropagationType.none);
+        if(key == this.stretcher.propKey) {
+            var newValue = value.safeDouble();
+            var oldValue = this.stretcher.model.get(key).safeDouble();
+    
+            var diff = newValue - oldValue;
+            var newPos = this.snap.pos() + point(this.snap.rot(), diff);
+    
+            this.stretcher.update(this.snap, newPos);
+        }
+        else if(key == "spread") {
+            this.stretcher.spread = value.AweStretcherSpread;
+        }
     }
 
     extend public AweStretcher stretcher() {

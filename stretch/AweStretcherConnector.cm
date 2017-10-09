@@ -82,12 +82,6 @@ public class AweStretcherConnector extends AweConnectPoint {
         return null;
     }
 
-    extend private bool isAimingAt(point p, double distance) {
-        var stretch = point(this.spaceRot(), distance);
-        var inFrontPoint = this.spacePos() - stretch;
-        return inFrontPoint == p;
-    }
-
     extend private bool isPerpendicularTo(plane pl) {
         line thisLine(point(), this.spaceRot().direction);
         line planeNomalLine(point(), pl.n);

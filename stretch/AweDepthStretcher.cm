@@ -47,7 +47,4 @@ public class AweDepthStretcher extends AweStretcher {
         return bound.upCenterlineY;
     }
 
-    public bool shouldFollow(AweStretcherEnv leader, AweStretcherEnv me) {
-        return false;
-    }  
 }
