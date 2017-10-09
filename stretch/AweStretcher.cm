@@ -144,9 +144,12 @@ public class AweStretcher : abstract {
         bool changed = false;
 
         if (s as AweStretcherConnector) {
-            var spaceLine = this.snapper.toSpace(this.line());
+            var spaceLine = line(s.spacePos(), s.spacePos() + s.spaceRot().direction);
             var anchor = this.getAnchor(s);
-            var length = anchor.distance(spaceLine.normalIntersectUnbounded(p).ip);
+            var projection = spaceLine.normalIntersectUnbounded(this.snapper.toSpace(p)).ip;
+            animation.space.invalidate(animation);
+
+            var length = anchor.distance(projection);
             var currentValue = this.model.get(this.propKey).safeDouble();
             var newValue = this.lenghInDomain(length);
 
@@ -336,6 +339,8 @@ public class AweStretcher : abstract {
 
         return result;
     }
+
+    public point[] debugPoints();
 
     extend private Material3D getDimensionMaterial() {
         return plainBlueMaterial3D;

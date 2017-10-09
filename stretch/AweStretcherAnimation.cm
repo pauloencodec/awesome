@@ -80,6 +80,13 @@ public class AweStretcherAnimation extends LineStretchAnimation {
         Awe3D prims();
         var prim = this.stretcher().?get3D(env); 
         prims << this.toSpace(prim);
+
+        for(p in this.stretcher.debugPoints) {
+            Sphere3D s(p, 2inch);
+            s.setMaterial(plainRedMaterial3D());
+            prims << s;
+        }
+
         return prims;
     }
     public Primitive3D toSpace(Primitive3D prim) {
