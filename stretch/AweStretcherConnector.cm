@@ -72,9 +72,10 @@ public class AweStretcherConnector extends AweConnectPoint {
 
     //takes in stretch plane, return the point in local coordinates if the plane works for this domain. null instead.
     extend public Point viablePoint(plane pl) {
+        if(!this.isPerpendicularTo(pl)) return null;
+
         var projection = pl.project(this.spacePos());
-        var distance = pl.signedDistance(this.spacePos());
-        if(!this.isAimingAt(projection, distance)) return null;
+        
         if(this.pointInDomain(projection)) {
             return this.snapper.toSnapper(projection);
         }
@@ -85,5 +86,11 @@ public class AweStretcherConnector extends AweConnectPoint {
         var stretch = point(this.spaceRot(), distance);
         var inFrontPoint = this.spacePos() - stretch;
         return inFrontPoint == p;
+    }
+
+    extend private bool isPerpendicularTo(plane pl) {
+        line thisLine(point(), this.spaceRot().direction);
+        line planeNomalLine(point(), pl.n);
+        return thisLine.isParallell(planeNomalLine);
     }
 }
