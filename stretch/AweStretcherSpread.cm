@@ -66,8 +66,8 @@ public class AweStretcherSpreadNone extends AweStretcherSpread {
     }
 }
 
-public class AweStretcherSpreadAll extends AweStretcherSpread {
-    public str name() { return "All"; }
+public class AweStretcherSpreadAnythingAligned extends AweStretcherSpread {
+    public str name() { return "Anything Aligned"; }
     
     public bool spreadTo(AweStretcherEnv target, AweStretcherEnv me) {
         return true;

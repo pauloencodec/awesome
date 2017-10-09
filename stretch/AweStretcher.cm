@@ -40,7 +40,7 @@ public class AweStretcher : abstract {
     
     /************ protocol ****************/
     extend public line line() : abstract { }
-    extend public AweStretcherSpread[] spreads() { return [AweStretcherSpread: new AweStretcherSpreadNone(this), new AweStretcherSpreadAll(this)]; }
+    extend public AweStretcherSpread[] spreads() { return [AweStretcherSpread: new AweStretcherSpreadNone(this), new AweStretcherSpreadAnythingAligned(this)]; }
     /**************************************/
 
     public AweStretcherSpread spread;
