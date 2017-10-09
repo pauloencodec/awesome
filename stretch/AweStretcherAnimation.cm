@@ -92,4 +92,13 @@ public class AweStretcherAnimation extends LineStretchAnimation {
     public Primitive3D toSpace(Primitive3D prim) {
         return this.stretcher().snapper.toSpace(prim);
     }
+
+    /************ 2d **************/
+    public void drawGraphs(LayerBuffer lb) {
+        var g = this.stretcher().get2D();
+        var snapper = this.stretcher().snapper;
+        g.rotate(snapper.rot());
+        g.move(snapper.pos());
+        g.draw(lb);
+    }
 }
