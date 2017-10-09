@@ -156,35 +156,22 @@ public class AweStretcher : abstract {
         bool changed = false;
 
         if (s as AweStretcherConnector) {
-            var spaceLine = this.snapper.toSpace(this.line);
-            var spacePos = this.snapper.toSpace(p);
-
+            var spaceLine = this.snapper.toSpace(this.line());
             var anchor = this.getAnchor(s);
-
-            this.updateStretchLine(s, spaceLine, spacePos);
-            
+            var length = anchor.distance(spaceLine.normalIntersectUnbounded(p).ip);
             var currentValue = this.model.get(this.propKey).safeDouble();
-            var newValue = this.lenghInDomain(spaceLine.length);
+            var newValue = this.lenghInDomain(length);
 
             if (currentValue != newValue) {
-
                 this.model.set(this.propKey, newValue);
                 this.model.invalidate();
                 this.snapper.updateConnectors();
-
                 var after = this.getAnchor(s);
-                
                 this.snapper.move(anchor - after);
-                this.snapper.space.invalidate(this.snapper);
-                this.snapper.updateConnectors();
-                
-
                 changed  = true;
-
                 if (animation as AweStretcherAnimation) {
                     animation.updateProperties();
                 }
-                
             }
 
         }
@@ -194,10 +181,14 @@ public class AweStretcher : abstract {
         return changed;
     }
 
+    extend private plane connectorPlane(AweStretcherConnector connector) {
+        return new plane(connector.spaceRot().direction, connector.spacePos());
+    }
+
     extend public void propagate(AweStretcherConnector leader, AweStretcherPropagationType propagation) {
         if (propagation == AweStretcherPropagationType.none) return;
         var group = this.propagateToSnappers(propagation);
-        plane stretchPlane = new plane(leader.spaceRot().direction, leader.spacePos());
+        plane stretchPlane = this.connectorPlane(leader);
 
         if (group and group.any()) {
             for (snapper in group) {
@@ -288,38 +279,40 @@ public class AweStretcher : abstract {
     extend public Primitive3D get3D(FetchEnv3D env) {
         Awe3D result();
 
-        var text = this.getText3D();
+        
 
-        result << text;
+        // var text = this.getText3D();
 
-        var arrowLength = this.line.length / 2 - text.localBound().w / 2;
-        var arrow = this.getArrow3D(arrowLength);
+        // result << text;
 
-        result << arrow;
+        // var arrowLength = this.line.length / 2 - text.localBound().w / 2;
+        // var arrow = this.getArrow3D(arrowLength);
 
-        if (this.isVertical()) {
-            var backArrow = arrow.copy();
-            var backText = text.copy();
+        // result << arrow;
 
-            var y = this.snapper.localBound.p0.y;
-            var offset = 3inch;
+        // if (this.isVertical()) {
+        //     var backArrow = arrow.copy();
+        //     var backText = text.copy();
+
+        //     var y = this.snapper.localBound.p0.y;
+        //     var offset = 3inch;
             
-            arrow.move((0, y - offset, 0));
-            backArrow.move((0, y + offset, 0));
+        //     arrow.move((0, y - offset, 0));
+        //     backArrow.move((0, y + offset, 0));
 
-            text.move((0, y - offset, 0));
-            backText.move((0, y + offset, 0));
+        //     text.move((0, y - offset, 0));
+        //     backText.move((0, y + offset, 0));
 
-            result << backArrow << backText;
-        }
+        //     result << backArrow << backText;
+        // }
 
-        for(p in this.stretchDomainPoints()) {
-            var ball = new Sphere3D(p, 1inch);
-            ball.setMaterial(plainBlueMaterial3D());
-            result << ball;
-        }
+        // for(p in this.stretchDomainPoints()) {
+        //     var ball = new Sphere3D(p, 1inch);
+        //     ball.setMaterial(plainBlueMaterial3D());
+        //     result << ball;
+        // }
 
-        result.setMaterial(this.getDimensionMaterial());
+        // result.setMaterial(this.getDimensionMaterial());
 
         
 
