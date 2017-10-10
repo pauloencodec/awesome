@@ -653,6 +653,11 @@ public class AweSnapper extends Snapper {
         return super(..);
     }
 
+    public void beginStretch(Connector s) {
+        super(..);
+        this.snapAllAligned();
+    }
+
     public void endStretch(Connector s) {
         super(..);
 
