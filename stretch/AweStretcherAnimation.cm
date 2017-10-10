@@ -45,12 +45,7 @@ public class AweStretcherAnimation extends LineStretchAnimation {
         var key = this.stretcher.propKey;
         var domain = this.stretcher.domain;
 
-        if (domain.count <= 9) {
-            this.animationProperties.append3(key, this.stretcher.model.getLabel(key), this.stretcher.model.get(key).distance, domain);
-        }
-        else {
-            this.animationProperties.append2(key, this.stretcher.model.getLabel(key), this.stretcher.model.get(key).distance, domain);
-        }
+        this.animationProperties.appendSmart(key, this.stretcher.model.getLabel(key), this.stretcher.model.get(key).distance, domain);
 
         /************ spread ************/
         if(!this.stretcher.spread and this.stretcher.spreads and !this.stretcher.spreads.empty) {
