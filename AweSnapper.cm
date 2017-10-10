@@ -245,7 +245,7 @@ public class AweSnapper extends Snapper {
                 if (connections != null) {
                     if (realign.?bool) {
                         for (connection in connections) if(connection) {
-                            alignConnectors(connection, attach, visited=null, invalidate3D=false, removeFromBsp=false, tryRealign=true, forcePropagate=false);
+                            alignConnectors(connection, attach, visited=visited, invalidate3D=false, removeFromBsp=false, tryRealign=true, forcePropagate=false);
                             
                             var snapper = connection.snapper;
                             if(snapper) {
@@ -260,7 +260,7 @@ public class AweSnapper extends Snapper {
                         if (realignConnected.?bool) {
                             var other = attach;
 
-                            alignConnectors(other, connection, visited=null, invalidate3D=false, removeFromBsp=false, tryRealign=true, forcePropagate=false);
+                            alignConnectors(other, connection, visited=visited, invalidate3D=false, removeFromBsp=false, tryRealign=true, forcePropagate=false);
                         }
                     }
                 }
