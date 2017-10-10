@@ -110,6 +110,14 @@ public class AweInsertAnimation extends InsertAnimation {
 
     public SnapInfo activeSnapInfo;
 
+    extend public void snapInfoChanged(SnapInfo newInfo, AnimationMouseInfo mi) {
+        if(newInfo as ConnectSnapInfo) {
+            if(?AweConnectLine l = newInfo.snap) {
+                l.trySnap(newInfo.attach, mi.mouseLine);
+            }
+        }
+    }
+
     public void drawGraphs(LayerBuffer lb) {
         if(this.activeGhost) {
             this.activeGhost.get2D().?draw(lb);
@@ -211,6 +219,10 @@ public class AweInsertAnimation extends InsertAnimation {
             SnapInfo last = currentSpace ? currentSpace.lastSnapped : null;
             //double t1 = microTime;
             SnapInfo info = skipSnapping ? null : selection.trySnap(mi, modifyEnv, filter);
+            
+            if(this.activeSnapInfo != info) {
+                this.snapInfoChanged(info, mi);
+            }
             this.activeSnapInfo = info;
             this.updateActiveGhost(info);
 

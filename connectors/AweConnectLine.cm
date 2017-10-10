@@ -36,6 +36,8 @@
 
 package custom.awesome.connectors;
 
+use cm.subset;
+
 public class AweConnectLine extends ConnectLine {
     public aweDynamicContract {
         aweDynamic bool shouldRealign();
@@ -86,4 +88,48 @@ public class AweConnectLine extends ConnectLine {
 
     /************** model connecting ******************/
     public modelConnecting;
-}
+
+    /************* adjusting size on trySnap ***************/
+    public str autoSizeProp;
+
+    extend public void trySnap(Connector attach, line mouseLine) {
+        if(attach as ConnectLine) {
+            this.resizeToFit(attach, mouseLine);
+        }
+    }
+
+    extend public void resizeToFit(ConnectLine attach, line mouseLine) {
+        var domain = this.model.getDomain(autoSizeProp);
+        if(!domain or domain.empty) return;
+        double[] sizes = this.preferredSizes(..);
+        this.resizeToFit(sizes, domain);
+    }
+
+    extend private double[] preferredSizes(ConnectLine attach, line mouseLine) {
+        //total space available in all aligned connectable lines
+        //for instance an entire row of panels
+        double availableSpace = attach.freeSpace(this, mouseLine);
+        //size of one object (for instance, one panel)
+        double oneLineLength = attach.length;
+        double[] sizes();
+
+        //fullsize, half, third, etc.
+        for(divisor in [1,2,3,4,5,6]) {
+            sizes << availableSpace / divisor;
+        }
+        sizes << oneLineLength;
+        return sizes;
+    }
+
+    extend public void resizeToFit(double[] sizes, SubSet domain) {
+        for(s in sizes) {
+            if(s in domain) {
+                this.model.set(autoSizeProp, s);
+                this.model.invalidate();
+                return;
+            }
+        }
+        
+    }
+
+ }
