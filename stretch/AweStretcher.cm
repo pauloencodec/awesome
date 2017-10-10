@@ -86,11 +86,14 @@ public class AweStretcher : abstract {
     }
 
     extend private bool testChange(double newValue, str lockedProp) {
+        if(!this.model.get(lockedProp)) {
+            return true;
+        }
         var testSubject = this.model.copy();
         var currentValue = testSubject.get(lockedProp);
         testSubject.set(this.propKey, newValue);
         var valueAfter = testSubject.get(lockedProp);
-        return currentValue ? currentValue.equal(valueAfter) : valueAfter == null;
+        return currentValue.equal(valueAfter);
     }
 
     extend public AweSnapper snapper() {
