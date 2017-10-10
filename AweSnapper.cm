@@ -45,7 +45,7 @@ private alias SnapperArray = Snapper{};
 private const str applyToKey = "awe-apply-from";
 private const str helpLinkKey = "awe-help-link";
 
-public class AweSnapper extends Snapper {
+public class AweSnapper extends TaggableSnapper {
     public aweDynamicContract {
         aweDynamic void realign(SnapperArray visited=null);        
         aweDynamic void galleryChanged(AweGallery gallery);
@@ -589,7 +589,21 @@ public class AweSnapper extends Snapper {
         return light3Ds;
     }
 
-    
+    public bool acceptItemTags() {
+        return true;
+    }
+        
+    public ItemTagInfo createItemTagInfo(Part part, str key, str infoKey) {
+        if (part as AwePart and part.tag.?isValid) {
+            return AweItemTagInfo(part.tag, infoKey);
+        }
+
+        return null;
+    }
+
+    public point itemTagPos(ItemTag tag) {
+        return (0,0,0);
+    }
 
     private AweLightModel[] _lightModels;
     extend public AweLightModel[] lightModels() {

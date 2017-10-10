@@ -44,8 +44,9 @@ public class AwePart extends OfficePart {
     public bool isValid;
     private AwePartOption[] options : public readable;
     public AwePartHeader header();
+    public AweTag tag;
 
-    public constructor(str catalog, str sku, double quantity=1) {
+    public constructor(str catalog, str sku, double quantity=1, AweTag tag=null) {
         super();
 
         this.catalog = catalog;
@@ -53,11 +54,13 @@ public class AwePart extends OfficePart {
 
         this.data.setArticleCode(this.basemodel);
         this.data.setQuantity(quantity);
+        this.tag = tag;
     }
 
-    public constructor(Snapper snapper, str catalog, str sku, double quantity=1) {
+    public constructor(Snapper snapper, str catalog, str sku, double quantity=1, AweTag tag=null) {
         this.catalog = catalog;
         this.sku = sku;
+        this.tag = tag;
         
         super(snapper, this.basemodel, this.sku, 0, quantity=quantity);
     }
@@ -66,6 +69,18 @@ public class AwePart extends OfficePart {
         return this.sku.split('.').v0;
     }
 
+    public ItemTag createItemTag() {
+        ItemTagInfo info = itemTagInfo();
+        
+        return ItemTag(owner, info, drawPos=this.tag ? this.tag.getPos : (0, 0, 0), rot=0deg, key=itemTagKey());
+    }
+    
+    public bool acceptItemTags() {
+        if (this.tag) return owner and owner.acceptItemTags();
+
+        return false;
+    }    
+    
     public PartInfoTree[] infoTrees() {
         PartInfoTree[] tree();
 
@@ -101,6 +116,15 @@ public class AwePart extends OfficePart {
 
     extend public bool isValid() {
         return this.isValid;
+    }
+
+    public str itemTagKey() {
+        if (!empty(this.tag.?key)) {
+            return this.tag.key;
+        }
+        else {
+            return super();
+        }
     }
 
     public str flattenableKey() {

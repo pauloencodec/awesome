@@ -74,17 +74,40 @@ public class AweGeometry {
         }
     }
 
-   extend public void addPart(str catalog, str sku, double quantity=1) {
+   extend public void addPart(str catalog, str sku, double quantity=1, AweTag tag=null) {
+        tag = treatTag(tag);
+
         if (quantity < 1) {
-            this.parts << new AwePart(catalog, sku, quantity);
+            this.parts << new AwePart(catalog, sku, quantity, tag);
         }
         else {
             for (i in (1..quantity)) {
-                this.parts << new AwePart(catalog, sku);
+                this.parts << new AwePart(catalog, sku, tag=tag);
             }
         }
     }
 
+    extend private AweTag treatTag(AweTag tag) {
+        if (!tag) return null;
+
+        if (!tag.position) tag.position = this.defaultTagPosition();
+        if (empty(tag.key)) tag.key = this.nextTagKey();
+
+        return tag;
+    }
+
+    extend public point defaultTagPosition() {
+        line l(this.localBound.downSouthwest, this.localBound.downSoutheast);
+
+        return (0, l.midPoint.y - 3inch, 0);
+    }
+
+    extend public str nextTagKey() {
+        int nextNumber = this.parts.?count + 1;
+
+        return "A" # nextNumber;
+    }
+    
     extend public AwePart[] getParts() {
         this.parts.clear();
         this.createParts();
