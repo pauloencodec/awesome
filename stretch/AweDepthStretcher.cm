@@ -38,13 +38,20 @@ package custom.awesome.stretch;
 
 public class AweDepthStretcher extends AweStretcher {
     
-    public constructor(AweObject model, str heightPropName="depth") {
-        super(model, heightPropName);
+    private str{} lockProps;
+
+    public constructor(AweObject model, str propName="depth", str {} lockProps = {"width"}) {
+        super(model, propName);
+        this.lockProps = lockProps;
     }
 
     public line line() {
         var bound = this.model.getProduct().localBound();
         return bound.upCenterlineY;
+    }
+
+    public str{} lockedProperties() {
+        return this.lockProps;
     }
 
 }
