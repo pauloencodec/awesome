@@ -225,6 +225,7 @@ public class AweSnapper extends Snapper {
 
     extend public void onModelPropertyChanged(str key, Object oldValue, Object newValue) {
         this.groupChanged(new AweGroupAutomationPropChanged(this, key, oldValue, newValue));
+        this.modelChanged(new AweGroupAutomationPropChanged(this, key, oldValue, newValue));
     }
 
     extend public void addExtraAnimationProperties(AnimationProperties props) { }
@@ -309,6 +310,7 @@ public class AweSnapper extends Snapper {
             }
             else {
                 this.groupChanged(new AweGroupAutomationFirstDrop(this));
+                this.modelChanged(new AweGroupAutomationFirstDrop(this));
             }
             
             this._dropped = true;
@@ -332,6 +334,7 @@ public class AweSnapper extends Snapper {
 
         if (!c0.isPassive()) {
             this.groupChanged(new AweGroupAutomationConnected(this, c0, c1));
+            this.modelChanged(new AweGroupAutomationConnected(this, c0, c1));
         }
     }
 
@@ -339,6 +342,7 @@ public class AweSnapper extends Snapper {
         super(..);
 
         this.groupChanged(new AweGroupAutomationDisconnected(this, c0, c1));
+        this.modelChanged(new AweGroupAutomationDisconnected(this, c0, c1));
     }
 
     public void invalidated(dirty3D flag3D) {
@@ -356,6 +360,17 @@ public class AweSnapper extends Snapper {
         return null;
     }
     
+    /********** model changed ***********/
+    extend public void modelChanged(AweGroupAutomationTrigger trigger) {
+        for (model in this.allModels()) {
+            for (automation in model.getAutomations()) {
+                if (!automation.shouldRun(trigger)) continue;
+        
+                automation.run(trigger, this.mainModel());
+            }
+        }
+    }
+
     /********** group changed ***********/
     public str spawnerAutomationId;
 
