@@ -269,6 +269,10 @@ public class AweObject {
         return null;
     }
 
+    extend public symbol[] getCategories() {
+        return new symbol[]();
+    }    
+
     extend public str toS(str format, rest: Object[] extraParams) {
         str->Object props();
         for(obj in extraParams, index=i) {
