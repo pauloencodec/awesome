@@ -38,6 +38,8 @@ package custom.awesome.picklist;
 
 use custom.awesome.schemes;
 
+private const str[] specialsKeys = ["~~", "~~~"];
+
 public class AwePicklistSifConfiguratorControl extends GroupBox {
     public AweSifCatalog catalog;
     public AweMaterialFactory materialFactory;
@@ -87,10 +89,12 @@ public class AwePicklistSifConfiguratorControl extends GroupBox {
             var root = this.buildTree(optionTree, optionKey);
             var selected = item.sifSku.getFullSelectionKey(optionKey);
             
-            var control = this.propertiesWindow.createDropDown(300, root, selectedKey=selected, treeView=true);
+            var control = this.propertiesWindow.createDropDown(300, root, selectedKey=selected, callback=function onOptionChanged, treeView=true);
             
             control.setMargins(0, 0, 0, 2);
             control.rightOf(lastDisplay);
+
+            onOptionChanged(control);
 
             this.options << control;
         }
@@ -130,6 +134,10 @@ public class AwePicklistSifConfiguratorControl extends GroupBox {
 
         for (option in this.options) {
             sku #= "." # option.getSelection().key;
+
+            if (?FormattedTextField specialField = option.tag) {
+                pln(#specialField.text);
+            }
         }
 
         return sku;
@@ -154,6 +162,37 @@ public class AwePicklistSifConfiguratorControl extends GroupBox {
             this.appendItem(item, child);
         }
     }
+
+    extend private void createSpecialField(DropDownTreeView option) {
+        option.setWidth(200);
+        
+        if (!option.tag) {
+            option.tag = option.parent.createTextField(100, rightOf=option);
+        }
+
+        var field = option.tag.FormattedTextField;
+
+        field.setVisible(true);
+        field.setFocus();
+    }
+}
+
+private void onOptionChanged(Control c) {
+    if (c as DropDownTreeView) {
+        if (?AwePicklistSifConfiguratorControl editor = c.grandParent) {
+            var selected = c.getSelection().?key;
+
+            if (selected and selected in specialsKeys) {
+                editor.createSpecialField(c);
+            }
+            else {
+                if (?FormattedTextField field = c.tag) {
+                    c.setWidth(300);
+                    field.setVisible(false);
+                }
+            }
+        }
+    }
 }
 
 private void onClose(Control c) {
@@ -163,8 +202,8 @@ private void onClose(Control c) {
 }
 
 private void onSave(Control c) {
-    if (?AwePicklistSifConfiguratorControl dialog = c.parent) {
-        dialog.save();
+    if (?AwePicklistSifConfiguratorControl editor = c.parent) {
+        editor.save();
 
         onClose(c);
     }
