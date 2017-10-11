@@ -92,6 +92,9 @@ public class AweGeometry {
 
         if (!tag.position) tag.position = this.defaultTagPosition();
         if (empty(tag.key)) tag.key = this.nextTagKey();
+        
+        symbol{} layers = {#tags};
+        tag.layers = layers +=? tag.layers;
 
         return tag;
     }
