@@ -38,8 +38,8 @@ package custom.awesome;
 
 use cm.abstract;
 
-public AweTag createAweTag(str text, str key="", Point position=null, symbol{} layers=null) {
-    return AweTag(text, key, position, layers);
+public AweTag createAweTag(str text, str key="", Point position=null, angle rotation=0deg, symbol{} layers=null) {
+    return AweTag(text, key, position, rotation, layers);
 }
 
 public UserTextStyle getAweTagTextStyle(World world=null) {
