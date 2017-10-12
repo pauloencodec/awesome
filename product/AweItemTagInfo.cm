@@ -34,31 +34,29 @@
    END OF CETSC
 */
 
-package custom.awesome.stretch;
+package custom.awesome.product;
 
-public class AweManipulator extends AweConnectPoint {
-    public bool isEnabled() { return true; }
-    public bool connectable() { return false; }
-    public bool isConnected() { return false; }
-    public bool connect(Connector c, bool oneway=false) { return false; }
-    public bool disconnect(Connector c, bool oneway=false) { return false; }
-    public bool multipleConnects() { return false; }
-    public Connector connection() { return null; }
-    public Connector{} connections() { return null; }
-    public bool isConnectedTo(Connector c) { return false; }
-}
+/**
+ * Item tag info. 
+ */
+public class AweItemTagInfo extends ItemTagInfo {
+    public AweTag tag;
+    
+    /**
+     * User font style. 
+     * Dynamically look up instead of data duplication. 
+     */
+    public UserTextStyle tStyle() {
+        return getAweTagTextStyle();
+    }
 
-public class AweStretchableConnector extends AweManipulator {
-}
+    public constructor(AweTag tag, str infoKey) {
+        this.tag = tag;
 
-public class AweStretcherConnector extends AweStretchableConnector {
-    public AweStretcher stretcher;
-    public point visiblePosOffset;
+        super(tag.text, tag.key);
+    }
 
-    public constructor(Snapper snapper, AweStretcher stretcher, point visiblePosOffset=point()) {
-        super(snapper);
-
-        this.stretcher = stretcher;
-        this.visiblePosOffset = visiblePosOffset;
+    public LayerExpr layer() {
+        return layerSet(this.tag.layers);
     }
 }

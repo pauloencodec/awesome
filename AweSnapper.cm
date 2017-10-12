@@ -45,7 +45,7 @@ private alias SnapperArray = Snapper{};
 private const str applyToKey = "awe-apply-from";
 private const str helpLinkKey = "awe-help-link";
 
-public class AweSnapper extends Snapper {
+public class AweSnapper extends TaggableSnapper {
     public aweDynamicContract {
         aweDynamic void realign(SnapperArray visited=null);        
         aweDynamic void galleryChanged(AweGallery gallery);
@@ -225,6 +225,7 @@ public class AweSnapper extends Snapper {
 
     extend public void onModelPropertyChanged(str key, Object oldValue, Object newValue) {
         this.groupChanged(new AweGroupAutomationPropChanged(this, key, oldValue, newValue));
+        this.modelChanged(new AweGroupAutomationPropChanged(this, key, oldValue, newValue));
     }
 
     extend public void addExtraAnimationProperties(AnimationProperties props) { }
@@ -291,6 +292,8 @@ public class AweSnapper extends Snapper {
         invalidate();
         this.space.invalidateSelection();
 
+        if (updateConnectors) this.space.?updateSelectionConnectors();
+
         for(m in this.allModels()) {
             m.updateLimbDefaults();
         }
@@ -307,6 +310,7 @@ public class AweSnapper extends Snapper {
             }
             else {
                 this.groupChanged(new AweGroupAutomationFirstDrop(this));
+                this.modelChanged(new AweGroupAutomationFirstDrop(this));
             }
             
             this._dropped = true;
@@ -330,6 +334,7 @@ public class AweSnapper extends Snapper {
 
         if (!c0.isPassive()) {
             this.groupChanged(new AweGroupAutomationConnected(this, c0, c1));
+            this.modelChanged(new AweGroupAutomationConnected(this, c0, c1));
         }
     }
 
@@ -337,6 +342,7 @@ public class AweSnapper extends Snapper {
         super(..);
 
         this.groupChanged(new AweGroupAutomationDisconnected(this, c0, c1));
+        this.modelChanged(new AweGroupAutomationDisconnected(this, c0, c1));
     }
 
     public void invalidated(dirty3D flag3D) {
@@ -354,6 +360,17 @@ public class AweSnapper extends Snapper {
         return null;
     }
     
+    /********** model changed ***********/
+    extend public void modelChanged(AweGroupAutomationTrigger trigger) {
+        for (model in this.allModels()) {
+            for (automation in model.getAutomations()) {
+                if (!automation.shouldRun(trigger)) continue;
+        
+                automation.run(trigger, this.mainModel());
+            }
+        }
+    }
+
     /********** group changed ***********/
     public str spawnerAutomationId;
 
@@ -589,7 +606,21 @@ public class AweSnapper extends Snapper {
         return light3Ds;
     }
 
-    
+    public bool acceptItemTags() {
+        return true;
+    }
+        
+    public ItemTagInfo createItemTagInfo(Part part, str key, str infoKey) {
+        if (part as AwePart and part.tag.?isValid) {
+            return AweItemTagInfo(part.tag, infoKey);
+        }
+
+        return null;
+    }
+
+    public point itemTagPos(ItemTag tag) {
+        return (0,0,0);
+    }
 
     private AweLightModel[] _lightModels;
     extend public AweLightModel[] lightModels() {
@@ -646,7 +677,7 @@ public class AweSnapper extends Snapper {
      * Stretch
      ***********************************************************************/
 
-    public bool stretchable(Connector s) { return s in AweStretcherConnector; }
+    public bool stretchable(Connector s) { return s in AweStretchableConnector; }
     
     public bool stretch(Connector s, point p, AnimationMouseInfo mi) {
         if (s as AweStretcherConnector) {
@@ -668,7 +699,7 @@ public class AweSnapper extends Snapper {
     public void endStretch(Connector s) {
         super(..);
 
-        if (s as AweStretcherConnector) {
+        if (s as AweStretchableConnector) {
             this.invalidate3D();
             this.invalidate2D();
         }

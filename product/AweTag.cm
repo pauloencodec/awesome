@@ -34,31 +34,28 @@
    END OF CETSC
 */
 
-package custom.awesome.stretch;
+package custom.awesome.product;
 
-public class AweManipulator extends AweConnectPoint {
-    public bool isEnabled() { return true; }
-    public bool connectable() { return false; }
-    public bool isConnected() { return false; }
-    public bool connect(Connector c, bool oneway=false) { return false; }
-    public bool disconnect(Connector c, bool oneway=false) { return false; }
-    public bool multipleConnects() { return false; }
-    public Connector connection() { return null; }
-    public Connector{} connections() { return null; }
-    public bool isConnectedTo(Connector c) { return false; }
-}
+public class AweTag {
+    public str key;
+    public str text;
+    public Point position;
+    public angle rotation;
+    public symbol{} layers;
+    
+    public constructor(str text, str key="", Point position=null, angle rotation=0deg, symbol{} layers=null) {
+        set*(this: key, text, position, rotation, layers);
+    }
+    
+    extend public point getPos() {
+        return this.position ? this.position.v : (0, 0, 0);
+    }
 
-public class AweStretchableConnector extends AweManipulator {
-}
+    extend public void setPos(point p) {
+        this.position = Point(p);
+    }
 
-public class AweStretcherConnector extends AweStretchableConnector {
-    public AweStretcher stretcher;
-    public point visiblePosOffset;
-
-    public constructor(Snapper snapper, AweStretcher stretcher, point visiblePosOffset=point()) {
-        super(snapper);
-
-        this.stretcher = stretcher;
-        this.visiblePosOffset = visiblePosOffset;
+    extend public bool isValid() {
+        return !empty(this.text);
     }
 }
