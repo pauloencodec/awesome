@@ -42,14 +42,21 @@ public class AweModelPickerAnimation extends AweAnimation : abstract {
     public AweObject{} allSelected;
 
     public constructor() {
+        this.initPickModes();
+
+        super();
+    }
+    
+    extend public void initPickModes() {
         this.configurator = new AweModelPickerAnimationConfigurator();
+        
         var pickModes = this.pickModes();
-        if(pickModes and !pickModes.empty) {
+        
+        if (pickModes and !pickModes.empty) {
             this.configurator.AweModelPickerAnimationConfigurator.pickModeDomain = new ObjectSubSet(pickModes.:Object[]);
             this.configurator.AweModelPickerAnimationConfigurator.pickMode = pickModes.first();
         }
-        super();
-    }   
+    }
 
     /************* protocol ***************/
     extend public bool pick(AweObject model) : abstract { }
@@ -143,23 +150,30 @@ public class AweModelPickerAnimation extends AweAnimation : abstract {
     }
    
     public Primitive3D get3D(FetchEnv3D env) {
+        return this.getHighlight3D(this.allSelected);
+    }
+
+    extend public Primitive3D getHighlight3D(AweObject{} models) {
         Awe3D prims();
-        for(m in allSelected) {
-            if(AweProduct product = m.?getProduct()) {
+        
+        for (m in models) {
+            if (AweProduct product = m.?getProduct()) {
                 Awe3D prim();
-                var b = Box3D(product.localBound().grown(0.001));
+                var b = new Box3D(product.localBound().grown(0.001));
                 b.setMaterial(this.highlightMaterial());
                 prim << b;
                 var frame = frameBox3D(product.localBound().grown(0.002));
                 prim << frame;
                 frame.setMaterial(plainYellowMaterial3D());
-                if(Snapper s = product._model.?mainSnapper) {
-                    prim = Awe3D(s.toSpace(prim));
+                
+                if (Snapper s = product._model.?mainSnapper) {
+                    prim = new Awe3D(s.toSpace(prim));
                 }
+
                 prims << prim;
             }
-
         }
+
         return prims;
     }
 
