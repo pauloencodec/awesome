@@ -55,6 +55,10 @@ public class AweGroupAutomationTrigger {
         return this in AweGroupAutomationFirstDrop;
     }
 
+    extend public bool isEnterView() {
+        return this in AweGroupAutomationEnterView;
+    }
+
     extend public bool isConnected() {
         return this in AweGroupAutomationConnected;
     }
@@ -73,6 +77,9 @@ public class AweGroupAutomationTrigger {
 }
 
 public class AweGroupAutomationFirstDrop extends AweGroupAutomationTrigger {
+}
+
+public class AweGroupAutomationEnterView extends AweGroupAutomationTrigger {
 }
 
 public class AweGroupAutomationConnection extends AweGroupAutomationTrigger {
