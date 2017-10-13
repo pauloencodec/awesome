@@ -676,21 +676,23 @@ public class AweSnapper extends TaggableSnapper {
     /***********************************************************************
      * Stretch
      ***********************************************************************/
+    
+    public void updateConnectors() {
+        this.space.?updateSelectionConnectors();
+        super(..);
+    }
 
     public bool stretchable(Connector s) { return s in AweStretchableConnector; }
     
     public bool stretch(Connector s, point p, AnimationMouseInfo mi) {
         if (s as AweStretcherConnector) {
-            var propagation = AweStretcherPropagationType.none;
-
-            if (isShiftKeyDown()) {
-                propagation = AweStretcherPropagationType.directlyConnected;
+            if (animation as AweStretcherAnimation) {
+                if (animation.animationProperties.locked(s.stretcher.propKey)) {
+                    return super(..);
+                }
             }
-            else if (isControlKeyDown()) {
-                propagation = AweStretcherPropagationType.allConnected;
-            }
-
-            return s.stretcher.update(s, p, propagation);
+           
+            return s.stretcher.update(s, p);
         }
 
         return super(..);

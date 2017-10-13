@@ -148,10 +148,6 @@ public class AweBindingSnapper extends AweSnapper : abstract {
             }
         }
 
-        if (AweStretcher stretcher = this.getActiveStretcher()) {
-            graph <<? stretcher.get2D();
-        }
-
         return graph;
     }
 
@@ -181,10 +177,6 @@ public class AweBindingSnapper extends AweSnapper : abstract {
             }
         }
 
-        if (AweStretcher stretcher = this.getActiveStretcher()) {
-            all <<? stretcher.get3D(env);
-        }
-        
         return all;
     }   
 
