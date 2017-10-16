@@ -147,6 +147,7 @@ public class AweSnapperDragAnimation extends DragAnimation {
             Transform oldTranform = selection.main.toSpaceTransform();
     
             SnapInfo last = currentSpace ? currentSpace.lastSnapped : null;
+            selection.snaps = selection.snaps.sort(function sortByPriorityDesc, null);
             SnapInfo info = skipSnapping ? null : selection.trySnap(mi, modifyEnv, filter);
 
             /********* awesome modification *********/
