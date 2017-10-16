@@ -885,7 +885,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                             // props.append(customQuickProperty.QuickProperty);
                         }
                         else {
-                            if(@domainName.count <= 9) {
+                            if(@domainName.count > 1 and @domainName.count <= 9) {
                                 props.append3(this._uniqueQuickPropertyId # @propNameStr, @labelName, @propName, @domainName, lockable=false);
                             }
                             else {
