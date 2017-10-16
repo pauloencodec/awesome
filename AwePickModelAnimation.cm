@@ -58,11 +58,29 @@ public class AweModelPickerAnimation extends AweAnimation : abstract {
         }
     }
 
+    public void propertyChange(str key, Object value) {
+        super(..);
+
+        if (key == "pickMode" and value in AweModelGroupPicker) {
+            this.mainSelection = null;
+
+            this.move(this.lastMouseInfo);
+        }
+    }
+
     /************* protocol ***************/
     extend public bool pick(AweObject model) : abstract { }
 
     extend public AweModelGroupPicker[] pickModes() {
         return [AweModelGroupPicker: new AweSingleModelGroupPicker(), new AweSameClassModelGroupPicker()];
+    }
+
+    extend public AweModelGroupPicker pickMode() {
+        if (configurator as AweModelPickerAnimationConfigurator) {
+            return configurator.pickMode;
+        }
+
+        return null;
     }
 
     extend public bool groupPick(AweObject model) {
@@ -94,6 +112,8 @@ public class AweModelPickerAnimation extends AweAnimation : abstract {
     }
 
     public void move(AnimationMouseInfo mi) {
+        super(..);
+
         AweObject model;
         WindowView owner = mi.ownerView;
         if (owner as View3D) {
@@ -112,7 +132,6 @@ public class AweModelPickerAnimation extends AweAnimation : abstract {
 
         tryPick(model);
         space.invalidate(this);
-
     }
 
     extend public void tryPick(AweObject newModel) {
