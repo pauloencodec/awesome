@@ -48,21 +48,23 @@ public class AweSchemeEditor extends OfficeGroupSchemeEditor {
     public bool applyScheme(Snapper{} snappers, GroupScheme gs) {
         bool applied = false;
 
-        if (gs as OfficeGroupScheme) {
-            var schemeModels = this.scheme.convert(gs);
-            
-            for (AweSnapper s in snappers) {
-                for (model in s.allModels()) {
-                    for (schemeModel in schemeModels) {
-                        var schemeApplier = new AweSchemeApplier(schemeModel, this.scheme.key, this.enableFilter);
+        waitCursorUI {
+            if (gs as OfficeGroupScheme) {
+                var schemeModels = this.scheme.convert(gs);
+                
+                for (AweSnapper s in snappers) {
+                    for (model in s.allModels()) {
+                        for (schemeModel in schemeModels) {
+                            var schemeApplier = new AweSchemeApplier(schemeModel, this.scheme.key, this.enableFilter);
 
-                        if (model.applyScheme(schemeApplier)) {
-                            applied = true;
+                            if (model.applyScheme(schemeApplier)) {
+                                applied = true;
+                            }
                         }
-                    }
 
-                    if (applied) {
-                        model.invalidate();
+                        if (applied) {
+                            model.invalidate();
+                        }
                     }
                 }
             }

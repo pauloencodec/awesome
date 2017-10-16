@@ -183,19 +183,33 @@ public class AweSifCatalog {
 
     extend public AweSifOptionSelection[] getSelections(str optionKey, str optionValue) {
         var leafSelection = this.findLeafSelection(optionKey, optionValue, null);
-        if(leafSelection) {
+        AweSifOptionSelection[] selections();
+
+        if (leafSelection) {
             //flatten them out
-            AweSifOptionSelection[] selections();
             selections << leafSelection;
+
             var currentSelection = leafSelection;
-            while(AweSifOptionSelection parent = currentSelection.parentSelection) {
+
+            while (AweSifOptionSelection parent = currentSelection.parentSelection) {
                 currentSelection = parent;
+
                 selections << currentSelection;
             }
+
             selections.reverse();
-            return selections;
         }
-        return null;
+        else {
+            var invalidSelection = new AweSifOptionSelection();
+
+            invalidSelection.optionKey = optionKey;
+            invalidSelection.selectionKey = optionValue;
+            invalidSelection.invalid = true;
+    
+            selections << invalidSelection;
+        }
+        
+        return selections;
     }
 
     extend public AweSifOptionSelection findLeafSelection(str optionKey, str optionValue, AweSifOptionSelection parentSelection) {
@@ -348,10 +362,16 @@ public class AweSifCatalog {
 
         for(optionValue in options, index=i) {
             if(model.optionKeys.count >= i + 1) {
-                str optionKey = model.optionKeys[i];
+                var optionKey = model.optionKeys[i];
                 var selections = this.getSelections(optionKey, optionValue);
-                if(!selections) parsed.complete = false;
-                if(!parsed.selections) init parsed.selections();
+                
+                for (selection in selections) if (selection.invalid) {
+                    parsed.complete = false;
+                    break;
+                }
+                
+                if (!parsed.selections) init parsed.selections();
+                
                 parsed.selections += selections;
             }
         }
