@@ -37,9 +37,9 @@
 package custom.awesome;
 
 public class AweModelPickerAnimation extends AweAnimation : abstract {
-
     public AweObject mainSelection;
     public AweObject{} allSelected;
+    public point pos;
 
     public constructor() {
         this.initPickModes();
@@ -129,9 +129,11 @@ public class AweModelPickerAnimation extends AweAnimation : abstract {
                 }
             }
         }
-
+        
+        this.pos = mi.onFloorPos();
+        
         tryPick(model);
-        space.invalidate(this);
+        space.invalidate3D(this, dirty3D.all);
     }
 
     extend public void tryPick(AweObject newModel) {
