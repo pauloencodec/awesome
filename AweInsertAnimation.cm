@@ -169,8 +169,11 @@ public class AweInsertAnimation extends InsertAnimation {
         return this.activeGhost == null;
     }
 
-    
+    public void enterView(AnimationMouseInfo mi) {
+        super(..);
 
+        this.snapper.modelChanged(new AweGroupAutomationEnterView(this.snapper));
+    }
 
      //Copied from InsertAnimation then modified. 
      public void move(AnimationMouseInfo mi) {

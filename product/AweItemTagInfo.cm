@@ -34,23 +34,29 @@
    END OF CETSC
 */
 
-package custom.awesome.sif;
+package custom.awesome.product;
 
-public class AweSifOptionSelection {
-    public constructor() {
-    }   
+/**
+ * Item tag info. 
+ */
+public class AweItemTagInfo extends ItemTagInfo {
+    public AweTag tag;
+    
+    /**
+     * User font style. 
+     * Dynamically look up instead of data duplication. 
+     */
+    public UserTextStyle tStyle() {
+        return getAweTagTextStyle();
+    }
 
-    public str optionKey;
-    public str optionDescription;
-    public str selectionKey;
-    public str selectionDescription;
-    public str suboptionKey;
-    public double upcharge;
-    public bool invalid;
+    public constructor(AweTag tag, str infoKey) {
+        this.tag = tag;
 
-    public AweSifOptionSelection parentSelection;
+        super(tag.text, tag.key);
+    }
 
-    public str toS() {
-        return format("@selectionKey; @selectionDescription;");
+    public LayerExpr layer() {
+        return layerSet(this.tag.layers);
     }
 }

@@ -78,15 +78,16 @@ public class AweObject {
     }
 
     extend public void set(str propName, Object value) {
-        this.makePropModelAware(propName, value);
         Object oldValue = get(propName);
-
+        
         //AweMaterialShell instance must never be replaced. instead, update the contents of the shell
         if (value in AweMaterialShell and oldValue in AweMaterialShell) {
             oldValue.AweMaterialShell.setMaterial(value.AweMaterialShell.materialInstance());
         }
         else {
             this.props.put(propName, value);
+            
+            this.makePropModelAware(propName, value);
         }
 
         propChanged(propName, oldValue, value);
@@ -286,6 +287,10 @@ public class AweObject {
     extend public AweProduct createProduct() {
         return null;
     }
+
+    extend public symbol[] getCategories() {
+        return new symbol[]();
+    }    
 
     extend public str toS(str format, rest: Object[] extraParams) {
         str->Object props();
@@ -510,7 +515,6 @@ public class AweObject {
         snappers << s;
     }
 
-
     /************** connect events ************/
     extend public void connected(Connector thisConnector, Connector otherConnector, AweObject model) {
 
@@ -620,6 +624,10 @@ public class AweObject {
 
     /************* automations ***************/
     extend public AweGroupAutomation[] getGroupAutomations() {
+        return null;
+    }
+
+    extend public AweAutomation[] getAutomations() {
         return null;
     }
 

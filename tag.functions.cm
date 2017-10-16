@@ -34,23 +34,16 @@
    END OF CETSC
 */
 
-package custom.awesome.sif;
+package custom.awesome;
 
-public class AweSifOptionSelection {
-    public constructor() {
-    }   
+use cm.abstract;
 
-    public str optionKey;
-    public str optionDescription;
-    public str selectionKey;
-    public str selectionDescription;
-    public str suboptionKey;
-    public double upcharge;
-    public bool invalid;
+public AweTag createAweTag(str text, str key="", Point position=null, angle rotation=0deg, symbol{} layers=null) {
+    return AweTag(text, key, position, rotation, layers);
+}
 
-    public AweSifOptionSelection parentSelection;
+public UserTextStyle getAweTagTextStyle(World world=null) {
+    RegType type = getRegisteredType(absITagTextTypeKey, world);
 
-    public str toS() {
-        return format("@selectionKey; @selectionDescription;");
-    }
+    return getRegisteredStyle(type.propsKey).UserTextStyle;
 }
