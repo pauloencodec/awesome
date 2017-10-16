@@ -36,8 +36,40 @@
 
 package custom.awesome.stretch;
 
-public aweEnum AweStretcherPropagationType (
-    none = <"N", "None">,
-    directlyConnected = <"D", "Directly Connected">,
-    allConnected = <"A", "All Connected">
-);
+public class AweStretcherSpread : abstract {
+    public AweStretcher stretcher;
+
+    public constructor(AweStretcher stretcher) {
+        this.stretcher = stretcher;
+    }   
+
+    extend public Snapper{} targetSnappers() {
+        return this.stretcher.snapper.allConnected();
+    }
+
+    extend public bool spreadTo(AweStretcherEnv target, AweStretcherEnv me) {
+        return false;
+    }
+
+    extend public str name() : abstract { }
+
+    public str toS() {
+        return this.name();
+    }
+}
+
+public class AweStretcherSpreadNone extends AweStretcherSpread {
+    public str name() { return "None"; }
+    
+    public Snapper{} targetSnappers() {
+        return null;
+    }
+}
+
+public class AweStretcherSpreadAnythingAligned extends AweStretcherSpread {
+    public str name() { return "Anything Aligned"; }
+    
+    public bool spreadTo(AweStretcherEnv target, AweStretcherEnv me) {
+        return true;
+    }
+}

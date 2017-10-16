@@ -36,8 +36,17 @@
 
 package custom.awesome.stretch;
 
-public class AweStretcher {
-    public line line;
+public class AweStretcher : abstract {
+    
+    /************ protocol ****************/
+    extend public line line() : abstract { }
+    extend public AweStretcherSpread[] spreads() { return [AweStretcherSpread: new AweStretcherSpreadNone(this), new AweStretcherSpreadAnythingAligned(this)]; }
+    //list of properties that can't change during this stretch. System will undo last stretch if it causes any of those properties to change. 
+    extend public str{} lockedProperties() { return null; }
+    /**************************************/
+
+    public AweStretcherSpread spread;
+
     public AweObject model;
     public str propKey;
 
@@ -47,8 +56,7 @@ public class AweStretcher {
     private bool enableA;
     private bool enableB;
 
-    public constructor(line line, AweObject model, str propKey, bool enableA=true, bool enableB=true, point visiblePosOffsetA=point(), point visiblePosOffsetB=point()) {
-        this.line = line;
+    public constructor(AweObject model, str propKey, bool enableA=true, bool enableB=true, point visiblePosOffsetA=point(), point visiblePosOffsetB=point()) {
         this.model = model;
         this.propKey = propKey;
 
@@ -60,46 +68,40 @@ public class AweStretcher {
     }   
 
     extend public SubSet domain() {
-        return this.model.getDomain(this.propKey);
+        distance[] validDomain();
+
+        var fullDomain = this.model.getDomain(this.propKey);
+        for(item in fullDomain.members) {
+            var passed = true;
+            for(lockedProp in this.lockedProperties()) {
+                if(!testChange(item.double, lockedProp)) {
+                    passed = false;
+                }
+            }
+            if(passed) {
+                validDomain << item.distance;
+            }
+        }
+        return DistanceEnum(validDomain);
+    }
+
+    extend private bool testChange(double newValue, str lockedProp) {
+        if(!this.model.get(lockedProp)) {
+            return true;
+        }
+        var testSubject = this.model.copy();
+        var currentValue = testSubject.get(lockedProp);
+        testSubject.set(this.propKey, newValue);
+        var valueAfter = testSubject.get(lockedProp);
+        return currentValue.equal(valueAfter);
     }
 
     extend public AweSnapper snapper() {
         return this.model.mainSnapper.AweSnapper;
     }
 
-    //Use this to decided who to propagate to. Opportunity to make animation props like the height of Fika panels?
-    extend public Snapper{} propagateToSnappers(AweStretcherPropagationType propagation) {
-        if (propagation == AweStretcherPropagationType.directlyConnected) {
-            return this.snapper.connectedNeighbors();
-        }
-
-        if (propagation == AweStretcherPropagationType.allConnected) {
-            return this.snapper.allConnected();
-        }
-        
-        return null;
-    }
-
-    extend public AweStretcherConnector{} alignedStretcherConnectors(Connector reference, AweStretcherPropagationType propagation) {
-        AweStretcherConnector{} aligned();
-        var group = this.propagateToSnappers(propagation);
-
-        if (group and group.any()) {
-            var spaceLine = this.snapper().toSpace(this.line);
-
-            for(snapper in group) {
-                for(c in snapper.connectors()) {
-                    if(c as AweStretcherConnector) {
-                        if(c != reference and c.spaceRot() == reference.spaceRot() and spaceLine.normalIntersectUnbounded(c.spacePos()).ip == reference.spacePos()) {
-                            aligned << c;
-                        }
-                    }
-                }
-            }
-        }
-
-        return aligned;
-    }
+    
+    
 
     extend public Connector{} connectors() {
         this.stretcherA.setPos(this.line.p0);
@@ -127,7 +129,7 @@ public class AweStretcher {
         return domain.closest(length).safeDouble();
     }
 
-    extend private point getAnchor(AweStretcherConnector connector) {
+    extend public point getAnchor(AweStretcherConnector connector) {
         if (connector == this.stretcherA) {
             return this.stretcherB.spacePos();
         }
@@ -139,60 +141,74 @@ public class AweStretcher {
         return point();
     }
 
-    extend private void updateStretchLine(AweStretcherConnector connector, line& spaceLine, point spacePos) {
-        if (connector == this.stretcherA) {
-            spaceLine.p0 += spacePos - spaceLine.p0;
-        }
-        else if (connector == this.stretcherB) {
-            spaceLine.p1 += spacePos - spaceLine.p1;
-        }
-    }
-
-    extend public bool update(Connector s, point p, AweStretcherPropagationType propagation) {
+    extend public bool update(Connector s, point p, bool tryPropagate = true) {
         bool changed = false;
 
         if (s as AweStretcherConnector) {
-            var spaceLine = this.snapper.toSpace(this.line);
-            var spacePos = this.snapper.toSpace(p);
-
+            var spaceLine = line(s.spacePos(), s.spacePos() + s.spaceRot().direction);
             var anchor = this.getAnchor(s);
+            var projection = spaceLine.normalIntersectUnbounded(this.snapper.toSpace(p)).ip;
+            animation.space.invalidate(animation);
 
-            this.updateStretchLine(s, spaceLine, spacePos);
-            
+            var length = anchor.distance(projection);
             var currentValue = this.model.get(this.propKey).safeDouble();
-            var newValue = this.lenghInDomain(spaceLine.length);
+            var newValue = this.lenghInDomain(length);
 
             if (currentValue != newValue) {
-                if (propagation != AweStretcherPropagationType.none) {
-                    for (c in this.alignedStretcherConnectors(s, propagation)) {
-                        point pos = c.stretcher.line.normalIntersectUnbounded(c.snapper.toSnapper(spacePos)).ip;
-                        
-                        c.stretcher.?update(c, pos, propagation=AweStretcherPropagationType.none);
-                    }
-                }
-
                 this.model.set(this.propKey, newValue);
                 this.model.invalidate();
                 this.snapper.updateConnectors();
-
                 var after = this.getAnchor(s);
-                
                 this.snapper.move(anchor - after);
-                this.snapper.snapAllAligned();
-                this.snapper.space.invalidate(this.snapper);
-                this.snapper.snapAllAligned();
+                this.snapper.realign();
+                changed  = true;
+                if (animation as AweStretcherAnimation) {
+                    animation.space.invalidate(animation);
+                    animation.updateProperties();
+                }
+            }
 
-                changed  = true;   
+        }
+        if(changed and tryPropagate) {
+            this.propagate(s.AweStretcherConnector);
+        }
+        return changed;
+    }
+
+    extend private plane connectorPlane(AweStretcherConnector connector) {
+        return new plane(connector.spaceRot().direction, connector.spacePos());
+    }
+
+    extend public void propagate(AweStretcherConnector leader) {
+        if(!this.spread) return;
+        var group = this.spread.targetSnappers();
+
+        plane stretchPlane = this.connectorPlane(leader);
+
+        if (group and group.any()) {
+            for (snapper in group) {
+                for (AweStretcherConnector c in snapper.connectors()) if (c != leader) {
+                    if (Point followerNewPosition = c.viablePoint(stretchPlane)) {
+                        AweStretcherEnv leaderEnv(leader);
+                        AweStretcherEnv followerEnv(c, followerNewPosition);
+
+                        AweStretcher followerStretcher = followerEnv.stretcher;
+
+                        if(this.spread.spreadTo(followerEnv, leaderEnv)) {
+                            followerStretcher.update(c, followerNewPosition.v, tryPropagate=false);
+                            followerStretcher.model.invalidate();
+                        }
+                    }
+                }
             }
         }
-
-        return changed;
     }
 
     extend public bool isVertical() {
         return this.line.p0.z != this.line.p1.z;
     }
 
+    /**************** 3d ************/
     extend private Primitive3D getText3D() {
         var dimension = this.model.props.get(this.propKey).safeDouble();
 
@@ -239,14 +255,11 @@ public class AweStretcher {
 
     extend public Primitive3D get3D(FetchEnv3D env) {
         Awe3D result();
-
         var text = this.getText3D();
-
         result << text;
 
         var arrowLength = this.line.length / 2 - text.localBound().w / 2;
         var arrow = this.getArrow3D(arrowLength);
-
         result << arrow;
 
         if (this.isVertical()) {
@@ -266,7 +279,6 @@ public class AweStretcher {
         }
 
         result.setMaterial(this.getDimensionMaterial());
-
         return result;
     }
 
@@ -331,33 +343,10 @@ public class AweStretcher {
         return result;
     }
 
+    public point[] debugPoints();
+
     extend private Material3D getDimensionMaterial() {
         return plainBlueMaterial3D;
     }
 }
 
-public AweStretcher createStretcher(AweObject model, str propKey, line line, bool enableA=true, bool enableB=true, point visiblePosOffsetA=point(), point visiblePosOffsetB=point()) {
-    if (propKey in model.props) {
-        var domain = model.getDomain(propKey);
-
-        if (!domain or domain.count <= 1) return null;
-
-        if (!model._stretchers) {
-            init model._stretchers();
-        }
-        
-        var stretcher = model._stretchers.get(propKey);
-
-        if (!stretcher) {
-            stretcher = new AweStretcher(line, model, propKey, enableA, enableB, visiblePosOffsetA, visiblePosOffsetB);
-
-            model._stretchers.put(propKey, stretcher);
-        }
-
-        stretcher.line = line;
-
-        return stretcher;
-    }
-
-    return null;
-}

@@ -46,6 +46,10 @@ public class AweManipulator extends AweConnectPoint {
     public Connector connection() { return null; }
     public Connector{} connections() { return null; }
     public bool isConnectedTo(Connector c) { return false; }
+
+    
+
+    
 }
 
 public class AweStretchableConnector extends AweManipulator {
@@ -60,5 +64,36 @@ public class AweStretcherConnector extends AweStretchableConnector {
 
         this.stretcher = stretcher;
         this.visiblePosOffset = visiblePosOffset;
+    }
+
+    public Animation standardStretchAnimation() {
+        return new AweStretcherAnimation(this.stretchAnimationEnv());
+    }
+
+    extend public point anchor() {
+        return this.stretcher.?getAnchor(this);
+    }
+
+    extend public bool pointInDomain(point p) {
+        var newLength = p.distance(this.anchor());
+        return newLength in this.stretcher.?domain();
+    }
+
+    //takes in stretch plane, return the point in local coordinates if the plane works for this domain. null instead.
+    extend public Point viablePoint(plane pl) {
+        if(!this.isPerpendicularTo(pl)) return null;
+
+        var projection = pl.project(this.spacePos());
+        
+        if(this.pointInDomain(projection)) {
+            return this.snapper.toSnapper(projection);
+        }
+        return null;
+    }
+
+    extend private bool isPerpendicularTo(plane pl) {
+        line thisLine(point(), this.spaceRot().direction);
+        line planeNomalLine(point(), pl.n);
+        return thisLine.isParallell(planeNomalLine);
     }
 }
