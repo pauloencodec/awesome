@@ -37,19 +37,36 @@
 package custom.awesome;
 
 public class AweModelPickerAnimation extends AweAnimation : abstract {
-
     public AweObject mainSelection;
     public AweObject{} allSelected;
+    public point pos;
 
     public constructor() {
+        this.initPickModes();
+
+        super();
+    }
+    
+    extend public void initPickModes() {
         this.configurator = new AweModelPickerAnimationConfigurator();
+        
         var pickModes = this.pickModes();
-        if(pickModes and !pickModes.empty) {
+        
+        if (pickModes and !pickModes.empty) {
             this.configurator.AweModelPickerAnimationConfigurator.pickModeDomain = new ObjectSubSet(pickModes.:Object[]);
             this.configurator.AweModelPickerAnimationConfigurator.pickMode = pickModes.first();
         }
-        super();
-    }   
+    }
+
+    public void propertyChange(str key, Object value) {
+        super(..);
+
+        if (key == "pickMode" and value in AweModelGroupPicker) {
+            this.mainSelection = null;
+
+            this.move(this.lastMouseInfo);
+        }
+    }
 
     /************* protocol ***************/
     extend public bool pick(AweObject model) : abstract { }
@@ -58,12 +75,23 @@ public class AweModelPickerAnimation extends AweAnimation : abstract {
         return [AweModelGroupPicker: new AweSingleModelGroupPicker(), new AweSameClassModelGroupPicker()];
     }
 
+    extend public AweModelGroupPicker pickMode() {
+        if (configurator as AweModelPickerAnimationConfigurator) {
+            return configurator.pickMode;
+        }
+
+        return null;
+    }
+
     extend public bool groupPick(AweObject model) {
-        if(configurator as AweModelPickerAnimationConfigurator) {
-            if(configurator.pickMode) {
-                return configurator.pickMode.pick(model, this.mainSelection);
+        if (this.pick(model)) {
+            if (configurator as AweModelPickerAnimationConfigurator) {
+                if (configurator.pickMode) {
+                    return configurator.pickMode.pick(model, this.mainSelection);
+                }
             }
         }
+
         return false;
     }
 
@@ -87,6 +115,8 @@ public class AweModelPickerAnimation extends AweAnimation : abstract {
     }
 
     public void move(AnimationMouseInfo mi) {
+        super(..);
+
         AweObject model;
         WindowView owner = mi.ownerView;
         if (owner as View3D) {
@@ -102,10 +132,11 @@ public class AweModelPickerAnimation extends AweAnimation : abstract {
                 }
             }
         }
-
+        
+        this.pos = mi.onFloorPos();
+        
         tryPick(model);
-        space.invalidate(this);
-
+        space.invalidate3D(this, dirty3D.all);
     }
 
     extend public void tryPick(AweObject newModel) {
@@ -143,23 +174,30 @@ public class AweModelPickerAnimation extends AweAnimation : abstract {
     }
    
     public Primitive3D get3D(FetchEnv3D env) {
+        return this.getHighlight3D(this.allSelected);
+    }
+
+    extend public Primitive3D getHighlight3D(AweObject{} models) {
         Awe3D prims();
-        for(m in allSelected) {
-            if(AweProduct product = m.?getProduct()) {
+        
+        for (m in models) {
+            if (AweProduct product = m.?getProduct()) {
                 Awe3D prim();
-                var b = Box3D(product.localBound().grown(0.001));
+                var b = new Box3D(product.localBound().grown(0.001));
                 b.setMaterial(this.highlightMaterial());
                 prim << b;
                 var frame = frameBox3D(product.localBound().grown(0.002));
                 prim << frame;
                 frame.setMaterial(plainYellowMaterial3D());
-                if(Snapper s = product._model.?mainSnapper) {
-                    prim = Awe3D(s.toSpace(prim));
+                
+                if (Snapper s = product._model.?mainSnapper) {
+                    prim = new Awe3D(s.toSpace(prim));
                 }
+
                 prims << prim;
             }
-
         }
+
         return prims;
     }
 
