@@ -34,24 +34,13 @@
    END OF CETSC
 */
 
-package custom.awesome.stretch;
+package custom.awesome;
 
-public class AweDepthStretcher extends AweStretcher {
-    
-    private str{} lockProps;
-
-    public constructor(AweObject model, str propName="depth", str {} lockProps = {"width"}) {
-        super(model, propName);
-        this.lockProps = lockProps;
+public void appendSmart(AnimationProperties this, str key, str label, Object value, SubSet domain, bool lockable=false) {
+    if (domain and domain.count > 1 and domain.count <= 9) {
+        this.append3(key, label, value, domain, lockable=lockable);
     }
-
-    public line line() {
-        var bound = this.model.getProduct().localBound();
-        return bound.upCenterlineY;
+    else {
+        this.append2(key, label, value, domain, lockable=lockable);
     }
-
-    public str{} lockedProperties() {
-        return this.lockProps;
-    }
-
 }

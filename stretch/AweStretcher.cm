@@ -41,6 +41,8 @@ public class AweStretcher : abstract {
     /************ protocol ****************/
     extend public line line() : abstract { }
     extend public AweStretcherSpread[] spreads() { return [AweStretcherSpread: new AweStretcherSpreadNone(this), new AweStretcherSpreadAnythingAligned(this)]; }
+    //list of properties that can't change during this stretch. System will undo last stretch if it causes any of those properties to change. 
+    extend public str{} lockedProperties() { return null; }
     /**************************************/
 
     public AweStretcherSpread spread;
@@ -66,7 +68,32 @@ public class AweStretcher : abstract {
     }   
 
     extend public SubSet domain() {
-        return this.model.getDomain(this.propKey);
+        distance[] validDomain();
+
+        var fullDomain = this.model.getDomain(this.propKey);
+        for(item in fullDomain.members) {
+            var passed = true;
+            for(lockedProp in this.lockedProperties()) {
+                if(!testChange(item.double, lockedProp)) {
+                    passed = false;
+                }
+            }
+            if(passed) {
+                validDomain << item.distance;
+            }
+        }
+        return DistanceEnum(validDomain);
+    }
+
+    extend private bool testChange(double newValue, str lockedProp) {
+        if(!this.model.get(lockedProp)) {
+            return true;
+        }
+        var testSubject = this.model.copy();
+        var currentValue = testSubject.get(lockedProp);
+        testSubject.set(this.propKey, newValue);
+        var valueAfter = testSubject.get(lockedProp);
+        return currentValue.equal(valueAfter);
     }
 
     extend public AweSnapper snapper() {

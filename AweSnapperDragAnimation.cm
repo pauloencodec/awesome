@@ -55,6 +55,14 @@ public class AweSnapperDragAnimation extends DragAnimation {
     }
 
     public SnapInfo activeSnapInfo;
+
+    extend public void snapInfoChanged(SnapInfo newInfo, AnimationMouseInfo mi) {
+        if(newInfo as ConnectSnapInfo) {
+            if(?AweConnectLine l = newInfo.snap) {
+                l.trySnap(newInfo.attach, mi.mouseLine);
+            }
+        }
+    }
     
     public void drawGraphs(LayerBuffer lb) {
         if(this.activeGhost) {
@@ -139,9 +147,13 @@ public class AweSnapperDragAnimation extends DragAnimation {
             Transform oldTranform = selection.main.toSpaceTransform();
     
             SnapInfo last = currentSpace ? currentSpace.lastSnapped : null;
+            selection.snaps = selection.snaps.sort(function sortByPriorityDesc, null);
             SnapInfo info = skipSnapping ? null : selection.trySnap(mi, modifyEnv, filter);
 
             /********* awesome modification *********/
+            if(this.activeSnapInfo != info) {
+                this.snapInfoChanged(info, mi);
+            }
             this.activeSnapInfo = info;
             this.updateActiveGhost(info);
             /********* awesome modification *********/;
