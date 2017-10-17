@@ -84,11 +84,14 @@ public class AweModelPickerAnimation extends AweAnimation : abstract {
     }
 
     extend public bool groupPick(AweObject model) {
-        if(configurator as AweModelPickerAnimationConfigurator) {
-            if(configurator.pickMode) {
-                return configurator.pickMode.pick(model, this.mainSelection);
+        if (this.pick(model)) {
+            if (configurator as AweModelPickerAnimationConfigurator) {
+                if (configurator.pickMode) {
+                    return configurator.pickMode.pick(model, this.mainSelection);
+                }
             }
         }
+
         return false;
     }
 
