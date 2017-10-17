@@ -46,10 +46,6 @@ public class AweManipulator extends AweConnectPoint {
     public Connector connection() { return null; }
     public Connector{} connections() { return null; }
     public bool isConnectedTo(Connector c) { return false; }
-
-    
-
-    
 }
 
 public class AweStretchableConnector extends AweManipulator {

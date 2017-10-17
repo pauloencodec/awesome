@@ -334,8 +334,8 @@ public class AweSnapper extends TaggableSnapper {
 
         if (!c0.isPassive()) {
             this.groupChanged(new AweGroupAutomationConnected(this, c0, c1));
-            this.modelChanged(new AweGroupAutomationConnected(this, c0, c1));
         }
+        this.modelChanged(new AweGroupAutomationConnected(this, c0, c1));
     }
 
     public void disconnected(Connector c0, Connector c1, bool wasSnapped, bool wasAttached) {
@@ -676,7 +676,7 @@ public class AweSnapper extends TaggableSnapper {
     /***********************************************************************
      * Stretch
      ***********************************************************************/
-
+    
     public void updateConnectors() {
         this.space.?updateSelectionConnectors();
         super(..);

@@ -139,7 +139,9 @@ public expr find '(' @root=expr ':' @query=[type '>']* @lastType=type ')' {
         AweObject{} mySet = query.find(types);
         @lastType{} typedSet();
         for(item in mySet) {
-            typedSet << item.@lastType;
+            //cast as Object to allow to cast back to AweObject if needed without causing a redundant cast error
+            Object found = item;
+            typedSet << found.@lastType;
         }
         result typedSet;
     };

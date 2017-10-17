@@ -34,18 +34,12 @@
    END OF CETSC
 */
 
-package custom.awesome.stretch;
+package custom.awesome;
 
-public class AweElevationStretcher extends AweStretcher {
-    public constructor(AweObject model, str elevationPropName="elevation") {
-        super(model, elevationPropName, enableA=false, visiblePosOffsetB=(0, 0, snapShapeSize));
-    }
+public void mirrorX(APath2D path, double flipPlane) {
+    path.transform(flipXAxisTransform2D(flipPlane));
+}
 
-    public line line() {
-        var bound = this.model.getProduct().localBound();
-        var verticalLine = bound.verticalCenterline;
-        //force p0 to ground
-        verticalLine.p0.z = this.model.mainSnapper.pos().z;
-        return verticalLine;
-    }
+private Transform2D flipXAxisTransform2D(double flipPlane) {
+    return Transform2D(pos=(flipPlane*2, 0), rot=0deg, scale=point2D(-1, 1));
 }
