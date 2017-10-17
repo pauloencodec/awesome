@@ -78,15 +78,16 @@ public class AweObject {
     }
 
     extend public void set(str propName, Object value) {
-        this.makePropModelAware(propName, value);
         Object oldValue = get(propName);
-
+        
         //AweMaterialShell instance must never be replaced. instead, update the contents of the shell
         if (value in AweMaterialShell and oldValue in AweMaterialShell) {
             oldValue.AweMaterialShell.setMaterial(value.AweMaterialShell.materialInstance());
         }
         else {
             this.props.put(propName, value);
+            
+            this.makePropModelAware(propName, value);
         }
 
         propChanged(propName, oldValue, value);
@@ -104,21 +105,39 @@ public class AweObject {
         return null;
     }
 
-    public str->AweStretcher _stretchers : copy=null;
-
-    extend public AweStretcher[] getStretchers() {
+    extend public str getLabel(str propName) {
         return null;
-        // var bound = this.mainSnapper.localBound();
-
-        // AweStretcher[] result();
-
-        // result <<? this.createStretcher("width", bound.upCenterlineX);
-        // result <<? this.createStretcher("depth", bound.upCenterlineY);
-        // result <<? this.createStretcher("height", bound.verticalCenterline, enableA=false, visiblePosOffsetB=(0, 0, snapShapeSize));
-        // result <<? this.createStretcher("elevation", bound.verticalCenterline, enableA=false, visiblePosOffsetB=(0, 0, snapShapeSize));
-
-        // return result;
     }
+
+    public AweStretcher{} _stretchers : copy=null, stream=null;
+    extend public AweStretcher{} getStretchers() {
+        if(!this._stretchers) {
+            this._stretchers = this.createStretchers();
+        }
+        AweStretcher{} active();
+        for(s in this._stretchers) {
+            if(this.hasDomainOptions(s.propKey)) {
+                active << s;
+            }
+        }
+        return active;
+    }
+
+    extend private bool hasDomainOptions(str propKey) {
+        var domain = this.getDomain(propKey);
+        return domain and domain.count > 1;
+    }
+    
+    extend public AweStretcher{} createStretchers() {
+        //default stretchers for everyone.
+        return {AweStretcher:
+            new AweHeightStretcher(this),
+            new AweWidthStretcher(this),
+            new AweDepthStretcher(this),
+            new AweElevationStretcher(this)
+        };
+    }
+
 
     /************** prop awereness ***********************/
     extend private void makePropModelAware(str propName, Object value) {
@@ -188,7 +207,7 @@ public class AweObject {
         for(set in this.connectorSets) {
             if(set.optional and set.name()) {
                 var setKey = "ConnectorSet_" # set.name();
-                props.append2(setKey, set.name(), set.selected, BoolSubSet(), lockable=false);
+                props.appendSmart(setKey, set.name(), set.selected, BoolSubSet(), lockable=false);
             }
         }
     }
@@ -496,7 +515,6 @@ public class AweObject {
         snappers << s;
     }
 
-
     /************** connect events ************/
     extend public void connected(Connector thisConnector, Connector otherConnector, AweObject model) {
 
@@ -606,6 +624,10 @@ public class AweObject {
 
     /************* automations ***************/
     extend public AweGroupAutomation[] getGroupAutomations() {
+        return null;
+    }
+
+    extend public AweAutomation[] getAutomations() {
         return null;
     }
 
@@ -744,6 +766,7 @@ public definition @visibility aweObject @name=id @parentClass=["extends" type]? 
             @visibility class @name extends @baseClassName {
                 public constructor(@props) {
                     super();
+                    @initProps;
                 }
 
                 public void init() { 
@@ -775,6 +798,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
 
     SStatements applyFrom();
     SStatements getDomain();
+    SStatements getLabel();
     
     for (i in 0..(domains.count-1)) {
         SFormalArg arg = domains[i];
@@ -818,7 +842,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                             // props.append(customQuickProperty.QuickProperty);
                         }
                         else {
-                            props.append2(this._uniqueQuickPropertyId # @propNameStr, @labelName, distance(@propName), @domainName, lockable=false);
+                            props.appendSmart(this._uniqueQuickPropertyId # @propNameStr, @labelName, distance(@propName), @domainName, lockable=false);
                         }
                     }
                 }
@@ -861,7 +885,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                             // props.append(customQuickProperty.QuickProperty);
                         }
                         else {
-                            props.append2(this._uniqueQuickPropertyId # @propNameStr, @labelName, @propName, @domainName, lockable=false);
+                            props.appendSmart(this._uniqueQuickPropertyId # @propNameStr, @labelName, @propName, @domainName, lockable=false);
                         }
                     }
                 }
@@ -896,6 +920,12 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         getDomain << statement {
             if (propName == @propNameStr) {
                 return @domainName;
+            }
+        };
+
+        getLabel << statement {
+            if (propName == @propNameStr) {
+                return @labelName ?? @propNameStr;
             }
         };
     }
@@ -934,6 +964,12 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
 
         @visibility SubSet getDomain(str propName) {
             @getDomain;
+
+            return super(..);
+        }
+
+        @visibility str getLabel(str propName) {
+            @getLabel;
 
             return super(..);
         }

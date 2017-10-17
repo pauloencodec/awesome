@@ -34,23 +34,13 @@
    END OF CETSC
 */
 
-package custom.awesome.sif;
+package custom.awesome;
 
-public class AweSifOptionSelection {
-    public constructor() {
-    }   
-
-    public str optionKey;
-    public str optionDescription;
-    public str selectionKey;
-    public str selectionDescription;
-    public str suboptionKey;
-    public double upcharge;
-    public bool invalid;
-
-    public AweSifOptionSelection parentSelection;
-
-    public str toS() {
-        return format("@selectionKey; @selectionDescription;");
+public void appendSmart(AnimationProperties this, str key, str label, Object value, SubSet domain, bool lockable=false) {
+    if (domain and domain.count > 1 and domain.count <= 9) {
+        this.append3(key, label, value, domain, lockable=lockable);
+    }
+    else {
+        this.append2(key, label, value, domain, lockable=lockable);
     }
 }
