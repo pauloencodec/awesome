@@ -139,5 +139,10 @@ public member @visibility modelConnecting ';' {
                 return super(..);
             }
         }
+
+        public double priority = 0;
+        public double attachPriority() { 
+            return this.priority;
+        }
     };
 }

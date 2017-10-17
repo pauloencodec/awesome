@@ -1,0 +1,223 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome;
+
+public class AweModelPickerAnimation extends AweAnimation : abstract {
+
+    public AweObject mainSelection;
+    public AweObject{} allSelected;
+
+    public constructor() {
+        this.configurator = new AweModelPickerAnimationConfigurator();
+        var pickModes = this.pickModes();
+        if(pickModes and !pickModes.empty) {
+            this.configurator.AweModelPickerAnimationConfigurator.pickModeDomain = new ObjectSubSet(pickModes.:Object[]);
+            this.configurator.AweModelPickerAnimationConfigurator.pickMode = pickModes.first();
+        }
+        super();
+    }   
+
+    /************* protocol ***************/
+    extend public bool pick(AweObject model) : abstract { }
+
+    extend public AweModelGroupPicker[] pickModes() {
+        return [AweModelGroupPicker: new AweSingleModelGroupPicker(), new AweSameClassModelGroupPicker()];
+    }
+
+    extend public bool groupPick(AweObject model) {
+        if(configurator as AweModelPickerAnimationConfigurator) {
+            if(configurator.pickMode) {
+                return configurator.pickMode.pick(model, this.mainSelection);
+            }
+        }
+        return false;
+    }
+
+    extend public void clicked(AweObject main, AweObject{} all) {
+
+    }
+
+    /************ action **************/
+
+    public void click(AnimationMouseInfo mi) {
+        if(this.mainSelection) {
+            this.clicked(this.mainSelection, this.allSelected);
+        }
+        this.resetSelection();
+        space.invalidate(this);
+        super(..);
+    }
+
+    public void increaseState() {
+        //don't
+    }
+
+    public void move(AnimationMouseInfo mi) {
+        AweObject model;
+        WindowView owner = mi.ownerView;
+        if (owner as View3D) {
+            PickIntersection3D[] picked = owner.pick(mi.windowViewMouseInfo.pos);
+            for (p in picked) {
+                if (p.owner.AweBindingSnapperPickSurface) {
+                    model = p.owner.AweBindingSnapperPickSurface.configurator;
+                    break;
+                }
+                else if (p.owner.AweSnapper) {
+                    model = p.owner.AweSnapper.mainModel;
+                    break;
+                }
+            }
+        }
+
+        tryPick(model);
+        space.invalidate(this);
+
+    }
+
+    extend public void tryPick(AweObject newModel) {
+        if(!newModel) {
+            this.resetSelection();
+        } else if(newModel != this.mainSelection) {
+            if(this.pick(newModel)) {
+                this.mainSelection = newModel;
+                init this.allSelected();
+                this.allSelected = this.selectGroup(this.mainSelection);
+            }
+        }
+    }
+
+    extend public void resetSelection() {
+        this.mainSelection = null;
+        this.allSelected = null;
+    }
+
+    extend public AweObject{} selectGroup(AweObject mainSelection) {
+        AweObject{} group();
+        var connected = mainSelection.?mainSnapper().AweSnapper.?groupModels();
+        for(c in connected) {
+            if(this.groupPick(c)) {
+                group << c;
+            }
+        }
+        group << mainSelection;
+        return group;
+    }
+
+    /************** 3d ******************/
+    public bool deny3D() {
+	    return false;
+    }
+   
+    public Primitive3D get3D(FetchEnv3D env) {
+        Awe3D prims();
+        for(m in allSelected) {
+            if(AweProduct product = m.?getProduct()) {
+                Awe3D prim();
+                var b = Box3D(product.localBound().grown(0.001));
+                b.setMaterial(this.highlightMaterial());
+                prim << b;
+                var frame = frameBox3D(product.localBound().grown(0.002));
+                prim << frame;
+                frame.setMaterial(plainYellowMaterial3D());
+                if(Snapper s = product._model.?mainSnapper) {
+                    prim = Awe3D(s.toSpace(prim));
+                }
+                prims << prim;
+            }
+
+        }
+        return prims;
+    }
+
+    extend public Material3D highlightMaterial() {
+        return plainYellowMaterial3D();
+    }
+
+}
+
+public aweObject AweModelPickerAnimationConfigurator {
+    props(
+        AweModelGroupPicker pickMode = null
+    );
+
+    public aweObjectDomain(
+        AweModelGroupPicker pickMode = null
+    );
+}
+
+public class AweModelGroupPicker : abstract {
+    public constructor() { }
+    extend public str name() : abstract { } 
+    extend public bool pick(AweObject model, AweObject mainSelection) : abstract { }
+
+    public str toS() {
+        return this.name();
+    }
+}
+
+public class AweSingleModelGroupPicker extends AweModelGroupPicker {
+    public bool pick(AweObject model, AweObject mainSelection) {
+        return false;
+    }
+
+    public str name() {
+        return "Single";
+    }
+}
+
+
+public class AweSameClassModelGroupPicker extends AweModelGroupPicker {
+    public bool pick(AweObject model, AweObject mainSelection) {
+        return model.class == mainSelection.class;
+    }
+
+    public str name() {
+        return "Same Kind";
+    }
+}
+
+/*************** testing ******************/
+public class AwePickAnythingAnimation extends AweModelPickerAnimation {
+    public bool pick(AweObject model) {
+        return true;
+    }
+}
+
+{
+    var picker = new AwePickAnythingAnimation();
+    picker.animate();
+}
