@@ -34,57 +34,12 @@
    END OF CETSC
 */
 
-package custom.awesome.ui;
+package custom.awesome;
 
-public class AweAnimationLimb extends AnimationLimb {
-    private Animation animation : public readable;
-
-    public constructor(
-        LibraryLimb parent,
-        Animation animation,
-        symbol pkg=null,
-        str key=null,
-        Image image=null,
-        str label=null,
-        str toolTipText=null) {
-
-        if (!key) {
-            key = cm.os.createGUID();
-        }
-        
-        this.animation = animation;
-
-        super(parent, pkg, key, image=image, label="", toolTipText=toolTipText);
-    }
-    
-    public Window build(Window w) {
-        SelectButton button = new AweAnimationButton(w, this, label=this.label, image=image, frameStyle=toolboxButtonFrameStyle);
-
-        button.key = this.key;
-        button.setToolTipText(this.toolTipText ?? this.label);
-
-        return button;
-    }
+public void mirrorX(APath2D path, double flipPlane) {
+    path.transform(flipXAxisTransform2D(flipPlane));
 }
 
-public class AweAnimationButton extends AnimationImageButton {
-    private AweAnimationLimb limb;
-
-    public constructor(Window parent, AweAnimationLimb limb, FrameStyle frameStyle=pushButtonFrame, str label=null, Image image=null, alignment textSide=alignment.down) {
-        this.limb = limb;
-
-        super(parent, snapperName=this.limb.key, frameStyle=frameStyle, label=label, image=image, textSide=textSide);
-    }
-
-    public Animation getToolboxAnimation() {
-        if (this.limb) {
-            return this.limb.animation.copy();
-        }
-
-        return null;
-    }
-}
-
-public void add(LibraryLimb container, Animation animation, Image image, str tooltip) {
-    new AweAnimationLimb(container, animation, image=image, toolTipText=tooltip);
+private Transform2D flipXAxisTransform2D(double flipPlane) {
+    return Transform2D(pos=(flipPlane*2, 0), rot=0deg, scale=point2D(-1, 1));
 }
