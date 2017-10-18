@@ -264,6 +264,11 @@ public class AweInsertAnimation extends InsertAnimation {
         }
 
         potentialStretchers.sort(function sortByDistanceToLine, lastMouseInfo.mouseLine);
+        for(AweStretcherConnector c in potentialStretchers) {
+            if(c.isFree()) {
+                return c;
+            }
+        }
         if(!potentialStretchers.empty) return potentialStretchers.first();
         return null;
     }
