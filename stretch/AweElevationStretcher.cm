@@ -42,16 +42,12 @@ public class AweElevationStretcher extends AweStretcher {
     }
 
     public line line() {
-<<<<<<< HEAD
-        var bound = this.model.getProduct().localBound();
-=======
         line l();
 
         var product = this.model.?getProduct();
         if(product == null) return l;
 
         var bound = product.localBound();
->>>>>>> c5ab1dc08894254de68ccc37969e93160f6f3a61
         var verticalLine = bound.verticalCenterline;
         //force p0 to ground
         verticalLine.p0.z = this.model.mainSnapper.pos().z;
