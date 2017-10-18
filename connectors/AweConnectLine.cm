@@ -92,7 +92,7 @@ public class AweConnectLine extends ConnectLine {
     /************* adjusting size on trySnap ***************/
     public str autoSizePropKey;
 
-    extend public void trySnap(Connector attach, line mouseLine) {
+    extend public void tryResizeToFit(Connector attach, line mouseLine) {
         if(attach as ConnectLine) {
             this.resizeToFit(attach, mouseLine);
         }

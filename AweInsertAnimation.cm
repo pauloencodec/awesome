@@ -113,7 +113,7 @@ public class AweInsertAnimation extends InsertAnimation {
     extend public void snapInfoChanged(SnapInfo newInfo, AnimationMouseInfo mi) {
         if(newInfo as ConnectSnapInfo) {
             if(?AweConnectLine l = newInfo.snap) {
-                l.trySnap(newInfo.attach, mi.mouseLine);
+                l.tryResizeToFit(newInfo.attach, mi.mouseLine);
             }
             if(AweConnectorSet set = newInfo.snap.getConnectorSet()) {
                 set.trySnap(new AweConnectEnv(newInfo.snap), new AweConnectEnv(newInfo.attach), mi);
