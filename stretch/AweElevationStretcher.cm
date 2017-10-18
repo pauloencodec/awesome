@@ -36,8 +36,21 @@
 
 package custom.awesome.stretch;
 
-public class AweElevationStretcher extends AweHeightStretcher {
-    public constructor(AweObject model, str heightPropName="elevation") {
-        super(model, heightPropName);
+public class AweElevationStretcher extends AweStretcher {
+    public constructor(AweObject model, str elevationPropName="elevation") {
+        super(model, elevationPropName, enableA=false, visiblePosOffsetB=(0, 0, snapShapeSize));
+    }
+
+    public line line() {
+        line l();
+
+        var product = this.model.?getProduct();
+        if(product == null) return l;
+
+        var bound = product.localBound();
+        var verticalLine = bound.verticalCenterline;
+        //force p0 to ground
+        verticalLine.p0.z = this.model.mainSnapper.pos().z;
+        return verticalLine;
     }
 }

@@ -115,6 +115,9 @@ public class AweInsertAnimation extends InsertAnimation {
             if(?AweConnectLine l = newInfo.snap) {
                 l.trySnap(newInfo.attach, mi.mouseLine);
             }
+            if(AweConnectorSet set = newInfo.snap.getConnectorSet()) {
+                set.trySnap(new AweConnectEnv(newInfo.snap), new AweConnectEnv(newInfo.attach), mi);
+            }
         }
     }
 
