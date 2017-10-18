@@ -34,23 +34,12 @@
    END OF CETSC
 */
 
-package custom.awesome.sif;
+package custom.awesome;
 
-public class AweSifOptionSelection {
-    public constructor() {
-    }   
+public void mirrorX(APath2D path, double flipPlane) {
+    path.transform(flipXAxisTransform2D(flipPlane));
+}
 
-    public str optionKey;
-    public str optionDescription;
-    public str selectionKey;
-    public str selectionDescription;
-    public str suboptionKey;
-    public double upcharge;
-    public bool invalid;
-
-    public AweSifOptionSelection parentSelection;
-
-    public str toS() {
-        return format("@selectionKey; @selectionDescription;");
-    }
+private Transform2D flipXAxisTransform2D(double flipPlane) {
+    return Transform2D(pos=(flipPlane*2, 0), rot=0deg, scale=point2D(-1, 1));
 }

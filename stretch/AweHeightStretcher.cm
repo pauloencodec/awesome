@@ -34,23 +34,21 @@
    END OF CETSC
 */
 
-package custom.awesome.sif;
+package custom.awesome.stretch;
 
-public class AweSifOptionSelection {
-    public constructor() {
-    }   
+public class AweHeightStretcher extends AweStretcher {
 
-    public str optionKey;
-    public str optionDescription;
-    public str selectionKey;
-    public str selectionDescription;
-    public str suboptionKey;
-    public double upcharge;
-    public bool invalid;
+    public constructor(AweObject model, str heightPropName="height") {
+        super(model, heightPropName, enableA=false, visiblePosOffsetB=(0, 0, snapShapeSize));
+    }
 
-    public AweSifOptionSelection parentSelection;
+    public line line() {
+        line l();
 
-    public str toS() {
-        return format("@selectionKey; @selectionDescription;");
+        var product = this.model.?getProduct();
+        if(product == null) return l;
+
+        var bound = product.localBound();
+        return bound.verticalCenterline;
     }
 }

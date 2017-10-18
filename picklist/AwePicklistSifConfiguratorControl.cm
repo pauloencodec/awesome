@@ -51,7 +51,7 @@ public class AwePicklistSifConfiguratorControl extends GroupBox {
 
     public constructor(Window parent, AweSifCatalog catalog, AweMaterialFactory materialFactory, AwePicklistItem item) {
         if (!item.sifSku) {
-            item.sifSku = this.catalog.parseSku(this.item.partNo);
+            item.sifSku = this.catalog.parseSku(item.partNo);
         }
         
         super(parent, size=(515, 289), font=boldSystemFont, label=item.description);

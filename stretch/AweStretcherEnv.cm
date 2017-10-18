@@ -34,23 +34,37 @@
    END OF CETSC
 */
 
-package custom.awesome.sif;
+package custom.awesome.stretch;
 
-public class AweSifOptionSelection {
-    public constructor() {
+public class AweStretcherEnv {
+    public constructor(AweStretcherConnector connector, Point newPosition=null) {
+        if(connector) {
+            this.connector = connector;
+            this.stretcher = connector.stretcher;
+            this.model = this.stretcher.?model;
+            this.snapper = this.connector.snapper;
+            this.propKey = this.stretcher.?propKey;
+            this.currentLength = this.model.?get(this.propKey).?safeDouble();
+            this.domain = this.stretcher.?domain();
+            this.currentPosition = connector.pos();
+            this.newPosition = this.currentPosition;
+            if(newPosition) {
+                this.newPosition = newPosition.v;
+            }
+            var newPosInSpace = this.snapper.toSpace(this.newPosition);
+            this.newLength = this.connector.anchor().distance(newPosInSpace);
+        }
     }   
 
-    public str optionKey;
-    public str optionDescription;
-    public str selectionKey;
-    public str selectionDescription;
-    public str suboptionKey;
-    public double upcharge;
-    public bool invalid;
-
-    public AweSifOptionSelection parentSelection;
-
-    public str toS() {
-        return format("@selectionKey; @selectionDescription;");
-    }
+    public AweStretcherConnector connector;
+    public AweStretcher stretcher;
+    public AweObject model;
+    public Snapper snapper;
+    public SubSet domain;
+    public double currentLength;
+    public double newLength;
+    public str propKey;
+    //local to snapper
+    public point currentPosition;
+    public point newPosition;
 }
