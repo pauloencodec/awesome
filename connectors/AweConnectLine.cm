@@ -111,7 +111,16 @@ public class AweConnectLine extends ConnectLine {
         double availableSpace = attach.freeSpace(this, mouseLine);
         //size of one object (for instance, one panel)
         double oneLineLength = attach.length;
+        double extraLengthFromNeighborLine = this.extraLength(..);
+        double twoLinesLength = oneLineLength + extraLengthFromNeighborLine;
+
+
+
         double[] sizes();
+
+        if(twoLinesLength <= availableSpace and twoLinesLength != oneLineLength) {
+            sizes << twoLinesLength;
+        }
 
         if(oneLineLength <= availableSpace) {
             sizes << oneLineLength;
@@ -124,6 +133,18 @@ public class AweConnectLine extends ConnectLine {
         return sizes;
     }
 
+    extend public double extraLength(ConnectLine attach, line mouseLine) {
+        double mergeThreshold = .2;
+        if(attach.j0 and attach.j0.perpendicularDistance(mouseLine) < mergeThreshold) {
+            return attach.j0.length;
+        }  
+        if(attach.j1 and attach.j1.perpendicularDistance(mouseLine) < mergeThreshold) {
+            return attach.j1.length;
+        } 
+        return 0;
+    }
+
+
     extend public void resizeToFit(double[] sizes, SubSet domain) {
         for(s in sizes) {
             if(s in domain) {
@@ -135,4 +156,17 @@ public class AweConnectLine extends ConnectLine {
         
     }
 
+ }
+
+ public double perpendicularDistance(ConnectLine cl, line mouseLine) {
+    plane pl(cl.spaceRot().normal, cl.spacePos());
+    point mouseLineToPlaneIntersection = mouseLine.intersect(pl).ip;
+    point projection = cl.spaceLine().normalIntersectUnbounded(mouseLineToPlaneIntersection).ip;
+    var p0Distance = cl.spaceLine().p0.distance(projection);
+    var p1Distance = cl.spaceLine().p1.distance(projection);
+    double d = p0Distance;
+    if(p1Distance < d) {
+        d = p1Distance;
+    }
+    return d;
  }
