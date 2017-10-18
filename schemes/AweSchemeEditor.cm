@@ -94,36 +94,3 @@ public class AweSchemeEditor extends OfficeGroupSchemeEditor {
         return super(key, label, o, domain, isSubProperty, disabledAllowed, forceDrop, images);
     }
 }
-
-// public class AweMaterialSchemeProperty extends MaterialSchemeProperty {
-//     public void build(Window editSub) {
-//         super(editSub);
-        
-//         MaterialDomain md = domain.MaterialDomain;
-
-//         choice = new SchemePropertyMaterialChoice(editSub, domain=domain.MaterialDomain,
-//                             selected=value.Material,
-//                             callback=function selectChoice);
-//         choice.autoSize();
-//         choice.h = 18;
-//         choice.schemeProperty = this;
-//         control = choice;
-//     }
-// }
-
-// private void selectChoice(Control c) {
-//     if (c as SchemePropertyMaterialChoice) {
-// 	Material m = c.selected;
-	
-// 	showOfficeMaterialDialog(c.ancestor, c.schemeProperty.domain.MaterialDomain, m, null, c.schemeProperty);
-	
-//     }
-// }
-
-private OfficeMaterialDialog showOfficeMaterialDialog(Window window, MaterialDomain domain,
-						     Material selected,
-						     OfficeMaterialLimb limb=null,
-						     MaterialSchemeProperty schemeProp=null) {
-                                 pln("oi");
-								 return null;
-							 }

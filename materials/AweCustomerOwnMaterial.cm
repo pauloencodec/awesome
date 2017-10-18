@@ -36,14 +36,26 @@
 
 package custom.awesome.materials;
 
-use custom.awesome;
-use custom.awesome.ui;
-use custom.awesome.product;
+public class AweCustomerOwnMaterial extends CustomerOwnMaterial {
+    public AweCustomMaterialType type;
+    public int priceGrade;
+    public str manufacturer;
+    public str patternName;
+    public str colorName;
 
-use cm.core;
-use cm.geometry;
-use cm.geometry2D.advanced;
-use cm.core3D;
+    public str code() {
+        return this.getFullCode();
+    }
 
-use cm.win;
-use cm.abstract.office;
+    extend public str getFullCode() {
+        return format("@this.getPriceGradeCode();@this.materialCode;");
+    }
+
+    extend public str getPriceGradeCode() {
+        return format("$(@this.priceGrade;COM)");
+    }
+
+    extend public str getFullDescription() {
+        return format("@this.manufacturer; - @this.patternName; - @this.colorName;");
+    }
+}
