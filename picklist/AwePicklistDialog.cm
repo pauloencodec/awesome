@@ -337,7 +337,10 @@ public class AwePicklistDialog extends PicklistDialog {
                 this.partSub.w = 410;
                 this.plContent.w = 385;
 
-                this.editBox = new AwePicklistSifConfiguratorControl(this, catalog, this.owner.materialFactory, item);
+                this.editBox = new AwePicklistSifConfiguratorControl(this, catalog, item);
+
+                this.editBox.onSaveCallback = function onEditBoxSave;
+                this.editBox.onCloseCallback = function onEditBoxClose;
 
                 this.editBox.rightOf(this.partSub);
             }
@@ -359,6 +362,9 @@ public class AwePicklistDialog extends PicklistDialog {
             this.buildPartsSubWindow();
 
             this.partSub.y += 20;
+
+            this.buildPicklistContent();
+            this.picklistSnapper.invalidate();
         }
     }
 
@@ -415,7 +421,7 @@ public class AwePicklistDialog extends PicklistDialog {
 }
 
 private void addCallback(Control control) {
-    if (PicklistDialog dialog = control.parentFrame.PicklistDialog) {
+    if (?PicklistDialog dialog = control.parentFrame) {
         dialog.add();
     }
 }
@@ -427,7 +433,7 @@ private void searchCallback(Control control) {
 }
 
 private void editCallback(Control control) {
-    if (AwePicklistDialog dialog = control.parentFrame.AwePicklistDialog) {
+    if (?AwePicklistDialog dialog = control.parentFrame) {
         waitCursorUI {
             dialog.edit();
         }
@@ -435,7 +441,21 @@ private void editCallback(Control control) {
 }
 
 private void closeCallback(Control control) {
-    if (PicklistDialog dialog = control.parentFrame.PicklistDialog) {
+    if (?PicklistDialog dialog = control.parentFrame) {
         dialog.close();
+    }
+}
+
+private void onEditBoxClose(AwePicklistSifConfiguratorControl editor) {
+    if (?AwePicklistDialog dialog = editor.parentFrame) {
+        dialog.cancelEdit(true);
+    }
+}
+
+private void onEditBoxSave(AwePicklistSifConfiguratorControl editor) {
+    waitCursorUI {
+        if (editor.save()) {
+            onEditBoxClose(editor);
+        }
     }
 }

@@ -74,7 +74,21 @@ public class AwePicklistItem extends PicklistItem {
         var part = new AwePart(owner, this.catalog, this.partNo, this.quantity);
 
         part.data.setDescription(this.description);
-        part.data.setListPrice(this.price);
+
+        var totalPrice = this.price;
+
+        if (this.sifSku) {
+            totalPrice = this.sifSku.totalPrice();
+
+            for (selection in this.sifSku.selections) {
+                if (selection.specialValue) {
+                    part.isSpecial = true;
+                    part.specialUpcharges.put(selection.optionKey, selection.upcharge);
+                }
+            }
+        }
+
+        part.data.setListPrice(totalPrice);
 
         return part;
     }

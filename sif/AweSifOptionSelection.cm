@@ -48,6 +48,8 @@ public class AweSifOptionSelection {
     public double upcharge;
     public bool invalid;
 
+    public str specialValue;
+
     public AweSifOptionSelection parentSelection;
 
     public str toS() {

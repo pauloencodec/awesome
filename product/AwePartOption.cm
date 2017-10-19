@@ -61,7 +61,7 @@ public class AwePartOption extends PartInfoTree {
             new AwePartOptionCodeColumn("articleCode", pkg="cm.core"),
             new AwePartOptionDescriptionColumn("description", pkg="cm.core"),
             new AwePartOptionNameColumn("optionKey", pkg="cm.abstract.part"),
-            new AwePartOptionPriceColumn("outPrice", pkg="cm.core")];
+            new AwePartOptionPriceColumn("optionUpcharge", pkg="cm.abstract.part")];
 	    
         return cached;
     }

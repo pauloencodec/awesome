@@ -46,7 +46,7 @@ public class AwePicklistEnv extends PicklistEnv {
     public Part[] getParts(PicklistProxy proxy, PicklistItem[] items) {
         Part[] parts();
 
-        for (item in items) if (item as AwePicklistItem) {
+        for (AwePicklistItem item in items) {
             parts << item.getPart(this.owner);
         }
 

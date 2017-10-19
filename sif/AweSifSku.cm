@@ -85,6 +85,16 @@ public class AweSifSku {
         return null;
     }
 
+    extend public bool isSpecial() {
+        for (selection in this.selections) {
+            if (selection.specialValue) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     extend private str splitOptionKey(str key) {
         var parts = key.split('.');
 
