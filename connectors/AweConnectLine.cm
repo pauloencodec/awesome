@@ -101,22 +101,28 @@ public class AweConnectLine extends ConnectLine {
     extend public void resizeToFit(ConnectLine attach, line mouseLine) {
         var domain = this.model.getDomain(autoSizePropKey);
         if(!domain or domain.empty) return;
-        double[] sizes = this.preferredSizes(..);
+        double[] sizes = this.preferredSizes(attach, mouseLine, domain);
         this.resizeToFit(sizes, domain);
     }
 
-    extend private double[] preferredSizes(ConnectLine attach, line mouseLine) {
+    extend private double[] preferredSizes(ConnectLine attach, line mouseLine, SubSet domain) {
+        double[] sizes();
+
         //total space available in all aligned connectable lines
         //for instance an entire row of panels
         double availableSpace = attach.freeSpace(this, mouseLine);
+        if(availableSpace == 0 and domain and !domain.empty) {
+            //we get 0 here when the object doesn't fit the available space. so we set the size to the smallest possible domain size, which will triger the whole cycle again 
+            //but next time we're smaller, so we might fit
+            sizes << domain.closest(availableSpace).double;
+            return sizes;
+        }
+
         //size of one object (for instance, one panel)
         double oneLineLength = attach.length;
-        double extraLengthFromNeighborLine = this.extraLength(..);
+        double extraLengthFromNeighborLine = this.extraLength(attach, mouseLine);
         double twoLinesLength = oneLineLength + extraLengthFromNeighborLine;
 
-
-
-        double[] sizes();
 
         if(twoLinesLength <= availableSpace and twoLinesLength != oneLineLength) {
             sizes << twoLinesLength;
@@ -130,6 +136,7 @@ public class AweConnectLine extends ConnectLine {
         for(divisor in [1,2,3,4,5,6]) {
             sizes << availableSpace / divisor;
         }
+
         return sizes;
     }
 
