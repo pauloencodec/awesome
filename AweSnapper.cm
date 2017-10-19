@@ -179,13 +179,6 @@ public class AweSnapper extends TaggableSnapper {
         return new AweSnapperDragAnimation(env);
     }
 
-    public double connectLineAlignConnector(ConnectLine s, Connector c, double t) {
-        if ( cm.win.isControlKeyDown() ) {
-            return super(..);  
-        } else {
-            return t; 
-        }
-    }
 
     public bool buildQuickProperties(QuickProperties props) { 
         if (this.activeConfigurator) {
