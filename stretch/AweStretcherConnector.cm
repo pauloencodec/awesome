@@ -46,10 +46,6 @@ public class AweManipulator extends AweConnectPoint {
     public Connector connection() { return null; }
     public Connector{} connections() { return null; }
     public bool isConnectedTo(Connector c) { return false; }
-
-    
-
-    
 }
 
 public class AweStretchableConnector extends AweManipulator {
@@ -96,4 +92,41 @@ public class AweStretcherConnector extends AweStretchableConnector {
         line planeNomalLine(point(), pl.n);
         return thisLine.isParallell(planeNomalLine);
     }
+
+    extend public bool isFree() {
+        for(c in this.samePlaneConnectors()) {
+            if(c.isConnected) return false;
+            if(c.isAlignedToConnect()) return false;
+        }
+        return true;
+    }
+
+    extend public plane spacePlane() {
+        return new plane(this.spaceRot().direction, this.spacePos());
+    }
+
+    extend public Connector{} samePlaneConnectors() {
+        Connector{} samePlane();
+        var pl = this.spacePlane();
+        for(c in this.snapper.connectors()) {
+            if(c != this) {
+                var p = c.spacePos();
+                if(pl.project(p) == p and c.spaceRot() == orientation(pl.n)) {
+                    samePlane << c;
+                }
+            }
+        }
+        return samePlane;
+    }
+
+
+}
+
+public bool isAlignedToConnect(Connector c, Space space=activeSpace()) {
+    FilteredConnectorSet fas(connectableAttachFilter);
+	space.getCollection(c.connectSpaceBox, collection=fas, filterViewModes=false, filterSpaceVolumes=false, snapperFilter=null);
+    for(potential in fas) {
+        if(potential.isAligned(c)) return true;
+    }
+    return false;
 }

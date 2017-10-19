@@ -46,7 +46,12 @@ public class AweDepthStretcher extends AweStretcher {
     }
 
     public line line() {
-        var bound = this.model.getProduct().localBound();
+        line l();
+
+        var product = this.model.?getProduct();
+        if(product == null) return l;
+
+        var bound = product.localBound();
         return bound.upCenterlineY;
     }
 
