@@ -42,9 +42,12 @@ public class AwePart extends OfficePart {
     public str sku;
     public str catalog;
     public bool isValid;
+    public bool isSpecial;
     private AwePartOption[] options : public readable;
     public AwePartHeader header();
     public AweTag tag;
+
+    public str->double specialUpcharges();
 
     public constructor(str catalog, str sku, double quantity=1, AweTag tag=null) {
         super();
@@ -65,7 +68,7 @@ public class AwePart extends OfficePart {
         super(snapper, this.basemodel, this.sku, 0, quantity=quantity);
     }
 
-    extend private str basemodel() {
+    extend public str basemodel() {
         return this.sku.split('.').v0;
     }
 
@@ -115,6 +118,16 @@ public class AwePart extends OfficePart {
         for (option in options) {
             this.appendOption(option);
         }
+    }
+
+    extend public double totalUpcharge() {
+        double total = 0;
+
+        for (option in this.options) {
+            total += option.price;
+        }
+
+        return total;
     }
 
     extend public bool isValid() {

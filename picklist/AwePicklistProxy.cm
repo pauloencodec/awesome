@@ -34,25 +34,23 @@
    END OF CETSC
 */
 
-package custom.awesome.sif;
+package custom.awesome.picklist;
 
-public class AweSifOptionSelection {
-    public constructor() {
-    }   
+public class AwePicklistProxy extends SnapperPicklistProxy : abstract {
+    public AweQueryDialog queryDialog : copy=null, stream=null;
+    
+    extend public str picklistKey() : abstract {
+    }
+    
+    extend public str name() : abstract {
+    }
+    
+    extend public AweSifCatalogCollection sifRepository() : abstract {
+    }
 
-    public str optionKey;
-    public str optionDescription;
-    public str selectionKey;
-    public str selectionDescription;
-    public str suboptionKey;
-    public double upcharge;
-    public bool invalid;
+    extend public str[] getCatalogs() : abstract {
+    }
 
-    public str specialValue;
-
-    public AweSifOptionSelection parentSelection;
-
-    public str toS() {
-        return format("@selectionKey; @selectionDescription;");
+    extend public AwePicklistItem[] search(str catalog, str partNumber, str description) : abstract {
     }
 }
