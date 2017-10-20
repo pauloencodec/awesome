@@ -349,7 +349,7 @@ public class AweSifCatalog {
 
     extend public str{} possibleOptionValues(str completeOptionValue) {
         str{} values();
-        values << completeOptionValue;
+        values << completeOptionValue << "." # completeOptionValue;
         var noPrice = completeOptionValue.split('.').v1;
         if(noPrice and noPrice != "" and noPrice != completeOptionValue) {
             values << noPrice << "." # noPrice;
