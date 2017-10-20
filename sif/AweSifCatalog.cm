@@ -225,7 +225,7 @@ public class AweSifCatalog {
             var key = parentSelectionKey # selection.selectionKey;
             selection.fullSelectionKey  = key;
                    
-            if(!optionValue.emptyOrOnlyWhiteSpace and optionValue in this.possibleOptionValues(key)) {
+            if(!optionValue.emptyOrOnlyWhiteSpace and this.cleanCOMOption(optionValue) in this.possibleOptionValues(key)) {
                 return selection;
             } else {
                 if(selection.suboptionKey) {
@@ -237,6 +237,22 @@ public class AweSifCatalog {
             }
         }
         return null;
+    }
+
+    extend public bool isCOMOption(str optionValue) {
+        var price = optionValue.split('.').?v0;
+        //COM sub-options won't be in the catalog, so short circuit here
+        if(price.?beginsWith("$(") and price.?endsWith("COM)")) {
+            return true;
+        }
+        return false;
+    }
+
+    extend public str cleanCOMOption(str optionValue) {
+        if(this.isCOMOption(optionValue)) {
+            return optionValue.split('.').v0;
+        }
+        return optionValue;
     }
 
     extend private str splitOptionKey(str key) {
@@ -327,6 +343,12 @@ public class AweSifCatalog {
     extend public str{} possibleOptionValues(str completeOptionValue) {
         str{} values();
         values << completeOptionValue;
+        //COM sub-options won't be in the catalog, so short circuit here
+        if(this.isCOMOption(completeOptionValue)) {
+            var price = completeOptionValue.split('.').v0;
+            values << price;
+            return values;
+        }
         var noPrice = completeOptionValue.split('.').v1;
         if(noPrice and noPrice != "" and noPrice != completeOptionValue) {
             values << noPrice;
