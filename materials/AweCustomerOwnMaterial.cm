@@ -48,7 +48,7 @@ public class AweCustomerOwnMaterial extends CustomerOwnMaterial {
     }
 
     extend public str getFullCode() {
-        return format("@this.getPriceGradeCode();@this.materialCode;");
+        return format("@this.getPriceGradeCode();.@this.materialCode;");
     }
 
     extend public str getPriceGradeCode() {

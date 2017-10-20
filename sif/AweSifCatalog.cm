@@ -208,12 +208,12 @@ public class AweSifCatalog {
                 if(comCode) {
                     var comSelection = new AweSifOptionSelection();
                     comSelection.optionKey = optionKey;
-                    comSelection.selectionKey = comCode;
+                    comSelection.selectionKey = "." # comCode;
                     comSelection.isCOM = true;
+                    comSelection.optionDescription = this.getOptionDescription(leafSelection.suboptionKey ?? optionKey);
                     comSelection.selectionDescription = "Customer Own Material";
                     selections << comSelection;
                 }
-
             }
         }
         else {
@@ -253,12 +253,10 @@ public class AweSifCatalog {
     }
 
     extend public bool isCOMOption(str optionValue) {
-        var price = optionValue.split('.').?v0;
+        var price = optionValue.split('.').v0;
+
         //COM sub-options won't be in the catalog, so short circuit here
-        if(price.?beginsWith("$(") and price.?endsWith("COM)")) {
-            return true;
-        }
-        return false;
+        return price.beginsWith("$(") and price.endsWith("COM)");
     }
 
     extend public str cleanCOMOption(str optionValue) {
@@ -364,7 +362,7 @@ public class AweSifCatalog {
         }
         var noPrice = completeOptionValue.split('.').v1;
         if(noPrice and noPrice != "" and noPrice != completeOptionValue) {
-            values << noPrice;
+            values << noPrice << "." # noPrice;
         }
         return values;
     }
@@ -383,7 +381,7 @@ public class AweSifCatalog {
     extend public AweSifSku parseSku(str sku) {
         AweSifSku parsed();
         parsed.fullSku = sku;
-        var skuParts = this.breakdownSku(sku);
+        var skuParts = sku.breakdownSku();
         if(!skuParts or skuParts.empty) return null;
         str modelCode;
         str[] options();
@@ -420,16 +418,14 @@ public class AweSifCatalog {
         }
         return parsed;
     }
-
-    extend public str[] breakdownSku(str sku) {
-        sku = sku.replaceAll("$", "|$");
-        sku = sku.replaceAll(".", "|.");
-        sku = sku.replaceAll(")|.", ").");
-
-        CmScanner scanner(sku);
-        var tokens = scanner.tokenize("|");
-        return tokens;
-    }
 }
 
+public str[] breakdownSku(str sku) {
+    sku = sku.replaceAll("$", "|$");
+    sku = sku.replaceAll(".", "|.");
+    sku = sku.replaceAll(")|.", ").");
 
+    CmScanner scanner(sku);
+    var tokens = scanner.tokenize("|");
+    return tokens;
+}
