@@ -181,6 +181,10 @@ public class AweSifCatalog {
 
     /************** finding option values **************/
 
+    extend public bool hasPricingGrade(str optionValue) {
+        return optionValue != null and optionValue.beginsWith('$');
+    }
+
     extend public AweSifOptionSelection[] getSelections(str optionKey, str optionValue) {
         var leafSelection = this.findLeafSelection(optionKey, optionValue, null);
         AweSifOptionSelection[] selections();
@@ -214,9 +218,13 @@ public class AweSifCatalog {
 
     extend public AweSifOptionSelection findLeafSelection(str optionKey, str optionValue, AweSifOptionSelection parentSelection) {
         var selections = getImmediateSelections(optionKey);
+
         for(selection in selections) {
             selection.parentSelection = parentSelection;
-            var key = parentSelection ? parentSelection.selectionKey # selection.selectionKey : selection.selectionKey;
+            var parentSelectionKey = this.hasPricingGrade(optionValue) ? parentSelection.?fullSelectionKey : parentSelection.?selectionKey;
+            var key = parentSelectionKey # selection.selectionKey;
+            selection.fullSelectionKey  = key;
+                   
             if(!optionValue.emptyOrOnlyWhiteSpace and optionValue in this.possibleOptionValues(key)) {
                 return selection;
             } else {
@@ -379,21 +387,14 @@ public class AweSifCatalog {
     }
 
     extend public str[] breakdownSku(str sku) {
+        sku = sku.replaceAll("$", "|$");
+        sku = sku.replaceAll(".", "|.");
+        sku = sku.replaceAll(")|.", ").");
+
         CmScanner scanner(sku);
-        var tokens = scanner.tokenize(".");
+        var tokens = scanner.tokenize("|");
         return tokens;
     }
 }
-// {
 
-//     AweSifCatalog seatingCatalog("ALC", 
-//             Url("C:\\Users\\User\\Downloads\\ALC.1"),
-//             Url("C:\\Users\\User\\Downloads\\ALC.2"),
-//             Url("C:\\Users\\User\\Downloads\\ALC.3")
-//         );
-    
-//         var tree = seatingCatalog.getOptionTree("19HWB");
-//         for(i in tree) {
-//             pln(#i);
-//         }
-// }
+

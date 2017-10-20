@@ -43,6 +43,7 @@ public class AweSifOptionSelection {
     public str optionKey;
     public str optionDescription;
     public str selectionKey;
+    public str fullSelectionKey;
     public str selectionDescription;
     public str suboptionKey;
     public double upcharge;
