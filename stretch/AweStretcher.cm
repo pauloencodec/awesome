@@ -176,7 +176,7 @@ public class AweStretcher : abstract {
     }
 
     extend private plane connectorPlane(AweStretcherConnector connector) {
-        return new plane(connector.spaceRot().direction, connector.spacePos());
+        return connector.spacePlane();
     }
 
     extend public void propagate(AweStretcherConnector leader) {
