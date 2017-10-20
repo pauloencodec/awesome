@@ -181,6 +181,10 @@ public class AweSifCatalog {
 
     /************** finding option values **************/
 
+    extend public bool hasPricingGrade(str optionValue) {
+        return optionValue != null and optionValue.beginsWith('$');
+    }
+
     extend public AweSifOptionSelection[] getSelections(str optionKey, str optionValue) {
         var leafSelection = this.findLeafSelection(optionKey, optionValue, null);
         AweSifOptionSelection[] selections();
@@ -198,6 +202,19 @@ public class AweSifCatalog {
             }
 
             selections.reverse();
+
+            if(this.isCOMOption(optionValue)) {
+                var comCode = optionValue.split('.').v1;
+                if(comCode) {
+                    var comSelection = new AweSifOptionSelection();
+                    comSelection.optionKey = optionKey;
+                    comSelection.selectionKey = comCode;
+                    comSelection.isCOM = true;
+                    comSelection.selectionDescription = "Customer Own Material";
+                    selections << comSelection;
+                }
+
+            }
         }
         else {
             var invalidSelection = new AweSifOptionSelection();
@@ -214,10 +231,14 @@ public class AweSifCatalog {
 
     extend public AweSifOptionSelection findLeafSelection(str optionKey, str optionValue, AweSifOptionSelection parentSelection) {
         var selections = getImmediateSelections(optionKey);
+
         for(selection in selections) {
             selection.parentSelection = parentSelection;
-            var key = parentSelection ? parentSelection.selectionKey # selection.selectionKey : selection.selectionKey;
-            if(!optionValue.emptyOrOnlyWhiteSpace and optionValue in this.possibleOptionValues(key)) {
+            var parentSelectionKey = this.hasPricingGrade(optionValue) ? parentSelection.?fullSelectionKey : parentSelection.?selectionKey;
+            var key = parentSelectionKey # selection.selectionKey;
+            selection.fullSelectionKey  = key;
+                   
+            if(!optionValue.emptyOrOnlyWhiteSpace and this.cleanCOMOption(optionValue) in this.possibleOptionValues(key)) {
                 return selection;
             } else {
                 if(selection.suboptionKey) {
@@ -229,6 +250,22 @@ public class AweSifCatalog {
             }
         }
         return null;
+    }
+
+    extend public bool isCOMOption(str optionValue) {
+        var price = optionValue.split('.').?v0;
+        //COM sub-options won't be in the catalog, so short circuit here
+        if(price.?beginsWith("$(") and price.?endsWith("COM)")) {
+            return true;
+        }
+        return false;
+    }
+
+    extend public str cleanCOMOption(str optionValue) {
+        if(this.isCOMOption(optionValue)) {
+            return optionValue.split('.').v0;
+        }
+        return optionValue;
     }
 
     extend private str splitOptionKey(str key) {
@@ -319,6 +356,12 @@ public class AweSifCatalog {
     extend public str{} possibleOptionValues(str completeOptionValue) {
         str{} values();
         values << completeOptionValue;
+        //COM sub-options won't be in the catalog, so short circuit here
+        if(this.isCOMOption(completeOptionValue)) {
+            var price = completeOptionValue.split('.').v0;
+            values << price;
+            return values;
+        }
         var noPrice = completeOptionValue.split('.').v1;
         if(noPrice and noPrice != "" and noPrice != completeOptionValue) {
             values << noPrice;
@@ -379,21 +422,14 @@ public class AweSifCatalog {
     }
 
     extend public str[] breakdownSku(str sku) {
+        sku = sku.replaceAll("$", "|$");
+        sku = sku.replaceAll(".", "|.");
+        sku = sku.replaceAll(")|.", ").");
+
         CmScanner scanner(sku);
-        var tokens = scanner.tokenize(".");
+        var tokens = scanner.tokenize("|");
         return tokens;
     }
 }
-// {
 
-//     AweSifCatalog seatingCatalog("ALC", 
-//             Url("C:\\Users\\User\\Downloads\\ALC.1"),
-//             Url("C:\\Users\\User\\Downloads\\ALC.2"),
-//             Url("C:\\Users\\User\\Downloads\\ALC.3")
-//         );
-    
-//         var tree = seatingCatalog.getOptionTree("19HWB");
-//         for(i in tree) {
-//             pln(#i);
-//         }
-// }
+
