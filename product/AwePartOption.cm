@@ -122,7 +122,7 @@ package class AwePartIsValidColumn extends AwePartInfoColumn {
 package class AwePartOptionPriceColumn extends AwePartInfoColumn {
     public str output(PartInfoTree tree, Space space) {
 	    if (tree as AwePartOption) {
-            return tree.price.formatted(precision=2);
+            return cm.core.calc.calcFormatPrice(tree.price);
         }
         
 	    return "";

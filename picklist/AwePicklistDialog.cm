@@ -371,7 +371,7 @@ public class AwePicklistDialog extends PicklistDialog {
     public void buildSpecialTab(Window parent) {
         if (!this.useSpecials()) return;
 
-        this.specialTab = new AwePicklistFreeformTab(this.mainCard, this.owner);
+        this.specialTab = new AwePicklistFreeformTab(this.mainCard);
     }
 
     public PicklistItem currentAddItem() {
@@ -415,8 +415,8 @@ public class AwePicklistDialog extends PicklistDialog {
         return this.owner.picklistKey;
     }
 
-    extend public AwePicklist owner() {
-        return this.proxy.snapper.AwePicklist;
+    extend public AwePicklistProxy owner() {
+        return this.proxy.AwePicklistProxy;
     }
 }
 
@@ -456,6 +456,10 @@ private void onEditBoxSave(AwePicklistSifConfiguratorControl editor) {
     waitCursorUI {
         if (editor.save()) {
             onEditBoxClose(editor);
+
+            if (?AwePicklistDialog dialog = editor.parentFrame) {
+                dialog.proxy.partsChanged(false);
+            }
         }
     }
 }

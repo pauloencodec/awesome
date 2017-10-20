@@ -120,6 +120,16 @@ public class AwePart extends OfficePart {
         }
     }
 
+    extend public double totalUpcharge() {
+        double total = 0;
+
+        for (option in this.options) {
+            total += option.price;
+        }
+
+        return total;
+    }
+
     extend public bool isValid() {
         return this.isValid;
     }

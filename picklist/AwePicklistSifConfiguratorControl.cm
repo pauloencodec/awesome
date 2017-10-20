@@ -107,7 +107,7 @@ public class AwePicklistSifConfiguratorControl extends GroupBox {
             onOptionChanged(control);
 
             if (hasSpecials) {
-                lastDisplay = this.createLabel("", below=lastDisplay);
+                lastDisplay = this.createLabel("M Number / Price", below=lastDisplay);
 
                 var specialNumber = this.propertiesWindow.createTextField(195, below=control);
                 var specialPrice = this.propertiesWindow.createDoubleField(100, rightOf=specialNumber);

@@ -37,17 +37,106 @@
 package custom.awesome;
 
 use custom.genericOffice;
+use cm.abstract.picklist;
 use cm.abstract.tools.queryDialog;
+use custom.awesome.ui;
+use custom.awesome.picklist;
+use cm.core.calc;
 
 private const str queryDialogKey = "awe-query-dialog";
 
 public class AweQueryDialog extends GoQueryDialog {
     public str dialogCaption() {
-        return "Query";
+        return this.mainSnapper.?specialParts ? "Query - This product is a special" : "Query";
     }
 
     public bool useSpecialButtons() {
-        return false;
+        return this.mainSnapper.picklistProxy != null;
+    }
+
+    extend public AweSnapper mainSnapper() {
+        if (!this.owners or this.owners.empty()) {
+            return null;
+        }
+
+        return this.owners.first().AweSnapper;
+    }
+
+    public void makeSpecial() {
+        if (this.multiMode or !this.useSpecialButtons()) {
+            return;
+        }
+
+        var proxy = this.mainSnapper.picklistProxy;
+        var dialog = new AwePicklistDialog(anyFrameWindow(), proxy);
+
+        proxy.queryDialog = this;
+
+        if (!this.mainSnapper.specialParts) {
+            for (rowIndex in 0..(this.igrid.rowCount - 1)) {
+                var row = this.igrid.row(rowIndex);
+
+                for (EditGridCell cell in row) {
+                    if (?AwePart part = cell.refPart) {
+                        var item = new AwePicklistItem(part.catalog, part.sku, part.description, part.listPrice, part.quantity);
+
+                        dialog.itemManager.addItem(proxy, proxy.picklistKey, item);
+                    }
+                }
+            }
+
+            this.mainSnapper.specialParts = true;
+            
+            this.refreshContent();
+        }
+    }
+
+    public void removeSpecials() {
+        if (!this.mainSnapper.specialParts) return;
+
+        int sure = makeYesNoDialog(this, "Are you sure?", "Are you sure you want to remove all specials?");
+	    
+        if (sure == 1) {
+            this.mainSnapper.specialParts = false;
+
+            var proxy = this.mainSnapper.picklistProxy;
+
+            proxy.replaceItems(proxy.picklistKey, null);
+            
+            session.mainWorld.invalidateWorldPrice();
+            
+            this.refreshContent();
+
+            if (PicklistDialog dialog = getPicklistDialog()) {
+                dialog.close();
+            }
+	    }
+    }
+
+    public void layoutQueryDialog(bool first=true) {
+        super(..);
+
+        if (this.useSpecialButtons()) {
+            this.makeSpecialBtn.enable(!this.multiMode);
+            this.toggleRemoveSpecialsButton();
+
+            this.changeSpecialBtn.setVisible(false);
+        }
+    }
+
+    public void refreshContent() {
+        super();
+
+        this.toggleRemoveSpecialsButton();
+    }
+
+    extend private void toggleRemoveSpecialsButton() {
+        this.makeSpecialBtn.setLabel(this.mainSnapper.specialParts ? "Edit Parts" : "Make Special");
+
+        this.setLabel(this.dialogCaption());
+
+        this.removeSpecialsBtn.alignRight();
+        this.removeSpecialsBtn.enable(!this.multiMode and this.mainSnapper.specialParts);
     }
 
     public void selectCell() {
@@ -68,11 +157,84 @@ public class AweQueryDialog extends GoQueryDialog {
     public void buildOptions(Part part) {
         if (part as AwePart) {
             for (option in part.options) {
+                var upcharge = option.price == 0 ? "" : calcFormatPrice(option.price);
+
                 buildRowContents([" ", option.code, option.description, "", "",
-				"", "", "", "",  "", "", "",
+				upcharge, "", "", "", "", "", "",
 				"", "", "", ""]);
             }
         }
+    }
+
+    public void rebuildSubs() {
+        if (this.owners and this.owners.any()) {
+            this.sub.removeChildren();
+            this.igrid.removeChildren();
+            this.removeChildren();
+            
+            this.displays = new Display[];
+            this.tdisplays = new Window[];
+            
+            this.addMenu();
+            
+            if (this.useSpecialButtons()) {
+                this.buildSpecialButtons();
+            }
+            
+            this.createGridWindow();
+
+            this.rowc = 0;
+            
+            this.buildInfoWindow();
+            this.layoutQueryDialog(false);
+            this.autoSize();
+        }
+    }
+
+    public void build() {
+        if (this.owners and this.owners.any()) {
+            this.addMenu();
+
+            if (this.useSpecialButtons()) {
+                this.buildSpecialButtons();
+            }
+            
+            this.createGridWindow();
+            this.buildInfoWindow();
+            this.layoutQueryDialog();
+        }
+    }
+
+    extend private void createGridWindow() {
+        this.sub = new SubWindow(this, frameStyle=etchedFrame);
+        this.igrid = new ScrollableGridWindow(this.sub, horizontalBar=true);
+    }
+
+    public double appendPartToSheet(Part part, bool child=false) {
+        double totalPrice = 0;
+
+        if (part as AwePart) {
+            part.finalizeAfterMerge();
+            
+            totalPrice = part.listPrice;
+
+            double totalUpcharge = part.totalUpcharge;
+            double basePrice = totalPrice - totalUpcharge;            
+            
+            // Article Row
+            this.buildRowContents([part.articleCode(), " ",  part.description(),
+                    part.quantity().toS(),
+                    calcFormatPrice(basePrice), (totalUpcharge > 0)
+                    ? calcFormatPrice(totalUpcharge) : " ",
+                    calcFormatPrice(totalPrice), " "],  
+                    doPartReference=part, child=child);
+            
+            this.buildOptions(part);
+            
+            totalPrice = totalPrice * round(part.neededQuantity());
+        }
+
+        return totalPrice;
     }
 }
 
