@@ -48,6 +48,7 @@ public class AweSifOptionSelection {
     public str suboptionKey;
     public double upcharge;
     public bool invalid;
+    public bool isCOM;
 
     public AweSifOptionSelection parentSelection;
 

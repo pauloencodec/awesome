@@ -202,6 +202,19 @@ public class AweSifCatalog {
             }
 
             selections.reverse();
+
+            if(this.isCOMOption(optionValue)) {
+                var comCode = optionValue.split('.').v1;
+                if(comCode) {
+                    var comSelection = new AweSifOptionSelection();
+                    comSelection.optionKey = optionKey;
+                    comSelection.selectionKey = comCode;
+                    comSelection.isCOM = true;
+                    comSelection.selectionDescription = "Customer Own Material";
+                    selections << comSelection;
+                }
+
+            }
         }
         else {
             var invalidSelection = new AweSifOptionSelection();
