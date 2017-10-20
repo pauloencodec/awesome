@@ -37,17 +37,17 @@
 package custom.awesome.picklist;
 
 public class AwePicklistEnv extends PicklistEnv {
-    private AwePicklist owner : public readable;
+    private AwePicklistProxy owner : public readable;
     
-    public constructor(AwePicklist owner) {
+    public constructor(AwePicklistProxy owner) {
         this.owner = owner;
     }
 
     public Part[] getParts(PicklistProxy proxy, PicklistItem[] items) {
         Part[] parts();
 
-        for (item in items) if (item as AwePicklistItem) {
-            parts << item.getPart(this.owner);
+        for (AwePicklistItem item in items) {
+            parts << item.getPart(this.owner.snapper);
         }
 
         return parts;
@@ -60,4 +60,6 @@ public class AwePicklistEnv extends PicklistEnv {
     public str name() {
         return this.owner.name;
     }
+
+    public bool allowEmbedded() { return false; }
 }

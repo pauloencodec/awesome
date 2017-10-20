@@ -36,9 +36,12 @@
 
 package custom.awesome;
 
+use cm.abstract.picklist;
+
 use custom.awesome.connectors;
 use custom.awesome.gallery;
 use custom.awesome.electrical;
+use custom.awesome.picklist;
 
 private alias SnapperArray = Snapper{};
 
@@ -464,6 +467,16 @@ public class AweSnapper extends TaggableSnapper {
      * Parts
      ***********************************************************************/
     
+    public void beforeGetParts(PartsEnv env) {
+        super(env);
+
+        if (this.specialParts and this.picklistProxy) {
+            if (picklistInterface) {
+                picklistInterface.beforeGetParts(this.picklistProxy, env);
+            }
+        }
+    }
+
     public void getParts(PartsEnv env, Snapper{} visited) {
         if (this in visited) return;
         
@@ -474,20 +487,39 @@ public class AweSnapper extends TaggableSnapper {
         }
     }
 
+    public void afterGetParts(PartsEnv env) {
+        super(env);
+
+        if (this.specialParts and this.picklistProxy) {
+            if (picklistInterface) {
+                picklistInterface.afterGetParts(this.picklistProxy, env);
+            }
+        }
+    }
+
     extend public AwePart[] getParts() {
         AwePart[] result();
 
-        var products = this.allProducts();
-        
-        if (products.count == 0) return result;
+        if (this.specialParts and this.picklistProxy) {
+            var items = this.picklistProxy.getItems(this.picklistProxy.picklistKey);
 
-        for (product in products) {
-            var parts = product.getParts();
+            for (AwePicklistItem item in items) {
+                result << item.getPart(this);
+            }
+        }
+        else {
+            var products = this.allProducts();
+            
+            if (products.count == 0) return result;
 
-            for (part in parts) {
-                part.data.setOwner(this);
-                
-                result << part;
+            for (product in products) {
+                var parts = product.getParts();
+
+                for (part in parts) {
+                    part.data.setOwner(this);
+                    
+                    result << part;
+                }
             }
         }
 
@@ -538,6 +570,21 @@ public class AweSnapper extends TaggableSnapper {
         }
 
         return super(view, env);
+    }
+
+    public bool specialParts;
+    private AwePicklistProxy _picklistProxy : copy=null, stream=null;
+
+    extend public AwePicklistProxy picklistProxy() {
+        if (!this._picklistProxy) {
+            this._picklistProxy = this.getQueryPicklistProxy();
+        }
+        return this._picklistProxy;
+    }
+
+
+    extend public AwePicklistProxy getQueryPicklistProxy() {
+        return null;
     }
 
     extend private void applyToSelection(str key) {
