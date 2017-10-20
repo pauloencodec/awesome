@@ -138,6 +138,15 @@ public class AweObject {
         };
     }
 
+    extend public bool isStretchableProp(str propKey) {
+        for (stretcher in this.getStretchers()) {
+            if (stretcher.propKey == propKey) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /************** prop awereness ***********************/
     extend private void makePropModelAware(str propName, Object value) {
@@ -819,7 +828,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         //we use distance subsets for double properties, so we need this great if statement there:
         if (propType.type == distance) {
             buildQuickProperties << statement {
-                if (@domainName and @visibleName) {
+                if (@domainName and @visibleName and !this.isStretchableProp(@propNameStr)) {
                     Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, distance(@propName));
 
                     if (@domainName.any()) {
@@ -862,7 +871,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         }
         else {
             buildQuickProperties << statement {
-                if (@domainName and @visibleName) {
+                if (@domainName and @visibleName and !this.isStretchableProp(@propNameStr)) {
                     Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, @propName);
 
                     if (@domainName.any()) {
