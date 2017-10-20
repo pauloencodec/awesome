@@ -113,7 +113,10 @@ public class AweInsertAnimation extends InsertAnimation {
     extend public void snapInfoChanged(SnapInfo newInfo, AnimationMouseInfo mi) {
         if(newInfo as ConnectSnapInfo) {
             if(?AweConnectLine l = newInfo.snap) {
-                l.trySnap(newInfo.attach, mi.mouseLine);
+                l.tryResizeToFit(newInfo.attach, mi.mouseLine);
+            }
+            if(AweConnectorSet set = newInfo.snap.getConnectorSet()) {
+                set.trySnap(new AweConnectEnv(newInfo.snap), new AweConnectEnv(newInfo.attach), mi);
             }
             if(AweConnectorSet set = newInfo.snap.getConnectorSet()) {
                 set.trySnap(new AweConnectEnv(newInfo.snap), new AweConnectEnv(newInfo.attach), mi);
@@ -233,8 +236,58 @@ public class AweInsertAnimation extends InsertAnimation {
             endRedrawCurrentSpace();
         }
     }
+
+
+    /******* immediate animation ***** */
+    public Animation immediateAnimation(angle a, bool allowRotate) {
+        this.immediateSnap = this.getImmediateSnap(a, allowRotate);
+        return super(..);
+    }
+
+    extend public Connector lastSnapped() {
+        if(currentSpace) {
+            if(?ConnectSnapInfo info = currentSpace.lastSnapped) {
+                return info.snap;
+            }
+        }
+        return null;
+    }
+
+    extend public Connector getImmediateSnap(angle a, bool allowRotate) {
+        Connector[] potentialStretchers();
+        if(?AweSnapper snapper = selection.main) {
+            var stretchers = snapper.mainModel.getStretchers();
+            //opportunity to make this overridable some day
+            var immediateStretchProp = "width";
+            for(stretcher in stretchers) {
+                if(stretcher.propKey == immediateStretchProp) {
+                    potentialStretchers << stretcher.stretcherB << stretcher.stretcherA;
+                }
+            }
+        }
+
+        potentialStretchers.sort(function sortByDistanceToLine, lastMouseInfo.mouseLine);
+        for(AweStretcherConnector c in potentialStretchers) {
+            if(c.isFree()) {
+                return c;
+            }
+        }
+        if(!potentialStretchers.empty) return potentialStretchers.first();
+        return null;
+    }
+
 }
 
 public int sortByPriorityDesc(Connector a, Connector b, Object env) {
     return compare(b.attachPriority(), a.attachPriority());
+}
+
+public int sortByDistanceToLine(Connector a, Connector b, Object env) {
+    if(?Line l = env.line) {
+        return compare(
+            l.v.distance(a.spacePos()), 
+            l.v.distance(b.spacePos())
+        );
+    }
+    return 0;
 }
