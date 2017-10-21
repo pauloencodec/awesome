@@ -37,8 +37,6 @@
 package custom.awesome.picklist;
 
 public class AwePicklistFreeformTab extends Card {
-    private AwePicklist owner : public readable;
-    
     private int catalogColumn = -1;
     private int partNumberColumn = -1;
     private int descriptionColumn = -1;
@@ -54,10 +52,8 @@ public class AwePicklistFreeformTab extends Card {
 
     private int gridRowHeight = 15;
     
-    public constructor(Window parent, AwePicklist owner) {
+    public constructor(Window parent) {
         super(parent, label="Freeform");
-
-        this.owner = owner;
 
         this.build();
 
