@@ -36,6 +36,8 @@
 
 package custom.awesome.product;
 
+use custom.awesome.sif;
+
 private const str notFoundInSifErrorMessage = " * Not found in SIF";
 
 public class AwePart extends OfficePart {
@@ -68,8 +70,14 @@ public class AwePart extends OfficePart {
         super(snapper, this.basemodel, this.sku, 0, quantity=quantity);
     }
 
-    extend public str basemodel() {
-        return this.sku.split('.').v0;
+    extend private str basemodel() {
+        var skuParts = this.sku.breakdownSku();
+
+        if (skuParts and skuParts.any()) {
+            return this.sku.breakdownSku().first();
+        }
+
+        return this.sku;
     }
 
     public ItemTag createItemTag() {
