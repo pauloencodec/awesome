@@ -188,6 +188,10 @@ public class AweScheme {
         return result;
     }
 
+    extend public bool shouldApplyScheme(AweObject model, AweSchemeApplier applier) {
+        return true;
+    }
+
     extend private str getKey(str modelKey, str propKey) {
         return modelKey # ":" # propKey;
     }
