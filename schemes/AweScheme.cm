@@ -173,8 +173,12 @@ public class AweScheme {
                 }
                 else {
                     var schemeValue = gs.getSetting(fullKey);
-
-                    modelCopy.set(propKey, schemeValue);
+ 
+                    if (schemeValue as WrapperEnumEntry) {
+                        modelCopy.set(propKey, schemeValue.v.v);    
+                    } else {
+                        modelCopy.set(propKey, schemeValue);
+                    }
                 }
 
                 result << modelCopy;
