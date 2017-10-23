@@ -128,8 +128,12 @@ public class AweScheme {
         }
     }
 
+    extend public AweSchemeEditor getEditorInstance() {
+        return new AweSchemeEditor(this);
+    }
+
     extend public AweSchemeEditor createEditor() {
-        AweSchemeEditor schemeEditor(this);
+        var schemeEditor = this.getEditorInstance();
         
         for (key in this.keys) {
             var model = this.models.get(key);
@@ -179,17 +183,13 @@ public class AweScheme {
                     } else {
                         modelCopy.set(propKey, schemeValue);
                     }
-                }
-
-                result << modelCopy;
+                }    
             }
+            
+            result << modelCopy;
         }
 
         return result;
-    }
-
-    extend public bool shouldApplyScheme(AweObject model, AweSchemeApplier applier) {
-        return true;
     }
 
     extend private str getKey(str modelKey, str propKey) {
