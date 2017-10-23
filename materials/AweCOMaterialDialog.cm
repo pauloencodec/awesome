@@ -80,7 +80,7 @@ public class AweCOMaterialDialog extends COMaterialDialog {
 
 		if (mat as AweCustomerOwnMaterial) {
 			mat.type = this.typeField.getSelection().item.value.AweCustomMaterialType;
-			mat.priceGrade = this.priceGradeField.getSelection().item.value.int;
+			mat.priceGrade = this.priceGradeField.getSelection().item.value.toS();
 			mat.manufacturer = this.manufacturerField.text();
 			
 			if (this.patternNameField) {
@@ -111,7 +111,7 @@ public class AweCOMaterialDialog extends COMaterialDialog {
 
     public void updateTF() {
         if (tempMat as AweCustomerOwnMaterial) {
-			var type = AweCustomMaterialType.fabric;
+			var type = AweCustomMaterialType.upholstery;
 
 			if (tempMat.type) {
 				type = tempMat.type;
@@ -136,7 +136,7 @@ public class AweCOMaterialDialog extends COMaterialDialog {
 			this.colorField.setText(tempMat.colorName ?? "");
         }
 		else {
-			this.typeField.trySelect(AweCustomMaterialType.fabric.name);
+			this.typeField.trySelect(AweCustomMaterialType.upholstery.name);
 			this.priceGradeField.trySelect("0");
 		}
     }
@@ -169,7 +169,16 @@ public class AweCOMaterialDialog extends COMaterialDialog {
 		grades.appendChild(new TreeViewItem("0", "Undecided"));
 
 		for (grade in type.getPriceGrades()) {
-			grades.appendChild(new TreeViewItem(grade.toS(), "Grade " # grade, value=grade));
+			var gradeText = grade;
+
+			if (type == AweCustomMaterialType.fabric) {
+				gradeText = grade;
+			}
+			else if (type == AweCustomMaterialType.laminate) {
+				gradeText = laminateGrades.get(grade);
+			}
+
+			grades.appendChild(new TreeViewItem(grade, "Grade " # gradeText, value=grade));
 		}
 
 		this.priceGradeField.destroy();
@@ -199,7 +208,7 @@ public class AweCOMaterialDialog extends COMaterialDialog {
 	}
 
     public void build() {
-		var type = AweCustomMaterialType.fabric;
+		var type = AweCustomMaterialType.upholstery;
 
 		if (tempMat as AweCustomerOwnMaterial) {
 			type = tempMat.type;

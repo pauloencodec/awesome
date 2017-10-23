@@ -38,7 +38,7 @@ package custom.awesome.materials;
 
 public class AweCustomerOwnMaterial extends CustomerOwnMaterial {
     public AweCustomMaterialType type;
-    public int priceGrade;
+    public str priceGrade;
     public str manufacturer;
     public str patternName;
     public str colorName;
@@ -52,7 +52,7 @@ public class AweCustomerOwnMaterial extends CustomerOwnMaterial {
     }
 
     extend public str getPriceGradeCode() {
-        return format("$(@this.priceGrade;COM)");
+        return this.type.getPriceGradeCode(this.priceGrade);
     }
 
     extend public str getFullDescription() {
