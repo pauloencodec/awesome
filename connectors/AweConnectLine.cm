@@ -121,6 +121,12 @@ public class AweConnectLine extends ConnectLine {
         //size of one object (for instance, one panel)
         double oneLineLength = attach.length;
         double extraLengthFromNeighborLine = this.extraLength(attach, mouseLine);
+
+        //no neighbors?
+        if(extraLengthFromNeighborLine == 0) {
+            sizes << availableSpace;
+        }
+
         double twoLinesLength = oneLineLength + extraLengthFromNeighborLine;
 
 
