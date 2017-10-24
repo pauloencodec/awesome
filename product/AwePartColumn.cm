@@ -65,3 +65,21 @@ public class AweIsValidPartColumn extends AwePartColumn {
         return super(..);
     }
 }
+
+public class AwePriceUpchargeColumn extends BasicPartColumn {
+    public constructor() {
+        super("optionUpcharge", "cm.abstract.part");
+    }
+
+    public Object value(Part part, Space space) {
+        if (part as AwePart) {
+            return cm.core.calc.calcFormatPrice(part.totalUpcharge);
+        }
+
+        return super(..);
+    }
+
+    public alignment alignment() {
+	    return right;
+    }
+}

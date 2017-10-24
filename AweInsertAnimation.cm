@@ -110,13 +110,21 @@ public class AweInsertAnimation extends InsertAnimation {
 
     public SnapInfo activeSnapInfo;
 
+    //the first time snapInfoChanged hits, isUserPasteAnimating seems not be ready yet, so skipping one
+    private bool firstCall = true;
+
     extend public void snapInfoChanged(SnapInfo newInfo, AnimationMouseInfo mi) {
+        
+        if(firstCall) {
+            firstCall = false;
+            return;
+        }
+
         if(newInfo as ConnectSnapInfo) {
-            if(?AweConnectLine l = newInfo.snap) {
-                l.tryResizeToFit(newInfo.attach, mi.mouseLine);
-            }
-            if(AweConnectorSet set = newInfo.snap.getConnectorSet()) {
-                set.trySnap(new AweConnectEnv(newInfo.snap), new AweConnectEnv(newInfo.attach), mi);
+            if(!isUserPasteAnimating) {
+                if(?AweConnectLine l = newInfo.snap) {
+                    l.tryResizeToFit(newInfo.attach, mi.mouseLine);
+                }
             }
             if(AweConnectorSet set = newInfo.snap.getConnectorSet()) {
                 set.trySnap(new AweConnectEnv(newInfo.snap), new AweConnectEnv(newInfo.attach), mi);

@@ -43,24 +43,16 @@ public class AwePicklist extends Picklist : abstract {
         }
     }
 
+    public str picklistKey() {
+        return this.proxy.AwePicklistProxy.picklistKey;
+    }
+
     public PicklistDialog picklistDialog(Window window=null) {
         return new AwePicklistDialog(window ?? anyFrameWindow(), this.proxy);
     }
 
-    extend public str name() : abstract {}
-    extend public AweSifCatalogCollection sifRepository() : abstract {}
-    extend public AweMaterialFactory materialFactory() : abstract {}
-    
     extend public PicklistEnv picklistEnv() {
-        return new AwePicklistEnv(this);
-    }
-
-    extend public AwePicklistItem[] search(str catalog, str partNumber, str description) {
-        return null;
-    }
-
-    extend public str[] getCatalogs() {
-        return null;
+        return new AwePicklistEnv(this.proxy.AwePicklistProxy);
     }
 
     public void drawGraphs(LayerBuffer lb, View v, GeometricFinder finder=null) {
@@ -68,7 +60,7 @@ public class AwePicklist extends Picklist : abstract {
 
         var bound = this.localBound();
 
-        new GText(bound.rect.midTop(), this.name, down, textColor=this.borderColor).draw(lb);
+        new GText(bound.rect.midTop(), this.proxy.AwePicklistProxy.name, down, textColor=this.borderColor).draw(lb);
     }
 
     public double calculateWidth() {

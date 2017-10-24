@@ -128,8 +128,12 @@ public class AweScheme {
         }
     }
 
+    extend public AweSchemeEditor getEditorInstance() {
+        return new AweSchemeEditor(this);
+    }
+
     extend public AweSchemeEditor createEditor() {
-        AweSchemeEditor schemeEditor(this);
+        var schemeEditor = this.getEditorInstance();
         
         for (key in this.keys) {
             var model = this.models.get(key);
@@ -173,12 +177,16 @@ public class AweScheme {
                 }
                 else {
                     var schemeValue = gs.getSetting(fullKey);
-
-                    modelCopy.set(propKey, schemeValue);
-                }
-
-                result << modelCopy;
+ 
+                    if (schemeValue as WrapperEnumEntry) {
+                        modelCopy.set(propKey, schemeValue.v.v);    
+                    } else {
+                        modelCopy.set(propKey, schemeValue);
+                    }
+                }    
             }
+            
+            result << modelCopy;
         }
 
         return result;

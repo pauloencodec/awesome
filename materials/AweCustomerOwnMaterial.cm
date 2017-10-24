@@ -34,27 +34,28 @@
    END OF CETSC
 */
 
-package custom.awesome.sif;
+package custom.awesome.materials;
 
-public class AweSifOptionSelection {
-    public constructor() {
-    }   
+public class AweCustomerOwnMaterial extends CustomerOwnMaterial {
+    public AweCustomMaterialType type;
+    public str priceGrade;
+    public str manufacturer;
+    public str patternName;
+    public str colorName;
 
-    public str optionKey;
-    public str optionDescription;
-    public str selectionKey;
-    public str fullSelectionKey;
-    public str selectionDescription;
-    public str suboptionKey;
-    public double upcharge;
-    public bool invalid;
-    public bool isCOM;
+    public str code() {
+        return this.getFullCode();
+    }
 
-    public str specialValue;
+    extend public str getFullCode() {
+        return format("@this.getPriceGradeCode();.@this.materialCode;");
+    }
 
-    public AweSifOptionSelection parentSelection;
+    extend public str getPriceGradeCode() {
+        return this.type.getPriceGradeCode(this.priceGrade);
+    }
 
-    public str toS() {
-        return format("@selectionKey; @selectionDescription;");
+    extend public str getFullDescription() {
+        return format("@this.manufacturer; - @this.patternName; - @this.colorName;");
     }
 }
