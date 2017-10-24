@@ -35,8 +35,6 @@
 */
 
 package custom.awesome.materials;
-use cm.abstract.office;
-use cm.win;
 
 public class AweMaterial extends OfficeMaterial {
     private Image thumbnailCache : stream = null, copy = null;

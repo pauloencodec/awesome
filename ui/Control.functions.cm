@@ -57,7 +57,10 @@ public FormattedTextField createTextField(Window parent, int width, PointI pos=n
     FormattedTextField field(parent, brush=picklistBackground, frameStyle=thick3DFrame, font=smallSystemFont);
 
     field.autoSize();
-    field.w = width;
+
+    if (width > 0) {
+        field.w = width;
+    }
 
     field.position(pos=pos, rightOf=rightOf, below=below);
 
@@ -116,4 +119,14 @@ public void position(Window control, PointI pos=null, Window rightOf=null, Windo
     }
 
     control.finalize();
+}
+
+public void destroy(Window control) {
+    if (control) {
+        if (control.parent) {
+            control.parent.removeChild(control);
+        }
+        
+        control.removeWindow();
+    }
 }

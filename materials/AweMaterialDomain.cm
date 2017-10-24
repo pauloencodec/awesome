@@ -35,8 +35,7 @@
 */
 
 package custom.awesome.materials;
-use cm.abstract.office;
-use cm.win;
+
 use custom.awesome.io;
 use cm.format.json;
 
@@ -71,6 +70,10 @@ public class AweMaterialDomain extends OfficeMaterialDomain {
     }
 
     public bool useCOM() { return true; }
+
+    public void buildCOMCard(Window parent) {
+        new AweCOMaterialCard(parent);
+    }
 
     public bool defaultUseThumbnails() {
         return true;
