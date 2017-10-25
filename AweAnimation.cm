@@ -126,4 +126,12 @@ public class AweAnimation extends SpaceAnimation {
         this.setViewMode(null);
         super(..);
     }
+
+    public void enterView(AnimationMouseInfo mi) {
+        super(..);
+
+        if (this.space) {
+            this.space.clearSelection();
+        }
+    }
 }
