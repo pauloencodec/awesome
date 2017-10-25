@@ -55,6 +55,11 @@ public class AweStretcherConnector extends AweStretchableConnector {
     public AweStretcher stretcher;
     public point visiblePosOffset;
 
+    //another connector (actual connector, not stretcher) which is in the same 2d pos and rot as this one.
+    //framework will hide it and have this connector be a proxy to it, so that we don't end up with
+    //two connectors at the same place (1 stretcher + 1 actual connector)
+    public AweConnectPoint proxied : copy=null,stream=null;
+
     public constructor(Snapper snapper, AweStretcher stretcher, point visiblePosOffset=point()) {
         super(snapper);
 
@@ -105,10 +110,14 @@ public class AweStretcherConnector extends AweStretchableConnector {
         return new plane(this.spaceRot().direction, this.spacePos());
     }
 
-    extend public Connector{} samePlaneConnectors() {
+    extend public Connector{} samePlaneConnectors(Connector{} collection=null) {
+        if(collection == null) {
+            collection = this.snapper.connectors();
+        }
+        if(!this.snapper) return null;
         Connector{} samePlane();
         var pl = this.spacePlane();
-        for(c in this.snapper.connectors()) {
+        for(c in collection) {
             if(c != this) {
                 var p = c.spacePos();
                 if(pl.project(p) == p and c.spaceRot() == orientation(pl.n)) {
@@ -117,6 +126,28 @@ public class AweStretcherConnector extends AweStretchableConnector {
             }
         }
         return samePlane;
+    }
+
+    /**************** proxing ************ */
+    extend public void updateProxied(Connector{} collection=null) {
+        AweConnectPoint newProxied = null;
+        for(AweConnectPoint cp in this.samePlaneConnectors(collection)) {
+            //get first, if any
+            newProxied = cp;
+        }
+        if(this.proxied) {
+            //release pointers
+            this.proxied.stretcherProxy = null;
+            this.proxied = null;
+        }
+        if(newProxied) {
+            this.proxied = newProxied;
+            this.proxied.stretcherProxy = this;
+        }
+    }
+
+    public bool isConnected() {
+        return this.proxied.?isConnected();
     }
 
 

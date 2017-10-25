@@ -103,13 +103,13 @@ public class AweStretcher : abstract {
     
     
 
-    extend public Connector{} connectors() {
+    extend public AweStretcherConnector{} connectors() {
         this.stretcherA.setPos(this.line.p0);
         this.stretcherA.setRot(new orientation(this.line.p0 - this.line.midPoint));
         this.stretcherB.setPos(this.line.p1);
         this.stretcherB.setRot(new orientation(this.line.p1 - this.line.midPoint));
-
-        Connector{} result();
+        
+        AweStretcherConnector{} result();
 
         if (this.enableA) result << this.stretcherA;
         if (this.enableB) result << this.stretcherB;
@@ -119,6 +119,7 @@ public class AweStretcher : abstract {
 
     extend public void addToConnectors(ConnectorCollection collection) {
         for (c in this.connectors()) {
+            c.updateProxied(collection.ConnectorSet.set);
             collection << c;
         }
     }
