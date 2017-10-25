@@ -48,6 +48,9 @@ public class AweConnectPoint extends ConnectPoint {
     public bool hidden = false;
     public bool hiddenWhenDisconnected = false;
 
+    //see AweStretcherConnector.proxied prop for info on this
+    public custom.awesome.stretch.AweStretcherConnector stretcherProxy : copy=null, stream=null;
+
 
     public bool mandatory = false;
     extend public bool isMandatory() {
