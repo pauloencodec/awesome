@@ -97,6 +97,7 @@ public class AweConnectPoint extends ConnectPoint {
     }
     
     public bool isVisible() {
+        if(this.stretcherProxy) return false;
         return !hidden and !((hiddenWhenDisconnected and !this.isConnected()));
     }
 
