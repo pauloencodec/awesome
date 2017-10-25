@@ -36,17 +36,28 @@
 
 package custom.awesome.electrical;
 
-use custom.awesome;
-use custom.awesome.connectors;
-use custom.awesome.product;
-use custom.awesome.structures;
+public class ElectricalPosition {
+    public bool front;
+    public bool back;
+    public bool middle;
 
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.geometry;
-use cm.geometry2D.advanced;
-use cm.win;
-use cm.io;
+    public point position;
+    public Angle rotation;
+
+    public constructor( point p, Angle rotation=null, bool front=false, bool back=false, bool middle=false ) {
+        this.position=p;
+        this.rotation = rotation;
+        this.front = front;
+        this.back = back;
+        this.middle = middle;
+    }
+    public constructor() { }
+
+    extend public double distance( Snapper s, line ln ) {
+        return ln.distance(position);
+    }
+
+    extend public point actualPos() {
+        return position;
+    }
+}

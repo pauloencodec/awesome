@@ -36,17 +36,33 @@
 
 package custom.awesome.electrical;
 
-use custom.awesome;
-use custom.awesome.connectors;
-use custom.awesome.product;
-use custom.awesome.structures;
+public class ElectricalConnectedPath {
+    public point[] path;
+    public ElectricalInternalComponent[] components();
 
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.geometry;
-use cm.geometry2D.advanced;
-use cm.win;
-use cm.io;
+    public constructor( point[] path ) {
+        this.path = path;
+        translateToComponents( parsePath() );
+    }   
+
+    extend public AweElectricalPathPart[] parsePath() { return null; }
+
+    extend public bool operator<( ElectricalConnectedPath other ) {
+        return this.cost() < ( other ? other.cost() : maxDouble );
+    }
+
+    extend public double cost() {
+        double d = 0;
+        for ( i in 1..(this.path.count-1) ) {
+            d += path[i-1].distance(path[i]);
+        }
+        return d;
+    }
+
+    extend private void translateToComponents( AweElectricalPathPart[] parts ) {
+        // pln(#parts);
+        for( p in parts ) {
+            components <<? p.createComponent();
+        }
+    }
+}

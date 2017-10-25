@@ -34,19 +34,17 @@
    END OF CETSC
 */
 
-package custom.awesome.electrical;
+package custom.awesome.structures;
 
-use custom.awesome;
-use custom.awesome.connectors;
-use custom.awesome.product;
-use custom.awesome.structures;
+public class RegionDoor extends RegionNode {
+    public int capacity;
 
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.geometry;
-use cm.geometry2D.advanced;
-use cm.win;
-use cm.io;
+    public constructor( point pos, int capacity=maxInt ) {
+        super(null, pos);
+        this.capacity = capacity;
+    }
+
+    public Material3D material() {
+        return beechMaterial3D;
+    }
+}

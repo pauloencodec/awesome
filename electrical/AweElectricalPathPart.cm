@@ -36,17 +36,9 @@
 
 package custom.awesome.electrical;
 
-use custom.awesome;
-use custom.awesome.connectors;
-use custom.awesome.product;
-use custom.awesome.structures;
-
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.geometry;
-use cm.geometry2D.advanced;
-use cm.win;
-use cm.io;
+public class AweElectricalPathPart {
+    public point[] path();
+    public constructor() { }
+    extend public str type() { return ""; }
+    extend public ElectricalInternalComponent createComponent() { return null; }
+}

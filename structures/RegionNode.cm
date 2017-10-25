@@ -34,19 +34,36 @@
    END OF CETSC
 */
 
-package custom.awesome.electrical;
+package custom.awesome.structures;
 
-use custom.awesome;
-use custom.awesome.connectors;
-use custom.awesome.product;
-use custom.awesome.structures;
+public class RegionNode {
+    public Object element;
+    public point p;
+    public RegionEdge{} edges();
 
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.geometry;
-use cm.geometry2D.advanced;
-use cm.win;
-use cm.io;
+    public constructor( Object element, point pos ) {
+        this.element = element;
+        this.p = pos;
+    }
+
+    extend public Primitive3D get3D() {
+        if ( hasDrawn.contains(this) ) return null;
+        hasDrawn << this;
+        Primitive3D[] prims();
+
+        Sphere3D s( p, 0.5inch );
+        s.setMaterial( material() );
+
+        prims << s;
+
+        for ( e in edges ) {
+            prims <<? e.get3D();
+        }
+
+        return safeInstance3D(prims);
+    }
+
+    extend public Material3D material() {
+        return intenseYellowMaterial3D;
+    }
+}

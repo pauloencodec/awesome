@@ -36,17 +36,10 @@
 
 package custom.awesome.electrical;
 
-use custom.awesome;
-use custom.awesome.connectors;
-use custom.awesome.product;
-use custom.awesome.structures;
-
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.geometry;
-use cm.geometry2D.advanced;
-use cm.win;
-use cm.io;
+public enum electricalAction : field access {
+    undefined;
+    no;
+    insert;
+    replace;
+    remove;
+}
