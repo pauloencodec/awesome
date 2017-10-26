@@ -154,6 +154,15 @@ public class AweStretcherConnector extends AweStretchableConnector {
     }
 
 
+    public Primitive3D get3D(FetchEnv3D env) {
+		bool drawArrow = isMainSelected(snapper) and stretchable;
+		if (proxied.?isConnected())
+		  return snappedSnapModel(drawArrow, snapMaterial3D(snapColor), this);
+		else
+		  return unsnappedSnapModel(drawArrow, snapMaterial3D(snapColor), this);
+    }
+
+
 }
 
 public bool isAlignedToConnect(Connector c, Space space=activeSpace()) {
