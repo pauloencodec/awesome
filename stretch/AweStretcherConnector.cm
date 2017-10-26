@@ -146,8 +146,11 @@ public class AweStretcherConnector extends AweStretchableConnector {
         }
     }
 
-    public bool isConnected() {
-        return this.proxied.?isConnected();
+    public Animation standardClickAnimation() {
+        if(this.proxied) {
+            return new AweStretcherConnectorClickAnimation(this.clickAnimationEnv());
+        }
+        return super();
     }
 
 
@@ -160,4 +163,16 @@ public bool isAlignedToConnect(Connector c, Space space=activeSpace()) {
         if(potential.isAligned(c)) return true;
     }
     return false;
+}
+
+public class AweStretcherConnectorClickAnimation extends SnapClickAnimation {
+    public void toggleConnection(View v, line l, bool invalidate=false) {
+        if(snap as AweStretcherConnector) {
+            var proxied = snap.proxied;
+            var attach = proxied.connection();
+            if(attach) {
+                proxied.snapper.disconnect(proxied, attach, updateBsp=true);
+            }
+        }
+    }
 }
