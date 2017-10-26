@@ -119,7 +119,7 @@ public class AweStretcher : abstract {
 
     extend public void addToConnectors(ConnectorCollection collection) {
         for (c in this.connectors()) {
-            c.updateProxied(collection.ConnectorSet.set);
+            c.updateProxied(collection.ConnectorSet.?set);
             collection << c;
         }
     }
