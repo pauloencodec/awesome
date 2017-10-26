@@ -181,6 +181,8 @@ public class AweStretcherConnectorClickAnimation extends SnapClickAnimation {
             var attach = proxied.connection();
             if(attach) {
                 proxied.snapper.disconnect(proxied, attach, updateBsp=true);
+                snap.updateProxied();
+                this.space.?updateSelectionConnectors();
             }
         }
     }
