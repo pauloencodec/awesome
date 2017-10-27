@@ -124,6 +124,9 @@ public class AweConnectorSet  {
      * Return the distance from a connection to the mouse line 'l' (space-coordinates).
      */
      extend public double distance(Connector c, line l) {
+         if(c as ConnectLine) {
+             return l.distance(c.spaceLine());
+         }
         return l.distance(c.spacePos());
     }
 }
