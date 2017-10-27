@@ -42,9 +42,10 @@ public class AweTag {
     public Point position;
     public angle rotation;
     public symbol{} layers;
+    public UserTextStyle userTextStyle;
     
-    public constructor(str text, str key="", Point position=null, angle rotation=0deg, symbol{} layers=null) {
-        set*(this: key, text, position, rotation, layers);
+    public constructor(str text, str key="", Point position=null, angle rotation=0deg, symbol{} layers=null, UserTextStyle userTextStyle=null) {
+        set*(this: key, text, position, rotation, layers, userTextStyle);
     }
     
     extend public point getPos() {
