@@ -45,10 +45,16 @@ public class AweProduct extends AweGeometry {
     public AweGeometry[] geometries;
 
     extend public AweProduct operator<<(AweGeometry geometry) {
-        this.geometries <<? geometry;
+        if (geometry and geometry !in this.geometries) {
+            this.geometries << geometry;
+        }
         
-        if(geometry as AweProduct) {
-            this.geometries += geometry.geometries;
+        if (geometry as AweProduct) {
+            for (geo in geometry.geometries) {
+                if (geo !in this.geometries) {
+                    this.geometries << geo;
+                }
+            }
         }
         
         return this;
@@ -67,20 +73,14 @@ public class AweProduct extends AweGeometry {
     }   
 
     extend public Line2D getLoi(str key) {
-        if (!this.graph) this.buildGraph();
-        
         return this.loi.get(key);
     }
 
     extend public Point2D getPoi(str key) {
-        if (!this.graph) this.buildGraph();
-
         return this.poi.get(key);
     }
 
     extend public Graph getGoi(str key) {
-        if (!this.graph) this.buildGraph();
-
         return this.goi.get(key);
     }
 

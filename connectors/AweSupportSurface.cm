@@ -68,6 +68,9 @@ public class AweSupportSurface extends SupportSurface {
 
     public constructor(Snapper snapper, point pos, Graph g, ConnectRule rule=null) {
         super(snapper, pos.z);
+
+        this.update(pos, g);
+        this.setRule(rule);
     }
 
     extend public void update(double w, double d, double z) {
