@@ -23,6 +23,7 @@
     <package id="custom.awesome.snapper" />
     <package id="custom.awesome.storage" />
     <package id="custom.awesome.stretch" />
+    <package id="custom.awesome.structures" />
     <package id="custom.awesome.ui" />
     <package id="custom.genericOffice"/>
     <package id="custom.genericOffice.worksurface"/>
