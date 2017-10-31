@@ -46,9 +46,22 @@ public class AweStandOnPoint extends TransformStandOnPoint {
     public str id;
     public bool realign = false;
     public bool mandatory = false;
+    private orientation _rot;
 
     extend public bool isMandatory() {
         return this.mandatory;
+    }
+
+    public orientation rot() {
+	    return _rot;
+    }
+
+    public constructor(Snapper snapper, point pos = (0, 0, 0), orientation rot = (0deg, 90deg, 0deg)) {
+	    super(snapper, pos);
+    }
+
+    public void setRot(orientation rot) {
+        this._rot = rot;        
     }
 
     extend public void makeMandatory() {

@@ -51,9 +51,7 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
 
     public constructor(AweElectricalMap map=null) {
         super(maxInt);
-        if(!map) {
-            this.map = new AweElectricalMap(this.space);
-        }
+        this.map = map ?? new AweElectricalMap(this.space);
         status = new AweElectricalClusterInfo(this.map);
         this.configurator = new AweElectricalAnimationModel(this);
 
