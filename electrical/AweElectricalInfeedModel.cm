@@ -36,31 +36,57 @@
 
 package custom.awesome.electrical;
 
-public class ElectricalModel {
-    public Snapper owner : copy=reference;
-    public point location;
+public class AweElectricalInfeedModel extends ElectricalModel {
 
-    public constructor() { }
+    public TreeNode path;
+    
+    public Primitive3D get3D( FetchEnv3D env, Snapper z, ElectricalPosition pos ) {
+        Primitive3D[] prims();
+        
+        Primitive3D p = cache3D(this.class, "arrow") {
+            ClosedCone3D c0((0, 0, 0), (0, -1inch, 0), 0, 1inch);
+            ClosedCylinder3D c1((0, -1inch, 0), (0, -3inch, 0), 0.5inch);
+            Instance3D i(c0, c1);
+            i.move((0, -3inch, 0));
+            i.setColor(0, 255, 0);
+            i.layer = #electrical;
+            result i;
+        };
+        if ( pos ) {
+            if ( pos.rotation and owner ) {
+                p.rotate( ( 0deg, 0deg, pos.rotation.v ) );
+            } else {
+                p.rotate( pos.back ? 180deg : 0deg );
+            }
+        }
+        
+        prims << p;
 
-    extend public Primitive3D get3D( FetchEnv3D env, Snapper z, ElectricalPosition p ) {
-        return null;
+        return safeInstance3D(prims);
     }
 
-    extend public Primitive3D extra3D( FetchEnv3D env, Snapper z, ElectricalPosition p ) {
-        return null;
+    public Primitive3D extra3D( FetchEnv3D env, Snapper z, ElectricalPosition p ) {
+        Primitive3D[] prims();
+        if ( path ) {
+            getTreeNodeLines( path, prims, z );
+        }
+
+        return safeInstance3D(prims);
     }
 
-    extend public void buildAnimationProperties( AnimationProperties props ) {
-        // props.append2(this._uniqueQuickPropertyId # @propNameStr, @labelName, distance(@propName), @domainName, lockable=false);
+    extend private void getTreeNodeLines( TreeNode tn, Primitive3D[] prims, Snapper z ) {
+        for ( child in tn.children ) {
+            prims << child.get3D( null, z, null );
+            // process child
+            getTreeNodeLines( child, prims, z );
+        }
     }
 
-    extend public void propertyChange( str key, Object value ) { }
-
-    extend public electricalAction allow( ElectricalModel object ) { return electricalAction.no; }
-
-    extend public point[] electricPoints( point center ) {
-        return [center];
+    public electricalAction allow( ElectricalModel object ) {
+        if ( object as AweElectricalInfeedModel ) {
+            return electricalAction.remove;
+        }
+        // for now if its not the same type of object, don't allow it
+        return electricalAction.no;
     }
-
-    extend public AwePart[] getParts( bool is3Circuit=false) { return null; }
 }

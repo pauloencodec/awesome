@@ -199,8 +199,8 @@ public class TreeNode {
         return safeInstance3D(prims);
     }
 
-    extend public Part[] getParts( bool is3Circuit, ElectricalModel{} added=null ) {
-        Part[] parts();
+    extend public AwePart[] getParts( bool is3Circuit, ElectricalModel{} added=null ) {
+        AwePart[] parts();
 
         if ( !added ) {
             init added();

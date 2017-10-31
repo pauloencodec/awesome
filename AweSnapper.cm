@@ -40,7 +40,6 @@ use cm.abstract.picklist;
 
 use custom.awesome.connectors;
 use custom.awesome.gallery;
-use custom.awesome.electrical;
 use custom.awesome.picklist;
 
 private alias SnapperArray = Snapper{};
