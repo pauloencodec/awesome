@@ -83,16 +83,16 @@ public class Awe3D extends Instance3D {
 }
 
 public void updateLIPrims(Instance3D instance) {
-        liPrimitive[] liPrims(instance._subPrims.count);
-        for (p in instance._subPrims) {
-            // use=true because destroy does release on all subPrims().
-            p.appendPrims(liPrims, use=true);
-        }
-        if (liPrims.count > 0) {
-            instance.prim = aweWMakeInstanceSeq(liPrims);
-            resource3DCount++;
-        }
+    liPrimitive[] liPrims(instance._subPrims.count);
+    for (p in instance._subPrims) {
+        // use=true because destroy does release on all subPrims().
+        p.appendPrims(liPrims, use=true);
     }
+    if (liPrims.count > 0) {
+        instance.prim = aweWMakeInstanceSeq(liPrims);
+        resource3DCount++;
+    }
+}
 
 
 import "core3D.dll" {
