@@ -47,7 +47,12 @@ public class AweItemTagInfo extends ItemTagInfo {
      * Dynamically look up instead of data duplication. 
      */
     public UserTextStyle tStyle() {
-        return getAweTagTextStyle();
+        if (this.tag.userTextStyle) {
+            return this.tag.userTextStyle;
+        }
+        else {
+            return getAweTagTextStyle();
+        }
     }
 
     public constructor(AweTag tag, str infoKey) {
