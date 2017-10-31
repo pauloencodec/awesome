@@ -56,7 +56,7 @@ public class AweStandOnPoint extends TransformStandOnPoint {
 	    return _rot;
     }
 
-    public constructor(Snapper snapper, point pos=(0, 0, 0), orientation rot = (0deg, 90deg, 0deg)) {
+    public constructor(Snapper snapper, point pos = (0, 0, 0), orientation rot = (0deg, 90deg, 0deg)) {
 	    super(snapper, pos);
     }
 
