@@ -246,10 +246,10 @@ public class AweSifCatalog {
 
         for(selection in selections) {
             selection.parentSelection = parentSelection;
-            var parentSelectionKey = this.hasPricingGrade(optionValue) ? parentSelection.?fullSelectionKey : parentSelection.?selectionKey;
+            var parentSelectionKey = parentSelection.?fullSelectionKey;
             var key = parentSelectionKey # selection.selectionKey;
             selection.fullSelectionKey  = key;
-                   
+
             if(!optionValue.emptyOrOnlyWhiteSpace and optionValue in this.possibleOptionValues(key)) {
                 return selection;
             } else if(selection.suboptionKey) {
