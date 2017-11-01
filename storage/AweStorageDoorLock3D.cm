@@ -37,17 +37,17 @@
 package custom.awesome.storage;
 
 public class AweStorageDoorLock3D extends Awe3D {
-    public constructor(point pos, Material material=null) {
+    public constructor(point pos, Material material=null, orientation rot=(0deg, 0deg, 90deg)) {
         super();
 
-        this << this.get3D(pos, material);
+        this << this.get3D(pos, material, rot);
     }
 
-    extend private Primitive3D get3D(point pos, Material material) {
+    extend private Primitive3D get3D(point pos, Material material, orientation rot=(0deg, 0deg, 90deg)) {
         double lockRadius = 0.3125inch;
         ClosedCylinder3D lock((0, 0, 0.0625inch), lockRadius);
         
-        lock.setPosRot(pos, (0deg, 0deg, 90deg));
+        lock.setPosRot(pos, rot);
         lock.setRefinement(12);
 
         if (material) {
