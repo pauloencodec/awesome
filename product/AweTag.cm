@@ -38,6 +38,7 @@ package custom.awesome.product;
 
 public class AweTag {
     public str key;
+    public str infoKey;
     public str text;
     public Point position;
     public angle rotation;
@@ -58,5 +59,9 @@ public class AweTag {
 
     extend public bool isValid() {
         return !empty(this.text);
+    }
+
+    extend public bool isVisible() {
+        return this.layers and #invisible !in this.layers;
     }
 }

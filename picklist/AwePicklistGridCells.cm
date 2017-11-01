@@ -90,6 +90,48 @@ public class AwePicklistDescriptionGridCell extends AwePicklistInputGridCell {
     }
 }
 
+public class AwePicklistTagGridCell extends AwePicklistInputGridCell {
+    public str getData(AwePicklistItem item) {
+        return item.tag.?text;
+    }
+
+    public bool setData(AwePicklistItem item, str data) {
+        if (!item.tag) return false;
+        if (item.tag.text == data) return false;
+
+        item.tag.text = data;
+
+        var info = worldItemTagInfo(null, item.tag.infoKey);
+
+        if (!info) return false;
+
+        info.tagText = data;
+        
+        if (?AwePicklistDialog dialog = getPicklistDialog()) {
+            var owner = dialog.owner.snapper;
+
+            if (!red2DOverride) {
+                forItemTags(tag in owner.itemTags) {
+                    owner.space.removeFromBsp(tag);
+                }
+            }
+            
+            info.invalidate();
+            
+            forItemTags(tag in owner.itemTags) {
+                if (!red2DOverride) {
+                    owner.space.putInBsp(tag);
+                }
+                else {
+                    owner.space.invalidate(tag);
+                }
+            }
+        }
+
+        return true;
+    }
+}
+
 public class AwePicklistPriceGridCell extends AwePicklistInputGridCell {
     public str getData(AwePicklistItem item) {
         return item.price.toS();

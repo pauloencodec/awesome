@@ -46,6 +46,7 @@ public class AwePicklistDialog extends PicklistDialog {
 
     public int plCatalogColumn = -1;
     public int plPriceColumn = -1;
+    public int plTagColumn = -1;
 
     public Button editButton;
     public AwePicklistSifConfiguratorControl editBox;
@@ -240,6 +241,7 @@ public class AwePicklistDialog extends PicklistDialog {
             this.plContent.setCell(this.plCatalogColumn, i, new AwePicklistCatalogGridCell());
             this.plContent.setCell(this.plPartColumn, i, new AwePicklistPartNumberGridCell());
             this.plContent.setCell(this.plDescColumn, i, new AwePicklistDescriptionGridCell());
+            this.plContent.setCell(this.plTagColumn, i, new AwePicklistTagGridCell());
             this.plContent.setCell(this.plPriceColumn, i, new AwePicklistPriceGridCell());
             this.plContent.setCell(this.plQtyColumn, i, new PicklistQtyGridCell());
     
@@ -270,6 +272,7 @@ public class AwePicklistDialog extends PicklistDialog {
         this.plCatalogColumn = this.plContent.appendColumn(label="Catalog");
         this.plPartColumn = this.plContent.appendColumn(label="Part Number");
         this.plDescColumn = this.plContent.appendColumn(label="Description");
+        this.plTagColumn = this.plContent.appendColumn(label="Tag");
         this.plPriceColumn = this.plContent.appendColumn(label="Price");
         this.plQtyColumn = this.plContent.appendColumn(label="Qty");
 
@@ -279,7 +282,8 @@ public class AwePicklistDialog extends PicklistDialog {
     
         this.plContent.setColumnWidth(this.plCatalogColumn, 50);
         this.plContent.setColumnWidth(this.plPartColumn, 300);
-        this.plContent.setColumnWidth(this.plDescColumn, 420);
+        this.plContent.setColumnWidth(this.plDescColumn, 345);
+        this.plContent.setColumnWidth(this.plTagColumn, 75);
         this.plContent.setColumnWidth(this.plPriceColumn, 50);
         this.plContent.setColumnWidth(this.plQtyColumn, 30);
             
@@ -389,6 +393,12 @@ public class AwePicklistDialog extends PicklistDialog {
                                 item.sifSku = catalog.parseSku(item.partNo);
                             }
                         }
+
+                        if (this.owner.tag) {
+                            var tagIndex = proxy.getItems(picklistKey).count;
+
+                            item.setTag(this.owner.snapper, this.owner.tag.copy(), tagIndex);
+                        }
                     }
 
                     return item;
@@ -405,6 +415,16 @@ public class AwePicklistDialog extends PicklistDialog {
         }
         
         return null;
+    }
+
+    public void remove() {
+        if (?AwePicklistItem item = this.itemManager.getItem(this.proxy, this.picklistKey, this.plContent.currentR)) {
+            var part = item.getPart(this.owner.snapper);
+
+            this.owner.snapper.AweSnapper.removeTag(part.itemTagKey());
+        }
+        
+        super(..);
     }
     
     public PicklistItemManager createItemManager() {
