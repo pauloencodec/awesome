@@ -87,7 +87,7 @@ public class Region {
         Primitive3D[] prims();
 
         // Box3D b( bound );
-        // b.setMaterial( transparentColorMaterial(randomColor(), 0.25) );
+        // b.setMaterial( custom.awesome.transparentColorMaterial(cm.basic.randomColor(), 0.25) );
         // prims << b;
 
         for( n in nodes ) {
