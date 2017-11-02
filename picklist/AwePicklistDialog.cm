@@ -394,10 +394,15 @@ public class AwePicklistDialog extends PicklistDialog {
                             }
                         }
 
-                        if (this.owner.tag) {
-                            var tagIndex = proxy.getItems(picklistKey).count;
+                        var tagIndex = proxy.getItems(picklistKey).count;
 
+                        if (this.owner.tag) {
                             item.setTag(this.owner.snapper, this.owner.tag.copy(), tagIndex);
+                        }
+                        else {
+                            symbol{} layers = {#invisible}; // Picklist tags shouldn't be visible on 2D
+
+                            item.setTag(this.owner.snapper, createAweTag(" ", layers=layers), tagIndex);
                         }
                     }
 
@@ -418,12 +423,11 @@ public class AwePicklistDialog extends PicklistDialog {
     }
 
     public void remove() {
-        // If are removing parts from a snapper outside of the picklist domain (creating special parts)
-        if (AweSnapper outsideOwnerSnapper = this.owner.snapper.AweSnapper) {
+        if (TaggableSnapper owner = this.owner.snapper.TaggableSnapper) {
             if (?AwePicklistItem item = this.itemManager.getItem(this.proxy, this.picklistKey, this.plContent.currentR)) {
-                var part = item.getPart(outsideOwnerSnapper);
+                var part = item.getPart(owner);
 
-                outsideOwnerSnapper.removeTag(part.itemTagKey());
+                owner.removeTag(part.itemTagKey());
             }
         }
         

@@ -34,52 +34,33 @@
    END OF CETSC
 */
 
-package custom.awesome.picklist;
+package custom.awesome;
 
-public class AwePicklist extends Picklist : abstract {
-    public constructor() {
-        if (!registeredPicklistEnv(this.picklistKey)) {
-            registerPicklistEnv(this.picklistKey, this.picklistEnv);
+public void removeAllTags(TaggableSnapper snapper) {
+    snapper.removeTag(null);
+}
+
+public void removeTag(TaggableSnapper snapper, str key) {
+    var map = session.mainWorld.getAuxillary(cItemTagInfoKey).?ItemTagInfoMap;
+
+    forItemTags(tag in snapper.itemTags) {
+        if (!key or tag.key == key) {
+            snapper.removeItemTag(tag.key);
+            snapper.space.removeFromBsp(tag);
+            
+            tag.invalidate(dirty2D.all);
+        
+            if (map) {
+                map.info.remove(tag.info.key);
+            }
         }
     }
+}
 
-    public str picklistKey() {
-        return this.proxy.AwePicklistProxy.picklistKey;
+public ItemTagInfo createAweItemTagInfo(TaggableSnapper snapper, Part part, str key, str infoKey) {
+    if (part as AwePart and part.tag.?isValid) {
+        return new AweItemTagInfo(part.tag, key, infoKey);
     }
 
-    public PicklistDialog picklistDialog(Window window=null) {
-        return new AwePicklistDialog(window ?? anyFrameWindow(), this.proxy);
-    }
-
-    extend public PicklistEnv picklistEnv() {
-        return new AwePicklistEnv(this.proxy.AwePicklistProxy);
-    }
-
-    public void drawGraphs(LayerBuffer lb, View v, GeometricFinder finder=null) {
-        super(..);
-
-        var bound = this.localBound();
-
-        new GText(bound.rect.midTop(), this.proxy.AwePicklistProxy.name, down, textColor=this.borderColor).draw(lb);
-    }
-
-    public double calculateWidth() {
-        return 1.625;
-    }
-
-    public color borderColor() {
-        return color(0, 80, 82);
-    }
-        
-    public color listColor() {
-        return color(230);
-    }
-
-    public bool acceptItemTags() {
-        return true;
-    }
-
-    public ItemTagInfo createItemTagInfo(Part part, str key, str infoKey) {
-        return this.createAweItemTagInfo(part, key, infoKey);
-    }
+    return null;
 }

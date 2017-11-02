@@ -650,36 +650,11 @@ public class AweSnapper extends TaggableSnapper {
     }
         
     public ItemTagInfo createItemTagInfo(Part part, str key, str infoKey) {
-        if (part as AwePart and part.tag.?isValid) {
-            return new AweItemTagInfo(part.tag, key, infoKey);
-        }
-
-        return null;
+        return this.createAweItemTagInfo(part, key, infoKey);
     }
 
     public point itemTagPos(ItemTag tag) {
         return (0,0,0);
-    }
-
-    extend public void removeAllTags() {
-        this.removeTag(null);
-    }
-
-    extend public void removeTag(str key) {
-        var map = session.mainWorld.getAuxillary(cItemTagInfoKey).?ItemTagInfoMap;
-
-        forItemTags(tag in this.itemTags) {
-            if (!key or tag.key == key) {
-                this.removeItemTag(tag.key);
-                this.space.removeFromBsp(tag);
-                
-                tag.invalidate(dirty2D.all);
-            
-                if (map) {
-                    map.info.remove(tag.info.key);
-                }
-            }
-        }
     }
 
     private AweLightModel[] _lightModels;
