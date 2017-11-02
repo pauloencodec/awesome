@@ -695,11 +695,11 @@ public class AweObject {
      * Electrical
      ***********************************************************************/
 
-    public ElectricalPosition->ElectricalModel electrical();
+    public ElectricalPosition->ElectricalModel electricalComponents();
 
     /*** Electrical Position Helpers ***/
     extend public ElectricalPosition findPosition( ElectricalModel model ) {
-        for( k,v in electrical ) {
+        for( k,v in electricalComponents ) {
             if ( v == model ) return k;
         }
         return null;
@@ -710,7 +710,7 @@ public class AweObject {
     }
 
     extend public ElectricalModel findEM( point2D loc, bool front=false, bool middle=false, bool back=false ) {
-        for ( k,v in electrical ) {
+        for ( k,v in electricalComponents ) {
             if ( k.position.x == loc.x and k.position.z == loc.y
                 and k.front == front and k.middle == middle and k.back == back ) return v;
         }
@@ -718,7 +718,7 @@ public class AweObject {
     }
 
     extend public electricalAction allow(ElectricalModel object, ElectricalPosition pos, bool replace=false, bool toogle=false) {
-        for( k,v in electrical ) {
+        for( k,v in electricalComponents ) {
             if ( k.position == pos.position ) {                
                 if ( ( k.front and pos.front ) or ( k.back and pos.back ) ) {
                     return v.allow( object );
@@ -730,9 +730,9 @@ public class AweObject {
     }
 
     extend public bool remove( ElectricalPosition placement, electricalAction action) {
-        for( k,v in electrical ) {
+        for( k,v in electricalComponents ) {
             if ( k.position == placement.position and ( ( k.front and placement.front ) or (k.back and placement.back) or (k.middle and placement.middle) ) ) {
-                electrical.remove( k );
+                electricalComponents.remove( k );
                 this.electricalModelChange( v, k, electricalAction.remove );
                 return true;
             }
@@ -745,7 +745,7 @@ public class AweObject {
             return;
         }
         object.owner = this.mainSnapper;
-        electrical.put( placement, object );
+        electricalComponents.put( placement, object );
         this.electricalModelChange( object, placement, electricalAction.insert );
     }
 
@@ -760,7 +760,7 @@ public class AweObject {
     extend public ElectricalPosition[] getPlacedInfeedLocations() {
         ElectricalPosition[] positions();
 
-        for( k,v in electrical ) {
+        for( k,v in electricalComponents ) {
             if ( v in AweElectricalInfeedModel ) {
                 positions << k;
             }
