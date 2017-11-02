@@ -418,10 +418,13 @@ public class AwePicklistDialog extends PicklistDialog {
     }
 
     public void remove() {
-        if (?AwePicklistItem item = this.itemManager.getItem(this.proxy, this.picklistKey, this.plContent.currentR)) {
-            var part = item.getPart(this.owner.snapper);
+        // If are removing parts from a snapper outside of the picklist domain (creating special parts)
+        if (AweSnapper outsideOwnerSnapper = this.owner.snapper.AweSnapper) {
+            if (?AwePicklistItem item = this.itemManager.getItem(this.proxy, this.picklistKey, this.plContent.currentR)) {
+                var part = item.getPart(outsideOwnerSnapper);
 
-            this.owner.snapper.AweSnapper.removeTag(part.itemTagKey());
+                outsideOwnerSnapper.removeTag(part.itemTagKey());
+            }
         }
         
         super(..);
