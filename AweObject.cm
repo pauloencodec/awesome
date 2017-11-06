@@ -659,6 +659,7 @@ public class AweObject {
     }
 
     /*************** g-g-g-ghost! *****************/
+    // boo
     private AweGhost{} _ghosts : copy=null, stream=null;
 
     extend public void appendGhosts(AweGhost{} ghosts) {
@@ -689,6 +690,99 @@ public class AweObject {
     extend public Line2D referenceLine() {
         return null;
     }
+
+    /***********************************************************************
+     * Electrical
+     ***********************************************************************/
+
+    public ElectricalPosition->ElectricalModel electricalComponents();
+
+    /*** Electrical Position Helpers ***/
+    extend public ElectricalPosition findPosition( ElectricalModel model ) {
+        for( k,v in electricalComponents ) {
+            if ( v == model ) return k;
+        }
+        return null;
+    }
+
+    extend public ElectricalModel findEM( ElectricalPosition pos ) {
+        return findEM( pos.position.toElectricPoint(), front=pos.front, middle=pos.middle, back=pos.back );
+    }
+
+    extend public ElectricalModel findEM( point2D loc, bool front=false, bool middle=false, bool back=false ) {
+        for ( k,v in electricalComponents ) {
+            if ( k.position.x == loc.x and k.position.z == loc.y
+                and k.front == front and k.middle == middle and k.back == back ) return v;
+        }
+        return null;
+    }
+
+    extend public electricalAction allow(ElectricalModel object, ElectricalPosition pos, bool replace=false, bool toogle=false) {
+        for( k,v in electricalComponents ) {
+            if ( k.position == pos.position ) {                
+                if ( ( k.front and pos.front ) or ( k.back and pos.back ) ) {
+                    return v.allow( object );
+                }
+            }
+        }
+
+        return electricalAction.insert;
+    }
+
+    extend public bool remove( ElectricalPosition placement, electricalAction action) {
+        for( k,v in electricalComponents ) {
+            if ( k.position == placement.position and ( ( k.front and placement.front ) or (k.back and placement.back) or (k.middle and placement.middle) ) ) {
+                electricalComponents.remove( k );
+                this.electricalModelChange( v, k, electricalAction.remove );
+                return true;
+            }
+        }
+        return false;
+    }
+
+    extend public void apply( ElectricalModel object, ElectricalPosition placement, electricalAction action) {
+        if ( findEM( placement ) ) {
+            return;
+        }
+        object.owner = this.mainSnapper;
+        electricalComponents.put( placement, object );
+        this.electricalModelChange( object, placement, electricalAction.insert );
+    }
+
+    extend public void electricalModelChange( ElectricalModel obj, ElectricalPosition pos, electricalAction action ) {
+
+    }
+
+    extend public ElectricalPosition[] electricalPositions( ElectricalModel object ) {
+        return null;
+    }
+
+    extend public ElectricalPosition[] getPlacedInfeedLocations() {
+        ElectricalPosition[] positions();
+
+        for( k,v in electricalComponents ) {
+            if ( v in AweElectricalInfeedModel ) {
+                positions << k;
+            }
+        }
+
+        return positions;
+    }
+
+    /*** Electrical Regions ***/
+    extend public box[] electricalRegions() {
+        return null;
+    }
+
+    extend public point[] electricalDoors() {
+        return null;
+    }
+
+    extend public line[] doNotConnect() {
+        return null;
+    }
+
+
 
 }
 
@@ -1002,4 +1096,8 @@ private int propertySort( str a, str b, Object order ) {
         if ( bIndex > aIndex ) return aIndex == -1 ? 1 : -1; // if A wasn't in the list, push it to the end
     }
     return 0;
+}
+
+private point2D toElectricPoint( point self ) {
+    return ( self.x, self.z );
 }

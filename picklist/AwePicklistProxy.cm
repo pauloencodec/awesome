@@ -38,6 +38,7 @@ package custom.awesome.picklist;
 
 public class AwePicklistProxy extends SnapperPicklistProxy : abstract {
     public AweQueryDialog queryDialog : copy=null, stream=null;
+    public AweTag tag : copy=null, stream=null;
     
     extend public str picklistKey() : abstract {
     }

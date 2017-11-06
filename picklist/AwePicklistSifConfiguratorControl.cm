@@ -167,6 +167,10 @@ public class AwePicklistSifConfiguratorControl extends GroupBox {
             this.item.sifSku = sifSku;
             this.item.price = sifSku.totalPrice();
 
+            if (sifSku.isSpecial()) {
+                this.item.price -= sifSku.model.basePrice;
+            }
+
             session.mainWorld.invalidateWorldPrice();
         }
 

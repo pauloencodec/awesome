@@ -88,13 +88,25 @@ public class AweGeometry {
     }
 
     extend private AweTag treatTag(AweTag tag) {
-        if (!tag) return null;
+        var emptyTag = false;
+        
+        if (!tag) {
+            tag = new AweTag(" ");
+
+            emptyTag = true;
+        }
 
         if (!tag.position) tag.position = this.defaultTagPosition();
         if (empty(tag.key)) tag.key = this.nextTagKey();
-        
-        symbol{} layers = {#tags};
-        tag.layers = layers +=? tag.layers;
+
+        if (emptyTag) {
+            tag.layers = {#invisible};
+        }
+        else {
+            symbol{} layers = {#tags};
+
+            tag.layers = layers +=? tag.layers;
+        }
 
         return tag;
     }
@@ -108,7 +120,7 @@ public class AweGeometry {
     extend public str nextTagKey() {
         int nextNumber = this.parts.?count + 1;
 
-        return "A" # nextNumber;
+        return this.class.toS() # nextNumber;
     }
     
     extend public AwePart[] getParts() {
