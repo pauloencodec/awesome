@@ -40,7 +40,6 @@ use cm.abstract.picklist;
 
 use custom.awesome.connectors;
 use custom.awesome.gallery;
-use custom.awesome.electrical;
 use custom.awesome.picklist;
 
 private alias SnapperArray = Snapper{};
@@ -651,11 +650,7 @@ public class AweSnapper extends TaggableSnapper {
     }
         
     public ItemTagInfo createItemTagInfo(Part part, str key, str infoKey) {
-        if (part as AwePart and part.tag.?isValid) {
-            return AweItemTagInfo(part.tag, infoKey);
-        }
-
-        return null;
+        return this.createAweItemTagInfo(part, key, infoKey);
     }
 
     public point itemTagPos(ItemTag tag) {

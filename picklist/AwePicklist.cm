@@ -74,4 +74,12 @@ public class AwePicklist extends Picklist : abstract {
     public color listColor() {
         return color(230);
     }
+
+    public bool acceptItemTags() {
+        return true;
+    }
+
+    public ItemTagInfo createItemTagInfo(Part part, str key, str infoKey) {
+        return this.createAweItemTagInfo(part, key, infoKey);
+    }
 }

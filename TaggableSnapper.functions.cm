@@ -34,34 +34,33 @@
    END OF CETSC
 */
 
-package custom.awesome.product;
+package custom.awesome;
 
-public class AweTag {
-    public str key;
-    public str infoKey;
-    public str text;
-    public Point position;
-    public angle rotation;
-    public symbol{} layers;
-    public UserTextStyle userTextStyle;
-    
-    public constructor(str text, str key="", Point position=null, angle rotation=0deg, symbol{} layers=null, UserTextStyle userTextStyle=null) {
-        set*(this: key, text, position, rotation, layers, userTextStyle);
+public void removeAllTags(TaggableSnapper snapper) {
+    snapper.removeTag(null);
+}
+
+public void removeTag(TaggableSnapper snapper, str key) {
+    var map = session.mainWorld.getAuxillary(cItemTagInfoKey).?ItemTagInfoMap;
+
+    forItemTags(tag in snapper.itemTags) {
+        if (!key or tag.key == key) {
+            snapper.removeItemTag(tag.key);
+            snapper.space.removeFromBsp(tag);
+            
+            tag.invalidate(dirty2D.all);
+        
+            if (map) {
+                map.info.remove(tag.info.key);
+            }
+        }
     }
-    
-    extend public point getPos() {
-        return this.position ? this.position.v : (0, 0, 0);
+}
+
+public ItemTagInfo createAweItemTagInfo(TaggableSnapper snapper, Part part, str key, str infoKey) {
+    if (part as AwePart and part.tag.?isValid) {
+        return new AweItemTagInfo(part.tag, key, infoKey);
     }
 
-    extend public void setPos(point p) {
-        this.position = Point(p);
-    }
-
-    extend public bool isValid() {
-        return !empty(this.text);
-    }
-
-    extend public bool isVisible() {
-        return this.layers and #invisible !in this.layers;
-    }
+    return null;
 }

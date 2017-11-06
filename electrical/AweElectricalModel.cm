@@ -34,34 +34,33 @@
    END OF CETSC
 */
 
-package custom.awesome.product;
+package custom.awesome.electrical;
 
-public class AweTag {
-    public str key;
-    public str infoKey;
-    public str text;
-    public Point position;
-    public angle rotation;
-    public symbol{} layers;
-    public UserTextStyle userTextStyle;
-    
-    public constructor(str text, str key="", Point position=null, angle rotation=0deg, symbol{} layers=null, UserTextStyle userTextStyle=null) {
-        set*(this: key, text, position, rotation, layers, userTextStyle);
-    }
-    
-    extend public point getPos() {
-        return this.position ? this.position.v : (0, 0, 0);
+public class ElectricalModel {
+    public Snapper owner : copy=reference;
+    public point location;
+
+    public constructor() { }
+
+    extend public Primitive3D get3D( FetchEnv3D env, Snapper z, ElectricalPosition p ) {
+        return null;
     }
 
-    extend public void setPos(point p) {
-        this.position = Point(p);
+    extend public Primitive3D extra3D( FetchEnv3D env, Snapper z, ElectricalPosition p ) {
+        return null;
     }
 
-    extend public bool isValid() {
-        return !empty(this.text);
+    extend public void buildAnimationProperties( AnimationProperties props ) {
+        // props.append2(this._uniqueQuickPropertyId # @propNameStr, @labelName, distance(@propName), @domainName, lockable=false);
     }
 
-    extend public bool isVisible() {
-        return this.layers and #invisible !in this.layers;
+    extend public void propertyChange( str key, Object value ) { }
+
+    extend public electricalAction allow( ElectricalModel object ) { return electricalAction.no; }
+
+    extend public point[] electricPoints( point center ) {
+        return [center];
     }
+
+    extend public AwePart[] getParts( bool is3Circuit=false) { return null; }
 }

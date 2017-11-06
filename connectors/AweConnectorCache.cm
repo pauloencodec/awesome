@@ -128,12 +128,11 @@ public class AweConnectorCache {
         return c;
     }
 
-    extend public Connector makeFace(str key, point pos, Graph g, ConnectRule rule=magneticRule, bool realign=false, bool mandatory=false) {
+    extend public Connector makeFace(str key, point pos, Graph g, ConnectRule rule=magneticRule, bool realign=false, bool mandatory=false, orientation rot = (0deg, 0deg, 0deg)) {
         Connector c = this.get(key);
 
         if (!c) {
-            c = new AweSupportSurface(this.snapper, pos, g, rule);
-
+            c = new AweSupportSurface(this.snapper, pos, g, rule, rot);
             this._cache.put(this.getCacheKey(key), c);
         } 
         
@@ -141,6 +140,7 @@ public class AweConnectorCache {
             c.update(pos, g);
             c.setRule(rule);
             c.setId(key);
+            c.setRot(rot);
             c.realign = realign;
             c.mandatory = mandatory;
         }
@@ -150,11 +150,11 @@ public class AweConnectorCache {
         return c;
     }
 
-    extend public Connector makeStandOn(str key, point pos, ConnectRule rule=magneticRule, bool realign=false, bool mandatory=false) {
+    extend public Connector makeStandOn(str key, point pos, ConnectRule rule=magneticRule, bool realign=false, bool mandatory=false, orientation rot = (0deg, 0deg, 0deg)) {
         Connector c = this.get(key);
 
         if (!c) {
-            c = new AweStandOnPoint(this.snapper, pos);
+            c = new AweStandOnPoint(this.snapper, pos, rot);
 
             this._cache.put(this.getCacheKey(key), c);
         }
@@ -162,6 +162,7 @@ public class AweConnectorCache {
         if (c as AweStandOnPoint) {
             c.setPos(pos);
             c.setRule(rule);
+            c.setRot(rot);
             c.setId(key);
             c.realign = realign;
             c.mandatory = mandatory;

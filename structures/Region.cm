@@ -34,34 +34,65 @@
    END OF CETSC
 */
 
-package custom.awesome.product;
+package custom.awesome.structures;
 
-public class AweTag {
-    public str key;
-    public str infoKey;
-    public str text;
-    public Point position;
-    public angle rotation;
-    public symbol{} layers;
-    public UserTextStyle userTextStyle;
-    
-    public constructor(str text, str key="", Point position=null, angle rotation=0deg, symbol{} layers=null, UserTextStyle userTextStyle=null) {
-        set*(this: key, text, position, rotation, layers, userTextStyle);
-    }
-    
-    extend public point getPos() {
-        return this.position ? this.position.v : (0, 0, 0);
+
+public class Region {
+    public Snapper owner : copy=reference;
+    public box bound;
+    public RegionNode{} nodes();
+    public line[] notAllowed();
+
+    public constructor( box bound, line[] notAllowed, Snapper owner ) {
+        this.bound = bound;
+        this.notAllowed = notAllowed;
+        this.owner = owner;
     }
 
-    extend public void setPos(point p) {
-        this.position = Point(p);
+    extend public RegionNode findAt( point p ) {
+        for( n in nodes ) {
+            if ( n.p == p ) return n;
+        }
+        return null;
     }
 
-    extend public bool isValid() {
-        return !empty(this.text);
+    extend public void add( RegionNode node ) {
+        // make sure it doesn't exist yet
+        for( n in nodes ) {
+            if ( n.p == node.p ) return;
+        }
+
+        for ( n in nodes ) {
+            if ( allow( node.p, n.p ) ) {
+                RegionEdge edge( n, node );
+            }
+        }
+
+        nodes << node;
     }
 
-    extend public bool isVisible() {
-        return this.layers and #invisible !in this.layers;
+    extend public bool allow( point p1, point p2 ) {
+        for( l in notAllowed ) {
+            if ( ( l.p0 == p1 or l.p1 == p1 ) 
+                and ( l.p0 == p2 or l.p1 == p2 ) ) return false;
+        }
+        return true;
+    }
+
+    extend public bool contains( point p ) {
+        return bound.contains(p);
+    }
+
+    extend public Primitive3D get3D() {
+        Primitive3D[] prims();
+
+        // Box3D b( bound );
+        // b.setMaterial( custom.awesome.transparentColorMaterial(cm.basic.randomColor(), 0.25) );
+        // prims << b;
+
+        for( n in nodes ) {
+            prims <<? n.get3D();
+        }
+        return safeInstance3D(prims);
     }
 }

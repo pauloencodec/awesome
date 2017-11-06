@@ -50,7 +50,7 @@ public class Awe3D extends Instance3D {
     extend public Awe3D operator << (Primitive3D prim) {
         Primitive3D[] prims();
         if(subPrims) {
-            prims += subPrims;
+            prims += subPrims.copy();
         }
         prims << prim;
         setSubPrims(prims);
@@ -62,12 +62,39 @@ public class Awe3D extends Instance3D {
     }
 
     //copied from core because it is final
-    extend private void setSubPrims(Primitive3D[] primitives) {
+    extend private void setSubPrims(Primitive3D[] newPrims) {
 
-        for (p in primitives, index=i, reverse) if (p.empty()) primitives.remove(i); // remove invisible
+        var owner = this.owner;
+        this.destroy();
 
-        if (primitives.any()) {
-            _subPrims = copy(primitives, shallow=true); // to mimic a primitives.seq as above 
+        for (p in newPrims, index=i, reverse) if (p.empty()) newPrims.remove(i); // remove invisible
+
+        if (newPrims.any()) {
+            _subPrims = newPrims;
+            this.updateLIPrims();
         }
+
+        for(p in newPrims) {
+            p.setOwner(owner);
+        }
+
+        this.setOwner(owner);
     }
+}
+
+public void updateLIPrims(Instance3D instance) {
+    liPrimitive[] liPrims(instance._subPrims.count);
+    for (p in instance._subPrims) {
+        // use=true because destroy does release on all subPrims().
+        p.appendPrims(liPrims, use=true);
+    }
+    if (liPrims.count > 0) {
+        instance.prim = aweWMakeInstanceSeq(liPrims);
+        resource3DCount++;
+    }
+}
+
+
+import "core3D.dll" {
+    public liPrimitive aweWMakeInstanceSeq(liPrimitive[] prims) = li_liMakeInstanceSeq;
 }

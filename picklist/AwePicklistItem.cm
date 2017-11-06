@@ -44,6 +44,7 @@ public class AwePicklistItem extends PicklistItem {
     private str _description;
 
     public AweSifSku sifSku;
+    public AweTag tag;
 
     public constructor(str catalog, str partNumber, str description=null, double price=0, double quantity=1) {
         super(partNumber, quantity);
@@ -71,7 +72,7 @@ public class AwePicklistItem extends PicklistItem {
     }
 
     extend public AwePart getPart(Snapper owner) {
-        var part = new AwePart(owner, this.catalog, this.partNo, this.quantity);
+        var part = new AweSpecialPart(owner, this.catalog, this.partNo, this.quantity, this.tag);
 
         part.data.setDescription(this.description);
 
@@ -91,5 +92,14 @@ public class AwePicklistItem extends PicklistItem {
         part.data.setListPrice(totalPrice);
 
         return part;
+    }
+
+    extend public void setTag(Snapper owner, AweTag tag, int index) {
+        this.tag = tag;
+
+        var part = this.getPart(owner);
+
+        this.tag.key = "S" # index + 1;
+        this.tag.infoKey = part.flattenableKey();
     }
 }
