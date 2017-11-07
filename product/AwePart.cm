@@ -60,6 +60,10 @@ public class AwePart extends OfficePart {
         this.data.setArticleCode(this.basemodel);
         this.data.setQuantity(quantity);
         this.tag = tag;
+
+        if (this.tag) {
+            this.tag.infoKey = this.flattenableKey();
+        }
     }
 
     public constructor(Snapper snapper, str catalog, str sku, double quantity=1, AweTag tag=null) {
@@ -191,5 +195,11 @@ public class AwePart extends OfficePart {
             // OD= Option Description
             res << spnn("OD=", desc);
         }
+    }
+}
+
+public class AweSpecialPart extends AwePart {
+    public str flattenableKey() {
+        return this.sku # this.header.tg # this.tag.?key;
     }
 }

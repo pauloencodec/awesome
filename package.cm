@@ -38,6 +38,7 @@ package custom.awesome : 8.0.0;
 use custom.awesome.product;
 use custom.awesome.automations;
 use custom.awesome.materials;
+use custom.awesome.electrical;
 use custom.awesome.schemes;
 use custom.awesome.stretch;
 

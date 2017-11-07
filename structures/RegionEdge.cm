@@ -34,34 +34,33 @@
    END OF CETSC
 */
 
-package custom.awesome.product;
+package custom.awesome.structures;
 
-public class AweTag {
-    public str key;
-    public str infoKey;
-    public str text;
-    public Point position;
-    public angle rotation;
-    public symbol{} layers;
-    public UserTextStyle userTextStyle;
-    
-    public constructor(str text, str key="", Point position=null, angle rotation=0deg, symbol{} layers=null, UserTextStyle userTextStyle=null) {
-        set*(this: key, text, position, rotation, layers, userTextStyle);
-    }
-    
-    extend public point getPos() {
-        return this.position ? this.position.v : (0, 0, 0);
-    }
+public class RegionEdge {
+    public RegionNode a;
+    public RegionNode b;
 
-    extend public void setPos(point p) {
-        this.position = Point(p);
+    public double cost;
+
+    public constructor( RegionNode a, RegionNode b ) {
+        this.a = a;
+        this.b = b;
+        a.edges << this;
+        b.edges << this;
+
+        // for now just use the distance as the cost
+        this.cost = a.p.distance(b.p);
     }
 
-    extend public bool isValid() {
-        return !empty(this.text);
+    extend public RegionNode other( RegionNode me ) {
+        return me == a ? b : a;
     }
 
-    extend public bool isVisible() {
-        return this.layers and #invisible !in this.layers;
+    extend public Primitive3D get3D() {
+        if ( hasDrawn.contains(this) ) return null;
+        hasDrawn << this;
+        ClosedCylinder3D line( a.p, b.p, 0.125inch, doubleSided=true );
+        line.setMaterial( lightBlueTransparencyMaterial3D );
+        return line;
     }
 }
