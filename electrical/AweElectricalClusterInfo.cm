@@ -36,6 +36,8 @@
 
 package custom.awesome.electrical;
 
+public const bool debugClusterInfo = false;
+
 public class AweElectricalClusterInfo {
     
     private AweElectricalMap map;
@@ -125,10 +127,8 @@ public class AweElectricalClusterInfo {
         }
     }
 
-    public bool build2D = false;
-
-    extend public void drawTo(LayerBuffer lb) { 
-        if (this.build2D) { 
+    extend public void debug2D(LayerBuffer lb) { 
+        if (debugClusterInfo) { 
             Graph[] graph();
 
             for(cluster in clusters) {
