@@ -125,6 +125,39 @@ public class AweElectricalClusterInfo {
         }
     }
 
+    public bool build2D = false;
+
+    extend public void drawTo(LayerBuffer lb) { 
+        if (this.build2D) { 
+            Graph[] graph();
+
+            for(cluster in clusters) {
+                
+                for(cable in cluster.cables) if (!cable.hideInCluster3D) {
+                    var c = darkened(randomColor());
+                    var cableLine = ((!cable.upstream) ? cable.spaceLine.v.line2D : cable.flow.line2D);
+                    var text = (cableLine.length / 1inch).formatted(rightAlign=true, fieldWidth=5, precision=2) # "\"";// # "- \n" # cable.id;
+                    var rot = cableLine.normal + 90deg;
+                    var offset = min(max(cableLine.length, 4inch), 8inch);
+                    var p0 = cableLine.p0 - (offset, offset);
+                    var textP0 = p0 - (rot == 0deg ? (0, randD(0, offset)) : (randD(0, offset), 0));
+                    
+                    graph << GLine(line2D(cableLine.p0, cableLine.p1), LineType(c, lineStyle.thick));
+                    graph << GLine(line2D(cableLine.midPoint, textP0), LineType(c, lineStyle.thick));
+                    graph << GLine(line2D(cableLine.p0, textP0), LineType(c, lineStyle.thick));
+                    graph << GLine(line2D(cableLine.p1, textP0), LineType(c, lineStyle.thick));
+                    graph << GText(textP0, text, alignment.downLeft, 0deg, h=2.5inch, c);
+                    
+                }
+                
+            }
+
+            GInstance clInstance = GInstance(graph);
+            clInstance.draw(lb);
+
+        }
+    }
+
     extend public Primitive3D get3D() {
         Awe3D all3D();
 
