@@ -51,10 +51,6 @@ public class AweGhostSnapper extends AweModelSnapper {
         }
     }
 
-    extend public box[] electricalRegions() {
-        return [this.localBound()];
-    }
-
     //return a line here to display connection angle during try snap
     public Line2D referenceLine() {
         return this.hostSnapper.?mainModel().?referenceLine();
