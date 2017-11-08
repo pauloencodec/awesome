@@ -53,8 +53,8 @@ public class AweElectricalInfeedModel extends ElectricalModel {
             result i;
         };
         if ( pos ) {
-            if ( pos.rotation and owner ) {
-                p.rotate( ( 0deg, 0deg, pos.rotation.v ) );
+            if ( pos.rotation ) {
+                if ( owner ) p.rotate( ( 0deg, 0deg, pos.rotation.v ) );
             } else {
                 p.rotate( pos.back ? 180deg : 0deg );
             }
