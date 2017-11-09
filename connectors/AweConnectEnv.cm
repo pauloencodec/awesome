@@ -48,7 +48,8 @@ public class AweConnectEnv {
     public constructor auto();
 
     public constructor(Connector connector) {
-        this(set=connector.getConnectorSet, model=connector.getModel, snapper=connector.snapper, connector=connector, id=connector.getId, bag=connector.getBag);
+        if(connector != null)
+            this(set=connector.getConnectorSet, model=connector.getModel, snapper=connector.snapper, connector=connector, id=connector.getId, bag=connector.getBag);
     }
 }
 
