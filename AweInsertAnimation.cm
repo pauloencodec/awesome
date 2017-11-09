@@ -177,6 +177,10 @@ public class AweInsertAnimation extends InsertAnimation {
         return super(..);
     }
 
+    public void aborted() {
+        trySnapManager.updateConnectInfo(null, this.lastMouseInfo);
+    }
+
     public bool snapAllAlignedAtEnd() {
         return this.activeGhost == null;
     }
