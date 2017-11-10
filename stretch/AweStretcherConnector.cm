@@ -110,6 +110,12 @@ public class AweStretcherConnector extends AweStretchableConnector {
         return new plane(this.spaceRot().direction, this.spacePos());
     }
 
+    extend public line spaceDirectionLine() {
+        var pos = this.spacePos();
+
+        return line(pos, pos + this.spaceRot().direction);
+    }
+
     extend public Connector{} samePlaneConnectors(Connector{} collection=null) {
         if(collection == null) {
             collection = this.snapper.connectors();
