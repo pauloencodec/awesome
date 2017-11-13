@@ -67,6 +67,8 @@ public class Awe3D extends Primitive3D {
         var owner = this.owner;
         this.destroy();
 
+         for (p in newPrims, index=i, reverse) if (p.empty()) newPrims.remove(i);
+
         if (newPrims.any()) {
             this.updateLIPrims();
         }
