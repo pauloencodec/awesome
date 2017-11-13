@@ -42,8 +42,18 @@ public class ElectricalConnectedPath {
 
     public constructor( point[] path ) {
         this.path = path;
-        translateToComponents( parsePath() );
+        if ( validPath ) {
+            translateToComponents( parsePath() );
+        }
     }   
+
+    extend public bool validPath() {
+        if ( path ) {
+            return path.count > 0;
+        } else {
+            return true;
+        }
+    }
 
     extend public AweElectricalPathPart[] parsePath() { return null; }
 
