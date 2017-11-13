@@ -63,6 +63,11 @@ public class AweObject {
         return this._label ? this._label : super();
     }
 
+    //use this to turn off product (geometry, graphs, parts..)
+    extend public bool disableProduct() {
+        return false;
+    }
+
     extend public void applyFrom(AweObject source, str{} ignore=null) {
     }
 
@@ -286,6 +291,9 @@ public class AweObject {
     public AweProduct _product : stream=null, copy=null;
 
     extend public AweProduct getProduct() {
+
+        if(this.disableProduct) return null;
+
         if (!this._product) {
             this._product = this.createProduct();
         }
