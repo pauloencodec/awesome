@@ -36,7 +36,12 @@
 
 package custom.awesome.product;
 
-public class Awe3D extends Instance3D {
+public class Awe3D extends Primitive3D {
+    private Primitive3D[] _subPrims();
+    public Primitive3D[] subPrims() {
+        return _subPrims;
+    }
+
     public constructor() {
         
     }
@@ -48,12 +53,8 @@ public class Awe3D extends Instance3D {
     }
 
     extend public Awe3D operator << (Primitive3D prim) {
-        Primitive3D[] prims();
-        if(subPrims) {
-            prims += subPrims.copy();
-        }
-        prims << prim;
-        setSubPrims(prims);
+        this._subPrims << prim;
+        setSubPrims(this._subPrims);
         return this;
     }
 
@@ -63,14 +64,10 @@ public class Awe3D extends Instance3D {
 
     //copied from core because it is final
     extend private void setSubPrims(Primitive3D[] newPrims) {
-
         var owner = this.owner;
         this.destroy();
 
-        for (p in newPrims, index=i, reverse) if (p.empty()) newPrims.remove(i); // remove invisible
-
         if (newPrims.any()) {
-            _subPrims = newPrims;
             this.updateLIPrims();
         }
 
@@ -82,7 +79,7 @@ public class Awe3D extends Instance3D {
     }
 }
 
-public void updateLIPrims(Instance3D instance) {
+public void updateLIPrims(Awe3D instance) {
     liPrimitive[] liPrims(instance._subPrims.count);
     for (p in instance._subPrims) {
         // use=true because destroy does release on all subPrims().
