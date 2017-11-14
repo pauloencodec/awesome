@@ -214,12 +214,6 @@ public class AweObject {
     }
 
     extend public void buildConnectorSetProperties(QuickProperties props) {
-        for(set in this.connectorSets) {
-            if(set.optional and set.name()) {
-                var setKey = "ConnectorSet_" # set.name();
-                props.append(setKey, set.name(), set.selected, BoolSubSet());
-            }
-        }
     }
 
     extend public void buildConnectorSetAnimationProperties(AnimationProperties props) {
