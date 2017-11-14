@@ -1,0 +1,143 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome;
+
+public double[] getBestCombination(SubSet domain, double size) {
+    double[] options();
+
+    for (item in domain.members) {
+        var value = safeDouble(item);
+
+        if (value > 0) {
+            options << value;
+        }
+    }
+
+    CombinationsCalc calc(options, size);
+
+    return calc.getBestCombination();
+}
+
+public class CombinationsCalc {
+    private double[] options;
+    private double size;
+
+    public int->(double[])[] solution();
+    public int minorQty = 0;
+
+    public constructor(double[] options, double size) {
+        this.options = options;
+        this.size = size;
+    }
+
+    extend public double[] getBestCombination() {
+        double[] result();
+
+        this.combine(this.options, this.size, 0, result, 0);
+
+        if (this.minorQty > 0 and this.minorQty in this.solution) {
+            return this.solution.get(this.minorQty)[0];
+        }
+        
+        return new double[]();
+    }
+
+    // private int[] widthArray = [60,72,84,90,96];
+
+    extend public void combine(double[] denoms, double target, double accsum, double[] qtd, int k){
+        double currentValue, sum;
+        int n = denoms.count();
+
+        for (i in 0..(n - 1)) {
+            if (k > 0 and denoms[i] < qtd[k - 1]) continue;
+            
+            currentValue = denoms[i];
+            
+            if ((sum = accsum + currentValue) > target) return;
+            
+            if (sum == target) {
+                qtd[k] = currentValue;
+                show(qtd, k + 1);
+                return;
+            }
+
+            qtd[k] = currentValue;
+
+            this.combine(denoms, target, sum, qtd, k + 1);
+        }
+    }
+
+    extend private void show(double[] qtd, int n) {
+        if (this.minorQty == 0) {
+            this.minorQty = n;
+        }
+        
+        if (n < this.minorQty) {
+            this.minorQty = n;
+        }
+
+        // this.minorQty = n;
+
+        double[] result();
+
+        for (i in 0..(n - 1)) {
+            result << qtd[i];
+        }
+        
+        if (!this.solution.contains(n)) {
+            this.solution.put(n, [result]);
+        }
+
+        var stored = solution.get(n);
+        
+        stored << result;
+    }
+    extend private double[] getBest(){
+        pln(minorQty);
+        if(minorQty > 0){
+            return solution.get(minorQty)[0];
+        }
+        else{
+            return new double[];
+        }
+    }
+}
+{
+    var t = new CombinationsCalc([60inch,72inch,84inch,90inch,96inch], 720inch);
+    
+    pln(t.getBestCombination());
+}
