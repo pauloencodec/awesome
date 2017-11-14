@@ -40,8 +40,9 @@ public class AweWidthStretcher extends AweStretcher {
     
     private str{} lockProps;
 
-    public constructor(AweObject model, str propName="width", str{} lockProps={"depth"}) {
-        super(model, propName);
+    public constructor(AweObject model, str propName="width", str{} lockProps={"depth"}, bool enableA=true, bool enableB=true, point visiblePosOffsetA=point(), point visiblePosOffsetB=point()) {
+        super(model, propName, enableA, enableB, visiblePosOffsetA, visiblePosOffsetB);
+
         this.lockProps = lockProps;
     }
 

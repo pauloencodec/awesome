@@ -63,6 +63,11 @@ public class AweObject {
         return this._label ? this._label : super();
     }
 
+    //use this to turn off product (geometry, graphs, parts..)
+    extend public bool disableProduct() {
+        return false;
+    }
+
     extend public void applyFrom(AweObject source, str{} ignore=null) {
     }
 
@@ -116,15 +121,19 @@ public class AweObject {
         }
         AweStretcher{} active();
         for(s in this._stretchers) {
-            if(this.hasDomainOptions(s.propKey)) {
+            if(this.hasDomainOptions(s.model, s.propKey)) {
                 active << s;
             }
         }
         return active;
     }
 
-    extend private bool hasDomainOptions(str propKey) {
-        var domain = this.getDomain(propKey);
+    extend public void stretched(str propKey, double propValue) {
+    }
+
+    extend private bool hasDomainOptions(AweObject model, str propKey) {
+        var domain = model.getDomain(propKey);
+        
         return domain and domain.count > 1;
     }
     
@@ -136,6 +145,10 @@ public class AweObject {
             new AweDepthStretcher(this),
             new AweElevationStretcher(this)
         };
+    }
+
+    extend public void resetStretchers() {
+        this._stretchers = null;
     }
 
     extend public bool isStretchableProp(str propKey) {
@@ -204,12 +217,6 @@ public class AweObject {
     }
 
     extend public void buildConnectorSetProperties(QuickProperties props) {
-        for(set in this.connectorSets) {
-            if(set.optional and set.name()) {
-                var setKey = "ConnectorSet_" # set.name();
-                props.append(setKey, set.name(), set.selected, BoolSubSet());
-            }
-        }
     }
 
     extend public void buildConnectorSetAnimationProperties(AnimationProperties props) {
@@ -286,6 +293,9 @@ public class AweObject {
     public AweProduct _product : stream=null, copy=null;
 
     extend public AweProduct getProduct() {
+
+        if(this.disableProduct) return null;
+
         if (!this._product) {
             this._product = this.createProduct();
         }

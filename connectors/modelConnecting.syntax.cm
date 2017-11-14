@@ -110,8 +110,16 @@ public member @visibility modelConnecting ';' {
                 Connector self = this;
 
                 if (self as ConnectLine) {
-                    if (self.freeSnapPosition(connector, self.length / 2) == maxDouble) {
+                    //maxDouble means it doesn't fit. sometimes I get ~0 too, meaning the same thing
+                    //ask one
+                    if (self.freeSnapPosition(connector, self.length / 2) == maxDouble or self.freeSnapPosition(connector, self.length / 2) == 0) {
                         return false;
+                    }
+                    if (connector as ConnectLine) {
+                        //ask the other
+                        if (connector.freeSnapPosition(self, connector.length / 2) == maxDouble or connector.freeSnapPosition(self, connector.length / 2) == 0) {
+                            return false;
+                        }
                     }
                 }
 
