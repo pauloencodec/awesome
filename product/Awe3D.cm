@@ -36,12 +36,7 @@
 
 package custom.awesome.product;
 
-public class Awe3D extends Primitive3D {
-    private Primitive3D[] _subPrims();
-    public Primitive3D[] subPrims() {
-        return _subPrims;
-    }
-
+public class Awe3D extends Instance3D {
     public constructor() {
         
     }
