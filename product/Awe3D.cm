@@ -48,8 +48,15 @@ public class Awe3D extends Instance3D {
     }
 
     extend public Awe3D operator << (Primitive3D prim) {
-        this._subPrims << prim;
-        setSubPrims(this._subPrims);
+        Primitive3D[] prims();
+        
+        if(subPrims) {
+            prims += subPrims;
+        }
+        
+        prims << prim;
+        
+        setSubPrims(prims);
         return this;
     }
 
@@ -60,12 +67,15 @@ public class Awe3D extends Instance3D {
     //copied from core because it is final
     extend private void setSubPrims(Primitive3D[] newPrims) {
         var owner = this.owner;
+        var copiedPrims = newPrims.copy();
         this.destroy();
 
-         for (p in newPrims, index=i, reverse) if (p.empty()) newPrims.remove(i);
+        for (p in newPrims, index=i, reverse) if (p.empty()) newPrims.remove(i); // remove invisible
+        for (p in copiedPrims, index=i, reverse) if (p.empty()) copiedPrims.remove(i); // remove invisible
 
         if (newPrims.any()) {
-            this.updateLIPrims();
+            _subPrims = newPrims;
+            this.updateLIPrims(copiedPrims);
         }
 
         for(p in newPrims) {
@@ -76,9 +86,11 @@ public class Awe3D extends Instance3D {
     }
 }
 
-public void updateLIPrims(Awe3D instance) {
-    liPrimitive[] liPrims(instance._subPrims.count);
-    for (p in instance._subPrims) {
+public void updateLIPrims(Instance3D instance, Primitive3D[] prims) {
+    prims = prims ?? instance._subPrims;
+    
+    liPrimitive[] liPrims(prims.count);
+    for (p in prims) {
         // use=true because destroy does release on all subPrims().
         p.appendPrims(liPrims, use=true);
     }
