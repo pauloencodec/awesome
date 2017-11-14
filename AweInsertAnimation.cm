@@ -113,8 +113,8 @@ public class AweInsertAnimation extends InsertAnimation {
     //the first time snapInfoChanged hits, isUserPasteAnimating seems not be ready yet, so skipping one
     private bool firstCall = true;
 
+    private AweTrySnapManager trySnapManager();
     extend public void snapInfoChanged(SnapInfo newInfo, AnimationMouseInfo mi) {
-        
         if(firstCall) {
             firstCall = false;
             return;
@@ -126,10 +126,8 @@ public class AweInsertAnimation extends InsertAnimation {
                     l.tryResizeToFit(newInfo.attach, mi.mouseLine);
                 }
             }
-            if(AweConnectorSet set = newInfo.snap.getConnectorSet()) {
-                set.trySnap(new AweConnectEnv(newInfo.snap), new AweConnectEnv(newInfo.attach), mi);
-            }
         }
+        trySnapManager.updateConnectInfo(newInfo.ConnectSnapInfo, mi);
     }
 
     public void drawGraphs(LayerBuffer lb) {
@@ -177,6 +175,10 @@ public class AweInsertAnimation extends InsertAnimation {
             snapAllAligned(this.selection.main);
         }
         return super(..);
+    }
+
+    public void aborted() {
+        trySnapManager.updateConnectInfo(null, this.lastMouseInfo);
     }
 
     public bool snapAllAlignedAtEnd() {
@@ -298,4 +300,30 @@ public int sortByDistanceToLine(Connector a, Connector b, Object env) {
         );
     }
     return 0;
+}
+
+public class AweTrySnapManager {
+    public AweConnectEnv previousAttach;
+    public AweConnectEnv previousSnap;
+
+    public constructor() {}
+
+    extend public void updateConnectInfo(ConnectSnapInfo newInfo, AnimationMouseInfo mi) {
+        if(newInfo.attach != previousAttach.?connector) {
+            previousAttach.?set.?tryAttachAborted(previousAttach, previousSnap, mi);
+            if(AweConnectorSet set = newInfo.attach.getConnectorSet()) {
+                set.tryAttach(new AweConnectEnv(newInfo.attach), new AweConnectEnv(newInfo.snap), mi);
+            }
+        }
+
+        if(newInfo.snap != previousSnap.?connector) {
+            previousSnap.?set.?trySnapAborted(previousSnap, previousAttach, mi);
+            if(AweConnectorSet set = newInfo.snap.getConnectorSet()) {
+                set.trySnap(new AweConnectEnv(newInfo.snap), new AweConnectEnv(newInfo.attach), mi);
+            }
+        }
+
+        previousAttach = new AweConnectEnv(newInfo.attach);
+        previousSnap = new AweConnectEnv(newInfo.snap);
+    }
 }

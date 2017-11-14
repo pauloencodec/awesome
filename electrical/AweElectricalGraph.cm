@@ -68,7 +68,14 @@ public class EGraph {
     extend public void updateCosts( CostEstimator estimator ) {
         for( e in edges ) {
             ElectricalConnectedPath c = estimator.cost( e.a.obj, e.a.p, e.b.obj, e.b.p );
-            e.path = c;
+            // if it couldn't find a path, this edge is useless, so get rid of it
+            if ( c.validPath ) {
+                e.path = c;
+            } else {
+                e.a.edges.remove(e);
+                e.b.edges.remove(e);
+                edges.remove(e);
+            }
         }
     }
 

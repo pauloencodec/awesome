@@ -186,7 +186,12 @@ public class AweRegionGraph {
                     PathNode alternative( next, test, e.cost, test.p.distance(end) );
                     if ( alternative.f < existing.f ) existing.parent = next;
                 }
+            }
 
+            // we have exhausted our options, the two locations
+            // are probably in unconnected sections.
+            if ( open.count == 0 ) {
+                return [point:];
             }
         }
 
