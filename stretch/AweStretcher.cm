@@ -163,6 +163,7 @@ public class AweStretcher : abstract {
                 this.snapper.move(anchor - after);
                 this.snapper.realign();
                 changed  = true;
+                this.model.stretched(this.propKey, newValue);
                 if (animation as AweStretcherAnimation) {
                     animation.space.invalidate(animation);
                     animation.updateProperties();
