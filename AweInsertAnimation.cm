@@ -49,10 +49,22 @@ public class AweInsertAnimation extends InsertAnimation {
         assert(this.snapper);
     }
 
+    public AwePreferredConnectionSelector preferredConnectionSelector();
+
     public void buildProperties() {
         this.destroyAnimationProperties();
         this.createAnimationProperties();
         str[] sortOrder = null;
+
+        var candidates = new Connector[]();
+        for(snap in selection.snaps) {
+            if(selection.main.AweSnapper.?mainModel.isPreferrableConnector(snap)) {
+                candidates << snap;
+            }
+        }
+        this.preferredConnectionSelector.updateOptions(candidates);
+        Object[] values = preferredConnectionSelector.optionList().:Object[];
+        this.animationProperties.appendSmart("preferredConnection", "Preferred Connection", preferredConnectionSelector.selected(), new ObjectSubSet(values), lockable=false);
 
         if (this.snapper.activeConfigurator) {
             this.snapper.addExtraAnimationProperties(this.animationProperties);
@@ -75,6 +87,14 @@ public class AweInsertAnimation extends InsertAnimation {
 
     public void propertyChange(str key, Object value) {
         super(..);
+
+        if(key == "preferredConnection") {
+            var preferred = this.preferredConnectionSelector.options.get(value.toS);
+            if(preferred) {
+                this.preferredConnectionSelector.selectedKey = preferred.id;
+            }
+            return;
+        }
 
         if (this.snapper.activeConfigurator) {
             this.snapper.activeConfigurator.animationPropertyChanged(..);
@@ -142,7 +162,9 @@ public class AweInsertAnimation extends InsertAnimation {
                 AweAngleGraph angleGraph(lineA.v, lineB.v);
                 angleGraph.draw(lb);
             }
-        } 
+        }
+
+        this.preferredConnectionSelector.get2D().?draw(lb); 
     }
 
     public Primitive3D get3D(FetchEnv3D env) {
@@ -217,9 +239,30 @@ public class AweInsertAnimation extends InsertAnimation {
     
             if (!denySnapping()) {
             Transform oldTranform = selection.main.toSpaceTransform();
-    
+
+            var preferredSnaps = new Connector[]();
+            for(snap in selection.snaps) {
+                if(this.preferredConnectionSelector.preferred(snap)) {
+                    preferredSnaps << snap;
+                }
+            }
+            if(preferredSnaps.count > 0) {
+                var newList = new Connector[]();
+                newList += preferredSnaps;
+                for(snap in selection.snaps) {
+                    if(snap !in newList) {
+                        newList << snap;
+                    }
+                }
+                selection.snaps = newList;
+                for(x in preferredSnaps) pln(#x.getId());
+                // selection.snaps = preferredSnaps;
+            }
+            else {
+                selection.snaps = selection.snaps.sort(function sortByPriorityDesc, null);
+            }
+
             SnapInfo last = currentSpace ? currentSpace.lastSnapped : null;
-            selection.snaps = selection.snaps.sort(function sortByPriorityDesc, null);
             SnapInfo info = skipSnapping ? null : selection.trySnap(mi, modifyEnv, filter);
             
             if(this.activeSnapInfo != info) {
