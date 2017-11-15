@@ -35,6 +35,7 @@
 */
 
 package custom.awesome.materials;
+use custom.acs.framework.materials;
 
 public class AweMaterial extends OfficeMaterial {
     private Image thumbnailCache : stream = null, copy = null;
@@ -44,6 +45,21 @@ public class AweMaterial extends OfficeMaterial {
             }
             return thumbnailCache;
     }   
+
+    public constructor(str id, symbol pkg=#:package : caller eval, MaterialCategory category=null) {
+        super(..);
+    }
+
+
+    /**
+     * Create a new one.
+     */
+    public constructor(str id, Material3D material3D, str description=null, MaterialCategory category=null,
+		       Brush material2D=null, double thumbnailScale=1, symbol pkg=#:package : caller eval) {
+        super(..);
+
+        setSuperMaterial(material3D);
+    }
     
     public Material3D thumbnailMaterial3D() {
         if(this.material3D) return this.material3D;
@@ -56,5 +72,18 @@ public class AweMaterial extends OfficeMaterial {
 
     public Object copy(CopyEnv env, bool shallow=false) {
         return this;
+    }
+
+    public Material3D material3D() {
+        var material = super();
+
+        //Return a non texturized version of the material
+        //for real time views
+        //Issue Awesome#299
+        if(material as GMaterial3D) {
+            return matteMaterial3D(material.getAverageColor());
+        }
+
+        return material;
     }
 }

@@ -56,28 +56,28 @@ public line2D toLine2D(line l) {
     return line2D(l.p0.point2D, l.p1.point2D);
 }
 
-public line toTheFloor(line l) {
+public line toTheFloor(line& l) {
     return l.setZ(0);
 }
 
-public line setZ(line l, double z0, double z1) {
+public line setZ(line& l, double z0, double z1) {
     l.p0.z = z0;
     l.p1.z = z1;
     
     return l;
 }
 
-public line setZ(line l, double z) {
+public line setZ(line& l, double z) {
     return l.setZ(z, z);
 }
 
-public line addZ(line l, double z0, double z1) {
+public line addZ(line& l, double z0, double z1) {
     l.p0.z += z0;
     l.p1.z += z1;
     
     return l;
 }
 
-public line addZ(line l, double z) {
+public line addZ(line& l, double z) {
     return l.addZ(z, z);
 }

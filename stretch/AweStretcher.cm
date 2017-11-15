@@ -146,9 +146,10 @@ public class AweStretcher : abstract {
         bool changed = false;
 
         if (s as AweStretcherConnector) {
-            var spaceLine = line(s.spacePos(), s.spacePos() + s.spaceRot().direction);
+            var spaceLine = s.spaceDirectionLine();
             var anchor = this.getAnchor(s);
             var projection = spaceLine.normalIntersectUnbounded(this.snapper.toSpace(p)).ip;
+            
             animation.space.invalidate(animation);
 
             var length = anchor.distance(projection);
@@ -158,21 +159,29 @@ public class AweStretcher : abstract {
             if (currentValue != newValue) {
                 this.model.set(this.propKey, newValue);
                 this.model.invalidate();
+                
                 this.snapper.updateConnectors();
+                
                 var after = this.getAnchor(s);
+                
                 this.snapper.move(anchor - after);
                 this.snapper.realign();
+                
                 changed  = true;
+
+                this.model.stretched(this.propKey, newValue);
+                
                 if (animation as AweStretcherAnimation) {
                     animation.space.invalidate(animation);
                     animation.updateProperties();
                 }
             }
-
         }
-        if(changed and tryPropagate) {
+
+        if (changed and tryPropagate) {
             this.propagate(s.AweStretcherConnector);
         }
+
         return changed;
     }
 
