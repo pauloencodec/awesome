@@ -255,8 +255,6 @@ public class AweInsertAnimation extends InsertAnimation {
                     }
                 }
                 selection.snaps = newList;
-                for(x in preferredSnaps) pln(#x.getId());
-                // selection.snaps = preferredSnaps;
             }
             else {
                 selection.snaps = selection.snaps.sort(function sortByPriorityDesc, null);
