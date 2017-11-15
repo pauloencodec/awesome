@@ -161,7 +161,15 @@ public class AweSnapper extends TaggableSnapper {
 
         //connector sets in models
         for(m in allModels) {
+            var lineToPropMap = modelAnalysis(m);
+
             for(c in m.getConnectors(this)) {
+                if(c as AweConnectLine) {
+                    var prop = lineToPropMap.get(c.getId());
+                    if(prop) {
+                        c.autoSizePropKey = prop;
+                    }
+                }
                 collection << c;
             }
         }
