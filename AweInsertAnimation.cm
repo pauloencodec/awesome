@@ -80,7 +80,6 @@ public class AweInsertAnimation extends InsertAnimation {
 
         sortOrder.exclude("preferredConnection");
         sortOrder.insert(0, "preferredConnection");
-        for(coco in sortOrder) pln(coco);
         this.animationProperties.finalize(showList=sortOrder);
         
         if (this.animationProperties and this.currentKey) {
