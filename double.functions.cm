@@ -41,3 +41,8 @@ public double getDecimalPart(double value) {
 
     return d - d.floor();
 }
+
+public str toIntStr(double value, bool inches=false){
+    if (inches) { value = value.inches(); }
+    return value.toS().split('.').v0;
+}
