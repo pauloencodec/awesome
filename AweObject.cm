@@ -136,15 +136,36 @@ public class AweObject {
         var domain = this.getDomain(propKey);
         return domain and domain.count > 1;
     }
+
+    extend public str->str connectLineToPropMap() {
+        return modelAnalysis(this);
+    }
     
     extend public AweStretcher{} createStretchers() {
         //default stretchers for everyone.
-        return {AweStretcher:
+        var stretchers = {AweStretcher:
             new AweHeightStretcher(this),
-            new AweWidthStretcher(this),
-            new AweDepthStretcher(this),
+            // new AweWidthStretcher(this),
+            // new AweDepthStretcher(this),
             new AweElevationStretcher(this)
         };
+
+        stretchers += this.createStretchersFromConnectLines();
+
+        return stretchers;
+    }
+
+    extend public AweStretcher{} createStretchersFromConnectLines() {
+        AweStretcher{} stretchers();
+        var map = this.connectLineToPropMap();
+        str->str flipped();
+        for(key, value in map) {
+            flipped.put(value, key);
+        }
+        for(propName, connectLineId in flipped) {
+            stretchers << new AweConnectLineStretcher(this, connectLineId, propName);
+        }
+        return stretchers;
     }
 
     extend public bool isStretchableProp(str propKey) {
