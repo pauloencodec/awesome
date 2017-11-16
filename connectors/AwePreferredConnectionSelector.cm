@@ -40,16 +40,16 @@ public class AwePreferredConnectionSelector {
     public str->AwePreferredConnection options;
     public str selectedKey;
 
-    private AwePreferredConnection any;
-
     extend public AwePreferredConnection selected() {
-        if(!this.selectedKey) return this.any;
+        if(!this.selectedKey) {
+            var first = this.optionList().first();
+            if(first) return first;
+            return null;
+        }
         return this.options.?get(this.selectedKey);
     }
 
     public constructor() {
-        this.any = new AwePreferredConnection();
-        this.any.id = "Any";
     }   
 
     extend public Graph get2D() {
