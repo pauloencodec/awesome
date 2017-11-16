@@ -58,22 +58,24 @@ public class AwePreferredConnectionSelector {
 
     extend public void updateOptions(Connector[] connectors) {
         this.options = new str->AwePreferredConnection ();
-        this.options.put(this.any.id, this.any);
         str{} visited();
         for(c in connectors) {
             if(c as ConnectLine) {
-                var p0 = c.spaceLine.p0;
-                var p1 = c.spaceLine.p1;
-                var key = p0.point2D.toS # "-" # p1.point2D.toS;
-                var keyReversed = p1.point2D.toS # "-" # p0.point2D.toS;
-                if(key !in visited) {
-                    visited << key << keyReversed;
-                    var option = new AwePreferredConnection();
-                    option.p0 = p0;
-                    option.p1 = p1;
-                    option.id = c.getId();
-                    option.referenceConnector = c;
-                    this.options.put(option.id, option);
+                AweConnectEnv env(c);
+                if(env.model.?isPreferrableConnector(c)) {
+                    var p0 = c.spaceLine.p0;
+                    var p1 = c.spaceLine.p1;
+                    var key = p0.point2D.toS # "-" # p1.point2D.toS;
+                    var keyReversed = p1.point2D.toS # "-" # p0.point2D.toS;
+                    if(key !in visited) {
+                        visited << key << keyReversed;
+                        var option = new AwePreferredConnection();
+                        option.p0 = p0;
+                        option.p1 = p1;
+                        option.id = c.getId();
+                        option.referenceConnector = c;
+                        this.options.put(option.id, option);
+                    }
                 }
             }
         }
@@ -109,7 +111,6 @@ public class AwePreferredConnection {
                 line thisLine = c.spaceLine();
                 if(thisLine.line2D == oneWay.line2D) return true;
                 if(thisLine.line2D == otherWay.line2D) return true;
-                pln(#thisLine.line2D; oneWay.line2D);
             }
         }
         return false;
