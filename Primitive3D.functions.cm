@@ -69,7 +69,7 @@ public Primitive3D applyMaterial(Primitive3D p, AweMaterialShell aweMaterial) {
     return applyMaterial(p, aweMaterial.materialInstance);
 }
 
-private void outlinePrims(Primitive3D thisPrim, Primitive3D[] processed, TransformF[] transformStack=null, Material3D currentMaterial=null) {
+private void outlinePrims(Primitive3D thisPrim, Primitive3D[] processed, TransformF[] transformStack=null, Material3D currentMaterial=null, LayerExpr currentLayer=null) {
     if(!transformStack) {
         transformStack = new (TransformF[])();
     }
@@ -78,8 +78,11 @@ private void outlinePrims(Primitive3D thisPrim, Primitive3D[] processed, Transfo
      if(thisPrim.material) {
         currentMaterial = thisPrim.material;
     }
+    if(thisPrim.layer){
+        currentLayer = thisPrim.layer;
+    }
     for(s in thisPrim.subPrims) {
-        outlinePrims(s, processed, transformStack.copy, currentMaterial.copy);
+        outlinePrims(s, processed, transformStack.copy, currentMaterial.copy, currentLayer);
     }
     var env = MeshEnv3D();
     env.transformStack2 = transformStack;
@@ -94,8 +97,10 @@ private void outlinePrims(Primitive3D thisPrim, Primitive3D[] processed, Transfo
         if(currentMaterial) {
             t.setMaterial(ColorMaterial3D(currentMaterial.getAverageColor));
         }
+        if(currentLayer){
+            t.layer = currentLayer;
+        }
         //t.setDoubleSided(true);
-        
         processed << t;
     }
 }

@@ -48,11 +48,15 @@ public class AweStretcherAnimation extends LineStretchAnimation {
         this.animationProperties.appendSmart(key, this.stretcher.model.getLabel(key), this.stretcher.model.get(key).distance, domain);
 
         /************ spread ************/
-        if(!this.stretcher.spread and this.stretcher.spreads and !this.stretcher.spreads.empty) {
-            this.stretcher.spread = this.stretcher.spreads.first();
+        var spreads = this.stretcher.spreads;
+        
+        if (!this.stretcher.spread and spreads and !spreads.empty) {
+            this.stretcher.spread = spreads.first();
         }
-        this.animationProperties.append3("spread", "Spread", this.stretcher.spread, new ObjectSubSet(this.stretcher.spreads().:Object[]), lockable=false);
 
+        if (spreads.count > 1) {
+            this.animationProperties.append3("spread", "Spread", this.stretcher.spread, new ObjectSubSet(spreads.:Object[]), lockable=false);
+        }
 
         this.animationProperties.finalize();
     }
