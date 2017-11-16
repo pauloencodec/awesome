@@ -55,7 +55,13 @@ public str->str modelAnalysis(AweObject model) {
         if(domain as DistanceEnum) {
             var lines = getConnectLinesMatchingDomain(domain, key, model, snapper);
             for(l in lines) {
-                summary.put(l.getId(), key);
+                AweConnectEnv env(l);
+                str id = "";
+                if(env.set) {
+                    id #= env.set.class.toS() # ".";
+                }
+                id #= env.id;
+                summary.put(id, key);
             }
         }
     }
