@@ -65,8 +65,8 @@ public class AwePreferredConnectionSelector {
                 if(env.model.?isPreferrableConnector(c)) {
                     var p0 = c.spaceLine.p0;
                     var p1 = c.spaceLine.p1;
-                    var key = p0.point2D.toS # "-" # p1.point2D.toS;
-                    var keyReversed = p1.point2D.toS # "-" # p0.point2D.toS;
+                    var key = cleanApproximatelyZero(p0.point2D).toS # "-" # cleanApproximatelyZero(p1.point2D).toS;
+                    var keyReversed = cleanApproximatelyZero(p1.point2D).toS # "-" # cleanApproximatelyZero(p0.point2D).toS;
                     if(key !in visited) {
                         visited << key << keyReversed;
                         var option = new AwePreferredConnection();
@@ -79,6 +79,13 @@ public class AwePreferredConnectionSelector {
                 }
             }
         }
+    }
+
+    extend private point2D cleanApproximatelyZero(point2D p) {
+        // ~0 breaks things
+        if(p.x == 0) p.x = 0;
+        if(p.y == 0) p.y = 0;
+        return p;
     }
 
     extend public bool preferred(Connector c) {
