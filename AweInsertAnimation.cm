@@ -64,7 +64,8 @@ public class AweInsertAnimation extends InsertAnimation {
         }
         this.preferredConnectionSelector.updateOptions(candidates);
         Object[] values = preferredConnectionSelector.optionList().:Object[];
-        this.animationProperties.appendSmart("preferredConnection", "Preferred Connection", preferredConnectionSelector.selected(), new ObjectSubSet(values), lockable=false);
+        if(values and values.count > 0)
+            this.animationProperties.appendSmart("preferredConnection", "Preferred Connection", preferredConnectionSelector.selected(), new ObjectSubSet(values), lockable=false);
 
         if (this.snapper.activeConfigurator) {
             this.snapper.addExtraAnimationProperties(this.animationProperties);

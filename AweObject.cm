@@ -69,7 +69,7 @@ public class AweObject {
     }
 
     extend public bool isPreferrableConnector(Connector c) {
-        return true;
+        return false;
     }
 
     extend public void applyFrom(AweObject source, str{} ignore=null) {
