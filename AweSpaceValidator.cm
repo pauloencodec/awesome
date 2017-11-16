@@ -35,7 +35,6 @@
 */
 
 package custom.awesome;
-use custom.awesome.electrical;
 
 public class AweSpaceValidator {
     private Space space;

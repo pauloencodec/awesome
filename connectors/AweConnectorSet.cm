@@ -99,7 +99,18 @@ public class AweConnectorSet  {
 
     }
 
+    //this is trying to connect to something
     extend public void trySnap(AweConnectEnv me, AweConnectEnv other, AnimationMouseInfo mi) {
+    }
+
+    extend public void trySnapAborted(AweConnectEnv me, AweConnectEnv other, AnimationMouseInfo mi) {
+    }
+
+    //somethign is trying to connect to this
+    extend public void tryAttach(AweConnectEnv me, AweConnectEnv other, AnimationMouseInfo mi) {
+    }
+
+    extend public void tryAttachAborted(AweConnectEnv me, AweConnectEnv other, AnimationMouseInfo mi) {
     }
 
     extend public vector getDisplacementIfConnected(AweConnectEnv me, AweConnectEnv other) {

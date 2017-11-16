@@ -1,0 +1,272 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.structures;
+
+public line[] pathFinderDebug();
+
+public class AweRegionGraph {
+    public Region{} regions();
+
+    public constructor() { }
+
+    // cuz why not?
+    extend public Primitive3D get3D() {
+        hasDrawn.clear();
+        Primitive3D[] prims();
+        for( r in regions ) {
+            prims <<? r.get3D();
+        }
+        return safeInstance3D(prims);
+    }
+
+    extend public void addRegion( box b, Snapper owner, line[] notAllowed = null ) {
+        // first verify it doesn't overlap any others
+        Region newReg(b, notAllowed, owner);
+
+        for ( r in regions ) {
+            // need to make sure they don't overlap, but can share an edge
+            if ( r.bound.intersects(b) ) {
+                // copy any doors that would be shared -- Maybe we don't want to do this?
+                for ( n in r.nodes ) {
+                    if ( n as RegionDoor and newReg.contains( n.p ) ) {
+                        newReg.add( n );
+                    }
+                }
+            }
+        }
+
+        regions << newReg;
+    }
+
+    extend public void addDoor( point pos, int capacity=maxInt ) {
+        Region{} containers = this.regionsContaining( pos );
+        RegionNode found = null;
+        // check if someone has a door there
+        for ( r in containers ) {
+            found = r.findAt( pos );
+            if ( found ) return;
+        }
+
+        found = RegionDoor( pos, capacity );
+        for( r in containers ) {
+            r.add( found );
+        }
+    }
+
+    extend public void addItem( Object item, point p ) {
+        Region{} containers = regionsContaining( p );
+        if ( containers.count == 0 ) {
+            pln( "Unable to add point '" # p # "'. There are no regions for it" );
+            return;
+        }
+        if ( containers.count > 1 ) {
+            pln("Unable to add point, it falls into multiple regions");
+            return;
+        }
+        for ( r in containers ) {
+            r.add( RegionNode( item, p ) );
+        }
+    }
+
+    extend public Region{} regionsContaining( point p ) {
+        Region{} regs();
+        for( r in regions ) {
+            if ( r.bound.contains( p ) ) {
+                regs << r;
+            }
+        }
+        return regs;
+    }
+    
+    extend public Snapper{} snappersAt( point p ) {
+        Snapper{} s();
+        for( r in this.regionsContaining(p) ) {
+            if ( !s.contains( r.owner ) ) s << r.owner;
+        }
+        return s;
+    }
+
+    extend public RegionNode find( point p ) {
+        for ( r in regionsContaining(p) ) {
+            RegionNode node = r.findAt(p);
+            if ( node ) return node;
+        }
+
+        return null;
+    }
+
+    extend public point[] shortestPath( point start, point end, bool debug=false ) {
+        RegionNode startNode = find( start );
+        RegionNode endNode = find( end );
+
+        if ( debug ) {
+            pathFinderDebug.clear();
+            pln("Start: " # start);
+            pln("end: " # end );
+        }
+
+        PathNode{} open();
+        RegionNode{} closed();
+
+        open << PathNode( null, startNode, 0, start.distance(end) );
+
+        PathNode result = null;
+        int count = 0;
+        while( open.count > 0 ) {
+            if ( debug ) {
+                count++;
+                pln(" ");
+                pln("-----------Step " # count.formatLeadingZeros(3) # "--------------");
+                pln(" ");
+            }
+            PathNode next = null;
+            for ( n in open ) {
+                if ( debug ) {
+                    pln( n.toS );
+                }
+                if ( !next or n.f < next.f ) next = n;
+            }
+
+            if ( debug ) {
+                if ( next.parent ) pathFinderDebug << line( next.parent.node.p, next.node.p );
+                pln(" " );
+                pln( "Took: " # next.toS );
+            }
+
+            open.remove(next);
+            closed << next.node;
+
+            if ( next.node == endNode ) {
+                result = next;
+                break;
+            }
+
+            for( e in next.node.edges ) {
+                RegionNode test = e.other( next.node );
+                PathNode existing = open.find( test );
+                if ( closed.contains (test) ) {
+                    continue;
+                } else if ( !existing ) {
+                    open << PathNode( next, test, e.cost, test.p.distance(end) );
+                } else {
+                    PathNode alternative( next, test, e.cost, test.p.distance(end) );
+                    if ( alternative.f < existing.f ) existing.parent = next;
+                }
+            }
+
+            // we have exhausted our options, the two locations
+            // are probably in unconnected sections.
+            if ( open.count == 0 ) {
+                return [point:];
+            }
+        }
+
+        point[] path();
+        bool sameComponent = true;
+        while( result != null ) {
+            if ( result.parent and result.node.element != result.parent.node.element ) sameComponent = false;
+            path << result.node.p;
+            result = result.parent;
+        }
+
+        if ( sameComponent ) return null;
+
+        path.reverse();
+        return path;
+    }
+}
+
+private PathNode find( PathNode{} self, RegionNode node ) {
+    for( n in self ) {
+        if ( n.node == node ) return n;
+    }
+    return null;
+}
+
+private class PathNode {
+    public PathNode parent;
+    public RegionNode node;
+    public double cost;
+    public double h;
+
+    public str toS() {
+        return node.p # " -\t\tc: " # cost # "\tg: " # g # "\t\th: " # h # "\t\tf: " # f;
+    }
+
+    public constructor( PathNode parent, RegionNode node, double cost, double h ) {
+        this.parent = parent;
+        this.node = node;
+        this.cost = cost;
+        this.h = h;
+    }
+
+    extend public double f() {
+        return this.g() + this.h;
+    }
+
+    extend public double g() {
+        return this.cost + parent.?g();
+    }
+}
+
+{
+    RegionGraphTester tester();
+    activeSpace.put(tester);
+}
+
+private class RegionGraphTester extends Snapper {
+
+    public AweRegionGraph graph();
+
+    public constructor() {
+        graph.addRegion( box( (0,0,0), (1,1,1) ), this );
+        graph.addDoor( (0.5,0.5,1) );
+
+        graph.addRegion( box( ( 0,0,1 ), (1,1,2) ), this );
+        graph.addDoor( (0.5,0.5,1) ); // this is actually worthless
+
+        graph.addItem( "Node 1", (0.25, 0.5, 0.5) );
+        graph.addItem( "Node 2", (0.75, 0.5, 0.5) );
+
+        graph.addItem( "Node 3", (0.25, 0.5, 1.5) );
+        graph.addItem( "Node 4", (0.75, 0.5, 1.5) );
+    }
+
+    public Primitive3D get3D( FetchEnv3D env ) {
+        return graph.get3D();
+    }
+}

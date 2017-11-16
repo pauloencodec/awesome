@@ -55,13 +55,21 @@ public class AweItemTagInfo extends ItemTagInfo {
         }
     }
 
-    public constructor(AweTag tag, str infoKey) {
+    public constructor(AweTag tag, str key, str infoKey) {
         this.tag = tag;
 
-        super(tag.text, tag.key);
+        this.tag.key = key;
+
+        super(tag.text, infoKey);
     }
 
     public LayerExpr layer() {
         return layerSet(this.tag.layers);
+    }
+
+    public void invalidate() {
+        super();
+
+        this.tag.text = this.tagText;
     }
 }

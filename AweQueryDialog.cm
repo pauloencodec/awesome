@@ -73,21 +73,42 @@ public class AweQueryDialog extends GoQueryDialog {
         proxy.queryDialog = this;
 
         if (!this.mainSnapper.specialParts) {
+            this.mainSnapper.removeAllTags();
+
+            var index = 0;
+
+            AwePart[] parts();
+
             for (rowIndex in 0..(this.igrid.rowCount - 1)) {
                 var row = this.igrid.row(rowIndex);
 
                 for (EditGridCell cell in row) {
                     if (?AwePart part = cell.refPart) {
-                        var item = new AwePicklistItem(part.catalog, part.sku, part.description, part.listPrice, part.quantity);
-
-                        dialog.itemManager.addItem(proxy, proxy.picklistKey, item);
+                        parts << part;
                     }
                 }
             }
 
             this.mainSnapper.specialParts = true;
+
+            for (part in parts) {
+                var item = new AwePicklistItem(part.catalog, part.sku, part.description, part.listPrice, part.quantity);
+
+                if (part.tag) {
+                    item.setTag(this.mainSnapper, part.tag.copy(), index);
+                    
+                    index++;
+                    
+                    if (!proxy.tag and item.tag.isVisible()) {
+                        proxy.tag = item.tag.copy();
+                    }
+                }
+
+                dialog.itemManager.addItem(proxy, proxy.picklistKey, item);
+            }
             
             this.refreshContent();
+            this.mainSnapper.invalidate();
         }
     }
 
@@ -103,6 +124,8 @@ public class AweQueryDialog extends GoQueryDialog {
 
             proxy.replaceItems(proxy.picklistKey, null);
             
+            this.mainSnapper.removeAllTags();
+
             session.mainWorld.invalidateWorldPrice();
             
             this.refreshContent();
@@ -125,9 +148,9 @@ public class AweQueryDialog extends GoQueryDialog {
     }
 
     public void refreshContent() {
-        super();
-
         this.toggleRemoveSpecialsButton();
+
+        super();
     }
 
     extend private void toggleRemoveSpecialsButton() {
@@ -246,7 +269,13 @@ public bool aweQueryDialogItemClicked(Snapper z, View view, MenuCallbackEnv env)
     if (env.key == queryDialogKey) {
         Window win = anyFrameWindow();
         
-        new AweQueryDialog(win, z);
+        var dialog = new AweQueryDialog(win, z);
+
+        if (?AwePicklistDialog picklist = getPicklistDialog()) {
+            if (picklist.owner.snapper == z) {
+                picklist.owner.queryDialog = dialog;
+            }
+        }
         
         return true;
     }

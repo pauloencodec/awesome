@@ -59,28 +59,30 @@ public class AweSupportSurface extends SupportSurface {
         return this.realign;
     }
 
-    public constructor(Snapper snapper, double w, double d, double z, ConnectRule rule=null) {
+    public constructor(Snapper snapper, double w, double d, double z, ConnectRule rule=null, orientation rot = (0deg, 0deg, 0deg)) {
         super(snapper, z);
 
         this.update(w, d, z);
         this.setRule(rule);
     }
 
-    public constructor(Snapper snapper, point pos, Graph g, ConnectRule rule=null) {
+    public constructor(Snapper snapper, point pos, Graph g, ConnectRule rule=null, orientation rot = (0deg, 0deg, 0deg)) {
         super(snapper, pos.z);
 
-        this.update(pos, g);
+        this.update(pos, g, rot);
         this.setRule(rule);
     }
-
-    extend public void update(double w, double d, double z) {
+    
+    extend public void update(double w, double d, double z, orientation rot = (0deg, 0deg, 0deg)) {
         this.setPos((-w / 2, -d / 2, z));
         this.setGraph(new GRect(rect(point2D(), w, d)));
+        this.setRot(rot);
     }
 
-    extend public void update(point pos, Graph g) {
+    extend public void update(point pos, Graph g, orientation rot = (0deg, 0deg, 0deg)) {
         this.setPos(pos);
         this.setGraph(g);
+        this.setRot(rot);
     }
 
     public bool isVisible() { return false; }

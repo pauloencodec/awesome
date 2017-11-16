@@ -15,6 +15,12 @@ public class AweElectricalViewMode extends ViewMode {
         return prims;
     }
 
+    public void drawGraphs(LayerBuffer lb, View view, GeometricFinder finder=null) {
+        if (debugClusterInfo) { 
+            new AweElectricalClusterInfo(this.map).debug2D(lb); 
+        }
+    }
+
     // not sure if this is necessary or not
     public bool deny3D() {
         return false;

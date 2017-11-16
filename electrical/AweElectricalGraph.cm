@@ -1,0 +1,230 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.electrical;
+
+public class EGraph {
+    public Node{} nodes();
+    public Edge{} edges();
+
+    public constructor() {}
+
+    extend public void add( Node a ) {
+        // if its already there do nothing.
+        // A few things can cause this, an element on the front and back of the same point for example
+        if ( a in nodes or has(a.p) ) return; 
+
+        // connect to all other nodes - since really you can go everywhere
+        for( n in nodes ) {
+            Edge e( a, n );
+            a.edges << e;
+            n.edges << e;
+            this.edges << e;
+        }
+        
+        nodes << a;
+    }
+
+    extend public bool has( point p ) {
+        for( n in nodes ) {
+            if ( n.p == p ) return true;
+        }
+        return false;
+    }
+
+    extend public void updateCosts( CostEstimator estimator ) {
+        for( e in edges ) {
+            ElectricalConnectedPath c = estimator.cost( e.a.obj, e.a.p, e.b.obj, e.b.p );
+            // if it couldn't find a path, this edge is useless, so get rid of it
+            if ( c.validPath ) {
+                e.path = c;
+            } else {
+                e.a.edges.remove(e);
+                e.b.edges.remove(e);
+                edges.remove(e);
+            }
+        }
+    }
+
+    extend public TreeNode traverse( point p ) {
+        Node start = find( p );
+        if ( !start ) return null;
+
+        TreeNode root( start.obj, p );
+        Node->TreeNode map();
+        map.put(start, root);
+        Edge{} options();
+        Node{} remaining();
+        remaining += nodes;
+
+        Node{} unavailable();
+        
+        remaining.remove(start);
+        options += start.edges;
+
+        int count = 0;
+
+        while( remaining.count > 0 and options.count > 0 ) {
+            if ( count++ > 500 ) {
+                pln("probably infinite...");
+                break;
+            }
+
+            // find cheapest edge
+            Edge e = null;
+            for( edge in options ) {
+                if (e == null or edge.cost < e.cost ) e = edge;
+            }
+            options.remove(e);
+
+            Node cur = e.a;
+            Node new = e.b;;
+            if ( new !in remaining ) {
+                cur = e.b;
+                new = e.a;
+                if ( new !in remaining ) {
+                    continue;
+                }
+            }
+
+            bool sameComponent = cur.obj == new.obj;
+
+            // if this node already has an incoming or outgoing connection, you can't use it
+            if ( !sameComponent and ( unavailable.contains(new) or unavailable.contains(cur) ) ) {
+                continue;
+            }
+
+            TreeNode t( new.obj, new.p );
+            t.electrical = e.path;
+            map.put( new, t );
+            map.get(cur).children << t;
+
+            remaining.remove(new);
+
+            if ( !sameComponent ) {
+                unavailable << new;
+                unavailable << cur;
+            }
+
+            for( edge in new.edges ) {
+                Node o = edge.a == new ? edge.b : edge.a;
+                // if we haven't been there yet, put it as an option
+                if ( o in remaining ) options << edge;
+            }
+        }
+
+        return root;
+    }
+
+    extend private Node find( point p ) {
+        for( n in nodes ) {
+            if ( n.p == p ) return n;
+        }
+        return null;
+    }
+}
+
+public class Node {
+    public ElectricalModel obj;
+    public point p;
+
+    public Edge{} edges();
+
+    public constructor( ElectricalModel obj, point p ) {
+        this.obj = obj;
+        this.p = p;
+    }
+}
+
+public class Edge {
+    public ElectricalConnectedPath path;
+
+    public Node a;
+    public Node b;
+
+    public constructor( Node a, Node b ) {
+        this.a = a;
+        this.b = b;
+    }
+
+    extend public double cost() {
+        return path.cost;
+    }
+}
+
+public class TreeNode {
+    public ElectricalModel eo;
+    public point p;
+    public ElectricalConnectedPath electrical;
+    public TreeNode[] children();
+
+    public constructor( ElectricalModel eo, point p ) {
+        this.eo = eo;
+        this.p = p;
+    }
+
+    extend public Primitive3D get3D( FetchEnv3D env, Snapper z, ElectricalPosition p ) {
+        Primitive3D[] prims();
+
+        for( c in electrical.components ) {
+            prims <<? c.?get3D(env, z, null);
+        }
+
+        return safeInstance3D(prims);
+    }
+
+    extend public AwePart[] getParts( bool is3Circuit, ElectricalModel{} added=null ) {
+        AwePart[] parts();
+
+        if ( !added ) {
+            init added();
+        } 
+        if ( !added.contains(eo) ) {
+            added << eo;
+            parts += eo.getParts(is3Circuit);
+        }
+
+        for( c in electrical.?components ) {
+            parts +=? c.getParts(is3Circuit);
+        }
+
+        for( c in children ) {
+            parts +=? c.getParts(is3Circuit, added);
+        }
+
+        return parts;
+    }
+}

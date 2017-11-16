@@ -1,0 +1,119 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.electrical;
+
+
+public class CostCase : abstract {
+    public AweElectricalPathBuilderFactory builder;
+    public constructor( AweElectricalPathBuilderFactory builder ) { this.builder = builder; }
+
+    extend public bool isApplicable( ElectricalModel a, point aLoc, ElectricalModel b, point bLoc ) { return false; }
+    extend public ElectricalConnectedPath cost( ElectricalModel a, point aLoc, ElectricalModel b, point bLoc ) { return null; }
+}
+
+// most basic estimator
+public class DistanceCostCase extends CostCase {    
+
+    public AweRegionGraph rGraph;
+
+    public constructor( AweElectricalPathBuilderFactory builder, AweRegionGraph graph=null ) {
+        super(builder);
+        this.rGraph = graph;
+    }
+
+    public bool isApplicable(ElectricalModel a, point aLoc, ElectricalModel b, point bLoc) {
+        if ( !rGraph ) return true;
+        return a.owner.class == b.owner.class;
+    }
+    
+    public ElectricalConnectedPath cost(ElectricalModel a, point aLoc, ElectricalModel b, point bLoc) {
+        if (!rGraph) return builder.get( [aLoc, bLoc] );
+
+        // point[] path = rGraph.shortestPath( aLoc, bLoc, debug=false );
+        // double cost = path.totalDistance();
+        // point[] interestPoints = rGraph.findOwnerBreaks( path );
+
+        ElectricalConnectedPath ePath = builder.get( rGraph.shortestPath( aLoc, bLoc, debug=false ) );
+        return ePath;
+    }
+}
+
+/*
+    Checks if its the same component, if so it costs nothing to go between it's nodes
+*/
+/*
+public class SameComponentCostCase extends CostCase {
+    public bool isApplicable(ElectricalModel a, point aLoc, ElectricalModel b, point bLoc) {
+        return a == b;    
+    }
+
+    public ElectricalConnectedPath cost(ElectricalModel a, point aLoc, ElectricalModel b, point bLoc) {
+        return ElectricalConnectedPath( 0, [aLoc, bLoc], null );
+    }
+}
+*/
+
+public class AweElectricalPathBuilderFactory {
+    public constructor() {}
+    extend public ElectricalConnectedPath get( point[] path ) {
+        return ElectricalConnectedPath(path);
+    }
+}
+
+public class CostEstimator {
+    public CostCase{} cases();
+    
+    public constructor( AweElectricalPathBuilderFactory builder, AweRegionGraph g=null ) {
+        // add base computer
+        cases << DistanceCostCase(builder, g);
+        // cases << SameComponentCostCase();
+    }
+
+    extend public ElectricalConnectedPath cost( ElectricalModel a, point aLoc, ElectricalModel b, point bLoc ) {
+        // pln(#a.?owner.isConnectedTo(b.?owner));
+        ElectricalConnectedPath best = null;
+        for( case in cases ) {
+            // many cases may apply, we only care about the cheapest
+            if ( case.isApplicable( a, aLoc, b, bLoc ) ) {
+                ElectricalConnectedPath possible = case.cost( a, aLoc, b, bLoc );
+                if ( possible < best ) best = possible; 
+            }
+        }
+    
+        return best;
+    }
+}
