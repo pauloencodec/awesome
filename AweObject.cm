@@ -734,7 +734,7 @@ public class AweObject {
     extend public electricalAction allow(ElectricalModel object, ElectricalPosition pos, bool replace=false, bool toogle=false) {
         for( k,v in electricalComponents ) {
             if ( k.position == pos.position ) {                
-                if ( ( k.front and pos.front ) or ( k.back and pos.back ) ) {
+                if ( ( k.front and pos.front ) or ( k.back and pos.back ) or ( k.middle and pos.middle ) ) {
                     return v.allow( object );
                 }
             }
