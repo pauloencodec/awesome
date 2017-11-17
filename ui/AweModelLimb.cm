@@ -53,7 +53,6 @@ public class AweModelLimb extends SnapperLimb {
         this.limbKey = this.originalModel.modelHash();
         
         key = model.class.toS() # this.limbKey;
-        
         pkg = model.class.pkg;
         
         super(parent, pkg, key, image=image, label="", toolTipText=toolTipText);
