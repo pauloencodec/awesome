@@ -64,7 +64,8 @@ public class AweInsertAnimation extends InsertAnimation {
         }
         this.preferredConnectionSelector.updateOptions(candidates, selection.main);
         Object[] values = preferredConnectionSelector.options.:Object[];
-        if(values and values.count > 0)
+        bool hasPreferrableConnectors = values and values.count > 0;
+        if(hasPreferrableConnectors)
             this.animationProperties.appendSmart("preferredConnection", "Preferred Connection", preferredConnectionSelector.selected(), new ObjectSubSet(values), lockable=false);
 
         if (this.snapper.activeConfigurator) {
@@ -79,8 +80,10 @@ public class AweInsertAnimation extends InsertAnimation {
             }
         }
 
-        sortOrder.exclude("preferredConnection");
-        sortOrder.insert(0, "preferredConnection");
+        if(sortOrder and hasPreferrableConnectors) {
+            sortOrder.exclude("preferredConnection");
+            sortOrder.insert(0, "preferredConnection");
+        }
         this.animationProperties.finalize(showList=sortOrder);
         
         if (this.animationProperties and this.currentKey) {
