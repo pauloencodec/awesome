@@ -39,6 +39,7 @@ package custom.awesome.connectors;
 public class AwePreferredConnectionSelector {
     public str->AwePreferredConnection options;
     public str selectedKey;
+    public Snapper lastSnapper : copy=null, stream=null;
 
     extend public AwePreferredConnection selected() {
         if(!this.selectedKey) {
@@ -56,7 +57,8 @@ public class AwePreferredConnectionSelector {
         return this.selected().?get2D();
     }
 
-    extend public void updateOptions(Connector[] connectors) {
+    extend public void updateOptions(Connector[] connectors, Snapper mainSnapper) {
+        this.lastSnapper = mainSnapper;
         this.options = new str->AwePreferredConnection ();
         str{} visited();
         for(c in connectors) {
@@ -93,11 +95,12 @@ public class AwePreferredConnectionSelector {
     }
 
     extend public AwePreferredConnection[] optionList() {
-        AwePreferredConnection[] list();
-        var keys = this.options.keys().seq.sort();
-        for(key in keys) {
-            list << this.options.get(key);
+        AwePreferredConnection[] list = this.options.values();
+        point2D center = (0,0);
+        if(lastSnapper) {
+            center = lastSnapper.localBound().rect.center;
         }
+        list.sort(function sortAntiClockwise, new Point2D((center)));
         return list;
     }
 }
@@ -133,4 +136,20 @@ public class AwePreferredConnection {
     public str toS() {
         return this.id;
     }
+}
+
+public int sortAntiClockwise(AwePreferredConnection a, AwePreferredConnection b, Object centerPoint) {
+    if(centerPoint as Point2D) {
+        var angleA = angle(referencePoint(a.referenceConnector) - centerPoint.v);
+        var angleB = angle(referencePoint(b.referenceConnector) - centerPoint.v);
+        return compare(angleA.deg, angleB.deg);
+    }
+    return 0;
+}
+
+public point2D referencePoint(Connector c) {
+    if(c as ConnectLine) {
+        return c.snapperLine().midPoint().point2D;
+    }
+    return c.pos().point2D;
 }
