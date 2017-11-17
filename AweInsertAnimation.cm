@@ -63,7 +63,7 @@ public class AweInsertAnimation extends InsertAnimation {
             }
         }
         this.preferredConnectionSelector.updateOptions(candidates, selection.main);
-        Object[] values = preferredConnectionSelector.optionList().:Object[];
+        Object[] values = preferredConnectionSelector.options.:Object[];
         if(values and values.count > 0)
             this.animationProperties.appendSmart("preferredConnection", "Preferred Connection", preferredConnectionSelector.selected(), new ObjectSubSet(values), lockable=false);
 
@@ -92,9 +92,8 @@ public class AweInsertAnimation extends InsertAnimation {
         super(..);
 
         if(key == "preferredConnection") {
-            var preferred = this.preferredConnectionSelector.options.get(value.toS);
-            if(preferred) {
-                this.preferredConnectionSelector.selectedKey = preferred.id;
+            if(value as AwePreferredConnection) {
+                this.preferredConnectionSelector.selected = value;
             }
             return;
         }
