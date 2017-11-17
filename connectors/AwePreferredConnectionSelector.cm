@@ -140,8 +140,8 @@ public class AwePreferredConnection {
 
 public int sortAntiClockwise(AwePreferredConnection a, AwePreferredConnection b, Object centerPoint) {
     if(centerPoint as Point2D) {
-        var angleA = angle(referencePoint(a.referenceConnector) - centerPoint.v);
-        var angleB = angle(referencePoint(b.referenceConnector) - centerPoint.v);
+        var angleA = angle(referencePoint(a.referenceConnector) - centerPoint.v) - 90deg;
+        var angleB = angle(referencePoint(b.referenceConnector) - centerPoint.v) - 90deg;
         return compare(angleA.deg, angleB.deg);
     }
     return 0;
