@@ -41,3 +41,25 @@ public double getDecimalPart(double value) {
 
     return d - d.floor();
 }
+
+public str formatted(double d, int length=0, int precision=0, char padChar='0', bool removeDot=true, bool padRight=true) {
+    const char nbsp = ' ';
+
+    d = d / 1inch;
+
+    if (precision != 0 and removeDot) {
+        length++;
+    }
+
+    str formatted = d.formatted(rightAlign=padRight, fieldWidth=length, precision=precision);
+
+    if (padChar != nbsp) {
+        formatted = formatted.replace(nbsp, padChar);
+    }
+
+    if (removeDot) {
+        formatted = formatted.replace('.', "");
+    }
+
+    return formatted;
+}
