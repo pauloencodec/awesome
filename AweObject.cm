@@ -131,6 +131,10 @@ public class AweObject {
     extend public void stretched(str propKey, double propValue) {
     }
 
+    extend public void endStretch(str propKey, double propValue){
+        
+    }
+
     extend private bool hasDomainOptions(AweObject model, str propKey) {
         var domain = model.getDomain(propKey);
         
