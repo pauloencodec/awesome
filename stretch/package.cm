@@ -50,3 +50,15 @@ use cm.core3D;
 use cm.draw;
 use cm.win;
 use cm.os;
+
+package AweProduct getProduct(AweStretcher this) {
+    var product = this.model.?getProduct();
+    
+    if (!product) {
+        if (?AweEasySnapper snapper = this.model.mainSnapper) {
+            product = snapper.product();
+        }
+    }
+    
+    return product;
+}
