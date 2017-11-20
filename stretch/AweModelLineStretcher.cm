@@ -36,26 +36,6 @@
 
 package custom.awesome.stretch;
 
-public class AweConnectLineStretcher extends AweStretcher {
-    
-    private str{} lockProps;
-    private str connectLineId;
-
-    public constructor(AweObject model, str connectLineId, str propName, str {} lockProps = null) {
-        super(model, propName);
-        this.connectLineId = connectLineId;
-        this.lockProps = lockProps;
-    }
-
-    public line line() {
-        return this.model.getConnectorById(this.connectLineId).?ConnectLine.snapperLine();
-    }
-
-    public str{} lockedProperties() {
-        return this.lockProps;
-    }
-
-}
 
 public class AweModelLineStretcher extends AweStretcher {
     
