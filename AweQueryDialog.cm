@@ -209,6 +209,10 @@ public class AweQueryDialog extends GoQueryDialog {
             parts = parts.finalizeAfterMerge();
 	    }
 
+        for (p in parts) if (!p.owner) {
+            parts.exclude(p);
+        }
+
         return parts;
     }
 
