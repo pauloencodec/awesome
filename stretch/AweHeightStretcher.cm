@@ -45,10 +45,12 @@ public class AweHeightStretcher extends AweStretcher {
     public line line() {
         line l();
 
-        var product = this.model.?getProduct();
+        var product = this.getProduct();
+        
         if(product == null) return l;
 
         var bound = product.localBound();
+        
         return bound.verticalCenterline;
     }
 }

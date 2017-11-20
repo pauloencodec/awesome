@@ -91,7 +91,9 @@ public class AweBindingSnapper extends AweSnapper : abstract {
 
         for (m in this.allModels()) {
             if (AweProduct product = getProductForModel(m)) {
-                list << product;
+                if (product !in list) {
+                    list << product;
+                }
             }
         }
 

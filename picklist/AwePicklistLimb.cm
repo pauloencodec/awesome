@@ -49,11 +49,11 @@ public class AwePicklistLimb extends SnapperLimb {
         str toolTipText=null) {
 
         if (!pkg) {
-            pkg = #:package;
+            pkg = picklist.class.pkg();
         }
 
         if (!key) {
-            key = cm.os.createGUID();
+            key = picklist.class.toS();
         }
         
         this.picklist = picklist;
