@@ -150,7 +150,42 @@ public class AweQueryDialog extends GoQueryDialog {
     public void refreshContent() {
         this.toggleRemoveSpecialsButton();
 
-        super();
+        Snapper owner;
+	
+        if (this.owners and this.owners.any()) {
+            owner = this.owners.first();
+        }
+        
+        if (owner) {
+            SpaceSelection to = owner.space ? owner.space.selection : null;
+            Snapper[] ss();
+            
+            if (to) {
+                if (this.multiMode and to.snappers) {
+                    for (s in to.snappers) {
+                        ss << s;
+                    }
+                }
+                else if (to.main) {
+                    ss << to.main;
+                }
+            }
+            
+            if (ss.count() > 0) {
+                owners = ss;
+                this.parts = null;
+                
+                this.rebuildSubs();
+            }
+            
+            if (!parts or parts.empty) {
+                if (to and to.main) {
+                    to.main.popupMenuItemClicked(null,
+                        new MenuCallbackEnv("query-dialog", null,
+                        null, null, null));
+                }
+            }
+        }
     }
 
     extend private void toggleRemoveSpecialsButton() {
@@ -173,6 +208,11 @@ public class AweQueryDialog extends GoQueryDialog {
             parts = parts.merge(env=NativeFetchEnv(getPartTagCategories(w.mainSpace)));
             parts = parts.finalizeAfterMerge();
 	    }
+
+        //remove global parts that have no owner, to make sure we are querying only this snapper
+        for (p in parts) if (!p.owner) {
+            parts.exclude(p);
+        }
 
         return parts;
     }
