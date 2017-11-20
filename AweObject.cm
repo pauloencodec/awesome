@@ -103,6 +103,8 @@ public class AweObject {
         return this.props.get(propName);
     }
 
+    public bool disableModelLimbDefaultsUpdating = false;
+
     extend public void set(str propName, Object value) {
         Object oldValue = get(propName);
         
@@ -124,7 +126,8 @@ public class AweObject {
             }
         }
 
-        this.updateLimbDefaults();
+        if(!disableModelLimbDefaultsUpdating)
+            this.updateLimbDefaults();
     }
 
     extend public SubSet getDomain(str propName) {
@@ -162,35 +165,17 @@ public class AweObject {
         return domain and domain.count > 1;
     }
 
-    extend public str->str connectLineToPropMap() {
-        return modelAnalysis(this);
-    }
-    
+    public str->str connectLineToPropMap();
+
     extend public AweStretcher{} createStretchers() {
         //default stretchers for everyone.
         var stretchers = {AweStretcher:
             new AweHeightStretcher(this),
-            // new AweWidthStretcher(this),
-            // new AweDepthStretcher(this),
             new AweElevationStretcher(this)
         };
 
-        // stretchers += this.createStretchersFromConnectLines();
         stretchers += this.createDomainStretchers();
 
-        return stretchers;
-    }
-
-    extend public AweStretcher{} createStretchersFromConnectLines() {
-        AweStretcher{} stretchers();
-        var map = this.connectLineToPropMap();
-        str->str flipped();
-        for(key, value in map) {
-            flipped.put(value, key);
-        }
-        for(propName, connectLineId in flipped) {
-            stretchers << new AweConnectLineStretcher(this, connectLineId, propName);
-        }
         return stretchers;
     }
 
@@ -218,6 +203,7 @@ public class AweObject {
 
         //make a copy of the model to try the different sizes
         var model = this.copy();
+        model.disableModelLimbDefaultsUpdating = true;
         //use it in a snapper to get localbound, connectors and what not
         var snapper = new custom.awesome.snapper.AweModelSnapper(model);
 
@@ -246,6 +232,14 @@ public class AweObject {
 
         //did any survive?
         if(lines.count > 0) {
+
+            //set connectLineToPropMap so lines can autosize on trysnap
+            for(stretchLine in lines) {
+                if(stretchLine as AweConnectionModelLine) {
+                    this.connectLineToPropMap.put(stretchLine.id, propKey);
+                }
+            }
+
             var chosenLine = lines.first();
             chosenLine.model = this;
 
@@ -264,6 +258,7 @@ public class AweObject {
     }
 
     extend public void resetStretchers() {
+        this.connectLineToPropMap.clear();
         this._stretchers = null;
     }
 
@@ -780,6 +775,8 @@ public class AweObject {
     public str limbKey;
 
     extend public void updateLimbDefaults() {
+        if(this.disableModelLimbDefaultsUpdating) return;
+
         //limb settings
         if(this.limbKey) {
             custom.awesome.ui.modelLimbDefaults.put(this.limbKey, this.copy());
