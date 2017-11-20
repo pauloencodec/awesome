@@ -36,11 +36,35 @@
 
 package custom.awesome;
 
-public void appendSmart(AnimationProperties this, str key, str label, Object value, SubSet domain, bool lockable=false) {
-    if (domain and domain.count > 1 and domain.count <= 9) {
-        this.append3(key, label, value, domain, lockable=lockable);
+public void appendSmart(AnimationProperties this, str key, str label, Object value, SubSet domain, AwePropertyControlType controlType=AwePropertyControlType.default, bool lockable=false) {
+    class Object co = value ? value.class : null;
+    
+    if (controlType == AwePropertyControlType.list) {
+        this.append(new ListAnimationProperty(key, label, value, co, domain, lockable));
+    }
+    else if (controlType == AwePropertyControlType.buttons) {
+        this.append(new ButtonsAnimationProperty(key, label, value, co, domain, lockable));
     }
     else {
-        this.append2(key, label, value, domain, lockable=lockable);
+        if (domain and domain.count > 1 and domain.count <= 9) {
+            this.append3(key, label, value, domain, lockable=lockable);
+        }
+        else {
+            this.append2(key, label, value, domain, lockable=lockable);
+        }
+    }
+}
+
+public void append(QuickProperties this, str key, str label, Object o, SubSet domain, AwePropertyControlType controlType) {
+    class Object co = o ? o.class : null;
+    
+    if (controlType == AwePropertyControlType.list) {
+        this.append(new ListQuickProperty(key, label, o, co, domain));
+    }
+    else if (controlType == AwePropertyControlType.buttons) {
+        this.append(new SelectButtonsQuickProperty(key, label, o, co, domain));
+    }
+    else {
+        this.append(key, label, o, domain);
     }
 }
