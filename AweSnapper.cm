@@ -165,7 +165,7 @@ public class AweSnapper extends TaggableSnapper {
 
             for(c in m.getConnectors(this)) {
                 if(c as AweConnectLine) {
-                    var prop = lineToPropMap.get(c.getId());
+                    var prop = lineToPropMap.get(c.getFullId());
                     if(prop) {
                         c.autoSizePropKey = prop;
                     }
