@@ -209,6 +209,7 @@ public class AweQueryDialog extends GoQueryDialog {
             parts = parts.finalizeAfterMerge();
 	    }
 
+        //remove global parts that have no owner, to make sure we are querying only this snapper
         for (p in parts) if (!p.owner) {
             parts.exclude(p);
         }
