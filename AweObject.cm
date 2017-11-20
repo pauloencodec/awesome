@@ -72,6 +72,23 @@ public class AweObject {
         return false;
     }
 
+    extend public AweModelLine[] potentialStretchLines() {
+        AweModelLine[] lines();
+
+        if(this.mainSnapper) {
+            lines << new AweLocalBoundWidthModelLine(this);
+            lines << new AweLocalBoundDepthModelLine(this);
+        }
+
+        for(c in this.getConnectors(this.mainSnapper)) {
+            if(c as ConnectLine) {
+                lines << new AweConnectionModelLine(c);
+            }
+        }
+
+        return lines;
+    }
+
     extend public void applyFrom(AweObject source, str{} ignore=null) {
     }
 
@@ -154,7 +171,8 @@ public class AweObject {
             new AweElevationStretcher(this)
         };
 
-        stretchers += this.createStretchersFromConnectLines();
+        // stretchers += this.createStretchersFromConnectLines();
+        stretchers += this.createDomainStretchers();
 
         return stretchers;
     }
@@ -170,6 +188,75 @@ public class AweObject {
             stretchers << new AweConnectLineStretcher(this, connectLineId, propName);
         }
         return stretchers;
+    }
+
+    extend public AweStretcher{} createDomainStretchers() {
+        AweStretcher{} stretchers();
+        str->DistanceEnum stretchableDomains();
+
+        for(key, value in this.props) {
+            var domain = this.getDomain(key);
+            if(domain as DistanceEnum) {
+                stretchableDomains.put(key, domain);
+            }
+        }
+
+        for(key, domain in stretchableDomains) {
+             var stretcher = this.domainStretcher(domain, key, stretchableDomains.keys());
+            if(stretcher) stretchers << stretcher;
+        }
+
+        return stretchers;
+    }
+
+    extend public AweStretcher domainStretcher(DistanceEnum domain, str propKey, str{} allStretchableDomainKeys) {
+        if(!domain) return null;
+
+        //make a copy of the model to try the different sizes
+        var model = this.copy();
+        //use it in a snapper to get localbound, connectors and what not
+        var snapper = new custom.awesome.snapper.AweModelSnapper(model);
+
+        var lines = model.potentialStretchLines();
+        if(!lines or lines.count == 0) return null;
+
+
+        //get all domain sizes
+        double[] values();
+        for(v in domain._members) {
+            values << v.double;
+        }
+
+        for(v in values) {
+            model.set(propKey, v);
+            // model.invalidate();
+            snapper.refresh();
+            for(stretchLine in lines) {
+                //try each line
+                if(stretchLine.localLine().length != v) {
+                    //if not match, get rid of it
+                    lines.exclude(stretchLine);
+                }
+            }
+        }
+
+        //did any survive?
+        if(lines.count > 0) {
+            var chosenLine = lines.first();
+            chosenLine.model = this;
+
+            //lock all other props
+            var otherKeys = new str{};
+            for(key in allStretchableDomainKeys) {
+                if(key != propKey) {
+                    otherKeys << key;
+                }
+            }
+
+            return new AweModelLineStretcher(chosenLine, propKey, lockProps=otherKeys);
+        }
+
+        return null;
     }
 
     extend public void resetStretchers() {

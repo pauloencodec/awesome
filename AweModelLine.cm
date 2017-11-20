@@ -34,46 +34,67 @@
    END OF CETSC
 */
 
-package custom.awesome.stretch;
+package custom.awesome;
+use custom.awesome.connectors;
 
-public class AweConnectLineStretcher extends AweStretcher {
-    
-    private str{} lockProps;
-    private str connectLineId;
+public class AweModelLine {
+    public AweObject model;
+    public str id;
+    public constructor(str id, AweObject model) {
+        this.model = model;
+        this.id = id;
+    } 
 
-    public constructor(AweObject model, str connectLineId, str propName, str {} lockProps = null) {
-        super(model, propName);
-        this.connectLineId = connectLineId;
-        this.lockProps = lockProps;
-    }
-
-    public line line() {
-        return this.model.getConnectorById(this.connectLineId).?ConnectLine.snapperLine();
-    }
-
-    public str{} lockedProperties() {
-        return this.lockProps;
-    }
-
+    extend public line localLine() {
+        return line();
+    }  
 }
 
-public class AweModelLineStretcher extends AweStretcher {
-    
-    private str{} lockProps;
-    private AweModelLine modelLine;
-
-    public constructor(AweModelLine modelLine, str propName, str {} lockProps = null) {
-        super(modelLine.model, propName);
-        this.modelLine = modelLine;
-        this.lockProps = lockProps;
+public class AweConnectionModelLine extends AweModelLine {
+    public constructor(Connector connector) {
+        AweConnectEnv env(connector);
+        str id = "";
+        if(env.set) {
+            id #= env.set.class.toS() # ".";
+        }
+        id #= env.id;
+        super(id, env.model);
     }
 
-    public line line() {
-        return this.modelLine.localLine();
+    public line localLine() {
+        var line = this.model.getConnectorById(this.id).?ConnectLine.snapperLine();
+        if(model.mainSnapper) {
+            //move it to the top of the box
+            var z = model.mainSnapper.localBound().p1.z;
+            line.p0.z = z;
+            line.p1.z = z;
+        }
+        return line;
+    }
+}
+
+public class AweLocalBoundWidthModelLine extends AweModelLine {
+    public constructor(AweObject model) {
+        super("box.width", model);
     }
 
-    public str{} lockedProperties() {
-        return this.lockProps;
+    public line localLine() {
+        if(model.mainSnapper) {
+            return model.mainSnapper.localBound().upCenterlineX();
+        }
+        else return super(..);
+    }
+}
+
+public class AweLocalBoundDepthModelLine extends AweModelLine {
+    public constructor(AweObject model) {
+        super("box.depth", model);
     }
 
+    public line localLine() {
+        if(model.mainSnapper) {
+            return model.mainSnapper.localBound().upCenterlineY();
+        }
+        else return super(..);
+    }
 }
