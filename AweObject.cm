@@ -799,9 +799,6 @@ public class AweObject {
     extend public line[] doNotConnect() {
         return null;
     }
-
-
-
 }
 
 public definition @visibility aweObject @name=id @parentClass=["extends" type]? '{'  @props=["props" formalArgList ';']? @members=[classMember]* '}' {
