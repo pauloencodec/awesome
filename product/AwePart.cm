@@ -194,6 +194,12 @@ public class AwePart extends OfficePart {
             res << spnn("ON=", option.code);
             // OD= Option Description
             res << spnn("OD=", desc);
+            // OG= Option Group
+            res << spnn("OG=", option.name);
+            // O1= Option Upcharge
+            if (option.price > 0) {
+                res << spnn("O1=", option.price);
+            }
         }
     }
 }

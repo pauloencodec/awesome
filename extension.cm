@@ -82,7 +82,6 @@ package void initResources() {
     initRs();
 
     putNextRsPkg("custom.awesome", "custom.awesome.resources");
-    putNextRsPkg("cm.abstract.part", "custom.awesome.resources");
     
     safeLoadRs(cmFindUrl("custom/awesome/resources/main.rs"));
 }

@@ -35,52 +35,9 @@
 */
 
 package custom.awesome;
-use cm.syntax;
 
-public member @visibility AweQuickPropertyBindings '{' @bindings=[expr ':' expr ',' expr ';']* '}' {
-    SStatements buildQPStatements();
-    SStatements qpChangedStatements();
-
-    SId prop;
-    SType type;
-    SExpr title;
-    SExpr values;
-    str propKey;
-
-     for(e in bindings, index=i) {
-        
-        if(i%3 == 0) {
-            prop = SId(e.toS);
-            propKey = prop.name;
-            //type = SType(e.type);
-        }
-        else if(i%3 == 1) {
-            title = e;
-        }
-        else {
-            values = e;
-            buildQPStatements << statement { props.append(@propKey, @title, @prop, @values); };
-            // qpChangedStatements << statement {
-            //     if(key == prop.name) {
-            //         @prop = value.@type;
-            //     }
-            // };
-        }
-    }
-
-    return member {
-        @visibility int x;
-        @visibility bool buildQuickProperties(QuickProperties props) { 
-            @buildQPStatements;
-            return true;
-        }
-
-        // @visibility bool quickPropertyChanged(QuickProperties props, str key, Object value, bool testChangeOnly) {
-        //     if (key and !testChangeOnly) {
-        //         @qpChangedStatements;
-        //     }
-
-        //     return true;
-        // }
-    };
-}
+public aweEnum AwePropertyControlType (
+    default = <"", "Default">,
+    list = <"L", "List">,
+    buttons = <"B", "Buttons">
+);

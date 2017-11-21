@@ -131,6 +131,10 @@ public class AweObject {
     extend public void stretched(str propKey, double propValue) {
     }
 
+    extend public void endStretch(str propKey, double propValue){
+        
+    }
+
     extend private bool hasDomainOptions(AweObject model, str propKey) {
         var domain = model.getDomain(propKey);
         
@@ -734,7 +738,7 @@ public class AweObject {
     extend public electricalAction allow(ElectricalModel object, ElectricalPosition pos, bool replace=false, bool toogle=false) {
         for( k,v in electricalComponents ) {
             if ( k.position == pos.position ) {                
-                if ( ( k.front and pos.front ) or ( k.back and pos.back ) ) {
+                if ( ( k.front and pos.front ) or ( k.back and pos.back ) or ( k.middle and pos.middle ) ) {
                     return v.allow( object );
                 }
             }
@@ -926,11 +930,13 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         SExpr domainInitialValue = arg.default();
         SId labelName(arg.id.name#"Label");
         SId visibleName(arg.id.name#"Visible");
+        SId controlTypeName(arg.id.name#"ControlType");
 
         domainMembers << member {
             @visibility SubSet @domainName = @domainInitialValue;
             @visibility str @labelName = @propNameStr.propNameToLabel();
             @visibility bool @visibleName = true;
+            @visibility AwePropertyControlType @controlTypeName = AwePropertyControlType.default;
         };
 
         //we use distance subsets for double properties, so we need this great if statement there:
@@ -944,7 +950,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                             props.append(customQuickProperty.QuickProperty);
                         }
                         else {
-                            props.append(this._uniqueQuickPropertyId # @propNameStr, @labelName, distance(@propName), @domainName);
+                            props.append(this._uniqueQuickPropertyId # @propNameStr, @labelName, distance(@propName), @domainName, @controlTypeName);
                         }
                     }
                 }
@@ -959,7 +965,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                             // props.append(customQuickProperty.QuickProperty);
                         }
                         else {
-                            props.appendSmart(this._uniqueQuickPropertyId # @propNameStr, @labelName, distance(@propName), @domainName, lockable=false);
+                            props.appendSmart(this._uniqueQuickPropertyId # @propNameStr, @labelName, distance(@propName), @domainName, @controlTypeName, lockable=false);
                         }
                     }
                 }
@@ -987,7 +993,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                             props.append(customQuickProperty.QuickProperty);
                         }
                         else {
-                            props.append(this._uniqueQuickPropertyId # @propNameStr, @labelName, @propName, @domainName);
+                            props.append(this._uniqueQuickPropertyId # @propNameStr, @labelName, @propName, @domainName, @controlTypeName);
                         }
                     }
                 }
@@ -1002,7 +1008,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                             // props.append(customQuickProperty.QuickProperty);
                         }
                         else {
-                            props.appendSmart(this._uniqueQuickPropertyId # @propNameStr, @labelName, @propName, @domainName, lockable=false);
+                            props.appendSmart(this._uniqueQuickPropertyId # @propNameStr, @labelName, @propName, @domainName, @controlTypeName, lockable=false);
                         }
                     }
                 }
