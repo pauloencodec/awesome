@@ -51,6 +51,9 @@ public class AweConnectLine extends ConnectLine {
     public bool realign = false;
 
     public bool mandatory = false;
+
+    public str friendlyName;
+
     extend public bool isMandatory() {
         return mandatory;
     }
