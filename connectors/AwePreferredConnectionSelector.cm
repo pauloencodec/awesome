@@ -61,9 +61,11 @@ public class AwePreferredConnectionSelector {
     extend public void updateOptions(Connector[] connectors, Snapper mainSnapper) {
         this.lastSnapper = mainSnapper;
         this.options = new AwePreferredConnection[]();
+
+        str->AwePreferredConnection map();
         str{} visited();
         for(c in connectors) {
-            if(c as ConnectLine) {
+            if(c as AweConnectLine) {
                 AweConnectEnv env(c);
                 if(env.model.?isPreferrableConnector(c)) {
                     var p0 = c.spaceLine.p0;
@@ -77,6 +79,12 @@ public class AwePreferredConnectionSelector {
                         option.p1 = p1;
                         option.referenceConnector = c;
                         this.options << option;
+                        map.put(key, option);
+                        map.put(keyReversed, option);
+                    }
+                    if(c.friendlyName) {
+                        if(map.get(key)) map.get(key).friendlyName = c.friendlyName;
+                        if(map.get(keyReversed)) map.get(keyReversed).friendlyName = c.friendlyName;
                     }
                 }
             }
@@ -114,11 +122,12 @@ public class AwePreferredConnection {
     public point p0;
     public point p1;
     public str id;
+    public str friendlyName;
     public ConnectLine referenceConnector : copy=null, stream=null;
 
     extend public bool preferred(Connector c) {
         if(referenceConnector) {
-            if(c as ConnectLine) {
+            if(c as AweConnectLine) {
                 line oneWay = referenceConnector.spaceLine();
                 line otherWay = flip(oneWay);
                 line thisLine = c.spaceLine();
@@ -137,7 +146,7 @@ public class AwePreferredConnection {
     }
 
     public str toS() {
-        return this.id;
+        return this.friendlyName ?? this.id;
     }
 }
 
