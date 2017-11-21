@@ -87,6 +87,18 @@ public class AweRegionGraph {
         }
     }
 
+    extend public void updateDoors( box b, int capacity=maxInt ) {
+        for( r in this.regions ) {
+            if ( r.bound.intersects(b) ) {
+                for( n in r.nodes ) {
+                    if ( n as RegionDoor and b.contains(n.p) ) {
+                        n.capacity = capacity;
+                    }
+                }
+            }
+        }
+    }
+
     extend public void addItem( Object item, point p ) {
         Region{} containers = regionsContaining( p );
         if ( containers.count == 0 ) {
@@ -169,6 +181,12 @@ public class AweRegionGraph {
 
             open.remove(next);
             closed << next.node;
+
+            if ( next.node in RegionDoor ) {
+                if ( next.node.RegionDoor.capacity == 0 ) {
+                    continue;
+                }
+            }
 
             if ( next.node == endNode ) {
                 result = next;
