@@ -55,7 +55,7 @@ public class AwePartColumn extends BasicPartColumn : abstract {
 
 public class AweIsValidPartColumn extends AwePartColumn {
     public constructor(int order) {
-        super("isValid", "cm.abstract.part", order);
+        super("isValid", "custom.awesome", order);
     }
 
     public Object value(Part part, Space space) {

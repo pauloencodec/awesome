@@ -39,6 +39,7 @@ package custom.awesome.product;
 use custom.awesome.sif;
 
 private const str notFoundInSifErrorMessage = " * Not found in SIF";
+private const str allsteelCompanyCode = "ALS";
 
 public class AwePart extends OfficePart {
     public str sku;
@@ -78,10 +79,18 @@ public class AwePart extends OfficePart {
         var skuParts = this.sku.breakdownSku();
 
         if (skuParts and skuParts.any()) {
-            return this.sku.breakdownSku().first();
+            return skuParts.first();
         }
 
         return this.sku;
+    }
+
+    public str getCompanyCode() {
+        return allsteelCompanyCode;
+    }
+
+    public str catalog() {
+        return this.catalog;
     }
 
     public ItemTag createItemTag() {
