@@ -38,10 +38,10 @@ package custom.awesome.connectors;
 
 public class AweMoveToFloorConnectorSet extends AweConnectorSet {
     public void connected(AweConnectEnv me, AweConnectEnv other) {
-        me.snapper.moveToFloor();
+        // me.snapper.moveToFloor();
     }
 
     public void disconnected(AweConnectEnv me, AweConnectEnv other) {
-        me.snapper.moveToFloor();
+        // me.snapper.moveToFloor();
     }
 }
