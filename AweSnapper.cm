@@ -786,6 +786,18 @@ public class AweSnapper extends TaggableSnapper {
         if(!l) return null;
         return this.toSpace(l.v);
     }
+
+    public double connectLineAlignConnector(ConnectLine s, Connector c, double t) {
+        if (AweObject model = this.mainModel()) {
+            for (set in model.connectorSets()) {
+                if (Double align = set.connectLineAlignConnector(..)) {
+                    return align.v;
+                }
+            }   
+        }
+        
+       return super(..);
+    }
 }
 
 private bool disableGroupChangeTrigger = false;
