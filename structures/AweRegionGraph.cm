@@ -78,7 +78,10 @@ public class AweRegionGraph {
         // check if someone has a door there
         for ( r in containers ) {
             found = r.findAt( pos );
-            if ( found ) return;
+            if ( found ) {
+                if ( found as RegionDoor ) found.capacity = min( capacity, found.capacity );
+                return;
+            }
         }
 
         found = RegionDoor( pos, capacity );
@@ -90,8 +93,8 @@ public class AweRegionGraph {
     extend public void updateDoors( box b, int capacity=maxInt ) {
         for( r in this.regions ) {
             if ( r.bound.intersects(b) ) {
-                for( n in r.nodes ) {
-                    if ( n as RegionDoor and b.contains(n.p) ) {
+                for( RegionDoor n in r.nodes ) {
+                    if ( b.contains(n.p) ) {
                         n.capacity = capacity;
                     }
                 }
@@ -225,6 +228,11 @@ public class AweRegionGraph {
 
         path.reverse();
         return path;
+    }
+
+    extend public RegionNode{} getReachableFrom( point start ) {
+        RegionNode{} connected();
+        RegionNode{} visited
     }
 }
 
