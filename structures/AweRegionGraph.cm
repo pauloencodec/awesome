@@ -229,11 +229,36 @@ public class AweRegionGraph {
         path.reverse();
         return path;
     }
+ 
+    extend public point{} getReachableFrom( point start ) {
+        RegionNode{} available();
+        RegionNode{} visited();
 
-    extend public RegionNode{} getReachableFrom( point start ) {
-        RegionNode{} connected();
-        RegionNode{} visited
+        available <<? find( start );
+
+        while( available.count > 0 ) {
+            RegionNode next = null;
+            // just get an item from "available"
+            for( n in available ) {
+                next = n;
+                break;
+            }
+            visited << next;
+            available.remove(next);
+            for ( e in next.edges ) {
+                if ( !visited.contains( e.a ) and ( e.a !in RegionDoor or e.a.RegionDoor.?capacity > 0 ) ) available << e.a;
+                if ( !visited.contains( e.b ) and ( e.b !in RegionDoor or e.b.RegionDoor.?capacity > 0 ) ) available << e.b;
+            }
+        }
+
+        point{} res();
+        for( v in visited ) {
+            res << v.p;
+        }
+
+        return res;
     }
+    
 }
 
 private PathNode find( PathNode{} self, RegionNode node ) {
