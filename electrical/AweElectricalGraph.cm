@@ -65,17 +65,27 @@ public class EGraph {
         return false;
     }
 
-    extend public void updateCosts( CostEstimator estimator ) {
+    extend public void setReachableFrom( point start, point{} points ) {    
+        Node s = find( start );
+        for ( p in points ) s.reachable <<? find(p);
+    }
+
+    extend public void updateCosts( CostEstimator estimator, point start ) {
+        Node s = find( start );
+        if ( !s ) return;
         for( e in edges ) {
-            ElectricalConnectedPath c = estimator.cost( e.a.obj, e.a.p, e.b.obj, e.b.p );
-            // if it couldn't find a path, this edge is useless, so get rid of it
-            if ( c.validPath ) {
-                e.path = c;
-            } else {
-                e.a.edges.remove(e);
-                e.b.edges.remove(e);
-                edges.remove(e);
+            if ( s.reachable.contains( e.a ) and s.reachable.contains(e.b) ) {
+                ElectricalConnectedPath c = estimator.cost( e.a.obj, e.a.p, e.b.obj, e.b.p );
+                // if it couldn't find a path, this edge is useless, so get rid of it
+                if ( c.validPath ) {
+                    e.path = c;
+                    continue;
+                }
             }
+            
+            e.a.edges.remove(e);
+            e.b.edges.remove(e);
+            edges.remove(e);
         }
     }
 
@@ -160,6 +170,7 @@ public class EGraph {
 public class Node {
     public ElectricalModel obj;
     public point p;
+    public Node{} reachable() : copy=reference;
 
     public Edge{} edges();
 
