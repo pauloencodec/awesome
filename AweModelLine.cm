@@ -34,55 +34,67 @@
    END OF CETSC
 */
 
-package custom.awesome.materials;
+package custom.awesome;
+use custom.awesome.connectors;
 
-public class AweMaterial extends OfficeMaterial {
-    private Image thumbnailCache : stream = null, copy = null;
-    public Image sizedPreviewImage2(double scale, int sz=48, int w=-1, int h=-1, bool superQuality=false, bool force=false) {
-            if(!thumbnailCache) {
-                thumbnailCache = getSizedPreviewImage(this, 1, w=sz, h=sz, force=true);
-            }
-            return thumbnailCache;
-    }   
+public class AweModelLine {
+    public AweObject model;
+    public str id;
+    public constructor(str id, AweObject model) {
+        this.model = model;
+        this.id = id;
+    } 
 
-    public constructor(str id, symbol pkg=#:package : caller eval, MaterialCategory category=null) {
-        super(..);
-    }
+    extend public line localLine() {
+        return line();
+    }  
+}
 
-
-    /**
-     * Create a new one.
-     */
-    public constructor(str id, Material3D material3D, str description=null, MaterialCategory category=null,
-		       Brush material2D=null, double thumbnailScale=1, symbol pkg=#:package : caller eval) {
-        super(..);
-
-        setSuperMaterial(material3D);
-    }
-    
-    public Material3D thumbnailMaterial3D() {
-        if(this.material3D) return this.material3D;
-        return plainBlueMaterial3D();
-    }
-
-    public Image sizedPreviewImage(int w, int h, bool force=false) {
-        return getSizedPreviewImage(this, thumbnailScale(w), w=w, h=h, force=force);
-    }
-
-    public Object copy(CopyEnv env, bool shallow=false) {
-        return this;
-    }
-
-    public Material3D material3D() {
-        var material = super();
-
-        //Return a non texturized version of the material
-        //for real time views
-        //Issue Awesome#299
-        if(material as GMaterial3D) {
-            return matteMaterial3D(material.getAverageColor());
+public class AweConnectionModelLine extends AweModelLine {
+    public constructor(Connector connector) {
+        AweConnectEnv env(connector);
+        str id = "";
+        if(env.set) {
+            id #= env.set.class.toS() # ".";
         }
+        id #= env.id;
+        super(id, env.model);
+    }
 
-        return material;
+    public line localLine() {
+        var line = this.model.getConnectorById(this.id).?ConnectLine.snapperLine();
+        if(model.mainSnapper) {
+            //move it to the top of the box
+            var z = model.mainSnapper.localBound().p1.z;
+            line.p0.z = z;
+            line.p1.z = z;
+        }
+        return line;
+    }
+}
+
+public class AweLocalBoundWidthModelLine extends AweModelLine {
+    public constructor(AweObject model) {
+        super("box.width", model);
+    }
+
+    public line localLine() {
+        if(model.mainSnapper) {
+            return model.mainSnapper.localBound().upCenterlineX();
+        }
+        else return super(..);
+    }
+}
+
+public class AweLocalBoundDepthModelLine extends AweModelLine {
+    public constructor(AweObject model) {
+        super("box.depth", model);
+    }
+
+    public line localLine() {
+        if(model.mainSnapper) {
+            return model.mainSnapper.localBound().upCenterlineY();
+        }
+        else return super(..);
     }
 }

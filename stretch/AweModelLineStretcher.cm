@@ -34,55 +34,26 @@
    END OF CETSC
 */
 
-package custom.awesome.materials;
-
-public class AweMaterial extends OfficeMaterial {
-    private Image thumbnailCache : stream = null, copy = null;
-    public Image sizedPreviewImage2(double scale, int sz=48, int w=-1, int h=-1, bool superQuality=false, bool force=false) {
-            if(!thumbnailCache) {
-                thumbnailCache = getSizedPreviewImage(this, 1, w=sz, h=sz, force=true);
-            }
-            return thumbnailCache;
-    }   
-
-    public constructor(str id, symbol pkg=#:package : caller eval, MaterialCategory category=null) {
-        super(..);
-    }
+package custom.awesome.stretch;
 
 
-    /**
-     * Create a new one.
-     */
-    public constructor(str id, Material3D material3D, str description=null, MaterialCategory category=null,
-		       Brush material2D=null, double thumbnailScale=1, symbol pkg=#:package : caller eval) {
-        super(..);
-
-        setSuperMaterial(material3D);
-    }
+public class AweModelLineStretcher extends AweStretcher {
     
-    public Material3D thumbnailMaterial3D() {
-        if(this.material3D) return this.material3D;
-        return plainBlueMaterial3D();
+    private str{} lockProps;
+    private AweModelLine modelLine;
+
+    public constructor(AweModelLine modelLine, str propName, str {} lockProps = null) {
+        super(modelLine.model, propName);
+        this.modelLine = modelLine;
+        this.lockProps = lockProps;
     }
 
-    public Image sizedPreviewImage(int w, int h, bool force=false) {
-        return getSizedPreviewImage(this, thumbnailScale(w), w=w, h=h, force=force);
+    public line line() {
+        return this.modelLine.localLine();
     }
 
-    public Object copy(CopyEnv env, bool shallow=false) {
-        return this;
+    public str{} lockedProperties() {
+        return this.lockProps;
     }
 
-    public Material3D material3D() {
-        var material = super();
-
-        //Return a non texturized version of the material
-        //for real time views
-        //Issue Awesome#299
-        if(material as GMaterial3D) {
-            return matteMaterial3D(material.getAverageColor());
-        }
-
-        return material;
-    }
 }
