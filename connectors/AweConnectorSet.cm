@@ -140,4 +140,8 @@ public class AweConnectorSet  {
          }
         return l.distance(c.spacePos());
     }
+
+    extend public Double connectLineAlignConnector(ConnectLine s, Connector c, double t) {
+        return null;
+    }
 }
