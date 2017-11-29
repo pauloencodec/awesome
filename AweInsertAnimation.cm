@@ -293,6 +293,25 @@ public class AweInsertAnimation extends InsertAnimation {
         }
     }
 
+    public void updateSelectionSnaps() {
+        super();
+
+        selection.snaps = this.filterSnaps(selection.snaps);
+    }
+
+    extend public Connector[] filterSnaps(Connector[] snaps) {
+        Connector[] newList();
+
+        for (snap in snaps) {
+            if (this.filterSnap(snap)) newList << snap;
+        }
+
+        return newList;
+    }
+
+    extend public bool filterSnap(Connector snap) {
+        return true;
+    }
 
     /******* immediate animation ***** */
     public Animation immediateAnimation(angle a, bool allowRotate) {
