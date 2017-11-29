@@ -271,11 +271,11 @@ public class AweObject {
     }
 
     extend public bool isStretchableProp(str propKey) {
-        if (propKey == "height" or propKey == "elevation") {
-            return false;
-        }
-
         for (stretcher in this.getStretchers()) {
+            if (stretcher in AweHeightStretcher or stretcher in AweElevationStretcher) {
+                continue;
+            }
+
             if (stretcher.propKey == propKey) {
                 return true;
             }
