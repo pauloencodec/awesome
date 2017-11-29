@@ -68,6 +68,27 @@ public class AweObject {
         return false;
     }
 
+    extend public bool isPreferrableConnector(Connector c) {
+        return false;
+    }
+
+    extend public AweModelLine[] potentialStretchLines() {
+        AweModelLine[] lines();
+
+        if(this.mainSnapper) {
+            lines << new AweLocalBoundWidthModelLine(this);
+            lines << new AweLocalBoundDepthModelLine(this);
+        }
+
+        for(c in this.getConnectors(this.mainSnapper)) {
+            if(c as ConnectLine) {
+                lines << new AweConnectionModelLine(c);
+            }
+        }
+
+        return lines;
+    }
+
     extend public void applyFrom(AweObject source, str{} ignore=null) {
     }
 
@@ -81,6 +102,8 @@ public class AweObject {
     extend public Object get(str propName) {
         return this.props.get(propName);
     }
+
+    public bool disableModelLimbDefaultsUpdating = false;
 
     extend public void set(str propName, Object value) {
         Object oldValue = get(propName);
@@ -103,7 +126,8 @@ public class AweObject {
             }
         }
 
-        this.updateLimbDefaults();
+        if(!disableModelLimbDefaultsUpdating)
+            this.updateLimbDefaults();
     }
 
     extend public SubSet getDomain(str propName) {
@@ -140,18 +164,101 @@ public class AweObject {
         
         return domain and domain.count > 1;
     }
-    
+
+    public str->str connectLineToPropMap();
+
     extend public AweStretcher{} createStretchers() {
         //default stretchers for everyone.
-        return {AweStretcher:
+        var stretchers = {AweStretcher:
             new AweHeightStretcher(this),
-            new AweWidthStretcher(this),
-            new AweDepthStretcher(this),
             new AweElevationStretcher(this)
         };
+
+        stretchers += this.createDomainStretchers();
+
+        return stretchers;
+    }
+
+    extend public AweStretcher{} createDomainStretchers() {
+        AweStretcher{} stretchers();
+        str->DistanceEnum stretchableDomains();
+
+        for(key, value in this.props) {
+            var domain = this.getDomain(key);
+            if(domain as DistanceEnum) {
+                stretchableDomains.put(key, domain);
+            }
+        }
+
+        for(key, domain in stretchableDomains) {
+             var stretcher = this.domainStretcher(domain, key, stretchableDomains.keys());
+            if(stretcher) stretchers << stretcher;
+        }
+
+        return stretchers;
+    }
+
+    extend public AweStretcher domainStretcher(DistanceEnum domain, str propKey, str{} allStretchableDomainKeys) {
+        if(!domain) return null;
+
+        //make a copy of the model to try the different sizes
+        var model = this.copy();
+        model.disableModelLimbDefaultsUpdating = true;
+        //use it in a snapper to get localbound, connectors and what not
+        var snapper = new custom.awesome.snapper.AweModelSnapper(model);
+
+        var lines = model.potentialStretchLines();
+        if(!lines or lines.count == 0) return null;
+
+
+        //get all domain sizes
+        double[] values();
+        for(v in domain._members) {
+            values << v.double;
+        }
+
+        for(v in values) {
+            model.set(propKey, v);
+            // model.invalidate();
+            snapper.refresh();
+            for(stretchLine in lines) {
+                //try each line
+                if(stretchLine.localLine().length != v) {
+                    //if not match, get rid of it
+                    lines.exclude(stretchLine);
+                }
+            }
+        }
+
+        //did any survive?
+        if(lines.count > 0) {
+
+            //set connectLineToPropMap so lines can autosize on trysnap
+            for(stretchLine in lines) {
+                if(stretchLine as AweConnectionModelLine) {
+                    this.connectLineToPropMap.put(stretchLine.id, propKey);
+                }
+            }
+
+            var chosenLine = lines.first();
+            chosenLine.model = this;
+
+            //lock all other props
+            var otherKeys = new str{};
+            for(key in allStretchableDomainKeys) {
+                if(key != propKey) {
+                    otherKeys << key;
+                }
+            }
+
+            return new AweModelLineStretcher(chosenLine, propKey, lockProps=otherKeys);
+        }
+
+        return null;
     }
 
     extend public void resetStretchers() {
+        this.connectLineToPropMap.clear();
         this._stretchers = null;
     }
 
@@ -668,6 +775,8 @@ public class AweObject {
     public str limbKey;
 
     extend public void updateLimbDefaults() {
+        if(this.disableModelLimbDefaultsUpdating) return;
+
         //limb settings
         if(this.limbKey) {
             custom.awesome.ui.modelLimbDefaults.put(this.limbKey, this.copy());

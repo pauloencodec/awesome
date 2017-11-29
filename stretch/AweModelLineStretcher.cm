@@ -34,10 +34,26 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package custom.awesome.stretch;
 
-public AwePriceUpchargeColumn modelUpchargeColumn();
 
-package void registerCustomColumns() {
-    registerPartColumn(modelUpchargeColumn, true);
+public class AweModelLineStretcher extends AweStretcher {
+    
+    private str{} lockProps;
+    private AweModelLine modelLine;
+
+    public constructor(AweModelLine modelLine, str propName, str {} lockProps = null) {
+        super(modelLine.model, propName);
+        this.modelLine = modelLine;
+        this.lockProps = lockProps;
+    }
+
+    public line line() {
+        return this.modelLine.localLine();
+    }
+
+    public str{} lockedProperties() {
+        return this.lockProps;
+    }
+
 }

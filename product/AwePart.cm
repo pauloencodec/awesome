@@ -168,6 +168,8 @@ public class AwePart extends OfficePart {
         return this.sku # this.header.tg;
     }
 
+    public str completeSpecified() { return isValid ? "Yes" : "No"; }
+
     public str[] generatePmSifRows(Space space) {
 	    str[] res();
 

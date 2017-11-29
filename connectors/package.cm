@@ -72,6 +72,18 @@ public str getId(Connector c) {
     return null;
 }
 
+public str getFullId(Connector c) {
+    AweConnectEnv env(c);
+    str id = "";
+    if(env.set) {
+        id #= env.set.class.toS() # ".";
+    }
+    id #= env.id;
+    return id;
+}
+
+
+
 public AweObject getModel(Connector c) {
     aweTryCast(c as conn to AweConnectLine, AweConnectPoint, AweSupportSurface, AweStandOnPoint) { 
         return conn.model;

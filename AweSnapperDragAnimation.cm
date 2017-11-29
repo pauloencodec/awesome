@@ -77,6 +77,8 @@ public class AweSnapperDragAnimation extends DragAnimation {
                 angleGraph.draw(lb);
             }
         } 
+
+        this.preferredConnectionSelector.get2D().?draw(lb); 
     }
 
     public Primitive3D get3D(FetchEnv3D env) {
@@ -147,7 +149,26 @@ public class AweSnapperDragAnimation extends DragAnimation {
             Transform oldTranform = selection.main.toSpaceTransform();
     
             SnapInfo last = currentSpace ? currentSpace.lastSnapped : null;
-            selection.snaps = selection.snaps.sort(function sortByPriorityDesc, null);
+
+            var preferredSnaps = new Connector[]();
+            for(snap in selection.snaps) {
+                if(this.preferredConnectionSelector.preferred(snap)) {
+                    preferredSnaps << snap;
+                }
+            }
+            if(preferredSnaps.count > 0) {
+                var newList = new Connector[]();
+                newList += preferredSnaps;
+                for(snap in selection.snaps) {
+                    if(snap !in newList) {
+                        newList << snap;
+                    }
+                }
+                selection.snaps = newList;
+            } else {
+                selection.snaps = selection.snaps.sort(function sortByPriorityDesc, null);
+            }
+
             SnapInfo info = skipSnapping ? null : selection.trySnap(mi, modifyEnv, filter);
 
             /********* awesome modification *********/
@@ -179,6 +200,44 @@ public class AweSnapperDragAnimation extends DragAnimation {
         }
     }
 
-    
+    /************** preferred connectors *********** */
+
+    extend public AweObject getMainModel() {
+        return selection.main.AweSnapper.?mainModel;
+    }
+
+    public AwePreferredConnectionSelector preferredConnectionSelector();
+
+    public void buildProperties() {
+        this.destroyAnimationProperties();
+        this.createAnimationProperties();
+
+
+        var candidates = new Connector[]();
+        for(snap in selection.snaps) {
+            if(this.getMainModel().?isPreferrableConnector(snap)) {
+                candidates << snap;
+            }
+        }
+        this.preferredConnectionSelector.updateOptions(candidates, selection.main);
+        Object[] values = preferredConnectionSelector.options.:Object[];
+        bool hasPreferrableConnectors = values and values.count > 0;
+        if(hasPreferrableConnectors)
+            this.animationProperties.appendSmart("preferredConnection", "Preferred Connection", preferredConnectionSelector.selected(), new ObjectSubSet(values), lockable=false);
+
+
+        this.animationProperties.finalize();
+    }
+
+    public void propertyChange(str key, Object value) {
+        super(..);
+
+        if(key == "preferredConnection") {
+            if(value as AwePreferredConnection) {
+                this.preferredConnectionSelector.selected = value;
+            }
+            return;
+        }
+    }
     
 }
