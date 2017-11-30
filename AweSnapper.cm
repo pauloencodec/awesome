@@ -766,6 +766,14 @@ public class AweSnapper extends TaggableSnapper {
         if (c as AweStretcherConnector) {
             return p + c.visiblePosOffset;
         }
+
+        if (AweObject model = this.mainModel()) {
+            for (set in model.connectorSets()) {
+                if (Point pos = set.visiblePosition(c, p)) {
+                    return pos.v;
+                }
+            }
+        }
         
         return super(..);
     }
