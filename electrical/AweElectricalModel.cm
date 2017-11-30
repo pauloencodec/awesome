@@ -36,7 +36,7 @@
 
 package custom.awesome.electrical;
 
-public aweObject ElectricalModel extends AweObject {
+public class ElectricalModel extends AweObject {
     public Snapper owner : copy=reference;
     public point location;
 
@@ -48,10 +48,6 @@ public aweObject ElectricalModel extends AweObject {
 
     extend public Primitive3D extra3D( FetchEnv3D env, Snapper z, ElectricalPosition p ) {
         return null;
-    }
-
-    public void buildAnimationProperties( AnimationProperties props ) {
-        // props.append2(this._uniqueQuickPropertyId # @propNameStr, @labelName, distance(@propName), @domainName, lockable=false);
     }
 
     extend public void propertyChange( str key, Object value ) { }
