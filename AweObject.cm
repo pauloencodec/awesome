@@ -756,6 +756,23 @@ public class AweObject {
         return sets;
     }
 
+    /***************** connection applications *********** */
+    //override this one
+    extend public AweConnectionApplication[] createConnectionApplications() {
+        return null;
+    }
+
+    private AweConnectionApplication[] _connectionApplications;
+
+    extend public AweConnectionApplication[] getConnectionApplications() {
+        if(!this._connectionApplications) {
+            this._connectionApplications = this.createConnectionApplications();
+        }
+        return this._connectionApplications;
+    }
+
+    public AweConnectionApplication activeApplication = null;
+
     /************* automations ***************/
     extend public AweGroupAutomation[] getGroupAutomations() {
         return null;

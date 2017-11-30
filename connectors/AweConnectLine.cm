@@ -38,6 +38,8 @@ package custom.awesome.connectors;
 
 use cm.subset;
 
+public double connectLineAutoSizeMergeRadius = 5inch;
+
 public class AweConnectLine extends ConnectLine {
     public aweDynamicContract {
         aweDynamic bool shouldRealign();
@@ -127,7 +129,7 @@ public class AweConnectLine extends ConnectLine {
 
         //no neighbors?
         if(extraLengthFromNeighborLine == 0) {
-            sizes << availableSpace;
+            sizes << oneLineLength;
         }
 
         double twoLinesLength = oneLineLength + extraLengthFromNeighborLine;
@@ -141,6 +143,7 @@ public class AweConnectLine extends ConnectLine {
             sizes << oneLineLength;
         }
 
+
         //fullsize, half, third, etc.
         for(divisor in [1,2,3,4,5,6]) {
             sizes << availableSpace / divisor;
@@ -150,14 +153,22 @@ public class AweConnectLine extends ConnectLine {
     }
 
     extend public double extraLength(ConnectLine attach, line mouseLine) {
-        double mergeThreshold = .2;
-        if(attach.j0 and attach.j0.perpendicularDistance(mouseLine) < mergeThreshold) {
+        double mergeThreshold = .1;
+        pln(#mouseLine.distance(attach.spaceLine().p0); attach.j1.?distance(mouseLine); connectLineAutoSizeMergeRadius );
+        if(attach.j0 and mouseLine.distance(attach.spaceLine().p0) < connectLineAutoSizeMergeRadius) {
             return attach.j0.length;
         }  
-        if(attach.j1 and attach.j1.perpendicularDistance(mouseLine) < mergeThreshold) {
+        if(attach.j1 and mouseLine.distance(attach.spaceLine().p1) < connectLineAutoSizeMergeRadius) {
             return attach.j1.length;
         } 
         return 0;
+    }
+
+    /**
+     * Valid connection?
+     */
+    public bool validConnection(ConnectLine c) {
+        return c.snapper in this.snapper.allConnected();
     }
 
 
