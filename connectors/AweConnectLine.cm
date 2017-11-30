@@ -154,7 +154,6 @@ public class AweConnectLine extends ConnectLine {
 
     extend public double extraLength(ConnectLine attach, line mouseLine) {
         double mergeThreshold = .1;
-        pln(#mouseLine.distance(attach.spaceLine().p0); attach.j1.?distance(mouseLine); connectLineAutoSizeMergeRadius );
         if(attach.j0 and mouseLine.distance(attach.spaceLine().p0) < connectLineAutoSizeMergeRadius) {
             return attach.j0.length;
         }  
