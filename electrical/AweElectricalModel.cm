@@ -54,8 +54,8 @@ public class ElectricalModel extends AweObject {
 
     extend public electricalAction allow( ElectricalModel object ) { return electricalAction.no; }
 
-    extend public point[] electricPoints( point center ) {
-        return [center];
+    extend public AweElectricalPoint[] electricPoints( point center ) {
+        return [AweElectricalPoint(center)];
     }
 
     extend public AwePart[] getParts( bool is3Circuit=false) { return null; }

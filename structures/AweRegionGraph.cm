@@ -91,6 +91,21 @@ public class AweRegionGraph {
         }
     }
 
+    extend public void addItem( Object item, AweElectricalPoint p ) {
+        Region{} containers = regionsContaining( p.position );
+        if ( containers.count == 0 ) {
+            pln( "Unable to add point '" # p # "'. There are no regions for it" );
+            return;
+        }
+        if ( containers.count > 1 ) {
+            pln("Unable to add point, it falls into multiple regions");
+            return;
+        }
+        for ( r in containers ) {
+            r.add( RegionNode( item, p ) );
+        }
+    }
+/* 
     extend public void addItem( Object item, point p ) {
         Region{} containers = regionsContaining( p );
         if ( containers.count == 0 ) {
@@ -105,6 +120,8 @@ public class AweRegionGraph {
             r.add( RegionNode( item, p ) );
         }
     }
+
+    */
 
     extend public Region{} regionsContaining( point p ) {
         Region{} regs();
@@ -284,10 +301,10 @@ private class PathNode {
 }
 
 {
-    RegionGraphTester tester();
-    activeSpace.put(tester);
+    // RegionGraphTester tester();
+    // activeSpace.put(tester);
 }
-
+/*
 private class RegionGraphTester extends Snapper {
 
     public AweRegionGraph graph();
@@ -310,3 +327,4 @@ private class RegionGraphTester extends Snapper {
         return graph.get3D();
     }
 }
+*/
