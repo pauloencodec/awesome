@@ -63,7 +63,9 @@ public class AweConnectorSet  {
         }
 
         for (c in this.connectorCache.buffer) {
-            result <<? c.getModel();
+            for (AweSnapper s in c.connectedSnappers()) {
+                result <<? s.mainModel;                
+            }
         }
 
         return result;
@@ -111,6 +113,10 @@ public class AweConnectorSet  {
     }
 
     extend public void tryAttachAborted(AweConnectEnv me, AweConnectEnv other, AnimationMouseInfo mi) {
+    }
+
+    extend public Point visiblePosition(Connector c, point p) {
+        return null;
     }
 
     extend public vector getDisplacementIfConnected(AweConnectEnv me, AweConnectEnv other) {
