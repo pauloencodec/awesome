@@ -63,7 +63,9 @@ public class AweConnectorSet  {
         }
 
         for (c in this.connectorCache.buffer) {
-            result <<? c.getModel();
+            for (AweSnapper s in c.connectedSnappers()) {
+                result <<? s.mainModel;                
+            }
         }
 
         return result;
