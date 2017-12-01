@@ -61,14 +61,16 @@ public class AweGhost {
 
     public AweGhostSnapper ghostSnapper;
 
-
     extend private void instantiateGhost() {
         this.ghostModel = this.ghostModel.copy();
-        this.ghostSnapper = new AweGhostSnapper(this.ghostModel);
+        this.ghostSnapper = this.createGhostSnapper(this.ghostModel);
         this.ghostSnapper.hostSnapper = this.hostSnapper().?AweSnapper;
         this.updatePosition();
     }
 
+    extend public AweGhostSnapper createGhostSnapper(AweObject ghostModel) {
+        return new AweGhostSnapper(ghostModel);
+    }
 
     extend public Snapper hostSnapper() {
         return this.hostModel.mainSnapper();
