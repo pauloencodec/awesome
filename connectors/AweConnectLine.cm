@@ -97,17 +97,18 @@ public class AweConnectLine extends ConnectLine {
     /************* adjusting size on trySnap ***************/
     public str autoSizePropKey;
 
-    extend public void tryResizeToFit(Connector attach, line mouseLine) {
+    extend public bool tryResizeToFit(Connector attach, line mouseLine) {
         if(attach as ConnectLine) {
-            this.resizeToFit(attach, mouseLine);
+            return this.resizeToFit(attach, mouseLine);
         }
+        return false;
     }
 
-    extend public void resizeToFit(ConnectLine attach, line mouseLine) {
+    extend public bool resizeToFit(ConnectLine attach, line mouseLine) {
         var domain = this.model.getDomain(autoSizePropKey);
-        if(!domain or domain.empty) return;
+        if(!domain or domain.empty) return false;
         double[] sizes = this.preferredSizes(attach, mouseLine, domain);
-        this.resizeToFit(sizes, domain);
+        return this.resizeToFit(sizes, domain);
     }
 
     extend private double[] preferredSizes(ConnectLine attach, line mouseLine, SubSet domain) {
@@ -171,15 +172,15 @@ public class AweConnectLine extends ConnectLine {
     }
 
 
-    extend public void resizeToFit(double[] sizes, SubSet domain) {
+    extend public bool resizeToFit(double[] sizes, SubSet domain) {
         for(s in sizes) {
             if(s in domain) {
                 this.model.set(autoSizePropKey, s);
                 this.model.invalidate();
-                return;
+                return true;
             }
         }
-        
+        return false;
     }
 
  }
