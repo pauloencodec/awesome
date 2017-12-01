@@ -246,7 +246,6 @@ public class AweInsertAnimation extends InsertAnimation {
 
      //Copied from InsertAnimation then modified. 
      public void move(AnimationMouseInfo mi) {
-        super(mi);
         static int trySkipCount;
         updateVelocity();
         bool skipSnapping = mouseVelocity > 500;
