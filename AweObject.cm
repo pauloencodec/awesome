@@ -107,6 +107,8 @@ public class AweObject {
 
     extend public void set(str propName, Object value) {
         Object oldValue = get(propName);
+
+        if(oldValue.equal(value)) return;
         
         //AweMaterialShell instance must never be replaced. instead, update the contents of the shell
         if (value in AweMaterialShell and oldValue in AweMaterialShell) {
