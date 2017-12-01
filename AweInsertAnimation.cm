@@ -286,9 +286,7 @@ public class AweInsertAnimation extends InsertAnimation {
                 }
                 selection.snaps = newList;
             }
-            else {
-                selection.snaps = selection.snaps.sort(function sortByPriorityDesc, null);
-            }
+           
 
             SnapInfo last = currentSpace ? currentSpace.lastSnapped : null;
             SnapInfo info = skipSnapping ? null : selection.trySnap(mi, modifyEnv, filter);
