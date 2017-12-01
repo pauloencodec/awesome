@@ -39,7 +39,6 @@ package custom.awesome.electrical;
 public class ElectricalModel extends AweObject {
     public Snapper owner : copy=reference;
     public point location;
-
     public constructor() { }
 
     extend public Primitive3D get3D( FetchEnv3D env, Snapper z, ElectricalPosition p ) {
@@ -58,5 +57,5 @@ public class ElectricalModel extends AweObject {
         return [center];
     }
 
-    extend public AwePart[] getParts( bool is3Circuit=false) { return null; }
+    extend public AwePart[] getParts( str circuit ) { return null; }
 }
