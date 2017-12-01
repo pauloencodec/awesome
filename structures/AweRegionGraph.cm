@@ -55,18 +55,19 @@ public class AweRegionGraph {
 
     extend public void addRegion( box b, Snapper owner, line[] notAllowed = null ) {
         // first verify it doesn't overlap any others
-        Region newReg(b, notAllowed, owner);
+        AweBox aBox( b, owner.toSpaceTransform() );
+        Region newReg(aBox, notAllowed, owner);
 
         for ( r in regions ) {
             // need to make sure they don't overlap, but can share an edge
-            if ( r.bound.intersects(b) ) {
+            // if ( r.bound.intersects(b) ) {
                 // copy any doors that would be shared -- Maybe we don't want to do this?
                 for ( n in r.nodes ) {
                     if ( n as RegionDoor and newReg.contains( n.p ) ) {
                         newReg.add( n );
                     }
                 }
-            }
+            // }
         }
 
         regions << newReg;
@@ -87,18 +88,6 @@ public class AweRegionGraph {
         found = RegionDoor( pos, capacity );
         for( r in containers ) {
             r.add( found );
-        }
-    }
-
-    extend public void updateDoors( box b, int capacity=maxInt ) {
-        for( r in this.regions ) {
-            if ( r.bound.intersects(b) ) {
-                for( RegionDoor n in r.nodes ) {
-                    if ( b.contains(n.p) ) {
-                        n.capacity = capacity;
-                    }
-                }
-            }
         }
     }
 

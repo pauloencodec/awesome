@@ -110,6 +110,7 @@ public class AweEnum extends AweEnumBase : abstract {
     }
     
     public bool equal(Object other, EqualEnv env=EqualEnv()) {
+
         if (other as AweEnum) {
             return this.class == other.class and this.name == other.name;
         }
@@ -121,7 +122,8 @@ public class AweEnum extends AweEnumBase : abstract {
         return super(..);
     }
 
-    extend public bool operator==(Object other) {
+    extend public bool operator==(Object other) : null=false {
+
         return this.equal(other);
     }
 
