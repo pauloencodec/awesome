@@ -34,10 +34,20 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package custom.awesome.structures;
 
-public AwePriceUpchargeColumn modelUpchargeColumn();
+public class AweBox {
+    public box b;
+    public angle a;
+    public Transform origT;
 
-package void registerCustomColumns() {
-    registerPartColumn(modelUpchargeColumn, true);
+    public constructor( box b, Transform t=null ) {
+        this.b = b;
+        this.origT = t;
+    }
+
+    extend public bool contains( point p ) {
+        point pr = origT ? p.transformed( -origT ) : p;
+        return b.contains(pr);
+    }
 }

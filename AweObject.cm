@@ -131,6 +131,14 @@ public class AweObject {
     }
 
     extend public SubSet getDomain(str propName) {
+        if (SubSet domain = this.getCustomDomain(propName)) {
+            return domain;
+        }
+        
+        return null;
+    }
+
+    extend public SubSet getCustomDomain(str propName) {
         return null;
     }
 
@@ -264,6 +272,10 @@ public class AweObject {
 
     extend public bool isStretchableProp(str propKey) {
         for (stretcher in this.getStretchers()) {
+            if (stretcher in AweHeightStretcher or stretcher in AweElevationStretcher) {
+                continue;
+            }
+
             if (stretcher.propKey == propKey) {
                 return true;
             }
@@ -925,9 +937,6 @@ public class AweObject {
     extend public line[] doNotConnect() {
         return null;
     }
-
-
-
 }
 
 public definition @visibility aweObject @name=id @parentClass=["extends" type]? '{'  @props=["props" formalArgList ';']? @members=[classMember]* '}' {
@@ -1068,6 +1077,8 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         //we use distance subsets for double properties, so we need this great if statement there:
         if (propType.type == distance) {
             buildQuickProperties << statement {
+                var @domainName = this.getDomain(@propNameStr);
+
                 if (@domainName and @visibleName and !this.isStretchableProp(@propNameStr)) {
                     Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, distance(@propName));
 
@@ -1083,6 +1094,8 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
             };
 
             buildAnimationProperties << statement {
+                var @domainName = this.getDomain(@propNameStr);
+
                 if (@domainName and @visibleName) {
                     Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, distance(@propName));
 
@@ -1098,6 +1111,8 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
             };
 
             applyFrom << statement {
+                var @domainName = this.getDomain(@propNameStr);
+
                 if (@domainName and @visibleName and @propNameStr !in ignore) {
                     if (Object value = source.get(@propNameStr)) {
                         // aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, distance(@propName));
@@ -1111,6 +1126,8 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         }
         else {
             buildQuickProperties << statement {
+                var @domainName = this.getDomain(@propNameStr);
+
                 if (@domainName and @visibleName and !this.isStretchableProp(@propNameStr)) {
                     Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, @propName);
 
@@ -1126,6 +1143,8 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
             };
 
             buildAnimationProperties << statement {
+                var @domainName = this.getDomain(@propNameStr);
+
                 if (@domainName and @visibleName) {
                     Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, @propName);
 
@@ -1141,6 +1160,8 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
             };
 
             applyFrom << statement {
+                var @domainName = this.getDomain(@propNameStr);
+
                 if (@domainName and @visibleName and @propNameStr !in ignore) {
                     if (Object value = source.get(@propNameStr)) {
                         aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, @propName);
@@ -1168,7 +1189,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
 
         getDomain << statement {
             if (propName == @propNameStr) {
-                return @domainName;
+                return this.@domainName;
             }
         };
 
@@ -1212,9 +1233,13 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         }
 
         @visibility SubSet getDomain(str propName) {
+            if (SubSet domain = super(..)) {
+                return domain;
+            }
+            
             @getDomain;
 
-            return super(..);
+            return null;
         }
 
         @visibility str getLabel(str propName) {
