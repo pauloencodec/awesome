@@ -217,6 +217,6 @@ public class AwePart extends OfficePart {
 
 public class AweSpecialPart extends AwePart {
     public str flattenableKey() {
-        return this.sku # this.header.tg # this.tag.?key;
+        return this.sku # this.header.tg # this.tag.?key # this.tag.?text;
     }
 }
