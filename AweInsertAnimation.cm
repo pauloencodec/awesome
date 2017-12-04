@@ -56,6 +56,9 @@ public class AweInsertAnimation extends InsertAnimation {
     }
 
     public void buildProperties() {
+        this.updateSelectionSnaps();
+        this.updateSnaps();
+
         this.destroyAnimationProperties();
         this.createAnimationProperties();
         str[] sortOrder = null;
@@ -69,8 +72,13 @@ public class AweInsertAnimation extends InsertAnimation {
         this.preferredConnectionSelector.updateOptions(candidates, selection.main);
         Object[] values = preferredConnectionSelector.options.:Object[];
         bool hasPreferrableConnectors = values and values.count > 0;
-        if(hasPreferrableConnectors)
+        if(hasPreferrableConnectors) {
             this.animationProperties.appendSmart("preferredConnection", "Preferred Connection", preferredConnectionSelector.selected(), new ObjectSubSet(values), lockable=false);
+        }
+
+        if(this.connectionApplications and this.connectionApplications.count > 0) {
+            this.animationProperties.appendSmart("connectionApplication", "Connect To", "Auto", new StrSubSet(this.connectionApplications), lockable=false);
+        }
 
         if (this.snapper.activeConfigurator) {
             this.snapper.addExtraAnimationProperties(this.animationProperties);
@@ -88,6 +96,10 @@ public class AweInsertAnimation extends InsertAnimation {
             sortOrder.exclude("preferredConnection");
             sortOrder.insert(0, "preferredConnection");
         }
+        if(sortOrder and this.connectionApplications and this.connectionApplications.count > 0) {
+            sortOrder.exclude("connectionApplication");
+            sortOrder.insert(0, "connectionApplication");
+        }
         this.animationProperties.finalize(showList=sortOrder);
         
         if (this.animationProperties and this.currentKey) {
@@ -101,6 +113,15 @@ public class AweInsertAnimation extends InsertAnimation {
         if(key == "preferredConnection") {
             if(value as AwePreferredConnection) {
                 this.preferredConnectionSelector.selected = value;
+                this.updateSnaps();
+            }
+            return;
+        }
+
+        if(key == "connectionApplication") {
+            if(value as str) {
+                this._selectedApplication = value;
+                this.updateSnaps();
             }
             return;
         }
@@ -258,8 +279,6 @@ public class AweInsertAnimation extends InsertAnimation {
             skipSnapping = false;
         }
         
-        this.updateSnaps();
-        
         point mainPos = posFromLine(mi.currentLine, preferActiveSpaceVolumes=mi.in2D);
         assert(!mainPos.x.isInfinite);
     
@@ -308,7 +327,23 @@ public class AweInsertAnimation extends InsertAnimation {
     /**************** controlling active snaps *************** */
     public Connector[] allSnaps;
 
+    public str[] connectionApplications();
+    private str _selectedApplication = "Auto";
+    extend public str selectedApplication() {
+        if(this._selectedApplication == "Auto") return null;
+        else return this._selectedApplication;
+    }
+
     extend public void updateSnaps() {
+        str{} allApplications();
+        for(snap in this.allSnaps) {
+            AweConnectEnv env(snap);
+            allApplications <<? env.set.?application();
+        }
+        this.connectionApplications = allApplications.seq.sort();
+        if(this.connectionApplications.count > 0) {
+            this.connectionApplications.insert(0, "Auto");
+        }
         this.selection.snaps = this.filterSnaps(this.allSnaps);
 
         var preferredSnaps = new Connector[]();
@@ -337,12 +372,16 @@ public class AweInsertAnimation extends InsertAnimation {
     extend public Connector[] filterSnaps(Connector[] snaps) {
         Connector[] newList();
         for (snap in snaps) {
-            if (this.filterSnap(snap)) newList << snap;
+            if (this.includeSnap(snap)) newList << snap;
         }
         return newList;
     }
 
-    extend public bool filterSnap(Connector snap) {
+    extend public bool includeSnap(Connector snap) {
+        if(str application = this.selectedApplication()) {
+            AweConnectEnv env(snap);
+            return env.set.?application() == application;
+        }
         return true;
     }
 
