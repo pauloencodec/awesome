@@ -82,8 +82,6 @@ package void initResources() {
     initRs();
 
     putNextRsPkg("custom.awesome", "custom.awesome.resources");
-    
-    safeLoadRs(cmFindUrl("custom/awesome/resources/main.rs"));
 }
 
 /**
@@ -141,8 +139,6 @@ package ExtensionInfo getExtensionInfo() : referred {
     for (f in getFiles(cmFindUrl("custom/genericOffice/"), "png")) {
         files << f;
     }
-
-    files << cmFindUrl("custom/awesome/resources/main.rs");
 
     info.filesToInclude = files;
 

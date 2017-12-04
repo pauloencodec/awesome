@@ -34,10 +34,39 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package custom.awesome.connectors;
 
-public AwePriceUpchargeColumn modelUpchargeColumn();
+public class AweConnectionApplication : abstract {
+    
+    public AweObject model;
+    public AweConnectorSet{} connectorSets;
 
-package void registerCustomColumns() {
-    registerPartColumn(modelUpchargeColumn, true);
+    public constructor(AweObject model) {
+        this.model = model;
+    }   
+
+    extend public str name() {
+        return null;
+    }
+
+    extend public void deploy() {
+
+    }
+
+    extend public void cleanup() {
+
+    }
+
+    extend public void connected(AweConnectEnv{} connectors) {
+
+    }
+
+    extend public void disconnected(AweConnectEnv{} connectors) {
+        
+    }
+
+    public str toS() {
+        return this.name();
+    }
+
 }

@@ -35,9 +35,66 @@
 */
 
 package custom.awesome;
+use custom.awesome.connectors;
 
-public AwePriceUpchargeColumn modelUpchargeColumn();
+public class AweModelLine {
+    public AweObject model;
+    public str id;
+    public constructor(str id, AweObject model) {
+        this.model = model;
+        this.id = id;
+    } 
 
-package void registerCustomColumns() {
-    registerPartColumn(modelUpchargeColumn, true);
+    extend public line localLine() {
+        return line();
+    }  
+}
+
+public class AweConnectionModelLine extends AweModelLine {
+    public constructor(Connector connector) {
+        AweConnectEnv env(connector);
+        str id = "";
+        if(env.set) {
+            id #= env.set.class.toS() # ".";
+        }
+        id #= env.id;
+        super(id, env.model);
+    }
+
+    public line localLine() {
+        var line = this.model.getConnectorById(this.id).?ConnectLine.snapperLine();
+        if(model.mainSnapper) {
+            //move it to the top of the box
+            var z = model.mainSnapper.localBound().p1.z;
+            line.p0.z = z;
+            line.p1.z = z;
+        }
+        return line;
+    }
+}
+
+public class AweLocalBoundWidthModelLine extends AweModelLine {
+    public constructor(AweObject model) {
+        super("box.width", model);
+    }
+
+    public line localLine() {
+        if(model.mainSnapper) {
+            return model.mainSnapper.localBound().upCenterlineX();
+        }
+        else return super(..);
+    }
+}
+
+public class AweLocalBoundDepthModelLine extends AweModelLine {
+    public constructor(AweObject model) {
+        super("box.depth", model);
+    }
+
+    public line localLine() {
+        if(model.mainSnapper) {
+            return model.mainSnapper.localBound().upCenterlineY();
+        }
+        else return super(..);
+    }
 }

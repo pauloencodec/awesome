@@ -35,7 +35,6 @@
 */
 
 package custom.awesome.materials;
-use custom.acs.framework.materials;
 
 public class AweMaterial extends OfficeMaterial {
     private Image thumbnailCache : stream = null, copy = null;

@@ -36,8 +36,15 @@
 
 package custom.awesome;
 
-public AwePriceUpchargeColumn modelUpchargeColumn();
+public Object instantiate(str pkg, str name) {
+    if (pkg and name) {
+        Class c = class(pkg, name);
 
-package void registerCustomColumns() {
-    registerPartColumn(modelUpchargeColumn, true);
+	    if (!c) return null;
+	
+	    Object obj = instantiate(c);
+	    return obj;
+    } else {
+	    return null;
+    }
 }

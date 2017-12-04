@@ -1,0 +1,171 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.connectors;
+
+public class AwePreferredConnectionSelector {
+    public AwePreferredConnection[] options;
+
+    private AwePreferredConnection _selected;
+    extend public AwePreferredConnection selected() {
+        if(this._selected) return this._selected;
+        else if(this.options and this.options.count > 0) return this.options.first;
+        else return null;
+    }
+    extend public AwePreferredConnection selected=(AwePreferredConnection value) {
+        return this._selected = value;
+    }
+    
+    public Snapper lastSnapper : copy=null, stream=null;
+
+    public constructor() {
+    }   
+
+    extend public Graph get2D() {
+        return this.selected.?get2D();
+    }
+
+    extend public void updateOptions(Connector[] connectors, Snapper mainSnapper) {
+        this.lastSnapper = mainSnapper;
+        this.options = new AwePreferredConnection[]();
+
+        str->AwePreferredConnection map();
+        str{} visited();
+        for(c in connectors) {
+            if(c as AweConnectLine) {
+                AweConnectEnv env(c);
+                if(env.model.?isPreferrableConnector(c)) {
+                    var p0 = c.spaceLine.p0;
+                    var p1 = c.spaceLine.p1;
+                    var key = cleanApproximatelyZero(p0.point2D).toS # "-" # cleanApproximatelyZero(p1.point2D).toS;
+                    var keyReversed = cleanApproximatelyZero(p1.point2D).toS # "-" # cleanApproximatelyZero(p0.point2D).toS;
+                    if(key !in visited) {
+                        visited << key << keyReversed;
+                        var option = new AwePreferredConnection();
+                        option.p0 = p0;
+                        option.p1 = p1;
+                        option.referenceConnector = c;
+                        this.options << option;
+                        map.put(key, option);
+                        map.put(keyReversed, option);
+                    }
+                    if(c.friendlyName) {
+                        if(map.get(key)) map.get(key).friendlyName = c.friendlyName;
+                        if(map.get(keyReversed)) map.get(keyReversed).friendlyName = c.friendlyName;
+                    }
+                }
+            }
+        }
+
+        this.sortOptionList();
+    }
+
+    extend private point2D cleanApproximatelyZero(point2D p) {
+        // ~0 breaks things
+        if(p.x == 0) p.x = 0;
+        if(p.y == 0) p.y = 0;
+        return p;
+    }
+
+    extend public bool preferred(Connector c) {
+        return this.selected.?preferred(c);
+    }
+
+    extend public void sortOptionList() {
+        point2D center = (0,0);
+        if(lastSnapper) {
+            center = lastSnapper.localBound().rect.center;
+        }
+        this.options.sort(function sortAntiClockwise, new Point2D((center)));
+        for(item in this.options, index=i) {
+            item.id = (i+1).toS;
+        }
+        AwePreferredConnection auto();
+        auto.id= "Auto";
+        this.options.insert(0, auto);
+    }
+}
+
+public class AwePreferredConnection {
+    public constructor() {}
+
+    public point p0;
+    public point p1;
+    public str id;
+    public str friendlyName;
+    public ConnectLine referenceConnector : copy=null, stream=null;
+
+    extend public bool preferred(Connector c) {
+        if(referenceConnector) {
+            if(c as AweConnectLine) {
+                line oneWay = referenceConnector.spaceLine();
+                line otherWay = flip(oneWay);
+                line thisLine = c.spaceLine();
+                if(thisLine.line2D == oneWay.line2D) return true;
+                if(thisLine.line2D == otherWay.line2D) return true;
+            }
+        }
+        return false;
+    }
+
+
+    extend public Graph get2D() {
+        var l = GLine(this.referenceConnector.?spaceLine().line2D);
+        l.lineType = new cm.draw.LineType(cm.draw.blue, cm.draw.lineStyle.thick);
+        return l;
+    }
+
+    public str toS() {
+        return this.friendlyName ?? this.id;
+    }
+}
+
+public int sortAntiClockwise(AwePreferredConnection a, AwePreferredConnection b, Object centerPoint) {
+    if(centerPoint as Point2D) {
+        var first = 90deg; //start from the top
+        var angleA = angle(referencePoint(a.referenceConnector) - centerPoint.v) - first;
+        var angleB = angle(referencePoint(b.referenceConnector) - centerPoint.v) - first;
+        return compare(angleA.deg, angleB.deg);
+    }
+    return 0;
+}
+
+public point2D referencePoint(Connector c) {
+    if(c as ConnectLine) {
+        return c.snapperLine().midPoint().point2D;
+    }
+    return c.pos().point2D;
+}
