@@ -51,6 +51,10 @@ public class AweInsertAnimation extends InsertAnimation {
 
     public AwePreferredConnectionSelector preferredConnectionSelector();
 
+    extend public AweObject getMainModel() {
+        return selection.main.AweSnapper.?mainModel;
+    }
+
     public void buildProperties() {
         this.destroyAnimationProperties();
         this.createAnimationProperties();
@@ -58,7 +62,7 @@ public class AweInsertAnimation extends InsertAnimation {
 
         var candidates = new Connector[]();
         for(snap in selection.snaps) {
-            if(selection.main.AweSnapper.?mainModel.isPreferrableConnector(snap)) {
+            if(this.getMainModel().?isPreferrableConnector(snap)) {
                 candidates << snap;
             }
         }
@@ -170,6 +174,28 @@ public class AweInsertAnimation extends InsertAnimation {
         }
 
         this.preferredConnectionSelector.get2D().?draw(lb); 
+
+        this.drawMergeCircles(lb);
+    }
+
+    public double mergeRadius = 5inch;
+
+    extend public void drawMergeCircles(LayerBuffer lb) {
+        var attachLine = this.activeSnapInfo.?ConnectSnapInfo.?attach.?ConnectLine;
+        if(!attachLine) return;
+
+        point{} mergeCenters();
+        if(attachLine.j0) {
+            mergeCenters << attachLine.spaceLine().p0;
+        }
+        if(attachLine.j1) {
+            mergeCenters << attachLine.spaceLine().p1;
+        }
+
+        for(p in mergeCenters) {
+            var g = new GCircle(circle(p.point2D, mergeRadius), lineType=new cm.draw.LineType(cm.draw.gray, cm.draw.lineStyle.dashed));
+            g.draw(lb);
+        }
     }
 
     public Primitive3D get3D(FetchEnv3D env) {
@@ -220,7 +246,6 @@ public class AweInsertAnimation extends InsertAnimation {
 
      //Copied from InsertAnimation then modified. 
      public void move(AnimationMouseInfo mi) {
-        super(mi);
         static int trySkipCount;
         updateVelocity();
         bool skipSnapping = mouseVelocity > 500;
@@ -261,9 +286,7 @@ public class AweInsertAnimation extends InsertAnimation {
                 }
                 selection.snaps = newList;
             }
-            else {
-                selection.snaps = selection.snaps.sort(function sortByPriorityDesc, null);
-            }
+           
 
             SnapInfo last = currentSpace ? currentSpace.lastSnapped : null;
             SnapInfo info = skipSnapping ? null : selection.trySnap(mi, modifyEnv, filter);
