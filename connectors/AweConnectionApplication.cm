@@ -34,68 +34,39 @@
    END OF CETSC
 */
 
-package custom.awesome.structures;
+package custom.awesome.connectors;
 
+public class AweConnectionApplication : abstract {
+    
+    public AweObject model;
+    public AweConnectorSet{} connectorSets;
 
-public class Region {
-    public Snapper owner : copy=reference;
-    public AweBox bound;
-    public RegionNode{} nodes();
-    public line[] notAllowed();
+    public constructor(AweObject model) {
+        this.model = model;
+    }   
 
-    public constructor( AweBox bound, line[] notAllowed, Snapper owner ) {
-        this.bound = bound;
-        this.notAllowed = notAllowed;
-        this.owner = owner;
-    }
-
-    extend public RegionNode findAt( point p ) {
-        for( n in nodes ) {
-            if ( n.p == p ) return n;
-        }
+    extend public str name() {
         return null;
     }
 
-    extend public void add( RegionNode node ) {
-        // make sure it doesn't exist yet
-        for( n in nodes ) {
-            if ( n.p == node.p ) return;
-        }
+    extend public void deploy() {
 
-        for ( n in nodes ) {
-            if ( allow( node.p, n.p ) ) {
-                RegionEdge edge( n, node );
-            }
-        }
-
-        nodes << node;
     }
 
-    extend public bool allow( point p1, point p2 ) {
-        for( l in notAllowed ) {
-            if ( ( l.p0 == p1 or l.p1 == p1 ) 
-                and ( l.p0 == p2 or l.p1 == p2 ) ) return false;
-        }
-        return true;
+    extend public void cleanup() {
+
     }
 
-    extend public bool contains( point p ) {
-        return bound.contains(p);
+    extend public void connected(AweConnectEnv{} connectors) {
+
     }
 
-    extend public Primitive3D get3D() {
-        Primitive3D[] prims();
-
-        // debug help
-        // Box3D b( bound.b );
-        // b.rotate( bound.origT.rot );
-        // b.move( bound.origT.pos );
-        // b.setMaterial( custom.awesome.transparentColorMaterial(cm.basic.randomColor(), 0.25) );
-        // prims << b;
-
-        for( n in nodes ) {
-            prims <<? n.get3D();
-        }
-        return safeInstance3D(prims);
+    extend public void disconnected(AweConnectEnv{} connectors) {
+        
     }
+
+    public str toS() {
+        return this.name();
+    }
+
 }
