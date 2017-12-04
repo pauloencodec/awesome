@@ -193,7 +193,7 @@ public class AweInsertAnimation extends InsertAnimation {
         }
 
         for(p in mergeCenters) {
-            var g = new GCircle(circle(p.point2D, mergeRadius), lineType=new cm.draw.LineType(cm.draw.gray, cm.draw.lineStyle.dashed));
+            var g = new GCircle(circle(p.point2D, mergeRadius), lineType=new cm.draw.LineType(cm.draw.gray, cm.draw.lineStyle.dashed, width=3));
             g.draw(lb);
         }
     }
