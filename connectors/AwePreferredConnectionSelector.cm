@@ -149,7 +149,23 @@ public class AwePreferredConnection {
     }
 
     public str toS() {
-        return this.friendlyName ?? this.id;
+        return this.friendlyName ?? this.autoName() ?? this.id;
+    }
+
+    extend public str autoName() {
+        Snapper snapper = this.referenceConnector.?snapper;
+        if(!snapper) return null;
+        point reference = snapper.toSnapper(new line(this.p0, this.p1).midPoint);
+        box bound = snapper.localBound();
+        point boxMiddle = new line(bound.p0, bound.p1).midPoint;
+        str name = "";
+        if(reference.y > boxMiddle.y) name #= "Back ";
+        if(reference.y < boxMiddle.y) name #= "Front ";
+        if(reference.x > boxMiddle.x) name #= "Right ";
+        if(reference.x < boxMiddle.x) name #= "Left ";
+        name = name.removeHeadingAndTrailingSpace();
+        if(name.count > 0) return name;
+        return null;
     }
 }
 
