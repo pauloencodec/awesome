@@ -113,6 +113,9 @@ public class AwePreferredConnectionSelector {
         for(item in this.options, index=i) {
             item.id = (i+1).toS;
         }
+        AwePreferredConnection auto();
+        auto.id= "Auto";
+        this.options.insert(0, auto);
     }
 }
 
