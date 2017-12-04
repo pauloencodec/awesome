@@ -168,7 +168,7 @@ public class AweConnectLine extends ConnectLine {
      * Valid connection?
      */
     public bool validConnection(ConnectLine c) {
-        return c.snapper in this.snapper.allConnected();
+        return true;
     }
 
 
