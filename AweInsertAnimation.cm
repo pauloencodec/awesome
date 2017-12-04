@@ -240,8 +240,9 @@ public class AweInsertAnimation extends InsertAnimation {
 
     public void enterView(AnimationMouseInfo mi) {
         super(..);
-
         this.snapper.modelChanged(new AweGroupAutomationEnterView(this.snapper));
+
+        this.updateSelectionSnaps();
     }
 
      //Copied from InsertAnimation then modified. 
@@ -257,6 +258,8 @@ public class AweInsertAnimation extends InsertAnimation {
             skipSnapping = false;
         }
         
+        this.updateSnaps();
+        
         point mainPos = posFromLine(mi.currentLine, preferActiveSpaceVolumes=mi.in2D);
         assert(!mainPos.x.isInfinite);
     
@@ -270,22 +273,8 @@ public class AweInsertAnimation extends InsertAnimation {
             if (!denySnapping()) {
             Transform oldTranform = selection.main.toSpaceTransform();
 
-            var preferredSnaps = new Connector[]();
-            for(snap in selection.snaps) {
-                if(this.preferredConnectionSelector.preferred(snap)) {
-                    preferredSnaps << snap;
-                }
-            }
-            if(preferredSnaps.count > 0) {
-                var newList = new Connector[]();
-                newList += preferredSnaps;
-                for(snap in selection.snaps) {
-                    if(snap !in newList) {
-                        newList << snap;
-                    }
-                }
-                selection.snaps = newList;
-            }
+
+            
            
 
             SnapInfo last = currentSpace ? currentSpace.lastSnapped : null;
@@ -314,6 +303,47 @@ public class AweInsertAnimation extends InsertAnimation {
             
             endRedrawCurrentSpace();
         }
+    }
+
+    /**************** controlling active snaps *************** */
+    public Connector[] allSnaps;
+
+    extend public void updateSnaps() {
+        this.selection.snaps = this.filterSnaps(this.allSnaps);
+
+        var preferredSnaps = new Connector[]();
+        for(snap in selection.snaps) {
+            if(this.preferredConnectionSelector.preferred(snap)) {
+                preferredSnaps << snap;
+            }
+        }
+        if(preferredSnaps.count > 0) {
+            var newList = new Connector[]();
+            newList += preferredSnaps;
+            for(snap in selection.snaps) {
+                if(snap !in newList) {
+                    newList << snap;
+                }
+            }
+            selection.snaps = newList;
+        }
+    }
+
+    public void updateSelectionSnaps() {
+        super();
+        this.allSnaps = selection.snaps;
+    }
+
+    extend public Connector[] filterSnaps(Connector[] snaps) {
+        Connector[] newList();
+        for (snap in snaps) {
+            if (this.filterSnap(snap)) newList << snap;
+        }
+        return newList;
+    }
+
+    extend public bool filterSnap(Connector snap) {
+        return true;
     }
 
 
