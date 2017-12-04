@@ -120,6 +120,7 @@ public class AweInsertAnimation extends InsertAnimation {
         if(key == "connectionApplication") {
             if(value as str) {
                 this._selectedApplication = value;
+                this.preferredConnectionSelector.selected = null;
                 this.updateSnaps();
                 this.buildProperties();
             }
