@@ -55,6 +55,16 @@ public class AweInsertAnimation extends InsertAnimation {
         return selection.main.AweSnapper.?mainModel;
     }
 
+    extend public void updatePrefferedConnectorList() {
+        var candidates = new Connector[]();
+        for(snap in selection.snaps) {
+            if(this.getMainModel().?isPreferrableConnector(snap)) {
+                candidates << snap;
+            }
+        }
+        this.preferredConnectionSelector.updateOptions(candidates, selection.main);
+    }
+
     public void buildProperties() {
         this.updateSelectionSnaps();
         this.updateSnaps();
@@ -63,22 +73,19 @@ public class AweInsertAnimation extends InsertAnimation {
         this.createAnimationProperties();
         str[] sortOrder = null;
 
-        var candidates = new Connector[]();
-        for(snap in selection.snaps) {
-            if(this.getMainModel().?isPreferrableConnector(snap)) {
-                candidates << snap;
-            }
+        if(this.connectionApplications and this.connectionApplications.count > 0) {
+            this.animationProperties.appendSmart("connectionApplication", "Connect To", this._selectedApplication, new StrSubSet(this.connectionApplications), lockable=false);
         }
-        this.preferredConnectionSelector.updateOptions(candidates, selection.main);
+
+        this.updatePrefferedConnectorList();
         Object[] values = preferredConnectionSelector.options.:Object[];
         bool hasPreferrableConnectors = values and values.count > 0;
+        
+
         if(hasPreferrableConnectors) {
             this.animationProperties.appendSmart("preferredConnection", "Preferred Connection", preferredConnectionSelector.selected(), new ObjectSubSet(values), lockable=false);
         }
 
-        if(this.connectionApplications and this.connectionApplications.count > 0) {
-            this.animationProperties.appendSmart("connectionApplication", "Connect To", "Auto", new StrSubSet(this.connectionApplications), lockable=false);
-        }
 
         if (this.snapper.activeConfigurator) {
             this.snapper.addExtraAnimationProperties(this.animationProperties);
@@ -110,6 +117,15 @@ public class AweInsertAnimation extends InsertAnimation {
     public void propertyChange(str key, Object value) {
         super(..);
 
+        if(key == "connectionApplication") {
+            if(value as str) {
+                this._selectedApplication = value;
+                this.updateSnaps();
+                this.buildProperties();
+            }
+            return;
+        }
+
         if(key == "preferredConnection") {
             if(value as AwePreferredConnection) {
                 this.preferredConnectionSelector.selected = value;
@@ -118,23 +134,15 @@ public class AweInsertAnimation extends InsertAnimation {
             return;
         }
 
-        if(key == "connectionApplication") {
-            if(value as str) {
-                this._selectedApplication = value;
-                this.updateSnaps();
-            }
-            return;
-        }
 
         if (this.snapper.activeConfigurator) {
             this.snapper.activeConfigurator.animationPropertyChanged(..);
             this.snapper.extraAnimationPropertyChanged(..);
             this.snapper.refresh(true, true);
             this.updateSelectionSnaps();
-
+            this.updateSnaps();
             this.currentKey = key;
 
-            this.buildProperties();
         }
     }
 
