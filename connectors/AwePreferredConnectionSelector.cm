@@ -114,6 +114,7 @@ public class AwePreferredConnectionSelector {
             item.id = (i+1).toS;
         }
         AwePreferredConnection auto();
+        if(this.options.count > 1) auto = this.options.first().copy();
         auto.id= "Auto";
         this.options.insert(0, auto);
     }
