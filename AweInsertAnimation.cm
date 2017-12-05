@@ -447,21 +447,27 @@ public class AweTrySnapManager {
     public constructor() {}
 
     extend public void updateConnectInfo(ConnectSnapInfo newInfo, AnimationMouseInfo mi) {
-        if(newInfo.attach != previousAttach.?connector) {
+        var snapEnv = new AweConnectEnv(newInfo.snap);
+        var attachEnv = new AweConnectEnv(newInfo.attach);
+
+        if(newInfo.attach != previousAttach.?connector or newInfo.snap != previousSnap.?connector) {
+            snapEnv.model.?trySnapEnv = null;
+            snapEnv.model.?tryAttachEnv = null;
+            attachEnv.model.?trySnapEnv = null;
+            attachEnv.model.?tryAttachEnv = null;
+
             previousAttach.?set.?tryAttachAborted(previousAttach, previousSnap, mi);
-            if(AweConnectorSet set = newInfo.attach.getConnectorSet()) {
-                set.tryAttach(new AweConnectEnv(newInfo.attach), new AweConnectEnv(newInfo.snap), mi);
-            }
-        }
+            attachEnv.model.?trySnapEnv = snapEnv;
+            attachEnv.set.?tryAttach(attachEnv, snapEnv, mi);
+            attachEnv.model.?tryAttach(attachEnv, snapEnv, mi);
 
-        if(newInfo.snap != previousSnap.?connector) {
             previousSnap.?set.?trySnapAborted(previousSnap, previousAttach, mi);
-            if(AweConnectorSet set = newInfo.snap.getConnectorSet()) {
-                set.trySnap(new AweConnectEnv(newInfo.snap), new AweConnectEnv(newInfo.attach), mi);
-            }
+            snapEnv.model.?tryAttachEnv = attachEnv;
+            snapEnv.set.?trySnap(snapEnv, attachEnv, mi);
+            snapEnv.model.?trySnap(snapEnv, attachEnv, mi);
         }
 
-        previousAttach = new AweConnectEnv(newInfo.attach);
-        previousSnap = new AweConnectEnv(newInfo.snap);
+        previousAttach = attachEnv;
+        previousSnap = snapEnv;
     }
 }
