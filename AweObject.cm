@@ -123,8 +123,10 @@ public class AweObject {
         propChanged(propName, oldValue, value);
 
         for (AweSnapper snapper in this.snappers) {
-            if (snapper.mainModel() == this) {
-                snapper.onModelPropertyChanged(propName, oldValue, value);
+            for (model in snapper.allModels()) {
+                if (model == this) {
+                    snapper.onModelPropertyChanged(propName, oldValue, value);
+                } 
             }
         }
 
