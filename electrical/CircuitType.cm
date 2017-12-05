@@ -36,26 +36,8 @@
 
 package custom.awesome.electrical;
 
-public class ElectricalModel extends AweObject {
-    public Snapper owner : copy=reference;
-    public point location;
-    public constructor() { }
-
-    extend public Primitive3D get3D( FetchEnv3D env, Snapper z, ElectricalPosition p ) {
-        return null;
-    }
-
-    extend public Primitive3D extra3D( FetchEnv3D env, Snapper z, ElectricalPosition p ) {
-        return null;
-    }
-
-    extend public void propertyChange( str key, Object value ) { }
-
-    extend public electricalAction allow( ElectricalModel object ) { return electricalAction.no; }
-
-    extend public point[] electricPoints( point center ) {
-        return [center];
-    }
-
-    extend public AwePart[] getParts( CircuitType circuit ) { return null; }
-}
+public aweEnum CircuitType (
+    three = <"03","3">,
+    twoPlusTwo = <"02","2+2">,
+    threePlusOne = <"03","3+1">
+);
