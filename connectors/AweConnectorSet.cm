@@ -71,6 +71,36 @@ public class AweConnectorSet  {
         return result;
     }
 
+    extend public AweObject getConnection(str connectionId) {
+        if (!this.connectorCache) return null;
+        
+        var connector = this.connectorCache.get(connectionId);
+        var connections = connector.?connectedSnappers();
+
+        if (connections.any()) {
+            return connections.get().getModel();
+        }
+
+        return null;
+    }
+
+    extend public AweObject{} getConnections(str connectionId) {
+        var connector = this.connectorCache.get(connectionId);
+        var connections = connector.?connectedSnappers();
+
+        AweObject{} result();
+
+        if (connections.any()) {
+            for (c in connections) {
+                result << c.getModel();
+            }
+
+            return result;
+        }
+
+        return null;
+    }
+
     extend public void connectors(AweConnectorCache cc, bool ghostMode) {
         this.connectors(cc);
     }
