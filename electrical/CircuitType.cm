@@ -37,7 +37,7 @@
 package custom.awesome.electrical;
 
 public aweEnum CircuitType (
-    three = <"03","3">,
-    twoPlusTwo = <"02","2+2">,
-    threePlusOne = <"03","3+1">
+    three = <"","3">,
+    twoPlusTwo = <"","2+2">,
+    threePlusOne = <"","3+1">
 );
