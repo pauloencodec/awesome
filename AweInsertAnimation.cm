@@ -49,7 +49,7 @@ public class AweInsertAnimation extends InsertAnimation {
         assert(this.snapper);
     }
 
-    public AwePreferredConnectionSelector preferredConnectionSelector();
+    public AwePreferredConnectionSelector preferredConnectionSelector(previousAnimationPreferredConnectorSelection);
 
     extend public AweObject getMainModel() {
         return selection.main.AweSnapper.?mainModel;
@@ -247,10 +247,14 @@ public class AweInsertAnimation extends InsertAnimation {
             snapper.snapAllAligned();
             snapAllAligned(this.selection.main);
         }
+        previousAnimationApplication = this._selectedApplication;
+        previousAnimationPreferredConnectorSelection = this.preferredConnectionSelector.selected().?id;
         return super(..);
     }
 
     public void aborted() {
+        previousAnimationApplication = null;
+        previousAnimationPreferredConnectorSelection = null;
         trySnapManager.updateConnectInfo(null, this.lastMouseInfo);
     }
 
@@ -322,7 +326,7 @@ public class AweInsertAnimation extends InsertAnimation {
     public Connector[] allSnaps;
 
     public str[] connectionApplications();
-    private str _selectedApplication = autoId;
+    private str _selectedApplication = previousAnimationApplication ?? autoId;
     extend public str selectedApplication() {
         if(this._selectedApplication == autoId) return null;
         else return this._selectedApplication;
@@ -456,3 +460,6 @@ public class AweTrySnapManager {
         previousSnap = new AweConnectEnv(newInfo.snap);
     }
 }
+
+private str previousAnimationApplication;
+private str previousAnimationPreferredConnectorSelection;

@@ -40,11 +40,20 @@ public const str autoId = "Auto";
 
 public class AwePreferredConnectionSelector {
     public AwePreferredConnection[] options;
+    private str previousAnimationSelection;
 
     private AwePreferredConnection _selected;
     extend public AwePreferredConnection selected() {
         if(this._selected) return this._selected;
-        else if(this.options and this.options.count > 0) return this.options.first;
+        else if(this.previousAnimationSelection) {
+            for(option in this.options) {
+                if(option.id == this.previousAnimationSelection) {
+                    return option;
+                }
+            }
+        }
+        
+        if(this.options and this.options.count > 0) return this.options.first;
         else return null;
     }
     extend public AwePreferredConnection selected=(AwePreferredConnection value) {
@@ -53,7 +62,8 @@ public class AwePreferredConnectionSelector {
     
     public Snapper lastSnapper : copy=null, stream=null;
 
-    public constructor() {
+    public constructor(str previousAnimationSelection) {
+        this.previousAnimationSelection = previousAnimationSelection;
     }   
 
     extend public Graph get2D() {
