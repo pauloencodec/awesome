@@ -62,7 +62,7 @@ public class AwePreferredConnectionSelector {
     
     public Snapper lastSnapper : copy=null, stream=null;
 
-    public constructor(str previousAnimationSelection) {
+    public constructor(str previousAnimationSelection=null) {
         this.previousAnimationSelection = previousAnimationSelection;
     }   
 
