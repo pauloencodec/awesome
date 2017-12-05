@@ -205,6 +205,14 @@ public class AweRegionGraph {
             for( e in next.node.edges ) {
                 RegionNode test = e.other( next.node );
                 PathNode existing = open.find( test );
+                
+                // don't let it route inside the same element (aka a power block can go thru itself)
+                // maybe need to allow a call out to check if this allowed so this isn't decided in this method
+                if ( startNode.element != endNode.element and test.element!= null and test.element == next.node.element ) {
+                    // pln("tried to route thru self");
+                    continue;
+                }
+                
                 if ( closed.contains (test) ) {
                     continue;
                 } else if ( !existing ) {
