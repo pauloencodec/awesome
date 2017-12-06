@@ -47,7 +47,7 @@ public member @visibility var @id=id @expr=['=' expr]? ';' {
 
 /*
 
-See cm/lang/basic.syntax.cm
+// See cm/lang/basic.syntax.cm
 
 public statement var @id=id '=' @expr=expr ';' : invisible debug { 
     SType memberType(expr.type, expr.src);
@@ -56,4 +56,5 @@ public statement var @id=id '=' @expr=expr ';' : invisible debug {
         @memberType @id = @expr;
     };
 }
- */
+
+*/

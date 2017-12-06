@@ -111,7 +111,7 @@ package ExtensionId getExtensionId() : encrypted, referred {
 /**
  * Actual extension info (dont change function name).
  */
-package ExtensionInfo getExtensionInfo() : referred {
+package ExtensionInfo lowLevelBuildExtension() : referred {
     ExtensionInfo info = loadExtensionInfoFromXml(#:package);
 
     Url[] files();
@@ -163,6 +163,7 @@ package Url[] getFiles(Url directory, str ext, Url[] files=new Url[]()) {
 
 {
     // generateHardExtensionId(#:package, name).dumpAsCode();
-    autoBuildExtension(#:package);
+    // autoBuildExtension(#:package);
+    lowLevelBuildExtension(lowLevelBuildExtension());
     // generateFreeExtensionId(#:package, name).dumpAsCode();
 }

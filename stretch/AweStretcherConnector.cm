@@ -173,7 +173,7 @@ public class AweStretcherConnector extends AweStretchableConnector {
 
 public bool isAlignedToConnect(Connector c, Space space=activeSpace()) {
     FilteredConnectorSet fas(connectableAttachFilter);
-	space.getCollection(c.connectSpaceBox, collection=fas, filterViewModes=false, filterSpaceVolumes=false, snapperFilter=null);
+	space.getCollection(c.snapper.connectBound, collection=fas, filterViewModes=false, filterSpaceVolumes=false, snapperFilter=null);
     for(potential in fas) {
         if(potential.isAligned(c)) return true;
     }

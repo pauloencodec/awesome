@@ -258,9 +258,20 @@ public class AweInsertAnimation extends InsertAnimation {
         trySnapManager.updateConnectInfo(null, this.lastMouseInfo);
     }
 
-    public bool snapAllAlignedAtEnd() {
-        return this.activeGhost == null;
-    }
+    // i'm not sure on this one, see 
+    // https://www.configura.com/wiki/index.php/Migration_from_8.0_to_8.5
+    // section on animation end snapping
+
+    /*
+        old code
+        public bool snapAllAlignedAtEnd() {
+            return this.activeGhost == null;
+        }
+     */
+
+    // public bool snapInPutToBsp() {
+    //     return this.activeGhost == null;
+    // }
 
     public void enterView(AnimationMouseInfo mi) {
         super(..);
@@ -401,7 +412,7 @@ public class AweInsertAnimation extends InsertAnimation {
         if(?AweSnapper snapper = selection.main) {
             var stretchers = snapper.mainModel.getStretchers();
             //opportunity to make this overridable some day
-            var immediateStretchProp = "width";
+            str immediateStretchProp = "width";
             for(stretcher in stretchers) {
                 if(stretcher.propKey == immediateStretchProp) {
                     potentialStretchers << stretcher.stretcherB << stretcher.stretcherA;
