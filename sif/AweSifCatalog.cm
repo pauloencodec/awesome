@@ -360,11 +360,15 @@ public class AweSifCatalog {
     /********************* sku parsing *******************/
     extend public str getDefaultSku(str basemodel) {
         var model = this.model(basemodel);
+        
+        if (!model) return basemodel;
+
         str sku = model.code;
         
         for(key in model.optionKeys) {
             sku #= "." # this.splitOptionKey(this.getFirstOptionSelection(key).?selectionKey);
         }
+        
         return sku;
     }
 
