@@ -34,32 +34,38 @@
    END OF CETSC
 */
 
-package custom.awesome.electrical;
+package custom.awesome;
+use cm.abstract.office;
 
-public class ElectricalModel extends AweObject {
-    public Snapper owner : copy=reference;
-    public point location;
-    public bool applyScheme(AweSchemeApplier applier) {
-        return false;
+public class AweIsometricViewRect extends IsometricViewRect {
+    public <Graph, Graph> createIsometricView() {
+        return <this.isoView() ?? GInstance(), null.Graph>;
     }
 
-    public constructor() { }
-
-    extend public Primitive3D get3D( FetchEnv3D env, Snapper z, ElectricalPosition p ) {
-        return null;
+    extend public Graph isoView() {
+        Snapper{} snappers = getSnappersForIsometricView();
+		
+		BoxConcat b3D();
+		Primitive3D prims = getPrims(snappers, b3D, forceRebuild3D=false, rotatePrims=true);
+		if (prims) prims = prims.instantiate(layers.layerSet);
+		if (!prims) return null;
+        box bound3D = prims.bound();
+        var prim = safeSet3D([prims]);
+        //bring to origin
+        prim.move(-bound3D.p0);
+        //tip over
+        prim.rotate(orientation(0deg, roll=-90deg));
+        Graph main = cm.abstract.labs.labsGraphFrom3D(prim, filterBelow0=false, fillColor=cm.basic.color(255,255,255));
+        if(main)
+            this.size3D = main.bound;
+        else
+            this.size3D = rect();
+        return main;
     }
 
-    extend public Primitive3D extra3D( FetchEnv3D env, Snapper z, ElectricalPosition p ) {
-        return null;
-    }
+    
+}
 
-    extend public void propertyChange( str key, Object value ) { }
-
-    extend public electricalAction allow( ElectricalModel object ) { return electricalAction.no; }
-
-    extend public AweElectricalPoint[] electricPoints( point center ) {
-        return [AweElectricalPoint(center)];
-    }
-
-    extend public AwePart[] getParts( bool is3Circuit=false) { return null; }
+{
+    new AweIsometricViewRect().launch();
 }

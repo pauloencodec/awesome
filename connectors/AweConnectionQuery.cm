@@ -45,7 +45,7 @@ public class AweConnectionQuery {
         this.root = root;
     }
 
-    extend public AweObject{} find(Type[] query, AweObject current = null, AweObject{} found = new AweObject{}) {
+    extend public AweObject{} find(Type[] query, AweObject current = null, AweObject{} found = new AweObject{}, bool includeTryConnections=false) {
 
         //first time
         if(!current) {
@@ -95,11 +95,11 @@ public class AweConnectionQuery {
         
         //if the code made this far, there's a new query to try on connected objects.
 
-        var connectedObjects = current.directlyConnectedModels();
+        var connectedObjects = current.directlyConnectedModels(includeTryConnections=includeTryConnections);
 
         for(obj in connectedObjects) {
             //recursively call this method on each in order to attempt to populate the found set
-            find(newQuery, current = obj, found = found);
+            find(newQuery, current = obj, found = found, includeTryConnections=includeTryConnections);
         }
 
         return found;
@@ -120,13 +120,20 @@ public class AweConnectionQuery {
 
 }
 
+public syntax Bool includeTryConnections {
+    "includeTryConnections" { return Bool(true); }
+    "" { return Bool(false); }
+    empty { return null; }
+}
 
-public expr find '(' @root=expr ':' @query=[type '>']* @lastType=type ')' {
+
+public expr find '(' @root=expr ':' @query=[type '>']* @lastType=type @includeTryConnections=[',' includeTryConnections]? ')' {
     if(!query) {
         query = new SType[]();
     }
     query << lastType;
 
+    if (includeTryConnections == null) includeTryConnections = false;
 
     return blockExpr {
         AweObject root = @root;
@@ -136,7 +143,7 @@ public expr find '(' @root=expr ':' @query=[type '>']* @lastType=type ')' {
         for(t in sTypes) {
             types << t.type;
         }
-        AweObject{} mySet = query.find(types);
+        AweObject{} mySet = query.find(types, includeTryConnections=@includeTryConnections.v);
         @lastType{} typedSet();
         for(item in mySet) {
             //cast as Object to allow to cast back to AweObject if needed without causing a redundant cast error
