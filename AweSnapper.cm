@@ -376,10 +376,6 @@ public class AweSnapper extends TaggableSnapper {
                 automation.run(trigger, this.mainModel());
             }
         }
-
-        if (animation as AweInsertAnimation) {
-            animation.buildProperties();
-        }
     }
 
     /********** group changed ***********/
