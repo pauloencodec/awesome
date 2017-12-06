@@ -236,6 +236,10 @@ public class AweSnapper extends TaggableSnapper {
     extend public void extraAnimationPropertyChanged(str key, Object value) { }
 
     public Animation insertAnimation(StartInsertAnimationEnv env) {
+        if (Animation customInsertAnimation = this.mainModel.?customInsertAnimation(env)) {
+            return customInsertAnimation;
+        }
+
         return new AweInsertAnimation(env);
     }
 

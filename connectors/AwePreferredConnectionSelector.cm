@@ -36,13 +36,24 @@
 
 package custom.awesome.connectors;
 
+public const str autoId = "Auto";
+
 public class AwePreferredConnectionSelector {
     public AwePreferredConnection[] options;
+    private str previousAnimationSelection;
 
     private AwePreferredConnection _selected;
     extend public AwePreferredConnection selected() {
         if(this._selected) return this._selected;
-        else if(this.options and this.options.count > 0) return this.options.first;
+        else if(this.previousAnimationSelection) {
+            for(option in this.options) {
+                if(option.id == this.previousAnimationSelection) {
+                    return option;
+                }
+            }
+        }
+        
+        if(this.options and this.options.count > 0) return this.options.first;
         else return null;
     }
     extend public AwePreferredConnection selected=(AwePreferredConnection value) {
@@ -51,7 +62,8 @@ public class AwePreferredConnectionSelector {
     
     public Snapper lastSnapper : copy=null, stream=null;
 
-    public constructor() {
+    public constructor(str previousAnimationSelection=null) {
+        this.previousAnimationSelection = previousAnimationSelection;
     }   
 
     extend public Graph get2D() {
@@ -60,7 +72,7 @@ public class AwePreferredConnectionSelector {
 
     extend public void updateOptions(Connector[] connectors, Snapper mainSnapper) {
         this.lastSnapper = mainSnapper;
-        this.options = new AwePreferredConnection[]();
+        var options = new AwePreferredConnection[]();
 
         str->AwePreferredConnection map();
         str{} visited();
@@ -78,7 +90,7 @@ public class AwePreferredConnectionSelector {
                         option.p0 = p0;
                         option.p1 = p1;
                         option.referenceConnector = c;
-                        this.options << option;
+                        options << option;
                         map.put(key, option);
                         map.put(keyReversed, option);
                     }
@@ -90,6 +102,7 @@ public class AwePreferredConnectionSelector {
             }
         }
 
+        this.options = options;
         this.sortOptionList();
     }
 
@@ -114,7 +127,11 @@ public class AwePreferredConnectionSelector {
             item.id = (i+1).toS;
         }
         AwePreferredConnection auto();
-        auto.id= "Auto";
+        if(this.options.count > 0) {
+            auto = this.options.first().copy();
+        }
+        auto.id= autoId;
+        auto.friendlyName = autoId;
         this.options.insert(0, auto);
     }
 }
@@ -126,7 +143,7 @@ public class AwePreferredConnection {
     public point p1;
     public str id;
     public str friendlyName;
-    public ConnectLine referenceConnector : copy=null, stream=null;
+    public ConnectLine referenceConnector : copy=reference;
 
     extend public bool preferred(Connector c) {
         if(referenceConnector) {
@@ -143,13 +160,30 @@ public class AwePreferredConnection {
 
 
     extend public Graph get2D() {
+        if(this.id == autoId) return null;
         var l = GLine(this.referenceConnector.?spaceLine().line2D);
         l.lineType = new cm.draw.LineType(cm.draw.blue, cm.draw.lineStyle.thick);
         return l;
     }
 
     public str toS() {
-        return this.friendlyName ?? this.id;
+        return this.friendlyName ?? this.autoName() ?? this.id;
+    }
+
+    extend public str autoName() {
+        Snapper snapper = this.referenceConnector.?snapper;
+        if(!snapper) return null;
+        point reference = snapper.toSnapper(new line(this.p0, this.p1).midPoint);
+        box bound = snapper.localBound();
+        point boxMiddle = new line(bound.p0, bound.p1).midPoint;
+        str name = "";
+        if(reference.y > boxMiddle.y) name #= "Back ";
+        if(reference.y < boxMiddle.y) name #= "Front ";
+        if(reference.x > boxMiddle.x) name #= "Right ";
+        if(reference.x < boxMiddle.x) name #= "Left ";
+        name = name.removeHeadingAndTrailingSpace();
+        if(name.count > 0) return name;
+        return null;
     }
 }
 

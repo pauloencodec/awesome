@@ -63,6 +63,11 @@ public class Region {
         }
 
         for ( n in nodes ) {
+            if ( n.element != node.element and ( !node.point.canGoTo( n.p ) or !n.point.canGoTo( node.p ) ) ) continue; 
+            // if ( ( !node.point.canGoTo( n.p ) or !n.point.canGoTo( node.p ) ) ) continue; 
+
+            // if ( node in RegionDoor and n in RegionDoor ) continue;
+
             if ( allow( node.p, n.p ) ) {
                 RegionEdge edge( n, node );
             }
