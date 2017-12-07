@@ -106,7 +106,7 @@ public class AweGhost {
     }
 
     extend public Snapper deploy() {
-        var ghostSnapperCopy = ghostSnapper.copy();
+        var ghostSnapperCopy = ghostSnapper.coppy();
 
         for(c in ghostSnapperCopy.connectors()) {
             //set them free of ghosts

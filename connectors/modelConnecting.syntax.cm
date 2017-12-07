@@ -103,6 +103,7 @@ public member @visibility modelConnecting ';' {
         public AweConnectorSet connectorSet: copy=null, stream=null;
 
         public bool connectableTo(Connector connector, bool oneway=false, bool aligned=false) {
+            if ( !super(..) ) return false;
             AweConnectEnv me(this);
             AweConnectEnv other(connector);
 
