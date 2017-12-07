@@ -133,6 +133,7 @@ public class AweInsertAnimation extends InsertAnimation {
             this.snapper.extraAnimationPropertyChanged(..);
             this.snapper.refresh(true, true);
             this.currentKey = key;
+            this.buildProperties();
         }
         this.updateSelectionSnaps();
     }
