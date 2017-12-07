@@ -414,6 +414,14 @@ public class AwePicklistDialog extends PicklistDialog {
         if (mainCard.currentCardIndex == 1) {
             if (?AwePicklistFreeformTab card = mainCard.selectedCard) {
                 if (AwePicklistItem item = card.getItem()) {
+                    if (item.catalog) {
+                        if (AweSifCatalog catalog = this.owner.sifRepository.get(item.catalog)) {
+                            item.partNo = catalog.getDefaultSku(item.partNo);
+                            item.sifSku = catalog.parseSku(item.partNo);
+                            item.price = item.sifSku.totalPrice();
+                        }
+                    }
+
                     return itemManager.createItem(proxy, [Object: item]);
                 }
             }

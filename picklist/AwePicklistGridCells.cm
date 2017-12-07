@@ -138,6 +138,8 @@ public class AwePicklistPriceGridCell extends AwePicklistInputGridCell {
     }
 
     public bool setData(AwePicklistItem item, str data) {
+        if (!item.freeform or item.sifSku) return false;
+
         var price = data.Double;
 
         if (price) {

@@ -34,17 +34,37 @@
    END OF CETSC
 */
 
-package custom.awesome.structures;
+package custom.awesome.electrical;
 
-public class RegionDoor extends RegionNode {
-    public int capacity;
+public class AweElectricalPoint {
+    public point position;
+    public vector direction;
 
-    public constructor( point pos, int capacity=maxInt ) {
-        super(null, AweElectricalPoint(pos));
-        this.capacity = capacity;
+    private bool hasDirection = false;
+
+    public constructor( point p, Vector a=null ) {
+        if ( a ) {
+            this.hasDirection = true;
+            this.direction = a.v;
+        }
+        this.position = p;
+    }   
+
+    extend public void transform( Snapper s ) {
+        this.position = s.toSpace( this.position );
+        if ( hasDirection ) {
+            this.direction.rotateZ(s.rot.yaw);
+        }
     }
 
-    public Material3D material() {
-        return beechMaterial3D;
+    extend public bool canGoTo( point p ) {
+        if ( !hasDirection ) return true;
+
+        // pln( "(" # position.x # ", " # position.z # ") -> (" # p.x # ", " # p.z # ") : " # direction );
+
+        vector v = p - position;
+        // pln(#v);
+        // pln(v.angle(direction));
+        return v.angle(direction) <= 90deg;
     }
 }

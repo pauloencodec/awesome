@@ -34,17 +34,38 @@
    END OF CETSC
 */
 
-package custom.awesome.structures;
+package custom.awesome;
+use cm.abstract.office;
 
-public class RegionDoor extends RegionNode {
-    public int capacity;
-
-    public constructor( point pos, int capacity=maxInt ) {
-        super(null, AweElectricalPoint(pos));
-        this.capacity = capacity;
+public class AweIsometricViewRect extends IsometricViewRect {
+    public <Graph, Graph> createIsometricView() {
+        return <this.isoView() ?? GInstance(), null.Graph>;
     }
 
-    public Material3D material() {
-        return beechMaterial3D;
+    extend public Graph isoView() {
+        Snapper{} snappers = getSnappersForIsometricView();
+		
+		BoxConcat b3D();
+		Primitive3D prims = getPrims(snappers, b3D, forceRebuild3D=false, rotatePrims=true);
+		if (prims) prims = prims.instantiate(layers.layerSet);
+		if (!prims) return null;
+        box bound3D = prims.bound();
+        var prim = safeSet3D([prims]);
+        //bring to origin
+        prim.move(-bound3D.p0);
+        //tip over
+        prim.rotate(orientation(0deg, roll=-90deg));
+        Graph main = cm.abstract.labs.labsGraphFrom3D(prim, filterBelow0=false, fillColor=cm.basic.color(255,255,255));
+        if(main)
+            this.size3D = main.bound;
+        else
+            this.size3D = rect();
+        return main;
     }
+
+    
+}
+
+{
+    new AweIsometricViewRect().launch();
 }

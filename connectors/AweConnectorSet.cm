@@ -177,6 +177,15 @@ public class AweConnectorSet  {
         return false;
     }
 
+    extend public int connectedCount() {
+        int count = 0;
+
+        if (connectorCache != null) for (c in connectorCache.buffer) if (c.isConnected)
+            count++;
+
+        return count;
+    }
+
     /**
      * Return the distance from a connection to the mouse line 'l' (space-coordinates).
      */

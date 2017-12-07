@@ -51,6 +51,9 @@ public class AweObject {
     //used to expose multiple aweObjects at once in quick properties
     public str _uniqueQuickPropertyId;
 
+    public AweConnectEnv trySnapEnv: copy=null, stream=null;
+    public AweConnectEnv tryAttachEnv: copy=null, stream=null;
+
     public constructor() {
         this.init();
     }
@@ -123,8 +126,10 @@ public class AweObject {
         propChanged(propName, oldValue, value);
 
         for (AweSnapper snapper in this.snappers) {
-            if (snapper.mainModel() == this) {
-                snapper.onModelPropertyChanged(propName, oldValue, value);
+            for (model in snapper.allModels()) {
+                if (model == this) {
+                    snapper.onModelPropertyChanged(propName, oldValue, value);
+                } 
             }
         }
 
@@ -676,16 +681,41 @@ public class AweObject {
 
     }
 
-    extend public AweObject{} directlyConnectedModels() {
+    //this is trying to connect to something
+    extend public void trySnap(AweConnectEnv me, AweConnectEnv other, AnimationMouseInfo mi) {
+
+    }
+
+    extend public void trySnapAborted(AweConnectEnv me, AweConnectEnv other, AnimationMouseInfo mi) {
+
+    }
+
+    //somethign is trying to connect to this
+    extend public void tryAttach(AweConnectEnv me, AweConnectEnv other, AnimationMouseInfo mi) {
+
+    }
+
+    extend public void tryAttachAborted(AweConnectEnv me, AweConnectEnv other, AnimationMouseInfo mi) {
+
+    }
+
+    extend public AweObject{} directlyConnectedModels(bool includeTryConnections=false) {
         AweObject{} connected();
-        for(connector in this.getConnectors(null)) {
-            for(attach in connector.connections) {
+        
+        for (connector in this.getConnectors(null)) {
+            for (attach in connector.connections) {
                 var model = attach.getModel();
-                if(model) {
+                if (model) {
                     connected << model;
                 }
             }
         }
+
+        if (includeTryConnections) {
+            connected <<? this.tryAttachEnv.?model;
+            connected <<? this.trySnapEnv.?model;
+        }
+
         return connected;
     }
 
@@ -939,6 +969,11 @@ public class AweObject {
     extend public line[] doNotConnect() {
         return null;
     }
+
+    /*** Animations ***/
+    extend public Animation customInsertAnimation(StartInsertAnimationEnv env) {     
+        return null;
+    }
 }
 
 public definition @visibility aweObject @name=id @parentClass=["extends" type]? '{'  @props=["props" formalArgList ';']? @members=[classMember]* '}' {
@@ -1099,15 +1134,8 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                 var @domainName = this.getDomain(@propNameStr);
 
                 if (@domainName and @visibleName) {
-                    Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, distance(@propName));
-
                     if (@domainName.any()) {
-                        if (customQuickProperty) {
-                            // props.append(customQuickProperty.QuickProperty);
-                        }
-                        else {
-                            props.appendSmart(this._uniqueQuickPropertyId # @propNameStr, @labelName, distance(@propName), @domainName, @controlTypeName, lockable=false);
-                        }
+                        props.appendSmart(this._uniqueQuickPropertyId # @propNameStr, @labelName, distance(@propName), @domainName, @controlTypeName, lockable=false);
                     }
                 }
             };
@@ -1148,15 +1176,8 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                 var @domainName = this.getDomain(@propNameStr);
 
                 if (@domainName and @visibleName) {
-                    Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, @propName);
-
                     if (@domainName.any()) {
-                        if (customQuickProperty) {
-                            // props.append(customQuickProperty.QuickProperty);
-                        }
-                        else {
-                            props.appendSmart(this._uniqueQuickPropertyId # @propNameStr, @labelName, @propName, @domainName, @controlTypeName, lockable=false);
-                        }
+                        props.appendSmart(this._uniqueQuickPropertyId # @propNameStr, @labelName, @propName, @domainName, @controlTypeName, lockable=false);
                     }
                 }
             };

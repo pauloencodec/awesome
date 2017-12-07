@@ -95,7 +95,7 @@ public class AwePicklistFreeformTab extends Card {
         var quantity = quantityTextField.textIfAny().Double;
         
         if (catalog and partNumber and description and price and quantity) {
-            return new AwePicklistItem(catalog, partNumber, description, price.v, quantity.v);
+            return new AwePicklistItem(catalog, partNumber, description, price.v, quantity.v, freeform=true);
         }
 
         return null;
