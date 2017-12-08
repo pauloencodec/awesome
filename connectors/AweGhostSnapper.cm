@@ -51,19 +51,6 @@ public class AweGhostSnapper extends AweModelSnapper {
         }
     }
 
-    public void copied(CopyEnv env, Object old) {
-    }
-    
-
-    extend public AweGhostSnapper coppy() {
-        var ghostSnapperCopy = AweGhostSnapper(this.mainModel.copy);
-        ghostSnapperCopy.hostSnapper = this.hostSnapper;
-        ghostSnapperCopy.setRot( this.rot );
-        ghostSnapperCopy.setPos( this.pos );
-        return ghostSnapperCopy;
-    }
-    
-
     //return a line here to display connection angle during try snap
     public Line2D referenceLine() {
         return this.hostSnapper.?mainModel().?referenceLine();
