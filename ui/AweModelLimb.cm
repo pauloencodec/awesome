@@ -39,6 +39,7 @@ package custom.awesome.ui;
 public class AweModelLimb extends SnapperLimb {
     private AweObject originalModel : public readable;
     private str limbKey;
+    private str{} defaultsBlackList;
 
     public constructor(
         LibraryLimb parent,
@@ -47,10 +48,12 @@ public class AweModelLimb extends SnapperLimb {
         str key=null,
         Image image=null,
         str label=null,
-        str toolTipText=null) {
+        str toolTipText=null,
+        str{} defaultsBlackList=null) {
 
         this.originalModel = model;
         this.limbKey = this.originalModel.modelHash();
+        this.defaultsBlackList = defaultsBlackList;
         
         key = model.class.toS() # this.limbKey;
         pkg = model.class.pkg;
@@ -66,6 +69,10 @@ public class AweModelLimb extends SnapperLimb {
         this.originalModel.limbKey = this.limbKey;
         var model = templateModel.copy();
         
+        for (k in this.defaultsBlackList) {
+            model.set(k, this.originalModel.get(k));
+        }
+
         return model;
     }
     
