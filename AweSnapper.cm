@@ -186,9 +186,8 @@ public class AweSnapper extends TaggableSnapper {
     }
 
     public Animation leftDragAnimation(StartDragAnimationEnv env) {
-        return new AweSnapperDragAnimation(env);
+        return new AweDragAnimation(env);
     }
-
 
     public bool buildQuickProperties(QuickProperties props) { 
         if (this.activeConfigurator) {

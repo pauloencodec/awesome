@@ -66,7 +66,7 @@ public class AweAngleGraph extends AweGraph {
             var midAngle = angleB.between(angleA);
             var textPos = this.intersection.v + point2D(midAngle, 16inch);
             
-            var color = cm.basic.color(0,0,255);
+            var color = plainBlueMaterial3D.getAverageColor();
             cm.draw.LineType dashDotLineType = cm.draw.lineType(color, cm.draw.lineStyle.dashDot);
             cm.draw.LineType solidLineType = cm.draw.lineType(color, cm.draw.lineStyle.solid);
             
