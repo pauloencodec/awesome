@@ -75,6 +75,21 @@ public class AweSifSku {
         return this.splitOptionKey(fullKey);
     }
 
+    extend public str getFullSelectionDescription(str optionKey) {
+        var selection = this.getSelection(optionKey);
+        str fullDescription = "";
+
+        if (selection) {
+            fullDescription #= selection.selectionDescription;
+
+            if (selection.suboptionKey) {
+                fullDescription #= " | " # this.getFullSelectionDescription(selection.suboptionKey);
+            }
+        }
+
+        return fullDescription;
+    }
+
     extend public AweSifOptionSelection getSelection(str optionKey) {
         for (selection in this.selections) {
             if (selection.optionKey == optionKey) {
