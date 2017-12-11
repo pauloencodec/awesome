@@ -33,27 +33,69 @@
 
    END OF CETSC
 */
-package custom.awesome : 8.0.0;
 
-use custom.awesome.product;
-use custom.awesome.animations;
-use custom.awesome.automations;
-use custom.awesome.materials;
-use custom.awesome.electrical;
-use custom.awesome.schemes;
-use custom.awesome.snapper;
-use custom.awesome.stretch;
+package custom.awesome.animations;
 
-use cm.abstract.surface;
+use custom.awesome.connectors;
 
-use cm.format.cm3D;
-use cm.geometry.advanced;
-use cm.application;
-use cm.basic;
-use cm.core;
-use cm.core3D;
-use cm.draw;
-use cm.win;
-use cm.io;
-use cm.io.util;
-use cm.rs;
+public class AweDragAnimation extends DragAnimation {
+    public AwePlaceSnapperAnimationProxy proxy;
+
+    public constructor(StartDragAnimationEnv env) {
+        super(..);
+
+        this.proxy = new AwePlaceSnapperAnimationProxy(this, env);
+    }
+
+    public void buildProperties() {
+        this.proxy.buildProperties();
+    }
+
+    public void propertyChange(str key, Object value) {
+        super(..);
+
+        this.proxy.propertyChange(key, value);
+    }
+
+    public void drag(AnimationMouseInfo mi) {
+        super(..);
+
+        this.proxy.move(..);
+    }
+
+    public void begin() {
+        super();
+
+        this.proxy.begin();
+    }
+
+    public PropObj end() {
+        this.proxy.end();
+
+        return super();
+    }
+
+    public void aborted() {
+        this.proxy.aborted();
+
+        super();
+    }
+
+    public void drawGraphs(LayerBuffer lb) {
+        if (Graph g = this.proxy.get2D()) {
+            g.draw(lb);
+        }
+    }
+
+    public Primitive3D get3D(FetchEnv3D env) {
+        return this.proxy.selection.get3D(env);
+    }
+
+    public Primitive3D toSpace(Primitive3D prim) {
+        return this.proxy.selection.toSpace(prim);
+    }
+
+    public bool deny3D() {
+        return false;
+    }
+}
