@@ -151,13 +151,6 @@ public class AwePreferredConnectionSelector {
         for(item in this.options, index=i) {
             item.id = (i+1).toS;
         }
-        // AwePreferredConnection auto();
-        // if(this.options.count > 0) {
-        //     auto = this.options.first().copy();
-        // }
-        // auto.id = autoId;
-        // auto.friendlyName = autoId;
-        // this.options.insert(0, auto);
     }
 }
 
