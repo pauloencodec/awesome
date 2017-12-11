@@ -180,7 +180,12 @@ public class AweObject {
         return domain and domain.count > 1;
     }
 
-    public str->str connectLineToPropMap();
+    private str->str _connectLineToPropMap();
+    extend public str->str connectLineToPropMap() {
+        if(!this._connectLineToPropMap) init this._connectLineToPropMap();
+
+        return this._connectLineToPropMap;
+    }
 
     extend public AweStretcher{} createStretchers() {
         //default stretchers for everyone.
