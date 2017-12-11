@@ -34,77 +34,13 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package custom.awesome.animations;
 
-public orientation orientation(line l) {
-    return orientation(l.direction);
-} 
+use cm.core;
+use cm.core3D;
+use cm.subset;
+use cm.geometry;
+use cm.geometry2D.advanced;
 
-public line offset(line l, vector offset) {
-    return line(l.p0 + offset, l.p1 + offset);
-}
-
-public line flip(line l) {
-    return line(l.p1, l.p0);
-}
-
-public line inverse(line l) {
-    return l.flip();
-}
-
-public line2D toLine2D(line l) {
-    return line2D(l.p0.point2D, l.p1.point2D);
-}
-
-public line toTheFloor(line& l) {
-    return l.setZ(0);
-}
-
-public line setZ(line& l, double z0, double z1) {
-    l.p0.z = z0;
-    l.p1.z = z1;
-    
-    return l;
-}
-
-public line setZ(line& l, double z) {
-    return l.setZ(z, z);
-}
-
-public line addZ(line& l, double z0, double z1) {
-    l.p0.z += z0;
-    l.p1.z += z1;
-    
-    return l;
-}
-
-public line addZ(line& l, double z) {
-    return l.addZ(z, z);
-}
-
-public line extendP0(line& l, double x) {
-    orientation o(l.p0 - l.p1);
-
-    l.p0 += point(o, x);
-
-    return l;
-}
-
-public line extendP1(line& l, double x) {
-    orientation o(l.p1 - l.p0);
-    
-    l.p1 += point(o, x);
-
-    return l;
-}
-
-public line grown(line& l, double x) {
-    l.extendP0(x / 2);
-    l.extendP1(x / 2);
-
-    return l;
-}
-
-public line shrunken(line& l, double x) {
-    return l.grown(-x);
-}
+use custom.awesome;
+use custom.awesome.connectors;

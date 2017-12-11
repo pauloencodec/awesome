@@ -35,9 +35,66 @@
 */
 
 package custom.awesome;
+
 use custom.awesome.connectors;
+use custom.awesome.animations;
 
 public class AweInsertAnimation extends InsertAnimation {
+    public AwePlaceSnapperAnimationProxy proxy(this);
+
+    public constructor(StartInsertAnimationEnv env) {
+        super(..);
+
+        this.selection = new AweAnimationSelection(env.selection.copy(shallow=true), this.proxy);
+    }
+
+    public void buildProperties() {
+        this.proxy.buildProperties();
+    }
+
+    public void propertyChange(str key, Object value) {
+        super(..);
+
+        this.proxy.propertyChange(key, value);
+    }
+
+    public void move(AnimationMouseInfo mi) {
+        super(..);
+
+        this.proxy.move(..);
+    }
+
+    public void begin() {
+        super();
+
+        this.proxy.begin();
+    }
+
+    public PropObj end() {
+        this.proxy.end();
+
+        return super();
+    }
+
+    public void aborted() {
+        this.proxy.aborted();
+
+        super();
+    }
+
+    public void enterView(AnimationMouseInfo mi) {
+        super(..);
+
+        this.proxy.snapper.modelChanged(new AweGroupAutomationEnterView(this.proxy.snapper));
+        // this.updateSelectionSnaps();
+    }
+
+    public void drawGraphs(LayerBuffer lb) {
+        this.proxy.drawGraphs(..);
+    }
+}
+
+public class ___AweInsertAnimation extends InsertAnimation {
     public AweSnapper snapper;
     private str currentKey;
 
@@ -45,6 +102,7 @@ public class AweInsertAnimation extends InsertAnimation {
         super(env);
 
         this.snapper = env.selection.main.AweSnapper;
+        // this.selection = new AweAnimationSelection(copy(env.selection, shallow=true));
 
         assert(this.snapper);
     }
@@ -57,7 +115,7 @@ public class AweInsertAnimation extends InsertAnimation {
 
     extend public void updatePrefferedConnectorList() {
         var candidates = new Connector[]();
-        for(snap in this.selection.snaps) {
+        for(snap in this.selection.activeSnaps()) {
             if(this.getMainModel().?isPreferrableConnector(snap)) {
                 candidates << snap;
             }
@@ -82,7 +140,7 @@ public class AweInsertAnimation extends InsertAnimation {
         
 
         if(hasPreferrableConnectors) {
-            this.animationProperties.appendSmart("preferredConnection", "Preferred Connection", preferredConnectionSelector.selected(), new ObjectSubSet(values), lockable=false);
+            this.animationProperties.appendSmart("preferredConnection", "Preferred Connection", preferredConnectionSelector.selected, new ObjectSubSet(values), lockable=false);
         }
 
 
@@ -248,7 +306,7 @@ public class AweInsertAnimation extends InsertAnimation {
             snapAllAligned(this.selection.main);
         }
         previousAnimationApplication = this._selectedApplication;
-        previousAnimationPreferredConnectorSelection = this.preferredConnectionSelector.selected().?id;
+        previousAnimationPreferredConnectorSelection = this.preferredConnectionSelector.selected.?id;
         return super(..);
     }
 
@@ -323,7 +381,6 @@ public class AweInsertAnimation extends InsertAnimation {
     }
 
     /**************** controlling active snaps *************** */
-    public Connector[] allSnaps;
 
     public str[] connectionApplications();
     private str _selectedApplication = previousAnimationApplication ?? autoId;
@@ -334,7 +391,7 @@ public class AweInsertAnimation extends InsertAnimation {
 
     extend public void updateSnaps() {
         str{} allApplications();
-        for(snap in this.allSnaps) {
+        for(snap in this.selection.snaps) {
             AweConnectEnv env(snap);
             allApplications <<? env.set.?application();
         }
@@ -342,13 +399,13 @@ public class AweInsertAnimation extends InsertAnimation {
         if(this.connectionApplications.count > 0) {
             this.connectionApplications.insert(0, autoId);
         }
-        this.selection.snaps = this.filterSnaps(this.allSnaps);
+        // this.selection.snaps = this.filterSnaps(this.selection.snaps);
 
         this.updatePrefferedConnectorList();
 
         //filter preferred snaps
         var preferredSnaps = new Connector[]();
-        for(snap in selection.snaps) {
+        for(snap in this.selection.activeSnaps()) {
             if(this.preferredConnectionSelector.preferred(snap)) {
                 preferredSnaps << snap;
             }
@@ -360,7 +417,7 @@ public class AweInsertAnimation extends InsertAnimation {
 
     public void updateSelectionSnaps() {
         super();
-        this.allSnaps = selection.snaps;
+        
         this.updateSnaps();
     }
 
