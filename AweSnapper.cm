@@ -320,6 +320,10 @@ public class AweSnapper extends TaggableSnapper {
                 this.modelChanged(new AweGroupAutomationFirstDrop(this));
             }
             
+            for(m in this.allModels()) {
+                m.dropped();
+            }
+            
             this._dropped = true;
         }
         

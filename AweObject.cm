@@ -979,6 +979,11 @@ public class AweObject {
     extend public Animation customInsertAnimation(StartInsertAnimationEnv env) {     
         return null;
     }
+
+    /*** Snapper space events ***/
+    extend public void dropped() {
+        
+    }
 }
 
 public definition @visibility aweObject @name=id @parentClass=["extends" type]? '{'  @props=["props" formalArgList ';']? @members=[classMember]* '}' {
