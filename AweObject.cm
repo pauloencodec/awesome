@@ -72,6 +72,10 @@ public class AweObject {
     }
 
     extend public bool isPreferrableConnector(Connector c) {
+        if (c as AweConnectLine) {
+            return !c.overrideGroupKey.emptyOrOnlyWhiteSpace() or !c.friendlyName.emptyOrOnlyWhiteSpace();
+        }
+        
         return false;
     }
 
@@ -804,23 +808,6 @@ public class AweObject {
         }
         return sets;
     }
-
-    /***************** connection applications *********** */
-    //override this one
-    extend public AweConnectionApplication[] createConnectionApplications() {
-        return null;
-    }
-
-    private AweConnectionApplication[] _connectionApplications;
-
-    extend public AweConnectionApplication[] getConnectionApplications() {
-        if(!this._connectionApplications) {
-            this._connectionApplications = this.createConnectionApplications();
-        }
-        return this._connectionApplications;
-    }
-
-    public AweConnectionApplication activeApplication = null;
 
     /************* automations ***************/
     extend public AweGroupAutomation[] getGroupAutomations() {

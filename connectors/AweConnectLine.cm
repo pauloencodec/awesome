@@ -54,6 +54,7 @@ public class AweConnectLine extends ConnectLine {
 
     public bool mandatory = false;
 
+    public str overrideGroupKey;
     public str friendlyName;
 
     extend public bool isMandatory() {

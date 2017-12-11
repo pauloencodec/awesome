@@ -35,12 +35,67 @@
 */
 
 package custom.awesome;
+
 use custom.awesome.connectors;
+use custom.awesome.animations;
+
+public class AweSnapperDragAnimation extends DragAnimation {
+    public AwePlaceSnapperAnimationProxy proxy(this);
+
+    public constructor(StartDragAnimationEnv env) {
+        super(..);
+
+        this.selection = new AweAnimationSelection(env.selection.copy(shallow=true), this.proxy);
+    }
+
+    public void buildProperties() {
+        this.proxy.buildProperties();
+    }
+
+    public void propertyChange(str key, Object value) {
+        super(..);
+
+        this.proxy.propertyChange(key, value);
+    }
+
+    public void drag(AnimationMouseInfo mi) {
+        super(..);
+
+        this.proxy.move(..);
+    }
+
+    public void begin() {
+        super();
+
+        this.proxy.begin();
+    }
+
+    public PropObj end() {
+        this.proxy.end();
+
+        return super();
+    }
+
+    public void aborted() {
+        this.proxy.aborted();
+
+        super();
+    }
+
+    public void drawGraphs(LayerBuffer lb) {
+        this.proxy.drawGraphs(..);
+    }
+}
 
 /**
 * Snap click animation.
 */
-public class AweSnapperDragAnimation extends DragAnimation {
+public class ___AweSnapperDragAnimation extends DragAnimation {
+    public constructor(StartDragAnimationEnv env) {
+        super(..);
+
+        // this.selection = new AweAnimationSelection(copy(env.selection, shallow=true));
+    }
 
     public AweGhost activeGhost;
     extend public void updateActiveGhost(SnapInfo info) {
@@ -223,7 +278,7 @@ public class AweSnapperDragAnimation extends DragAnimation {
         Object[] values = preferredConnectionSelector.options.:Object[];
         bool hasPreferrableConnectors = values and values.count > 0;
         if(hasPreferrableConnectors)
-            this.animationProperties.appendSmart("preferredConnection", "Preferred Connection", preferredConnectionSelector.selected(), new ObjectSubSet(values), lockable=false);
+            this.animationProperties.appendSmart("preferredConnection", "Preferred Connection", preferredConnectionSelector.selected, new ObjectSubSet(values), lockable=false);
 
 
         this.animationProperties.finalize();

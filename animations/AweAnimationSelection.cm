@@ -34,39 +34,23 @@
    END OF CETSC
 */
 
-package custom.awesome.connectors;
+package custom.awesome.animations;
 
-public class AweConnectionApplication : abstract {
-    
-    public AweObject model;
-    public AweConnectorSet{} connectorSets;
+public class AweAnimationSelection extends AnimationSelection {
+    public AwePlaceSnapperAnimationProxy proxy;
+    public Connector[] filteredSnaps();
 
-    public constructor(AweObject model) {
-        this.model = model;
-    }   
+    public constructor(SnapperSelection z, AwePlaceSnapperAnimationProxy proxy) {
+        super(z);
 
-    extend public str name() {
-        return null;
+        this.proxy = proxy;
     }
 
-    extend public void deploy() {
-
+    public SnapInfo trySnap(AnimationMouseInfo mi, ModifyEnv env, SnapperFilter filter=null) {
+        return super(..);
     }
 
-    extend public void cleanup() {
-
+    public Connector[] activeSnaps() {
+        return this.filteredSnaps;
     }
-
-    extend public void connected(AweConnectEnv{} connectors) {
-
-    }
-
-    extend public void disconnected(AweConnectEnv{} connectors) {
-        
-    }
-
-    public str toS() {
-        return this.name();
-    }
-
 }
