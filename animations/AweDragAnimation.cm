@@ -36,8 +36,6 @@
 
 package custom.awesome.animations;
 
-use custom.awesome.connectors;
-
 public class AweDragAnimation extends DragAnimation {
     public AwePlaceSnapperAnimationProxy proxy;
 

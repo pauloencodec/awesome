@@ -173,13 +173,19 @@ public class AweConnectLine extends ConnectLine {
     }
 
     extend public bool resizeToFit(double[] sizes, SubSet domain) {
-        for (s in sizes) if (s in domain) {
-            this.model.set(autoSizePropKey, s);
-            this.model.invalidate();
+        var currentValue = safeDouble(this.model.get(autoSizePropKey));
 
-            this.snapper.space.clearSelection();
+        for (s in sizes) if (s in domain) {
+            if (currentValue != s) {
+                this.model.set(autoSizePropKey, s);
+                this.model.invalidate();
+
+                this.snapper.space.clearSelection();
+                
+                return true;
+            }
             
-            return true;
+            break;
         }
 
         return false;
