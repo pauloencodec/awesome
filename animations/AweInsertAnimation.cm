@@ -36,7 +36,7 @@
 
 package custom.awesome.animations;
 
-use custom.awesome.connectors;
+use custom.awesome.automations;
 
 public class AweInsertAnimation extends InsertAnimation {
     public AwePlaceSnapperAnimationProxy proxy;
@@ -82,7 +82,7 @@ public class AweInsertAnimation extends InsertAnimation {
     }
 
     public bool snapAllAlignedAtEnd() {
-        return this.proxy.snapAllAlignedAtEnd();
+        return this.proxy.selection.activeGhost == null;
     }
 
     public Animation immediateAnimation(angle a, bool allowRotate) {

@@ -73,7 +73,9 @@ public class AweAnimationSelection extends AnimationSelection {
         if (newInfo.attach != this.previousAttach.?connector or newInfo.snap != this.previousSnap.?connector) {
             if (this.shouldAutoSizeConnectLine()) {
                 if (?AweConnectLine l = newInfo.snap) {
-                    l.tryResizeToFit(newInfo.attach, mi.mouseLine);
+                    if (l.tryResizeToFit(newInfo.attach, mi.mouseLine)) {
+                        this.proxy.buildProperties();
+                    }
                 }
             }
 
@@ -98,6 +100,7 @@ public class AweAnimationSelection extends AnimationSelection {
                     if (this.mergeCircleMousePositionChanged(attach, mi.mouseLine)) {
                         if (snap.tryResizeToFit(info.attach, mi.mouseLine)) {
                             this.main.setPos(this.main.positionIfConnected(snap, attach));
+                            this.proxy.buildProperties();
                         }
                     }
                 }
@@ -144,9 +147,10 @@ public class AweAnimationSelection extends AnimationSelection {
             var envs = info.getAweConnectEnv();
 
             this.activeGhost.?prepare(envs.v0, envs.v1);
-            
-            animation.space.invalidate(animation);
         }
+
+        this.proxy.owner.space.clearSelection();
+        this.proxy.owner.space.invalidate(this.proxy.owner);
     }
 
     extend public Graph get2D() {

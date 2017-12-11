@@ -263,10 +263,6 @@ public class AwePlaceSnapperAnimationProxy {
         this.invalidate();
     }
 
-    extend public bool snapAllAlignedAtEnd() {
-        return this.selection.activeGhost == null;
-    }
-
     extend public void applicationChanged() {
         this.updateApplicationList();
 
