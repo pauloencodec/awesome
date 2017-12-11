@@ -34,42 +34,56 @@
    END OF CETSC
 */
 
-package custom.awesome.electrical;
+package custom.awesome.ui;
 
-public class AweElectricalModelGeometry extends AweGeometry {
+public class AweBoolCallbackLimb extends LibraryLimb {
+    
+    public function(bool v) callback;
+    public bool initial;
+    // public UIHint hint;
 
-    public AweObject model;
+    public constructor(
+        LibraryLimb parent,
+        function(bool v) callback,
+        symbol pkg=null,
+        str key=null,
+        Image image=null,
+        str label=null,
+        str toolTipText=null) {
 
-    public constructor( AweObject obj ) {
-        this.model = obj;
+        if (!key) {
+            key = cm.os.createGUID();
+        }
+        
+        super(parent, pkg, key, image=image, label=label, toolTipText=toolTipText);
+
+        this.callback = callback;
     }
 
-    public Primitive3D medium3D() {
-        Primitive3D[] prims();
-        for( k,v in model.electricalComponents ) {
-            // double dOffset = typedModel.thickness/2;
-            // if ( k.front ) dOffset = -dOffset;
-            Primitive3D p = v.get3D( null, model.mainSnapper, k );
-            // i don't like this, the animation moves things so I have to do this
-            // here for now
-            p.move( k.position );
-            prims << p;
-            prims << v.extra3D( null, model.mainSnapper, k );
-        }
-        return safeInstance3D(prims);
+    public Window build(Window w) {
+        var checkbox = new AweBoolCallbackCheckBox(w, this.callback, label=this.label, frameStyle=toolboxButtonFrameStyle);
+
+        checkbox.key = this.key;
+        checkbox.setToolTipText(this.toolTipText ?? this.label);
+
+        return checkbox;
     }
+}
 
-    public void createParts() {
-        // this.addPart("", "sku");
+public class AweBoolCallbackCheckBox extends CheckBox {
+    public function(bool v) clickedCb=null;
 
-        for( k,v in model.electricalComponents ) {
-            // if ( v in AweElectricalInfeedModel or v in ElectricalReceptacle)
-            if ( k.middle == false ) {
-                for( p in v.getParts(null) ) {
-                    // env << p;
-                    this.addPart( p );
-                }
-            }
-        }
+
+    public constructor(Window parent, function(bool v) callback, FrameStyle frameStyle=pushButtonFrame, str label=null, alignment textSide=alignment.down) {
+        super(parent, frameStyle=frameStyle, label=label, margins=(10, 2), callback=function onCheckboxClick);
+
+        this.clickedCb = callback;
+        // this.pressCb = function onCheckboxClick;
+    }
+}
+
+private void onCheckboxClick(Control control) {
+    if (control as AweBoolCallbackCheckBox) {
+        if ( control.clickedCb ) control.clickedCb(control.isChecked);
     }
 }
