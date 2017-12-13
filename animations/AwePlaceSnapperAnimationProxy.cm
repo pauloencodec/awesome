@@ -64,7 +64,7 @@ public class AwePlaceSnapperAnimationProxy {
 
         owner.selection = this.selection;
 
-        this.autoSize = this.canAutoSize() and this.isInsertAnimation() and !this.isUserPasting;
+        this.autoSize = this.isInsertAnimation() and !this.isUserPasting;
     }
 
     extend public bool isUserPasting() {
@@ -171,8 +171,8 @@ public class AwePlaceSnapperAnimationProxy {
         this.invalidate();
     }
 
-    extend private bool canAutoSize() {
-        for (AweConnectLine l in this.snapper.mainModel.getConnectors()) {
+    extend public bool canAutoSize() {
+        for (AweConnectLine l in this.snapper.?mainModel.?getConnectors()) {
             if (l.autoSizePropKey) {
                 return true;
             }
@@ -321,6 +321,13 @@ public class AwePlaceSnapperAnimationProxy {
 
     extend public bool includeSnap(Connector snap) {
         var application = this.selectedApplication;
+
+        if (!this.connectionApplications or this.connectionApplications.empty()) {
+            application = autoId;
+        }
+        else if (application !in this.connectionApplications) {
+            application = this.connectionApplications.first();
+        }
 
         if (application != autoId) {
             AweConnectEnv env(snap);
