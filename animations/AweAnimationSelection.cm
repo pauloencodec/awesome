@@ -217,7 +217,7 @@ public class AweAnimationSelection extends AnimationSelection {
     }
 
     extend private bool shouldAutoSizeConnectLine() {
-        return this.proxy.autoSize;
+        return this.proxy.canAutoSize() and this.proxy.autoSize;
     }
 
     extend private void fireTryAttach(AweConnectEnv attachEnv, AweConnectEnv snapEnv, AnimationMouseInfo mi) {
