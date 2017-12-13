@@ -38,12 +38,21 @@ package custom.awesome.structures;
 
 public class RegionNode {
     public Object element;
-    public point p;
+    public AweElectricalPoint point;
     public RegionEdge{} edges();
 
-    public constructor( Object element, point pos ) {
+    public constructor( Object element, AweElectricalPoint pos ) {
         this.element = element;
-        this.p = pos;
+        this.point = pos;
+    }
+
+    // public constructor( Object element, point pos ) {
+    //     this.element = element;
+    //     this.p = pos;
+    // }
+
+    extend public point p() {
+        return point.position;
     }
 
     extend public Primitive3D get3D() {

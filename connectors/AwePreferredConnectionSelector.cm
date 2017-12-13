@@ -38,20 +38,13 @@ package custom.awesome.connectors;
 
 public class AwePreferredConnectionSelector {
     public AwePreferredConnection[] options;
-
-    private AwePreferredConnection _selected;
-    extend public AwePreferredConnection selected() {
-        if(this._selected) return this._selected;
-        else if(this.options and this.options.count > 0) return this.options.first;
-        else return null;
-    }
-    extend public AwePreferredConnection selected=(AwePreferredConnection value) {
-        return this._selected = value;
-    }
-    
+    public AwePreferredConnection selected;
     public Snapper lastSnapper : copy=null, stream=null;
 
-    public constructor() {
+    private str previousAnimationSelection;
+
+    public constructor(str previousAnimationSelection=null) {
+        this.previousAnimationSelection = previousAnimationSelection;
     }   
 
     extend public Graph get2D() {
@@ -60,37 +53,82 @@ public class AwePreferredConnectionSelector {
 
     extend public void updateOptions(Connector[] connectors, Snapper mainSnapper) {
         this.lastSnapper = mainSnapper;
-        this.options = new AwePreferredConnection[]();
+        var options = new AwePreferredConnection[]();
 
         str->AwePreferredConnection map();
         str{} visited();
-        for(c in connectors) {
-            if(c as AweConnectLine) {
-                AweConnectEnv env(c);
-                if(env.model.?isPreferrableConnector(c)) {
-                    var p0 = c.spaceLine.p0;
-                    var p1 = c.spaceLine.p1;
-                    var key = cleanApproximatelyZero(p0.point2D).toS # "-" # cleanApproximatelyZero(p1.point2D).toS;
-                    var keyReversed = cleanApproximatelyZero(p1.point2D).toS # "-" # cleanApproximatelyZero(p0.point2D).toS;
-                    if(key !in visited) {
-                        visited << key << keyReversed;
-                        var option = new AwePreferredConnection();
-                        option.p0 = p0;
-                        option.p1 = p1;
-                        option.referenceConnector = c;
-                        this.options << option;
-                        map.put(key, option);
-                        map.put(keyReversed, option);
-                    }
-                    if(c.friendlyName) {
-                        if(map.get(key)) map.get(key).friendlyName = c.friendlyName;
-                        if(map.get(keyReversed)) map.get(keyReversed).friendlyName = c.friendlyName;
-                    }
+
+        for (AweConnectLine c in connectors) {
+            AweConnectEnv env(c);
+
+            if (env.model.?isPreferrableConnector(c)) {
+                var p0 = c.spaceLine.p0;
+                var p1 = c.spaceLine.p1;
+
+                var key = this.getMapKey(p0, p1, c.overrideGroupKey);
+                var keyReversed = this.getMapKey(p1, p0, c.overrideGroupKey);
+
+                if (key !in visited) {
+                    visited << key << keyReversed;
+                    
+                    var option = new AwePreferredConnection(p0, p1, c);
+                    
+                    options << option;
+                    
+                    map.put(key, option);
+                    map.put(keyReversed, option);
+                }
+                else {
+                    var option = map.get(key);
+
+                    option.groupConnectors << c;
+                }
+                
+                if (c.overrideGroupKey) {
+                    c.friendlyName = c.overrideGroupKey;
+                }
+                
+                if (c.friendlyName) {
+                    this.setMapFriendlyName(map, key, c.friendlyName);
+                    this.setMapFriendlyName(map, keyReversed, c.friendlyName);
                 }
             }
         }
 
+        this.options = options;
+
         this.sortOptionList();
+
+        if (this.options.count() > 0) {
+            if (this.previousAnimationSelection) {
+                for (option in this.options) {
+                    if (option.id == this.previousAnimationSelection) {
+                        this.selected = option;
+                        break;
+                    }
+                }
+
+                this.previousAnimationSelection = null;
+            }
+
+            if (!this.selected) {
+                this.selected = options.first();
+            }
+        }
+    }
+
+    extend private str getMapKey(point p0, point p1, str overrideGroupKey) {
+        if (overrideGroupKey) {
+            return overrideGroupKey;
+        }
+
+        return cleanApproximatelyZero(p1.point2D).toS() # cleanApproximatelyZero(p0.point2D).toS();
+    }
+
+    extend private void setMapFriendlyName(str->AwePreferredConnection map, str key, str friendlyName) {
+        if (key in map) {
+            map.get(key).friendlyName = friendlyName;
+        }
     }
 
     extend private point2D cleanApproximatelyZero(point2D p) {
@@ -109,31 +147,42 @@ public class AwePreferredConnectionSelector {
         if(lastSnapper) {
             center = lastSnapper.localBound().rect.center;
         }
-        this.options.sort(function sortAntiClockwise, new Point2D((center)));
+        this.options.sort(function sortAntiClockwise, new Point2D(center));
         for(item in this.options, index=i) {
             item.id = (i+1).toS;
         }
-        AwePreferredConnection auto();
-        auto.id= "Auto";
-        this.options.insert(0, auto);
     }
 }
 
 public class AwePreferredConnection {
-    public constructor() {}
+    public constructor() {
+    }
+
+    public constructor(point p0, point p1, AweConnectLine referenceConnector) {
+        this.p0 = p0;
+        this.p1 = p1;
+        this.referenceConnector = referenceConnector;
+        this.groupConnectors << referenceConnector;
+    }
 
     public point p0;
     public point p1;
     public str id;
     public str friendlyName;
-    public ConnectLine referenceConnector : copy=null, stream=null;
+    public AweConnectLine referenceConnector : copy=reference;
+    public AweConnectLine{} groupConnectors() : copy=reference;
 
     extend public bool preferred(Connector c) {
         if(referenceConnector) {
             if(c as AweConnectLine) {
+                if (this.referenceConnector.overrideGroupKey) {
+                    return this.referenceConnector.overrideGroupKey == c.overrideGroupKey;
+                }
+
                 line oneWay = referenceConnector.spaceLine();
                 line otherWay = flip(oneWay);
                 line thisLine = c.spaceLine();
+
                 if(thisLine.line2D == oneWay.line2D) return true;
                 if(thisLine.line2D == otherWay.line2D) return true;
             }
@@ -143,13 +192,47 @@ public class AwePreferredConnection {
 
 
     extend public Graph get2D() {
-        var l = GLine(this.referenceConnector.?spaceLine().line2D);
-        l.lineType = new cm.draw.LineType(cm.draw.blue, cm.draw.lineStyle.thick);
-        return l;
+        if(!this.id) return null;
+
+        GInstance g();
+
+        for (c in this.groupConnectors) {
+            var l = new GLine(c.spaceLine().line2D);
+            
+            l.lineType = new cm.draw.LineType(cm.draw.blue, cm.draw.lineStyle.thick);
+
+            g << l;
+        }
+
+        return g;
     }
 
     public str toS() {
-        return this.friendlyName ?? this.id;
+        return this.friendlyName ?? this.autoName() ?? this.id;
+    }
+
+    extend public str autoName() {
+        Snapper snapper = this.referenceConnector.?snapper;
+        if(!snapper) return null;
+        point reference = snapper.toSnapper(new line(this.p0, this.p1).midPoint);
+        box bound = snapper.localBound();
+        point boxMiddle = new line(bound.p0, bound.p1).midPoint;
+        str name = "";
+        if(reference.y > boxMiddle.y) name #= "Back ";
+        if(reference.y < boxMiddle.y) name #= "Front ";
+        if(reference.x > boxMiddle.x) name #= "Right ";
+        if(reference.x < boxMiddle.x) name #= "Left ";
+        name = name.removeHeadingAndTrailingSpace();
+        if(name.count > 0) return name;
+        return null;
+    }
+
+    public bool equal(Object other, EqualEnv env=EqualEnv()) {
+        if (other as AwePreferredConnection) {
+            return this.id == other.id;
+        }
+
+        return super(..);
     }
 }
 

@@ -1,0 +1,249 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.animations;
+
+public class AweAnimationSelection extends AnimationSelection {
+    public AwePlaceSnapperAnimationProxy proxy;
+    
+    public Connector[] filteredSnaps();
+
+    public AweConnectEnv previousAttach;
+    public AweConnectEnv previousSnap;
+    public SnapInfo activeSnapInfo;
+    public AweGhost activeGhost;
+    public double lastDistanceToConnectLineEnd;
+
+    public constructor(SnapperSelection selection, AwePlaceSnapperAnimationProxy proxy) {
+        super(selection);
+
+        this.proxy = proxy;
+    }
+
+    public SnapInfo trySnap(AnimationMouseInfo mi, ModifyEnv env, SnapperFilter filter=null) {
+        var newInfo = super(..);
+
+        if (newInfo as ConnectSnapInfo) {
+            this.updateConnectInfo(newInfo, mi);
+        }
+
+        this.activeSnapInfo = newInfo;
+        this.updateActiveGhost(newInfo);
+
+        return newInfo;
+    }
+
+    extend public void updateConnectInfo(ConnectSnapInfo newInfo, AnimationMouseInfo mi) {       
+        var snapEnv = new AweConnectEnv(newInfo.snap);
+        var attachEnv = new AweConnectEnv(newInfo.attach);
+
+        if (newInfo.attach != this.previousAttach.?connector or newInfo.snap != this.previousSnap.?connector) {
+            if (this.shouldAutoSizeConnectLine()) {
+                if (?AweConnectLine l = newInfo.snap) {
+                    if (l.tryResizeToFit(newInfo.attach, mi.mouseLine)) {
+                        this.proxy.buildProperties();
+                    }
+                }
+            }
+
+            this.clearEnv(snapEnv);
+            this.clearEnv(attachEnv);
+
+            this.fireTryAttach(attachEnv, snapEnv, mi);
+            this.fireTrySnap(snapEnv, attachEnv, mi);
+        }
+
+        this.previousAttach = attachEnv;
+        this.previousSnap = snapEnv;
+    }
+
+    extend public void move(SnapInfo info, AnimationMouseInfo mi) {
+        if (info as ConnectSnapInfo) {
+            var snap = info.snap.?AweConnectLine;
+            var attach = info.attach.?AweConnectLine;
+
+            if (snap and attach) {
+                if (this.shouldAutoSizeConnectLine()) {
+                    if (this.mergeCircleMousePositionChanged(attach, mi.mouseLine)) {
+                        if (snap.tryResizeToFit(info.attach, mi.mouseLine)) {
+                            this.main.setPos(this.main.positionIfConnected(snap, attach));
+                            this.proxy.buildProperties();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    extend private bool mergeCircleMousePositionChanged(ConnectLine connector, line mouseLine) {
+        var spaceLine = connector.spaceLine();
+        var p0Distance = mouseLine.distance(spaceLine.p0);
+        var p1Distance = mouseLine.distance(spaceLine.p1);
+        var minDistance = min(p0Distance, p1Distance);
+        var changed = false;
+
+        if (this.lastDistanceToConnectLineEnd > 0) {
+            if (this.lastDistanceToConnectLineEnd < connectLineAutoSizeMergeRadius and minDistance > connectLineAutoSizeMergeRadius) {
+                changed = true;
+            }
+
+            if (this.lastDistanceToConnectLineEnd > connectLineAutoSizeMergeRadius and minDistance < connectLineAutoSizeMergeRadius) {
+                changed = true;
+            }   
+        }
+
+        this.lastDistanceToConnectLineEnd = minDistance;
+
+        return changed;
+    }
+
+    extend private void updateActiveGhost(SnapInfo info) {
+        var previousGhost = this.activeGhost;
+
+        this.activeGhost = null;
+        
+        if (info as ConnectSnapInfo) {
+            if (AweGhost ghost = info.snap.?getGhost()) {
+                this.activeGhost = ghost;
+            }
+
+            if (AweGhost ghost = info.attach.?getGhost()) {
+                this.activeGhost = ghost;
+            }
+
+            var envs = info.getAweConnectEnv();
+
+            this.activeGhost.?prepare(envs.v0, envs.v1);
+        }
+
+        this.proxy.owner.space.clearSelection();
+        this.proxy.owner.space.invalidate(this.proxy.owner);
+    }
+
+    extend public Graph get2D() {
+        GInstance g();
+
+        if (this.activeGhost) {
+            g <<? this.activeGhost.get2D();
+        }
+
+        if (?ConnectSnapInfo snapInfo = this.activeSnapInfo) {
+            Line2D lineA = snapInfo.attach().?snapper.?AweSnapper.?referenceLineInSpace();
+            Line2D lineB = snapInfo.snap().?snapper.?AweSnapper.?referenceLineInSpace();
+            
+            if (lineA and lineB) {
+                g << new AweAngleGraph(lineA.v, lineB.v);
+            }
+        }
+
+        g <<? this.drawMergeCircles();
+
+        return g;
+    }
+
+    extend private Graph drawMergeCircles() {
+        if (!this.shouldAutoSizeConnectLine()) return null;
+
+        var attachLine = this.activeSnapInfo.?ConnectSnapInfo.?attach.?ConnectLine;
+        
+        if (!attachLine) return null;
+        
+        GInstance g();
+        point{} mergeCenters();
+
+        if (attachLine.j0) {
+            mergeCenters << attachLine.spaceLine().p0;
+        }
+        if (attachLine.j1) {
+            mergeCenters << attachLine.spaceLine().p1;
+        }
+
+        for (p in mergeCenters) {
+            g << new GCircle(circle(p.point2D, connectLineAutoSizeMergeRadius), lineType=new cm.draw.LineType(plainBlueMaterial3D.getAverageColor(), cm.draw.lineStyle.dot));
+        }
+
+        return g;
+    }
+
+    extend public Primitive3D get3D(FetchEnv3D env) {
+        if (this.activeGhost) {
+            return this.activeGhost.get3D(env);
+        }
+
+        return null;
+    }
+
+    extend public Primitive3D toSpace(Primitive3D prim) {
+        if (this.activeGhost and prim) {
+            prim.setPosRot(this.activeGhost.ghostSnapper.pos, this.activeGhost.ghostSnapper.rot);
+            
+            prim = safeInstance3D([Primitive3D: prim]);
+        }
+
+        return prim;
+    }
+
+    extend private bool shouldAutoSizeConnectLine() {
+        return this.proxy.autoSize;
+    }
+
+    extend private void fireTryAttach(AweConnectEnv attachEnv, AweConnectEnv snapEnv, AnimationMouseInfo mi) {
+        this.previousAttach.?set.?tryAttachAborted(this.previousAttach, this.previousSnap, mi);
+            
+        attachEnv.model.?trySnapEnv = snapEnv;
+        attachEnv.set.?tryAttach(attachEnv, snapEnv, mi);
+        attachEnv.model.?tryAttach(attachEnv, snapEnv, mi);
+    }
+
+    extend private void fireTrySnap(AweConnectEnv snapEnv, AweConnectEnv attachEnv, AnimationMouseInfo mi) {
+        this.previousSnap.?set.?trySnapAborted(this.previousSnap, this.previousAttach, mi);
+            
+        snapEnv.model.?tryAttachEnv = attachEnv;
+        snapEnv.set.?trySnap(snapEnv, attachEnv, mi);
+        snapEnv.model.?trySnap(snapEnv, attachEnv, mi);
+    }
+
+    extend private void clearEnv(AweConnectEnv env) {
+        if (env.model) {
+            env.model.trySnapEnv = null;
+            env.model.tryAttachEnv = null;
+        }
+    }
+
+    public Connector[] activeSnaps() {
+        return this.filteredSnaps;
+    }
+}

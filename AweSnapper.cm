@@ -186,9 +186,8 @@ public class AweSnapper extends TaggableSnapper {
     }
 
     public Animation leftDragAnimation(StartDragAnimationEnv env) {
-        return new AweSnapperDragAnimation(env);
+        return new AweDragAnimation(env);
     }
-
 
     public bool buildQuickProperties(QuickProperties props) { 
         if (this.activeConfigurator) {
@@ -236,6 +235,10 @@ public class AweSnapper extends TaggableSnapper {
     extend public void extraAnimationPropertyChanged(str key, Object value) { }
 
     public Animation insertAnimation(StartInsertAnimationEnv env) {
+        if (Animation customInsertAnimation = this.mainModel.?customInsertAnimation(env)) {
+            return customInsertAnimation;
+        }
+
         return new AweInsertAnimation(env);
     }
 
@@ -314,6 +317,10 @@ public class AweSnapper extends TaggableSnapper {
             else {
                 this.groupChanged(new AweGroupAutomationFirstDrop(this));
                 this.modelChanged(new AweGroupAutomationFirstDrop(this));
+            }
+            
+            for(m in this.allModels()) {
+                m.dropped();
             }
             
             this._dropped = true;

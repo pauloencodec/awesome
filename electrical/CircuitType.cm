@@ -34,17 +34,10 @@
    END OF CETSC
 */
 
-package custom.awesome.structures;
+package custom.awesome.electrical;
 
-public class RegionDoor extends RegionNode {
-    public int capacity;
-
-    public constructor( point pos, int capacity=maxInt ) {
-        super(null, AweElectricalPoint(pos));
-        this.capacity = capacity;
-    }
-
-    public Material3D material() {
-        return beechMaterial3D;
-    }
-}
+public aweEnum CircuitType (
+    three = <"","3">,
+    twoPlusTwo = <"","2+2">,
+    threePlusOne = <"","3+1">
+);

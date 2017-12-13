@@ -40,6 +40,10 @@ public class ElectricalModel extends AweObject {
     public Snapper owner : copy=reference;
     public point location;
 
+    public bool applyScheme(AweSchemeApplier applier) {
+        return false;
+    }
+
     public constructor() { }
 
     extend public Primitive3D get3D( FetchEnv3D env, Snapper z, ElectricalPosition p ) {
@@ -54,9 +58,9 @@ public class ElectricalModel extends AweObject {
 
     extend public electricalAction allow( ElectricalModel object ) { return electricalAction.no; }
 
-    extend public point[] electricPoints( point center ) {
-        return [center];
+    extend public AweElectricalPoint[] electricPoints( point center ) {
+        return [AweElectricalPoint(center)];
     }
 
-    extend public AwePart[] getParts( bool is3Circuit=false) { return null; }
+    extend public AwePart[] getParts( CircuitType circuit ) { return null; }
 }

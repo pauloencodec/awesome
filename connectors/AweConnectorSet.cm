@@ -35,7 +35,8 @@
 */
 
 package custom.awesome.connectors;
-use cm.runtime, cm.basic;
+
+use cm.runtime;
 
 public class AweConnectorSet  {
     public constructor() { }
@@ -53,6 +54,16 @@ public class AweConnectorSet  {
 
     extend public bool active() {
         return !this.optional() or this.selected;
+    }
+
+    extend public str application() {
+        return null;
+    }
+
+    //return false here for connections that don't need to actively snap to other things while being dragged. 
+    //In other words, for connections that receive other objects connecting to it, such as a panel line that expects a worksurface.
+    extend public bool snap() {
+        return true;
     }
 
     extend public AweObject{} connectedModels() {
@@ -165,6 +176,15 @@ public class AweConnectorSet  {
             return true;
 
         return false;
+    }
+
+    extend public int connectedCount() {
+        int count = 0;
+
+        if (connectorCache != null) for (c in connectorCache.buffer) if (c.isConnected)
+            count++;
+
+        return count;
     }
 
     /**

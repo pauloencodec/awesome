@@ -81,3 +81,30 @@ public line addZ(line& l, double z0, double z1) {
 public line addZ(line& l, double z) {
     return l.addZ(z, z);
 }
+
+public line extendP0(line& l, double x) {
+    orientation o(l.p0 - l.p1);
+
+    l.p0 += point(o, x);
+
+    return l;
+}
+
+public line extendP1(line& l, double x) {
+    orientation o(l.p1 - l.p0);
+    
+    l.p1 += point(o, x);
+
+    return l;
+}
+
+public line grown(line& l, double x) {
+    l.extendP0(x / 2);
+    l.extendP1(x / 2);
+
+    return l;
+}
+
+public line shrunken(line& l, double x) {
+    return l.grown(-x);
+}

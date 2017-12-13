@@ -34,17 +34,56 @@
    END OF CETSC
 */
 
-package custom.awesome.structures;
+package custom.awesome.ui;
 
-public class RegionDoor extends RegionNode {
-    public int capacity;
+public class AweBoolCallbackLimb extends LibraryLimb {
+    
+    public function(bool v) callback;
+    public bool initial;
+    // public UIHint hint;
 
-    public constructor( point pos, int capacity=maxInt ) {
-        super(null, AweElectricalPoint(pos));
-        this.capacity = capacity;
+    public constructor(
+        LibraryLimb parent,
+        function(bool v) callback,
+        symbol pkg=null,
+        str key=null,
+        Image image=null,
+        str label=null,
+        str toolTipText=null) {
+
+        if (!key) {
+            key = cm.os.createGUID();
+        }
+        
+        super(parent, pkg, key, image=image, label=label, toolTipText=toolTipText);
+
+        this.callback = callback;
     }
 
-    public Material3D material() {
-        return beechMaterial3D;
+    public Window build(Window w) {
+        var checkbox = new AweBoolCallbackCheckBox(w, this.callback, label=this.label, frameStyle=toolboxButtonFrameStyle);
+
+        checkbox.key = this.key;
+        checkbox.setToolTipText(this.toolTipText ?? this.label);
+
+        return checkbox;
+    }
+}
+
+public class AweBoolCallbackCheckBox extends CheckBox {
+    public function(bool v) clickedCb=null;
+
+
+    public constructor(Window parent, function(bool v) callback, FrameStyle frameStyle=pushButtonFrame, str label=null, alignment textSide=alignment.down) {
+        super(parent, frameStyle=frameStyle, label=label, margins=(10, 2), callback=function onCheckboxClick);
+
+        this.clickedCb = callback;
+        // this.pressCb = function onCheckboxClick;
+    }
+}
+
+private void onCheckboxClick(Control control) {
+    if (control as AweBoolCallbackCheckBox) {
+        if ( control.clickedCb ) control.clickedCb(control.isChecked);
     }
 }

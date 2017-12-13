@@ -51,6 +51,9 @@ public class AweObject {
     //used to expose multiple aweObjects at once in quick properties
     public str _uniqueQuickPropertyId;
 
+    public AweConnectEnv trySnapEnv: copy=null, stream=null;
+    public AweConnectEnv tryAttachEnv: copy=null, stream=null;
+
     public constructor() {
         this.init();
     }
@@ -69,6 +72,10 @@ public class AweObject {
     }
 
     extend public bool isPreferrableConnector(Connector c) {
+        if (c as AweConnectLine) {
+            return !c.overrideGroupKey.emptyOrOnlyWhiteSpace() or !c.friendlyName.emptyOrOnlyWhiteSpace();
+        }
+        
         return false;
     }
 
@@ -123,8 +130,10 @@ public class AweObject {
         propChanged(propName, oldValue, value);
 
         for (AweSnapper snapper in this.snappers) {
-            if (snapper.mainModel() == this) {
-                snapper.onModelPropertyChanged(propName, oldValue, value);
+            for (model in snapper.allModels()) {
+                if (model == this) {
+                    snapper.onModelPropertyChanged(propName, oldValue, value);
+                } 
             }
         }
 
@@ -155,7 +164,7 @@ public class AweObject {
         }
         AweStretcher{} active();
         for(s in this._stretchers) {
-            if(this.hasDomainOptions(s.model, s.propKey)) {
+            if (s.model.hasDomainOptions(s.propKey)) {
                 active << s;
             }
         }
@@ -169,13 +178,18 @@ public class AweObject {
         
     }
 
-    extend private bool hasDomainOptions(AweObject model, str propKey) {
-        var domain = model.getDomain(propKey);
+    extend public bool hasDomainOptions(str propKey) {
+        var domain = this.getDomain(propKey);
         
         return domain and domain.count > 1;
     }
 
-    public str->str connectLineToPropMap();
+    private str->str _connectLineToPropMap();
+    extend public str->str connectLineToPropMap() {
+        if(!this._connectLineToPropMap) init this._connectLineToPropMap();
+
+        return this._connectLineToPropMap;
+    }
 
     extend public AweStretcher{} createStretchers() {
         //default stretchers for everyone.
@@ -676,16 +690,41 @@ public class AweObject {
 
     }
 
-    extend public AweObject{} directlyConnectedModels() {
+    //this is trying to connect to something
+    extend public void trySnap(AweConnectEnv me, AweConnectEnv other, AnimationMouseInfo mi) {
+
+    }
+
+    extend public void trySnapAborted(AweConnectEnv me, AweConnectEnv other, AnimationMouseInfo mi) {
+
+    }
+
+    //somethign is trying to connect to this
+    extend public void tryAttach(AweConnectEnv me, AweConnectEnv other, AnimationMouseInfo mi) {
+
+    }
+
+    extend public void tryAttachAborted(AweConnectEnv me, AweConnectEnv other, AnimationMouseInfo mi) {
+
+    }
+
+    extend public AweObject{} directlyConnectedModels(bool includeTryConnections=false) {
         AweObject{} connected();
-        for(connector in this.getConnectors(null)) {
-            for(attach in connector.connections) {
+        
+        for (connector in this.getConnectors(null)) {
+            for (attach in connector.connections) {
                 var model = attach.getModel();
-                if(model) {
+                if (model) {
                     connected << model;
                 }
             }
         }
+
+        if (includeTryConnections) {
+            connected <<? this.tryAttachEnv.?model;
+            connected <<? this.trySnapEnv.?model;
+        }
+
         return connected;
     }
 
@@ -769,23 +808,6 @@ public class AweObject {
         }
         return sets;
     }
-
-    /***************** connection applications *********** */
-    //override this one
-    extend public AweConnectionApplication[] createConnectionApplications() {
-        return null;
-    }
-
-    private AweConnectionApplication[] _connectionApplications;
-
-    extend public AweConnectionApplication[] getConnectionApplications() {
-        if(!this._connectionApplications) {
-            this._connectionApplications = this.createConnectionApplications();
-        }
-        return this._connectionApplications;
-    }
-
-    public AweConnectionApplication activeApplication = null;
 
     /************* automations ***************/
     extend public AweGroupAutomation[] getGroupAutomations() {
@@ -938,6 +960,16 @@ public class AweObject {
 
     extend public line[] doNotConnect() {
         return null;
+    }
+
+    /*** Animations ***/
+    extend public Animation customInsertAnimation(StartInsertAnimationEnv env) {     
+        return null;
+    }
+
+    /*** Snapper space events ***/
+    extend public void dropped() {
+        
     }
 }
 
@@ -1099,15 +1131,8 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                 var @domainName = this.getDomain(@propNameStr);
 
                 if (@domainName and @visibleName) {
-                    Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, distance(@propName));
-
                     if (@domainName.any()) {
-                        if (customQuickProperty) {
-                            // props.append(customQuickProperty.QuickProperty);
-                        }
-                        else {
-                            props.appendSmart(this._uniqueQuickPropertyId # @propNameStr, @labelName, distance(@propName), @domainName, @controlTypeName, lockable=false);
-                        }
+                        props.appendSmart(this._uniqueQuickPropertyId # @propNameStr, @labelName, distance(@propName), @domainName, @controlTypeName, lockable=false);
                     }
                 }
             };
@@ -1148,15 +1173,8 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                 var @domainName = this.getDomain(@propNameStr);
 
                 if (@domainName and @visibleName) {
-                    Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, @propName);
-
                     if (@domainName.any()) {
-                        if (customQuickProperty) {
-                            // props.append(customQuickProperty.QuickProperty);
-                        }
-                        else {
-                            props.appendSmart(this._uniqueQuickPropertyId # @propNameStr, @labelName, @propName, @domainName, @controlTypeName, lockable=false);
-                        }
+                        props.appendSmart(this._uniqueQuickPropertyId # @propNameStr, @labelName, @propName, @domainName, @controlTypeName, lockable=false);
                     }
                 }
             };

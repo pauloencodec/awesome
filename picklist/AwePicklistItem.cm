@@ -46,13 +46,16 @@ public class AwePicklistItem extends PicklistItem {
     public AweSifSku sifSku;
     public AweTag tag;
 
-    public constructor(str catalog, str partNumber, str description=null, double price=0, double quantity=1) {
+    public bool freeform;
+
+    public constructor(str catalog, str partNumber, str description=null, double price=0, double quantity=1, bool freeform=false) {
         super(partNumber, quantity);
 
         this.catalog = catalog;
         this._partNumber = partNumber;
         this._description = description;
         this.price = price;
+        this.freeform = freeform;
     }
     
     public str partNo() {

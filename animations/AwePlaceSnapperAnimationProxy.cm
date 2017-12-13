@@ -1,0 +1,395 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.animations;
+
+use custom.awesome.stretch;
+
+public const str autoId = "Auto";
+
+private str previousAnimationApplication;
+private str previousAnimationPreferredConnection;
+private str applicationPropKey = "connectionApplication";
+private str preferredPropKey = "preferredConnection";
+private str autoSizePropKey = "autoSize";
+
+public class AwePlaceSnapperAnimationProxy {
+    public PlaceSnapperAnimation owner;
+    public AweAnimationSelection selection;
+    public bool complete = false;
+
+    public str[] connectionApplications();
+    public str selectedApplication = previousAnimationApplication ?? autoId;
+    public AwePreferredConnectionSelector preferredConnectionSelector(previousAnimationPreferredConnection);
+    public bool autoSize;
+
+    private str currentKey;
+    
+    public constructor(PlaceSnapperAnimation owner, StartAnimationEnv env) {
+        this.owner = owner;
+        this.selection = new AweAnimationSelection(env.selection.copy(shallow=true), this);
+
+        owner.selection = this.selection;
+
+        this.autoSize = this.canAutoSize() and this.isInsertAnimation() and !this.isUserPasting;
+    }
+
+    extend public bool isUserPasting() {
+        return isAnimatingStreamedSnappers;
+    }
+
+    extend public void buildProperties() {
+        this.owner.updateSelectionSnaps();
+
+        this.owner.destroyAnimationProperties();
+        this.owner.createAnimationProperties();
+        
+        str[] sortOrder = null;
+
+        this.begin();
+
+        if (this.connectionApplications.count > 0) {
+            this.owner.animationProperties.appendSmart(applicationPropKey, "Connect To", this.selectedApplication, new StrSubSet(this.connectionApplications), lockable=false);
+        }
+
+        var canAutoSize = this.canAutoSize();
+        var preferredConnections = this.preferredConnectionSelector.options.:Object[];
+        var hasPreferrableConnectors = preferredConnections and preferredConnections.count > 0;
+
+        if (hasPreferrableConnectors) {
+            this.owner.animationProperties.appendSmart(preferredPropKey, "Preferred Connection", this.preferredConnectionSelector.selected, new ObjectSubSet(preferredConnections), lockable=false);
+        }
+
+        if (canAutoSize) {
+            this.owner.animationProperties.append2(autoSizePropKey, "Auto Size", this.autoSize, new BoolSubSet(), lockable=false);
+        }
+
+        if (this.isInsertAnimation()) {
+            if (this.snapper.?activeConfigurator) {
+                this.snapper.addExtraAnimationProperties(this.owner.animationProperties);
+                this.snapper.activeConfigurator.buildAnimationProperties(this.owner.animationProperties);
+
+                sortOrder = this.snapper.activeConfigurator.quickPropertySort();
+                
+                if (sortOrder and sortOrder.count > 0) {
+                    for (qp in this.owner.animationProperties.properties) {
+                        if (qp.key !in sortOrder) {
+                            sortOrder << qp.key;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (sortOrder) {
+            if (canAutoSize) {
+                sortOrder.exclude(autoSizePropKey);
+                sortOrder.insert(0, autoSizePropKey);
+            }
+
+            if (hasPreferrableConnectors) {
+                sortOrder.exclude(preferredPropKey);
+                sortOrder.insert(0, preferredPropKey);
+            }
+
+            if (this.connectionApplications.count > 0) {
+                sortOrder.exclude(applicationPropKey);
+                sortOrder.insert(0, applicationPropKey);
+            }
+        }
+
+        this.owner.animationProperties.finalize(showList=sortOrder);
+        
+        if (this.owner.animationProperties and this.currentKey) {
+            this.owner.animationProperties.setCurrent(this.currentKey);
+        }
+    }
+
+    extend public void propertyChange(str key, Object value) {
+        if (key == applicationPropKey) {
+            if (value as str) {
+                this.selectedApplication = value;
+                this.preferredConnectionSelector.selected = null;
+
+                this.applicationChanged();
+            }
+        }
+        else if (key == preferredPropKey) {
+            if (value as AwePreferredConnection) {
+                this.preferredConnectionSelector.selected = value;
+
+                this.preferredConnectionChanged();
+            }
+        }
+        else if (key == autoSizePropKey) { 
+            this.autoSize = value.?bool;
+        }
+        else if (this.isInsertAnimation()) {
+            if (this.snapper.activeConfigurator) {
+                this.snapper.activeConfigurator.animationPropertyChanged(..);
+                this.snapper.extraAnimationPropertyChanged(..);
+                this.snapper.refresh(true, true);   
+            }
+        }
+        
+        this.currentKey = key;
+        this.owner.buildProperties();
+        
+        this.invalidate();
+    }
+
+    extend private bool canAutoSize() {
+        for (AweConnectLine l in this.snapper.mainModel.getConnectors()) {
+            if (l.autoSizePropKey) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    extend public void move(AnimationMouseInfo mi) {
+        var lastSnapInfo = this.owner.space ? this.owner.space.lastSnapped : null;
+
+        this.selection.move(lastSnapInfo, mi);
+
+        this.invalidate();
+    }
+
+    extend public void invalidate() {
+        var space = this.owner.space ?? activeSpace();
+        
+        space.invalidate(this.owner);
+    }
+
+    extend public void begin() {
+        this.applicationChanged();
+    }
+
+    extend public void end() {
+        if (this.selection.activeGhost) {
+            var snapper = this.selection.activeGhost.deploy();
+            
+            this.owner.space.undoableInsert(snapper);
+            
+            if (ModifyEnv modifyEnv = this.getModifyEnv()) {
+                modifyEnv << snapper;
+            }
+            
+            this.owner.selection << snapper;
+            this.owner.toInsertInBsp << snapper;
+            
+            snapper.snapAllAligned();
+            
+            snapAllAligned(this.selection.main);
+        }
+
+        previousAnimationApplication = this.selectedApplication;
+        previousAnimationPreferredConnection = this.preferredConnectionSelector.selected.?id;
+    }
+
+    extend private ModifyEnv getModifyEnv() {
+        if (?InsertAnimation a = this.owner) {
+            return a.modifyEnv;
+        }
+
+        if (?DragAnimation a = this.owner) {
+            return a.modifyEnv;
+        }
+
+        return null;
+    }
+
+    extend public Connector getImmediateSnap(angle a, bool allowRotate) {
+        Connector[] potentialStretchers();
+
+        var model = this.snapper.mainModel();
+        var stretchers = model.getStretchers();
+        var immediateStretchProp = "width";
+
+        if (?ConnectSnapInfo snapInfo = this.selection.activeSnapInfo) {
+            if (?AweConnectLine l = snapInfo.snap) {
+                if (model.isStretchableProp(l.autoSizePropKey)) {
+                    immediateStretchProp = l.autoSizePropKey;
+                }
+            }
+        }
+
+        for (stretcher in stretchers) {
+            if (stretcher.propKey == immediateStretchProp) {
+                potentialStretchers << stretcher.stretcherB << stretcher.stretcherA;
+            }
+        }
+
+        potentialStretchers.sort(function sortByDistanceToLine, this.owner.lastMouseInfo.mouseLine);
+        
+        if (potentialStretchers.any()) {
+            for (AweStretcherConnector c in potentialStretchers) {
+                if (c.isFree()) {
+                    return c;
+                }
+            }
+
+            return potentialStretchers.first();
+        }
+        
+        return null;
+    }
+
+    extend public void aborted() {
+        previousAnimationApplication = null;
+        previousAnimationPreferredConnection = null;
+
+        this.selection.updateConnectInfo(null, this.owner.lastMouseInfo);
+        this.invalidate();
+    }
+
+    extend public void applicationChanged() {
+        this.updateApplicationList();
+
+        this.selection.filteredSnaps = this.filterApplicationSnaps(this.selection.snaps);
+
+        this.updatePreferredConnectorList();
+        this.preferredConnectionChanged();
+    }
+
+    extend public void preferredConnectionChanged() {
+        this.selection.filteredSnaps = this.filterApplicationSnaps(this.selection.snaps);
+        this.selection.filteredSnaps = this.filterPreferredSnaps(this.selection.filteredSnaps);
+    }
+
+    extend public Connector[] filterApplicationSnaps(Connector[] snaps) {
+        Connector[] filtered();
+        
+        for (snap in snaps) {
+            if (this.includeSnap(snap)) {
+                filtered << snap;
+            }
+        }
+
+        return filtered;
+    }
+
+    extend public Connector[] filterPreferredSnaps(Connector[] snaps) {
+        if (AwePreferredConnection selected = this.preferredConnectionSelector.selected) {
+            Connector[] filtered();
+
+            for (snap in snaps) {
+                if (selected.preferred(snap)) {
+                    filtered << snap;
+                }
+            }
+
+            return filtered;
+        }
+
+        return snaps;
+    }
+
+    extend public bool includeSnap(Connector snap) {
+        var application = this.selectedApplication;
+
+        if (application != autoId) {
+            AweConnectEnv env(snap);
+
+            return env.set.?application() == application;
+        }
+
+        return true;
+    }
+
+    extend public void updateApplicationList() {
+        if (this.connectionApplications.count > 0) {
+            return;
+        }
+
+        str{} allApplications();
+
+        for (snap in this.owner.selection.snaps) {
+            AweConnectEnv env(snap);
+            
+            allApplications <<? env.set.?application();
+        }
+        
+        this.connectionApplications = allApplications.seq.sort();
+        
+        if (this.connectionApplications.count > 0) {
+            this.connectionApplications.insert(0, autoId);
+        }
+    }
+
+    extend public void updatePreferredConnectorList() {
+        Connector[] candidates();
+
+        for (snap in this.owner.selection.activeSnaps()) {
+            if (this.snapper.mainModel().isPreferrableConnector(snap)) {
+                candidates << snap;
+            }
+        }
+
+        this.preferredConnectionSelector.updateOptions(candidates, this.owner.selection.main);
+    }
+
+    extend public Graph get2D() {
+        if (this.complete) return null;
+        
+        GInstance g();
+        
+        g <<? this.preferredConnectionSelector.get2D();
+        g <<? this.selection.get2D();
+
+        return g;
+    }
+
+    extend public AweSnapper snapper() {
+        return this.owner.selection.main.AweSnapper;
+    }
+
+    extend public bool isInsertAnimation() {
+        return this.owner in InsertAnimation;
+    }
+}
+
+public int sortByDistanceToLine(Connector a, Connector b, Object env) {
+    if (?Line l = env.line) {
+        return compare(
+            l.v.distance(a.spacePos()), 
+            l.v.distance(b.spacePos())
+        );
+    }
+
+    return 0;
+}
