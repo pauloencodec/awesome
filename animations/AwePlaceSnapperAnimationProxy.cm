@@ -172,15 +172,9 @@ public class AwePlaceSnapperAnimationProxy {
     }
 
     extend private bool canAutoSize() {
-        var model = this.snapper.mainModel();
-        var hasDomain = model.hasDomainOptions("width") or model.hasDomainOptions("depth");
-        var hasStretchers = model.isStretchableProp("width") or model.isStretchableProp("depth");
-
-        if (hasDomain or hasStretchers) {
-            for (AweConnectLine l in model.getConnectors()) {
-                if (l.autoSizePropKey) {
-                    return true;
-                }
+        for (AweConnectLine l in this.snapper.mainModel.getConnectors()) {
+            if (l.autoSizePropKey) {
+                return true;
             }
         }
 
