@@ -39,7 +39,7 @@ package custom.awesome.electrical;
 public class ElectricalModel extends AweObject {
     public Snapper owner : copy=reference;
     public point location;
-    public ElectricalModel child;
+    public ElectricalModel child : copy=reference;
 
     
     public bool applyScheme(AweSchemeApplier applier) {
