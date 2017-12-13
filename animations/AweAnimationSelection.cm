@@ -175,7 +175,7 @@ public class AweAnimationSelection extends AnimationSelection {
     }
 
     extend private Graph drawMergeCircles() {
-        if (!this.proxy.autoSize) return null;
+        if (!this.shouldAutoSizeConnectLine()) return null;
 
         var attachLine = this.activeSnapInfo.?ConnectSnapInfo.?attach.?ConnectLine;
         

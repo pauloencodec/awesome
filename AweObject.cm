@@ -164,7 +164,7 @@ public class AweObject {
         }
         AweStretcher{} active();
         for(s in this._stretchers) {
-            if(this.hasDomainOptions(s.model, s.propKey)) {
+            if (s.model.hasDomainOptions(s.propKey)) {
                 active << s;
             }
         }
@@ -178,8 +178,8 @@ public class AweObject {
         
     }
 
-    extend private bool hasDomainOptions(AweObject model, str propKey) {
-        var domain = model.getDomain(propKey);
+    extend public bool hasDomainOptions(str propKey) {
+        var domain = this.getDomain(propKey);
         
         return domain and domain.count > 1;
     }

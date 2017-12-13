@@ -64,7 +64,7 @@ public class AwePlaceSnapperAnimationProxy {
 
         owner.selection = this.selection;
 
-        this.autoSize = this.isInsertAnimation() and !this.isUserPasting;
+        this.autoSize = this.canAutoSize() and this.isInsertAnimation() and !this.isUserPasting;
     }
 
     extend public bool isUserPasting() {
@@ -85,6 +85,7 @@ public class AwePlaceSnapperAnimationProxy {
             this.owner.animationProperties.appendSmart(applicationPropKey, "Connect To", this.selectedApplication, new StrSubSet(this.connectionApplications), lockable=false);
         }
 
+        var canAutoSize = this.canAutoSize();
         var preferredConnections = this.preferredConnectionSelector.options.:Object[];
         var hasPreferrableConnectors = preferredConnections and preferredConnections.count > 0;
 
@@ -92,7 +93,9 @@ public class AwePlaceSnapperAnimationProxy {
             this.owner.animationProperties.appendSmart(preferredPropKey, "Preferred Connection", this.preferredConnectionSelector.selected, new ObjectSubSet(preferredConnections), lockable=false);
         }
 
-        this.owner.animationProperties.append2(autoSizePropKey, "Auto Size", this.autoSize, new BoolSubSet(), lockable=false);
+        if (canAutoSize) {
+            this.owner.animationProperties.append2(autoSizePropKey, "Auto Size", this.autoSize, new BoolSubSet(), lockable=false);
+        }
 
         if (this.isInsertAnimation()) {
             if (this.snapper.?activeConfigurator) {
@@ -112,8 +115,10 @@ public class AwePlaceSnapperAnimationProxy {
         }
 
         if (sortOrder) {
-            sortOrder.exclude(autoSizePropKey);
-            sortOrder.insert(0, autoSizePropKey);
+            if (canAutoSize) {
+                sortOrder.exclude(autoSizePropKey);
+                sortOrder.insert(0, autoSizePropKey);
+            }
 
             if (hasPreferrableConnectors) {
                 sortOrder.exclude(preferredPropKey);
@@ -164,6 +169,22 @@ public class AwePlaceSnapperAnimationProxy {
         this.owner.buildProperties();
         
         this.invalidate();
+    }
+
+    extend private bool canAutoSize() {
+        var model = this.snapper.mainModel();
+        var hasDomain = model.hasDomainOptions("width") or model.hasDomainOptions("depth");
+        var hasStretchers = model.isStretchableProp("width") or model.isStretchableProp("depth");
+
+        if (hasDomain or hasStretchers) {
+            for (AweConnectLine l in model.getConnectors()) {
+                if (l.autoSizePropKey) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     extend public void move(AnimationMouseInfo mi) {
@@ -221,22 +242,21 @@ public class AwePlaceSnapperAnimationProxy {
     extend public Connector getImmediateSnap(angle a, bool allowRotate) {
         Connector[] potentialStretchers();
 
-        if (?AweSnapper snapper = this.selection.main) {
-            var stretchers = snapper.mainModel.getStretchers();
-            var immediateStretchProp = "width";
+        var model = this.snapper.mainModel();
+        var stretchers = model.getStretchers();
+        var immediateStretchProp = "width";
 
-            if (?ConnectSnapInfo snapInfo = this.selection.activeSnapInfo) {
-                if (?AweConnectLine l = snapInfo.snap) {
-                    if (snapper.mainModel.isStretchableProp(l.autoSizePropKey)) {
-                        immediateStretchProp = l.autoSizePropKey;
-                    }
+        if (?ConnectSnapInfo snapInfo = this.selection.activeSnapInfo) {
+            if (?AweConnectLine l = snapInfo.snap) {
+                if (model.isStretchableProp(l.autoSizePropKey)) {
+                    immediateStretchProp = l.autoSizePropKey;
                 }
             }
+        }
 
-            for (stretcher in stretchers) {
-                if (stretcher.propKey == immediateStretchProp) {
-                    potentialStretchers << stretcher.stretcherB << stretcher.stretcherA;
-                }
+        for (stretcher in stretchers) {
+            if (stretcher.propKey == immediateStretchProp) {
+                potentialStretchers << stretcher.stretcherB << stretcher.stretcherA;
             }
         }
 
