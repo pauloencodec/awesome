@@ -36,6 +36,8 @@
 
 package custom.awesome.connectors;
 
+use cm.runtime;
+
 public class AweConnectorSet  {
     public constructor() { }
 
