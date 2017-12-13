@@ -39,7 +39,9 @@ package custom.awesome.electrical;
 public class ElectricalModel extends AweObject {
     public Snapper owner : copy=reference;
     public point location;
+    public ElectricalModel child;
 
+    
     public bool applyScheme(AweSchemeApplier applier) {
         return false;
     }
@@ -60,6 +62,10 @@ public class ElectricalModel extends AweObject {
 
     extend public AweElectricalPoint[] electricPoints( point center ) {
         return [AweElectricalPoint(center)];
+    }
+
+    extend public bool needsPowerBlock() {
+        return false;
     }
 
     extend public AwePart[] getParts( CircuitType circuit ) { return null; }
