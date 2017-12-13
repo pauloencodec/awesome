@@ -389,6 +389,37 @@ public class AweCOMaterialCard extends COMaterialCard {
     public void editCOM() {
         if (parentFrame as OfficeMaterialDialog) {
             showCOMaterialDialog(this, tempMat, parentFrame.domain);
-        }
-     }
+		}
+	}
+
+	public void build() {
+		matView = TreeView(this, listBoxStyle=true, callback=function materialSelectCB);
+		matView.pos = (10, 10);
+
+		buildMaterials();
+		matView.w = 320;
+		matView.h = 250;
+
+		Button editBtn = Button(this, label="Create/Edit COM", image=icon("open"));
+		editBtn.below(matView, 8);
+		editBtn.pressCb = function editCB;
+
+		Button remBtn = Button(this, label="Remove COM", image=icon("delete"));
+		remBtn.rightOf(editBtn, 8);
+		remBtn.pressCb = function deleteCB;
+
+		this.autoSize();
+	}
+}
+
+private void materialSelectCB(Control c) {
+    if (COMaterialCard dialog = c.parent.COMaterialCard) dialog.selectMaterial();
+}
+
+private void editCB(Control c) {
+    if (COMaterialCard dialog = c.parent.COMaterialCard) dialog.editCOM();
+}
+
+private void deleteCB(Control c) {
+    if (COMaterialCard dialog = c.parent.COMaterialCard) dialog.deleteCOM();
 }
