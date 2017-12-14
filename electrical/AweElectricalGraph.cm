@@ -217,23 +217,22 @@ public class TreeNode {
         return safeInstance3D(prims);
     }
 
-    extend public AwePart[] getParts( bool is3Circuit, ElectricalModel{} added=null ) {
+    extend public AwePart[] getParts( CircuitType circuit, ElectricalModel{} added=null ) {
         AwePart[] parts();
-
         if ( !added ) {
             init added();
         } 
         if ( !added.contains(eo) ) {
             added << eo;
-            parts += eo.getParts(is3Circuit);
+            parts += eo.getParts(circuit);
         }
 
         for( c in electrical.?components ) {
-            parts +=? c.getParts(is3Circuit);
+            parts +=? c.getParts(circuit);
         }
 
         for( c in children ) {
-            parts +=? c.getParts(is3Circuit, added);
+            parts +=? c.getParts(circuit, added);
         }
 
         return parts;

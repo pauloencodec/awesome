@@ -192,7 +192,7 @@ public class AweConnectorCache {
             this._cache.put(this.getCacheKey(key), c);
         }
 
-        this.setupConnector(connector, connector.pos, connector.rot, connector.getId(), connector.rule);
+        this.setupConnector(c, connector.pos, connector.rot, connector.getId(), connector.rule);
 
         return c;
     }

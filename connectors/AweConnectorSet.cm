@@ -35,7 +35,8 @@
 */
 
 package custom.awesome.connectors;
-use cm.runtime, cm.basic;
+
+use cm.runtime;
 
 public class AweConnectorSet  {
     public constructor() { }
@@ -109,6 +110,14 @@ public class AweConnectorSet  {
         }
 
         return null;
+    }
+
+    extend public bool isConnected(str connectionId) {
+        if (!this.connectorCache) return false;
+        
+        var connector = this.connectorCache.get(connectionId);
+
+        return connector.isConnected();
     }
 
     extend public void connectors(AweConnectorCache cc, bool ghostMode) {

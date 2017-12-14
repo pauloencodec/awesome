@@ -186,9 +186,8 @@ public class AweSnapper extends TaggableSnapper {
     }
 
     public Animation leftDragAnimation(StartDragAnimationEnv env) {
-        return new AweSnapperDragAnimation(env);
+        return new AweDragAnimation(env);
     }
-
 
     public bool buildQuickProperties(QuickProperties props) { 
         if (this.activeConfigurator) {
@@ -318,6 +317,10 @@ public class AweSnapper extends TaggableSnapper {
             else {
                 this.groupChanged(new AweGroupAutomationFirstDrop(this));
                 this.modelChanged(new AweGroupAutomationFirstDrop(this));
+            }
+            
+            for(m in this.allModels()) {
+                m.dropped();
             }
             
             this._dropped = true;
@@ -499,6 +502,10 @@ public class AweSnapper extends TaggableSnapper {
     }
 
     public void afterGetParts(PartsEnv env) {
+        // We were having problems with tags that kept in the World even if we changed the model and modified the Snapper
+        // to not add it. Cleaning all the tags from the Snapper and letting it re-create based on what is placed in the World
+        // seems to fix that.
+        resetItemTags();
         super(env);
 
         if (this.specialParts and this.picklistProxy) {
