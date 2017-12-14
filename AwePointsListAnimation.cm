@@ -56,6 +56,10 @@ public class AwePointsListAnimation extends AwePointsAnimation {
         return newPoint;
     }
 
+    extend public double distanceTolerance() {
+        return maxDouble;
+    }
+
     extend private Point closestPoint(line l) {
         Point closest = null;
         double bestDistance = maxDouble;
@@ -65,6 +69,10 @@ public class AwePointsListAnimation extends AwePointsAnimation {
                 bestDistance = thisDistance;
                 closest = p;
             }
+        }
+
+        if(bestDistance > this.distanceTolerance()) {
+            return null;
         }
         return closest;
     }
