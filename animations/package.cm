@@ -34,35 +34,13 @@
    END OF CETSC
 */
 
-package custom.awesome.electrical;
+package custom.awesome.animations;
 
-public class ElectricalModel extends AweObject {
-    public Snapper owner : copy=reference;
-    public point location;
-    public ElectricalModel child : copy=reference;
+use cm.core;
+use cm.core3D;
+use cm.subset;
+use cm.geometry;
+use cm.geometry2D.advanced;
 
-    
-    public bool applyScheme(AweSchemeApplier applier) {
-        return false;
-    }
-
-    public constructor() { }
-
-    extend public Primitive3D get3D( FetchEnv3D env, Snapper z, ElectricalPosition p ) {
-        return null;
-    }
-
-    extend public Primitive3D extra3D( FetchEnv3D env, Snapper z, ElectricalPosition p ) {
-        return null;
-    }
-
-    extend public void propertyChange( str key, Object value ) { }
-
-    extend public electricalAction allow( ElectricalModel object ) { return electricalAction.no; }
-
-    extend public AweElectricalPoint[] electricPoints( point center ) {
-        return [AweElectricalPoint(center)];
-    }
-
-    extend public AwePart[] getParts( CircuitType circuit ) { return null; }
-}
+use custom.awesome;
+use custom.awesome.connectors;

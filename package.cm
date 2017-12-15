@@ -36,6 +36,7 @@
 package custom.awesome : 8.0.0;
 
 use custom.awesome.product;
+use custom.awesome.animations;
 use custom.awesome.automations;
 use custom.awesome.materials;
 use custom.awesome.electrical;

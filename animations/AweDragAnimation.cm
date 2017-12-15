@@ -34,39 +34,66 @@
    END OF CETSC
 */
 
-package custom.awesome.connectors;
+package custom.awesome.animations;
 
-public class AweConnectionApplication : abstract {
-    
-    public AweObject model;
-    public AweConnectorSet{} connectorSets;
+public class AweDragAnimation extends DragAnimation {
+    public AwePlaceSnapperAnimationProxy proxy;
 
-    public constructor(AweObject model) {
-        this.model = model;
-    }   
+    public constructor(StartDragAnimationEnv env) {
+        super(..);
 
-    extend public str name() {
-        return null;
+        this.proxy = new AwePlaceSnapperAnimationProxy(this, env);
     }
 
-    extend public void deploy() {
-
+    public void buildProperties() {
+        this.proxy.buildProperties();
     }
 
-    extend public void cleanup() {
+    public void propertyChange(str key, Object value) {
+        super(..);
 
+        this.proxy.propertyChange(key, value);
     }
 
-    extend public void connected(AweConnectEnv{} connectors) {
+    public void drag(AnimationMouseInfo mi) {
+        super(..);
 
+        this.proxy.move(..);
     }
 
-    extend public void disconnected(AweConnectEnv{} connectors) {
-        
+    public void begin() {
+        super();
+
+        this.proxy.begin();
     }
 
-    public str toS() {
-        return this.name();
+    public PropObj end() {
+        this.proxy.end();
+
+        return super();
     }
 
+    public void aborted() {
+        this.proxy.aborted();
+
+        super();
+    }
+
+    public void drawGraphs(LayerBuffer lb) {
+        if (Graph g = this.proxy.get2D()) {
+            g.draw(lb);
+        }
+    }
+
+    public Primitive3D get3D(FetchEnv3D env) {
+        return this.proxy.selection.get3D(env);
+    }
+
+    public Primitive3D toSpace(Primitive3D prim) {
+        return this.proxy.selection.toSpace(prim);
+    }
+
+    public bool deny3D() {
+        return false;
+    }
 }

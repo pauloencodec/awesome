@@ -72,6 +72,10 @@ public class AweObject {
     }
 
     extend public bool isPreferrableConnector(Connector c) {
+        if (c as AweConnectLine) {
+            return !c.overrideGroupKey.emptyOrOnlyWhiteSpace() or !c.friendlyName.emptyOrOnlyWhiteSpace();
+        }
+        
         return false;
     }
 
@@ -160,7 +164,7 @@ public class AweObject {
         }
         AweStretcher{} active();
         for(s in this._stretchers) {
-            if(this.hasDomainOptions(s.model, s.propKey)) {
+            if (s.model.hasDomainOptions(s.propKey)) {
                 active << s;
             }
         }
@@ -174,13 +178,18 @@ public class AweObject {
         
     }
 
-    extend private bool hasDomainOptions(AweObject model, str propKey) {
-        var domain = model.getDomain(propKey);
+    extend public bool hasDomainOptions(str propKey) {
+        var domain = this.getDomain(propKey);
         
         return domain and domain.count > 1;
     }
 
-    public str->str connectLineToPropMap();
+    private str->str _connectLineToPropMap();
+    extend public str->str connectLineToPropMap() {
+        if(!this._connectLineToPropMap) init this._connectLineToPropMap();
+
+        return this._connectLineToPropMap;
+    }
 
     extend public AweStretcher{} createStretchers() {
         //default stretchers for everyone.
@@ -800,23 +809,6 @@ public class AweObject {
         return sets;
     }
 
-    /***************** connection applications *********** */
-    //override this one
-    extend public AweConnectionApplication[] createConnectionApplications() {
-        return null;
-    }
-
-    private AweConnectionApplication[] _connectionApplications;
-
-    extend public AweConnectionApplication[] getConnectionApplications() {
-        if(!this._connectionApplications) {
-            this._connectionApplications = this.createConnectionApplications();
-        }
-        return this._connectionApplications;
-    }
-
-    public AweConnectionApplication activeApplication = null;
-
     /************* automations ***************/
     extend public AweGroupAutomation[] getGroupAutomations() {
         return null;
@@ -973,6 +965,11 @@ public class AweObject {
     /*** Animations ***/
     extend public Animation customInsertAnimation(StartInsertAnimationEnv env) {     
         return null;
+    }
+
+    /*** Snapper space events ***/
+    extend public void dropped() {
+        
     }
 }
 

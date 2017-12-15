@@ -48,19 +48,21 @@ public class AweConnectEnv {
     public constructor auto();
 
     public constructor(Connector connector) {
-        if(connector != null)
+        if (connector != null) {
             this(set=connector.getConnectorSet, model=connector.getModel, snapper=connector.snapper, connector=connector, id=connector.getId, bag=connector.getBag);
+        }
     }
 }
 
-public <AweConnectEnv, AweConnectEnv> aweConnectEnv(SnapInfo info) {
+public <AweConnectEnv, AweConnectEnv> getAweConnectEnv(SnapInfo info) {
     AweConnectEnv snap;
     AweConnectEnv attach;
 
-    if(info as ConnectSnapInfo) {
-        if(info.snap())
+    if (info as ConnectSnapInfo) {
+        if (info.snap())
             snap = new AweConnectEnv(info.snap());
-        if(info.attach())
+            
+        if (info.attach())
             attach = new AweConnectEnv(info.attach());
     }
 
