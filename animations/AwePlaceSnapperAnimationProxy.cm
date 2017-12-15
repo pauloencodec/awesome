@@ -81,6 +81,8 @@ public class AwePlaceSnapperAnimationProxy {
 
         this.begin();
 
+        this.selectedApplication = this.getSafeSelectionApplication();
+
         if (this.connectionApplications.count > 0) {
             this.owner.animationProperties.appendSmart(applicationPropKey, "Connect To", this.selectedApplication, new StrSubSet(this.connectionApplications), lockable=false);
         }
@@ -320,14 +322,7 @@ public class AwePlaceSnapperAnimationProxy {
     }
 
     extend public bool includeSnap(Connector snap) {
-        var application = this.selectedApplication;
-
-        if (!this.connectionApplications or this.connectionApplications.empty()) {
-            application = autoId;
-        }
-        else if (application !in this.connectionApplications) {
-            application = this.connectionApplications.first();
-        }
+        var application = this.getSafeSelectionApplication();
 
         if (application != autoId) {
             AweConnectEnv env(snap);
@@ -336,6 +331,17 @@ public class AwePlaceSnapperAnimationProxy {
         }
 
         return true;
+    }
+
+    extend private str getSafeSelectionApplication() {
+        if (!this.connectionApplications or this.connectionApplications.empty()) {
+            return autoId;
+        }
+        else if (this.selectedApplication !in this.connectionApplications) {
+            return this.connectionApplications.first();
+        }
+
+        return this.selectedApplication;
     }
 
     extend public void updateApplicationList() {
@@ -353,7 +359,7 @@ public class AwePlaceSnapperAnimationProxy {
         
         this.connectionApplications = allApplications.seq.sort();
         
-        if (this.connectionApplications.count > 0) {
+        if (this.connectionApplications.count > 1) {
             this.connectionApplications.insert(0, autoId);
         }
     }
