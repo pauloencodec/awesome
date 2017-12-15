@@ -1113,7 +1113,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
             buildQuickProperties << statement {
                 var @domainName = this.getDomain(@propNameStr);
 
-                if (@domainName and @visibleName and !this.isStretchableProp(@propNameStr)) {
+                if (@domainName and @visibleName) {
                     Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, distance(@propName));
 
                     if (@domainName.any()) {
@@ -1155,7 +1155,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
             buildQuickProperties << statement {
                 var @domainName = this.getDomain(@propNameStr);
 
-                if (@domainName and @visibleName and !this.isStretchableProp(@propNameStr)) {
+                if (@domainName and @visibleName) {
                     Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, @propName);
 
                     if (@domainName.any()) {
