@@ -133,3 +133,14 @@ public void remove(Space space, AweObject model) {
         }
     }
 }
+
+public box toSpace(Snapper s, box b) {
+    return b.rotated(s.rot).moved(s.pos);
+}
+
+public Graph toSpace(Snapper s, Graph g) {
+    g = g.copy();
+    g.rotate(s.rot);
+    g.move(s.pos);
+    return g;
+}
