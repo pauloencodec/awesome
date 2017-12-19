@@ -349,17 +349,47 @@ public class AwePlaceSnapperAnimationProxy {
             return;
         }
 
-        str{} allApplications();
+        //name->boost
+        str->double applications();
+
+        bool boosted = false;
 
         for (snap in this.owner.selection.snaps) {
             AweConnectEnv env(snap);
             
-            allApplications <<? env.set.?application();
+            var name = env.set.?application();
+            
+            if(!name) continue;
+
+            var boost = env.set.?applicationBoost();
+
+            if(boost != 0) {
+                boosted = true;
+            }
+
+            if(name in applications.keys) {
+                var currentBoost = applications.get(name);
+                if(boost > currentBoost) applications.put(name, boost); 
+            }
+            else {
+                applications.put(name, boost); 
+            }
         }
         
-        this.connectionApplications = allApplications.seq.sort();
-        
-        if (this.connectionApplications.count > 1) {
+        <double, str>[] score();
+        for(name, boost in applications) {
+            score << <boost, name>;
+        }
+
+        var sorted = score.sort(function sortApplications, null);
+        str[] list();
+        for(s in sorted) {
+            list << s.v1;
+        }
+
+        this.connectionApplications = list;
+
+        if(this.connectionApplications.count > 1 and !boosted) {
             this.connectionApplications.insert(0, autoId);
         }
     }
@@ -405,4 +435,14 @@ public int sortByDistanceToLine(Connector a, Connector b, Object env) {
     }
 
     return 0;
+}
+
+public int sortApplications(<double, str> a, <double, str> b, Object env) {
+    //first by boost desc
+    var compare = compare(b.v0, a.v0);
+    if(compare == 0) {
+        //then alpha asc
+        return compare(a.v1, b.v1);
+    }
+    return compare;
 }
