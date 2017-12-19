@@ -88,31 +88,23 @@ public class EGraph {
             edges.remove(e);
         }
     }
-/*
-    extend public void updateCostsFor( CostEstimator estimator, Node s ) {
-        // Node s = find(p);
-        if ( !s ) return;
-        for( e in s.edges ) {
-            if ( s.obj == e.a.obj and s.obj == e.b.obj ) {
-                e.path = EmptyConnectedPath([e.a.p, e.b.p]);
-                continue;
-            }
 
-            if ( s.reachable.contains( e.a ) and s.reachable.contains(e.b) ) {
-                ElectricalConnectedPath c = estimator.cost( e.a.obj, e.a.p, e.b.obj, e.b.p );
-                // if it couldn't find a path, this edge is useless, so get rid of it
-                if ( c.validPath ) {
-                    e.path = c;
-                    continue;
-                }
-            }
-            
-            e.a.edges.remove(e);
-            e.b.edges.remove(e);
-            edges.remove(e);
+    extend public void updatePathFor( CostEstimator estimator, Edge edge ) {
+        if ( edge.a.obj == edge.b.obj ) {
+            return;
+        }
+        
+        ElectricalConnectedPath c = estimator.cost( edge.a.obj, edge.a.p, edge.b.obj, edge.b.p );
+        // if it couldn't find a path, this edge is useless, so get rid of it
+        if ( c.validPath ) {
+            edge.path = c;
+        } else {
+            edge.a.edges.remove(edge);
+            edge.b.edges.remove(edge);
+            edges.remove(edge);
         }
     }
-    */
+    
 
     extend public TreeNode traverse( point p, CostEstimator estimator ) {
         Node start = find( p );
@@ -127,8 +119,8 @@ public class EGraph {
 
         Node{} unavailable();
 
-        // calculate the edges for start
-        // this.updateCostsFor( estimator, start );
+        // calculate the cost for edges
+        this.updateCosts( estimator, p );
         
         remaining.remove(start);
         options += start.edges;
@@ -136,7 +128,7 @@ public class EGraph {
         int count = 0;
 
         while( remaining.count > 0 and options.count > 0 ) {
-            if ( count++ > 500 ) {
+            if ( count++ > 1000 ) {
                 pln("probably infinite...");
                 break;
             }
@@ -146,10 +138,17 @@ public class EGraph {
             for( edge in options ) {
                 if (e == null or edge.cost < e.cost ) e = edge;
             }
+            
+            double origCost = e.cost;
+            this.updatePathFor( estimator, e );
+            if ( origCost != e.cost ) {
+                continue;
+            }
+
             options.remove(e);
 
             Node cur = e.a;
-            Node new = e.b;;
+            Node new = e.b;
             if ( new !in remaining ) {
                 cur = e.b;
                 new = e.a;
@@ -179,10 +178,6 @@ public class EGraph {
 
             // update the doors so we don't overload a door
             estimator.selectPath( e.path.path );
-            new.reachable = cur.reachable;
-            // not ideal, but just testing
-            this.updateCosts( estimator, p );
-            // this.updateCostsFor( estimator, new );
 
             for( edge in new.edges ) {
                 Node o = edge.a == new ? edge.b : edge.a;

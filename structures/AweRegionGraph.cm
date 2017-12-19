@@ -154,7 +154,7 @@ public class AweRegionGraph {
         RegionNode startNode = find( start );
         RegionNode endNode = find( end );
 
-        if ( startNode.element == endNode.element ) return [start,end];
+        // if ( startNode.element == endNode.element ) return [start,end];
 
         if ( debug ) {
             pathFinderDebug.clear();
