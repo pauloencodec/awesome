@@ -768,6 +768,8 @@ public class AweSnapper extends TaggableSnapper {
             if (s as AweStretcherConnector) {
                 s.stretcher.model.endStretch(s.stretcher.propKey, s.stretcher.model.get(s.stretcher.propKey).?double);
             }
+
+            this.snapAllAligned();
             this.invalidate3D();
             this.invalidate2D();
         }
