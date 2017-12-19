@@ -154,6 +154,8 @@ public class AweRegionGraph {
         RegionNode startNode = find( start );
         RegionNode endNode = find( end );
 
+        if ( startNode.element == endNode.element ) return [start,end];
+
         if ( debug ) {
             pathFinderDebug.clear();
             pln("Start: " # start);
@@ -251,12 +253,7 @@ public class AweRegionGraph {
         available <<? find( start );
 
         while( available.count > 0 ) {
-            RegionNode next = null;
-            // just get an item from "available"
-            for( n in available ) {
-                next = n;
-                break;
-            }
+            RegionNode next = available.get();
             visited << next;
             available.remove(next);
             for ( e in next.edges ) {

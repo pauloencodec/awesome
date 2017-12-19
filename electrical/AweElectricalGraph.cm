@@ -88,8 +88,33 @@ public class EGraph {
             edges.remove(e);
         }
     }
+/*
+    extend public void updateCostsFor( CostEstimator estimator, Node s ) {
+        // Node s = find(p);
+        if ( !s ) return;
+        for( e in s.edges ) {
+            if ( s.obj == e.a.obj and s.obj == e.b.obj ) {
+                e.path = EmptyConnectedPath([e.a.p, e.b.p]);
+                continue;
+            }
 
-    extend public TreeNode traverse( point p ) {
+            if ( s.reachable.contains( e.a ) and s.reachable.contains(e.b) ) {
+                ElectricalConnectedPath c = estimator.cost( e.a.obj, e.a.p, e.b.obj, e.b.p );
+                // if it couldn't find a path, this edge is useless, so get rid of it
+                if ( c.validPath ) {
+                    e.path = c;
+                    continue;
+                }
+            }
+            
+            e.a.edges.remove(e);
+            e.b.edges.remove(e);
+            edges.remove(e);
+        }
+    }
+    */
+
+    extend public TreeNode traverse( point p, CostEstimator estimator ) {
         Node start = find( p );
         if ( !start ) return null;
 
@@ -101,6 +126,9 @@ public class EGraph {
         remaining += nodes;
 
         Node{} unavailable();
+
+        // calculate the edges for start
+        // this.updateCostsFor( estimator, start );
         
         remaining.remove(start);
         options += start.edges;
@@ -148,6 +176,13 @@ public class EGraph {
                 unavailable << new;
                 unavailable << cur;
             }
+
+            // update the doors so we don't overload a door
+            estimator.selectPath( e.path.path );
+            new.reachable = cur.reachable;
+            // not ideal, but just testing
+            this.updateCosts( estimator, p );
+            // this.updateCostsFor( estimator, new );
 
             for( edge in new.edges ) {
                 Node o = edge.a == new ? edge.b : edge.a;
