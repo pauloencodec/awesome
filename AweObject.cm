@@ -235,7 +235,12 @@ public class AweObject {
 
     extend public AweStretcher domainStretcher(DistanceEnum domain, str propKey, str{} allStretchableDomainKeys) {
         if (!domain) return null;
-        if (this.mainSnapper() !in AweModelSnapper) return null;
+
+        if (?AweSnapper s = this.mainSnapper()) {
+            if (s.isLegacySnapper()) {
+                return null;
+            }
+        }
 
         //make a copy of the model to try the different sizes
         var model = this.copy();

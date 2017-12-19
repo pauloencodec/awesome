@@ -116,6 +116,10 @@ public class AweSnapper extends TaggableSnapper {
         }
     }
 
+    extend public bool isLegacySnapper() {
+        return true;
+    }
+
     extend public symbol{} allCategories() {
         symbol{} categories();
 
