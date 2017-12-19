@@ -121,6 +121,10 @@ public class AweObject {
 
         if(oldValue.equal(value)) return;
         
+        if (value as AweObject) {
+            value.parent = this;
+        }
+
         //AweMaterialShell instance must never be replaced. instead, update the contents of the shell
         if (value in AweMaterialShell and oldValue in AweMaterialShell) {
             oldValue.AweMaterialShell.setMaterial(value.AweMaterialShell.materialInstance());
@@ -132,6 +136,10 @@ public class AweObject {
         }
 
         propChanged(propName, oldValue, value);
+        
+        if (this.parent) {
+            this.parent.childPropChanged(this, propName, oldValue, value);
+        }
 
         for (AweSnapper snapper in this.snappers) {
             for (model in snapper.allModels()) {
@@ -373,6 +381,9 @@ public class AweObject {
     extend public void propChanged(str propName, Object oldValue, Object newValue) {
     }        
 
+    extend public void childPropChanged(AweObject child, str propName, Object oldValue, Object newValue) {
+    }        
+
     extend public void buildQuickPropertiesFromSyntax(QuickProperties props) {
     }
 
@@ -405,9 +416,12 @@ public class AweObject {
     }
 
     extend public bool buildQuickProperties(QuickProperties props) {
+        this.parent.?buildQuickProperties(props);
+        
         this.buildQuickPropertiesFromSyntax(props);
         this.buildConnectorSetProperties(props);
         this.sortQuickProperties(props);
+        this.parent.?sortQuickProperties(props);
         
         return props and props.properties.any();
     }
@@ -423,6 +437,10 @@ public class AweObject {
     }
 
     extend public bool quickPropertyChanged(QuickProperties props, str key, Object value, bool testChangeOnly) {
+        if (this.parent.?quickPropertyChanged(..)) {
+            return true;
+        }
+
         var changed = false;
         
         if(!testChangeOnly)
