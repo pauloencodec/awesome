@@ -60,6 +60,11 @@ public class AweConnectorSet  {
         return null;
     }
 
+    //bigger numbers will make this application be presented before others
+    extend public double applicationBoost() {
+        return 0;
+    }
+
     //return false here for connections that don't need to actively snap to other things while being dragged. 
     //In other words, for connections that receive other objects connecting to it, such as a panel line that expects a worksurface.
     extend public bool snap() {

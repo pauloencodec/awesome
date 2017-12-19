@@ -214,16 +214,33 @@ public class AweObject {
             }
         }
 
-        for(key, domain in stretchableDomains) {
-             var stretcher = this.domainStretcher(domain, key, stretchableDomains.keys());
-            if(stretcher) stretchers << stretcher;
+        for (key, domain in stretchableDomains) {
+            var stretcher = this.domainStretcher(domain, key, stretchableDomains.keys());
+            
+            if (stretcher) {
+                stretchers << stretcher;
+            }
+            else {
+                if (key == "width") {
+                    stretchers << new AweWidthStretcher(this);
+                }
+                else if (key == "depth") {
+                    stretchers << new AweDepthStretcher(this);
+                }
+            }
         }
 
         return stretchers;
     }
 
     extend public AweStretcher domainStretcher(DistanceEnum domain, str propKey, str{} allStretchableDomainKeys) {
-        if(!domain) return null;
+        if (!domain) return null;
+
+        if (?AweSnapper s = this.mainSnapper()) {
+            if (s.isLegacySnapper()) {
+                return null;
+            }
+        }
 
         //make a copy of the model to try the different sizes
         var model = this.copy();
@@ -1113,7 +1130,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
             buildQuickProperties << statement {
                 var @domainName = this.getDomain(@propNameStr);
 
-                if (@domainName and @visibleName and !this.isStretchableProp(@propNameStr)) {
+                if (@domainName and @visibleName) {
                     Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, distance(@propName));
 
                     if (@domainName.any()) {
@@ -1155,7 +1172,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
             buildQuickProperties << statement {
                 var @domainName = this.getDomain(@propNameStr);
 
-                if (@domainName and @visibleName and !this.isStretchableProp(@propNameStr)) {
+                if (@domainName and @visibleName) {
                     Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, @propName);
 
                     if (@domainName.any()) {
