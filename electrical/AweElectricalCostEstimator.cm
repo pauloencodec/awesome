@@ -61,13 +61,13 @@ public class DistanceCostCase extends CostCase {
     }
     
     public ElectricalConnectedPath cost(ElectricalModel a, point aLoc, ElectricalModel b, point bLoc) {
-        if (!rGraph) return builder.get( [aLoc, bLoc] );
+        if (!rGraph) return builder.get( [aLoc, bLoc], a, b );
 
         // point[] path = rGraph.shortestPath( aLoc, bLoc, debug=false );
         // double cost = path.totalDistance();
         // point[] interestPoints = rGraph.findOwnerBreaks( path );
 
-        ElectricalConnectedPath ePath = builder.get( rGraph.shortestPath( aLoc, bLoc, debug=false ) );
+        ElectricalConnectedPath ePath = builder.get( rGraph.shortestPath( aLoc, bLoc, debug=false ),a, b );
         return ePath;
     }
 }
@@ -89,8 +89,8 @@ public class SameComponentCostCase extends CostCase {
 
 public class AweElectricalPathBuilderFactory {
     public constructor() {}
-    extend public ElectricalConnectedPath get( point[] path ) {
-        return ElectricalConnectedPath(path);
+    extend public ElectricalConnectedPath get( point[] path, ElectricalModel start, ElectricalModel end ) {
+        return ElectricalConnectedPath(path, start, end);
     }
 }
 
