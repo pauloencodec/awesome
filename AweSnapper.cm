@@ -66,6 +66,8 @@ public class AweSnapper extends TaggableSnapper {
 
     public constructor() {
         this.appendSelfToModels();
+
+        this.lonelyRemove = this.mainModel().?lonelyRemove();
     }
 
     public AweObject activeConfigurator;

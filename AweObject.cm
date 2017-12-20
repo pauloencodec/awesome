@@ -71,6 +71,10 @@ public class AweObject {
         return false;
     }
 
+    extend public bool lonelyRemove() {
+        return false;
+    }
+
     extend public bool isPreferrableConnector(Connector c) {
         if (c as AweConnectLine) {
             return !c.overrideGroupKey.emptyOrOnlyWhiteSpace() or !c.friendlyName.emptyOrOnlyWhiteSpace();
