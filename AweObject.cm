@@ -47,6 +47,7 @@ public class AweObject {
     public str->Object props() : copy=null;
     public str _galleryId;
     public str _label;
+    public bool buildParentQuickProperties;
 
     //used to expose multiple aweObjects at once in quick properties
     public str _uniqueQuickPropertyId;
@@ -416,12 +417,12 @@ public class AweObject {
     }
 
     extend public bool buildQuickProperties(QuickProperties props) {
-        this.parent.?buildQuickProperties(props);
+        if (this.buildParentQuickProperties) this.parent.?buildQuickProperties(props);
         
         this.buildQuickPropertiesFromSyntax(props);
         this.buildConnectorSetProperties(props);
         this.sortQuickProperties(props);
-        this.parent.?sortQuickProperties(props);
+        if (this.buildParentQuickProperties) this.parent.?sortQuickProperties(props);
         
         return props and props.properties.any();
     }
@@ -437,8 +438,10 @@ public class AweObject {
     }
 
     extend public bool quickPropertyChanged(QuickProperties props, str key, Object value, bool testChangeOnly) {
-        if (this.parent.?quickPropertyChanged(..)) {
-            return true;
+        if (this.buildParentQuickProperties) {
+            if (this.parent.?quickPropertyChanged(..)) {
+                return true;
+            }
         }
 
         var changed = false;
