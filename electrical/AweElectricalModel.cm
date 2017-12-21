@@ -64,5 +64,9 @@ public class ElectricalModel extends AweObject {
         return [AweElectricalPoint(center)];
     }
 
+    extend public bool isMiddle(){
+        return false;
+    }
+
     extend public AwePart[] getParts( CircuitType circuit ) { return null; }
 }
