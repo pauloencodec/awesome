@@ -49,4 +49,8 @@ public class AweModelSnapper extends AweBindingSnapper {
     public AweObject initRoot() {
         return this._model;
     }
+
+    public bool isLegacySnapper() {
+        return false;
+    }
 }
