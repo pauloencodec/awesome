@@ -87,42 +87,54 @@ public class AweConnectorSet  {
         return result;
     }
 
-    extend public AweObject getConnection(str connectionId) {
+    extend public AweObject getConnection(rest: str[] ids) {
         if (!this.connectorCache) return null;
-        
-        var connector = this.connectorCache.get(connectionId);
-        var connections = connector.?connectedSnappers();
 
-        if (connections.any()) {
-            return connections.get().getModel();
-        }
+        for (id in ids) {
+            var connector = this.connectorCache.get(id);
+            var connections = connector.?connectedSnappers();
 
-        return null;
-    }
-
-    extend public AweObject{} getConnections(str connectionId) {
-        var connector = this.connectorCache.get(connectionId);
-        var connections = connector.?connectedSnappers();
-
-        AweObject{} result();
-
-        if (connections.any()) {
-            for (c in connections) {
-                result << c.getModel();
+            if (connections.any()) {
+                return connections.get().getModel();
             }
-
-            return result;
         }
 
         return null;
     }
 
-    extend public bool isConnected(str connectionId) {
-        if (!this.connectorCache) return false;
-        
-        var connector = this.connectorCache.get(connectionId);
+    extend public AweObject{} getConnections(rest: str[] ids) {
+        if (!this.connectorCache) return null;
 
-        return connector.isConnected();
+        for (id in ids) {
+            var connector = this.connectorCache.get(id);
+            var connections = connector.?connectedSnappers();
+
+            AweObject{} result();
+
+            if (connections.any()) {
+                for (c in connections) {
+                    result << c.getModel();
+                }
+
+                return result;
+            }
+        }
+
+        return null;
+    }
+
+    extend public bool isConnected(rest: str[] ids) {
+        if (!this.connectorCache) return false;
+
+        for (id in ids) {
+            var connector = this.connectorCache.get(id);
+
+            if (connector.isConnected()) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     extend public void connectors(AweConnectorCache cc, bool ghostMode) {
