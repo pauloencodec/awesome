@@ -134,6 +134,26 @@ public void remove(Space space, AweObject model) {
     }
 }
 
+public void reconnectAll(Snapper s) {
+    var lonelyRemove = s.lonelyRemove;
+    
+    if (lonelyRemove) {
+        s.lonelyRemove = false;
+    }
+                    
+    s.disconnectAll();
+
+    s.lonelyRemove = lonelyRemove;
+    
+    s.snapAllAligned();
+}
+
+public void disconnectAll(Snapper s) {
+    for (c in s.connectors()) {
+        c.disconnectAll();
+    }
+}
+
 public box toSpace(Snapper s, box b) {
     return b.rotated(s.rot).moved(s.pos);
 }
