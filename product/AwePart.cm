@@ -185,6 +185,8 @@ public class AwePart extends OfficePart {
         res << spnn("S-=", this.discount(space) * 100);
         // SP= Sell Price
         res << spnn("SP=", this.sellPrice(true, space).formatted(precision=2));
+        // TG= Ind. Tag
+        res << spnn("TG=", this.tag ? this.tag.text : "");
 
         //Catalog specific header rows
         for (row in this.header.getCatalogHeaderRows()) {

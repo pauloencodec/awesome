@@ -508,10 +508,6 @@ public class AweSnapper extends TaggableSnapper {
     }
 
     public void afterGetParts(PartsEnv env) {
-        // We were having problems with tags that kept in the World even if we changed the model and modified the Snapper
-        // to not add it. Cleaning all the tags from the Snapper and letting it re-create based on what is placed in the World
-        // seems to fix that.
-        resetItemTags();
         super(env);
 
         if (this.specialParts and this.picklistProxy) {
