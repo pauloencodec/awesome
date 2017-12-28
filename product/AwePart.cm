@@ -44,6 +44,8 @@ private const str allsteelCompanyCode = "ALS";
 public class AwePart extends OfficePart {
     public str sku;
     public str catalog;
+    public str company;
+    public str category;
     public bool isValid;
     public bool isSpecial;
     private AwePartOption[] options : public readable;
@@ -91,6 +93,14 @@ public class AwePart extends OfficePart {
 
     public str catalog() {
         return this.catalog;
+    }
+
+    public str company() {
+        return this.company;
+    }
+
+    public str category() {
+        return this.category;
     }
 
     public ItemTag createItemTag() {

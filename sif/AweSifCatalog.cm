@@ -40,6 +40,8 @@ private const str indexFileExtension = ".idx";
 
 public class AweSifCatalog {
     public str catalogCode;
+    public str company;
+    public str category;
 
     private AweSifFileIndex file2Index;
     private AweSifFileIndex file3Index;
@@ -57,7 +59,8 @@ public class AweSifCatalog {
     public constructor(str catalogCode, Url file1Url, Url file2Url, Url file3Url) {
         this.catalogCode = catalogCode;
 
-        // var indexFile1 = new Url(file2Url # ".idx");
+        this.readCatalogInfo(file1Url);
+
         var indexFile2 = new Url(this.getIndexFilePath(file2Url));
         var indexFile3 = new Url(this.getIndexFilePath(file3Url));
 
@@ -80,6 +83,21 @@ public class AweSifCatalog {
         path #= catalog;
 
         this(catalog, new Url(path # ".1"), new Url(path # ".2"), new Url(path # ".3"));
+    }
+
+    extend private void readCatalogInfo(Url file1Url) {
+        using (Stream stream = file1Url.openForRead()) {
+            stream.setPos(0);
+
+            //AOR Allsteel Further System
+            //Catalog: AOR - Company: Allsteel - Category: Further System
+            var firstLine = stream.getCStrLine().toS();
+            var value = firstLine.split('=').v1;
+            var data = value.split(' ').v1.split(' ');
+
+            this.company = data.v0;
+            this.category = data.v1;
+        }
     }
 
     extend private void indexFiles(Url file1Url, Url file2Url, Url file3Url) {
