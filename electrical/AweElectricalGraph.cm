@@ -75,11 +75,27 @@ public class EGraph {
         if ( !s ) return;
         for( e in edges ) {
             if ( s.reachable.contains( e.a ) and s.reachable.contains(e.b) ) {
-                ElectricalConnectedPath c = estimator.cost( e.a.obj, e.a.p, e.b.obj, e.b.p );
-                // if it couldn't find a path, this edge is useless, so get rid of it
-                if ( c.validPath ) {
-                    e.path = c;
-                    continue;
+                // check if the model allows it
+                bool modelAllowed = true;
+                
+                if ( e.a.obj != e.b.obj ) {
+                    AweObject objA = e.a.obj.owner.?AweSnapper.mainModel;
+                    if ( objA ) {
+                        modelAllowed = objA.validElectricalConnection( e.a.obj, e.a.p, e.b.p );
+                    }
+                    AweObject objB = e.b.obj.owner.?AweSnapper.mainModel;
+                    if ( modelAllowed and objB ) {
+                        modelAllowed = objB.validElectricalConnection( e.b.obj, e.b.p, e.a.p );
+                    }
+                }
+                
+                if ( modelAllowed ) {
+                    ElectricalConnectedPath c = estimator.cost( e.a.obj, e.a.p, e.b.obj, e.b.p );
+                    // if it couldn't find a path, this edge is useless, so get rid of it
+                    if ( c.validPath ) {
+                        e.path = c;
+                        continue;
+                    }
                 }
             }
             
