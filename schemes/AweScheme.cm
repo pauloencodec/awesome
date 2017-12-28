@@ -125,7 +125,12 @@ public class AweScheme {
       
         if (schemeManager) {
             schemeManager.registerEditor(schemeEditor);
+            this.sortSchemes(schemeManager);
         }
+    }
+
+    extend private void sortSchemes(SchemeManager schemeManager) {
+        schemeManager.groupSchemeEditors = schemeManager.groupSchemeEditors.sort(function sortGroupSchemeEditors, null);
     }
 
     extend public AweSchemeEditor getEditorInstance() {
@@ -211,6 +216,10 @@ public class AweScheme {
             aweMaterial.setMaterial(material);
         }
     }
+}
+
+private int sortGroupSchemeEditors(GroupSchemeEditor a, GroupSchemeEditor b, Object env) {
+    return compare(a.label, b.label);
 }
 
 public class AweSchemeItem {
