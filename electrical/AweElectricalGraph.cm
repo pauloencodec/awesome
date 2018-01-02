@@ -40,6 +40,8 @@ public class EGraph {
     public Node{} nodes();
     public Edge{} edges();
 
+    public AweElectricalRoutingEnv env : copy=reference;
+
     public constructor() {}
 
     extend public void add( Node a ) {
@@ -186,6 +188,8 @@ public class EGraph {
             map.get(cur).children << t;
 
             remaining.remove(new);
+            e.path.selected();
+            env.visited << new.obj;
 
             if ( !sameComponent ) {
                 unavailable << new;
