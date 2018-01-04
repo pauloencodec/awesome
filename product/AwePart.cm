@@ -44,6 +44,8 @@ private const str allsteelCompanyCode = "ALS";
 public class AwePart extends OfficePart {
     public str sku;
     public str catalog;
+    public str company;
+    public str category;
     public bool isValid;
     public bool isSpecial;
     private AwePartOption[] options : public readable;
@@ -91,6 +93,14 @@ public class AwePart extends OfficePart {
 
     public str catalog() {
         return this.catalog;
+    }
+
+    public str company() {
+        return this.company;
+    }
+
+    public str category() {
+        return this.category;
     }
 
     public ItemTag createItemTag() {
@@ -185,6 +195,8 @@ public class AwePart extends OfficePart {
         res << spnn("S-=", this.discount(space) * 100);
         // SP= Sell Price
         res << spnn("SP=", this.sellPrice(true, space).formatted(precision=2));
+        // TG= Ind. Tag
+        res << spnn("TG=", this.tag ? this.tag.text : "");
 
         //Catalog specific header rows
         for (row in this.header.getCatalogHeaderRows()) {

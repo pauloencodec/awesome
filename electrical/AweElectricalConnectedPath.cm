@@ -38,10 +38,15 @@ package custom.awesome.electrical;
 
 public class ElectricalConnectedPath {
     public point[] path;
+    public ElectricalModel start;
+    public ElectricalModel end;
+
     public ElectricalInternalComponent[] components();
 
-    public constructor( point[] path ) {
+    public constructor( point[] path, ElectricalModel start, ElectricalModel end ) {
         this.path = path;
+        this.start = start;
+        this.end = end;
         if ( validPath ) {
             translateToComponents( parsePath() );
         }
