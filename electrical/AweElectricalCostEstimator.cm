@@ -96,8 +96,10 @@ public class AweElectricalPathBuilderFactory {
 
 public class CostEstimator {
     public CostCase{} cases();
+    public AweRegionGraph graph;
     
     public constructor( AweElectricalPathBuilderFactory builder, AweRegionGraph g=null ) {
+        this.graph = g;
         // add base computer
         cases << DistanceCostCase(builder, g);
         // cases << SameComponentCostCase();
@@ -115,5 +117,17 @@ public class CostEstimator {
         }
     
         return best;
+    }
+
+    // basically just updates the graph doors
+    extend public void selectPath( point[] path ) {
+        if ( graph != null ) {
+            for( p in path ) {
+                RegionNode n = graph.find( p );
+                if ( n as RegionDoor ) {
+                    n.capacity -= 1;
+                }
+            }
+        }
     }
 }
