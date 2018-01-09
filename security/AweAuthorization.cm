@@ -60,7 +60,6 @@ public class AweAutorization {
 
                 var featureType = feature.v0;
                 if (featureType != customDictionaryKey) { 
-                    // pln("Skiping extension information"; #k; #v);
                     continue;
                 }
 
