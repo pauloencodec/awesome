@@ -991,6 +991,10 @@ public class AweObject {
         return positions;
     }
 
+    extend public bool validElectricalConnection( ElectricalModel mine, point start, point end ) {
+        return true;
+    }
+
     /*** Electrical Regions ***/
     extend public box[] electricalRegions() {
         return null;
