@@ -60,7 +60,7 @@ public class RegionNode {
         hasDrawn << this;
         Primitive3D[] prims();
 
-        Sphere3D s( p, 0.5inch );
+        Sphere3D s( p, this in RegionDoor ? 0.25inch : 0.5inch );
         s.setMaterial( material() );
 
         prims << s;

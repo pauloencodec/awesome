@@ -139,6 +139,10 @@ public class EGraph {
 
         // calculate the cost for edges
         this.updateCosts( estimator, p );
+
+        // pln("  ");
+        // pln("---INIT DONE---");
+        // pln("  ");
         
         remaining.remove(start);
         options += start.edges;
@@ -205,7 +209,7 @@ public class EGraph {
                 if ( o in remaining ) options << edge;
             }
         }
-
+        
         return root;
     }
 

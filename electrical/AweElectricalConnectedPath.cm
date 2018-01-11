@@ -40,6 +40,7 @@ public class ElectricalConnectedPath {
     public point[] path;
     public ElectricalModel start;
     public ElectricalModel end;
+    public line[] debug();
 
     public ElectricalInternalComponent[] components();
     public AweElectricalRoutingEnv env;
@@ -68,12 +69,14 @@ public class ElectricalConnectedPath {
         return this.cost() < ( other ? other.cost() : maxDouble );
     }
 
+    public double costOverride = maxDouble;
+
     extend public double cost() {
         double d = 0;
         for ( i in 1..(this.path.count-1) ) {
             d += path[i-1].distance(path[i]);
         }
-        return d;
+        return min( d, costOverride );
     }
 
     extend public void selected() { }
