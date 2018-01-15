@@ -112,6 +112,5 @@ public void handleChannelCallback(str->str map, bool offline) {
 
 {
     // aweAutorization.register();
-    // mcOverlord.requestUpdateProfileData();
     pln(#aweAutorization.allows("amazon"));
 }
