@@ -1,0 +1,92 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.electrical;
+
+public class AweElectricalInfeedModel extends ElectricalModel {
+
+    public TreeNode path;
+    
+    public Primitive3D get3D( FetchEnv3D env, Snapper z, ElectricalPosition pos ) {
+        Primitive3D[] prims();
+        
+        Primitive3D p = cache3D(this.class, "arrow") {
+            ClosedCone3D c0((0, 0, 0), (0, -1inch, 0), 0, 1inch);
+            ClosedCylinder3D c1((0, -1inch, 0), (0, -3inch, 0), 0.5inch);
+            Instance3D i(c0, c1);
+            i.move((0, -3inch, 0));
+            i.setColor(0, 255, 0);
+            i.layer = #electrical;
+            result i;
+        };
+        if ( pos ) {
+            if ( pos.rotation ) {
+                if ( owner ) p.rotate( ( 0deg, 0deg, pos.rotation.v ) );
+            } else {
+                p.rotate( pos.back ? 180deg : 0deg );
+            }
+        }
+        
+        prims << p;
+
+        return safeInstance3D(prims);
+    }
+
+    public Primitive3D extra3D( FetchEnv3D env, Snapper z, ElectricalPosition p ) {
+        Primitive3D[] prims();
+        if ( path ) {
+            getTreeNodeLines( path, prims, z );
+        }
+
+        return safeInstance3D(prims);
+    }
+
+    extend private void getTreeNodeLines( TreeNode tn, Primitive3D[] prims, Snapper z ) {
+        for ( child in tn.children ) {
+            prims << child.get3D( null, z, null );
+            // process child
+            getTreeNodeLines( child, prims, z );
+        }
+    }
+
+    public electricalAction allow( ElectricalModel object ) {
+        if ( object as AweElectricalInfeedModel ) {
+            return electricalAction.remove;
+        }
+        // for now if its not the same type of object, don't allow it
+        return electricalAction.no;
+    }
+}

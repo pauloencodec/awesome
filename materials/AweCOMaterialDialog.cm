@@ -1,0 +1,425 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.materials;
+
+// public str->AweCustomerOwnMaterial 
+
+public class AweCOMaterialDialog extends COMaterialDialog {
+    public bool apply() {
+		CustomerOwnMaterials mats = customerOwnMaterials();
+		CustomerOwnMaterial mat = mats.find(tempMat.id);
+		
+		str code = this.orderCodeField.text();
+
+		if (code.emptyOrOnlyWhiteSpace() or this.priceGradeField.getSelection().?key == "0") {
+			new OneButtonBox(dialog, "Order code and price grade are required", label="Warning");
+			return false;
+		}
+		
+		for (m in customerOwnMaterials().materials) {
+			if (tempMat.id != code and m.id == code) {
+				new OneButtonBox(dialog, "There is already a material with code " # code, label="Warning");
+				return false;
+			}
+		}
+		
+		if (mat) {
+			mat.materialCode = this.orderCodeField.text();
+			mat._description = this.descriptionField.text();
+		}
+		else {
+			bool isGmat = mat.material3D in GMaterial3D;
+
+			if (isGmat) {
+				mat = new AweCustomerOwnMaterial(this.orderCodeField.text(), this.descriptionField.text(), tempMat.material3D);
+			}
+			else {
+				mat = new AweCustomerOwnMaterial(this.orderCodeField.text(), this.descriptionField.text(),
+						tempMat.material3D,
+						scale=scaleField.value,
+						trans=transparancySL.value);
+			}
+
+			verifyUniqeness(mat);
+			customerOwnMaterials << mat;
+		}
+
+		if (mat as AweCustomerOwnMaterial) {
+			mat.type = this.typeField.getSelection().item.value.AweCustomMaterialType;
+			mat.priceGrade = this.priceGradeField.getSelection().item.value.toS();
+			mat.manufacturer = this.manufacturerField.text();
+			
+			if (this.patternNameField) {
+				mat.patternName = this.patternNameField.text();
+			}
+
+			mat.colorName = this.colorField.text();
+		}
+		
+		if (parent as COMaterialCard) {
+			parent.buildMaterials();
+			parent.matView.trySelect(mat.uniqueId);
+			parent.updateCurrentMaterial();
+		}
+		return true;
+    }    
+
+    public void chooseBtnColorCB() {
+        color c = chooseColorDialog(parent, tempMat.color2D);
+        if (c.isColor) {
+            Material3D m = colorMaterial3D(c);
+            tempMat.updateMaterial3D(m);
+            tempMat._color2D = c;
+            setControlsEnable();
+            updateImage();
+        }
+    }
+
+    public void updateTF() {
+        if (tempMat as AweCustomerOwnMaterial) {
+			var type = AweCustomMaterialType.upholstery;
+
+			if (tempMat.type) {
+				type = tempMat.type;
+			}
+
+			this.typeField.trySelect(type.name, invokeCallback=false);
+
+			this.priceGradeField.trySelect(tempMat.priceGrade.toS());
+
+			var code = tempMat ? tempMat.materialCode : "";
+
+			if (code == "COMTEMP") code = "";
+
+			this.orderCodeField.setText(code);
+			this.descriptionField.setText(tempMat._description ?? "");
+			this.manufacturerField.setText(tempMat.manufacturer ?? "");
+            
+			if (this.patternNameField) {
+				this.patternNameField.setText(tempMat.patternName ?? "");
+			}
+
+			this.colorField.setText(tempMat.colorName ?? "");
+        }
+		else {
+			this.typeField.trySelect(AweCustomMaterialType.upholstery.name);
+			this.priceGradeField.trySelect("0");
+		}
+    }
+
+    public void editTFCB() {
+        if (tempMat as AweCustomerOwnMaterial) {
+			tempMat.materialCode = this.orderCodeField.text();
+			tempMat._description = this.descriptionField.text();
+            tempMat.manufacturer = this.manufacturerField.text();
+			tempMat.patternName = this.patternNameField.text();
+			tempMat.colorName = this.colorField.text();
+        }
+    }
+
+	public DropDownTreeView typeField;
+	public FormattedTextField descriptionField;
+	public FormattedTextField orderCodeField;
+	public DropDownTreeView priceGradeField;
+	public FormattedTextField manufacturerField;
+	public Display patternNameLabel;
+	public FormattedTextField patternNameField;
+	public Display colorLabel;
+	public FormattedTextField colorField;
+
+	extend public void buildPriceGrades(AweCustomMaterialType type) {
+		var priceGradesLabel = this.createLabel("Grade", 300, below=this.orderCodeField);
+
+		TreeViewItem grades("root", "root");
+
+		grades.appendChild(new TreeViewItem("0", "Undecided"));
+
+		for (grade in type.getPriceGrades()) {
+			var gradeText = grade;
+
+			if (type == AweCustomMaterialType.fabric) {
+				gradeText = grade;
+			}
+			else if (type == AweCustomMaterialType.laminate) {
+				gradeText = laminateGrades.get(grade);
+			}
+
+			grades.appendChild(new TreeViewItem(grade, "Grade " # gradeText, value=grade));
+		}
+
+		this.priceGradeField.destroy();
+
+		this.priceGradeField = this.createDropDown(300, grades, below=priceGradesLabel);
+	}
+
+	extend public void buildPatternNameAndColorFields(AweCustomMaterialType type) {
+		this.patternNameLabel.destroy();
+		this.patternNameField.destroy();
+		this.colorLabel.destroy();
+		this.colorField.destroy();
+
+		this.patternNameField = null;
+
+		Window below = this.manufacturerField;
+
+		if (type.hasPatternName) {
+			this.patternNameLabel = this.createLabel("Pattern Name", 300, below=this.manufacturerField);
+			this.patternNameField = this.createTextField(300, below=patternNameLabel);
+
+			below = this.patternNameField;
+		}
+
+		this.colorLabel = this.createLabel("Color Name/Number", 300, below=below);
+		this.colorField = this.createTextField(300, below=colorLabel);
+	}
+
+    public void build() {
+		var type = AweCustomMaterialType.upholstery;
+
+		if (tempMat as AweCustomerOwnMaterial) {
+			type = tempMat.type;
+		}
+
+		TreeViewItem types("root", "root");
+
+		for (entry in AweCustomMaterialType.entries) {
+			types.appendChild(new TreeViewItem(entry.name, entry.value, value=entry));
+		}
+
+		this.typeField = this.createDropDown(300, types, selectedKey=type.name, callback=function onTypeChanged, pos=(10, 10));
+
+		var descriptionLabel = this.createLabel("Description", 300, below=this.typeField);
+
+		this.descriptionField = this.createTextField(300, below=descriptionLabel);
+
+		var orderCodeLabel = this.createLabel("Order Code", 300, below=this.descriptionField);
+
+		this.orderCodeField = this.createTextField(300, below=orderCodeLabel);
+
+		this.buildPriceGrades(type);
+
+		var manufacturerLabel = this.createLabel("Manufacturer", 300, below=this.priceGradeField);
+
+		this.manufacturerField = this.createTextField(300, below=manufacturerLabel);
+
+		this.buildPatternNameAndColorFields(type);
+	
+		this.updateTF();
+
+		Window last = this.colorField;
+	
+		transD = Display(this, label="Transparency"); transD.below(last, margin=12);
+		transparancySL = Slider(this, horizontal=true, callback=function transparencyCB);
+		transparancySL.below(transD);
+		transparancySL.setValue(tempMat.transparency);
+
+		
+		Image image;
+
+		image = getSizedPreviewImage(tempMat, 0.5, w=100, h=100, superQuality=true,
+						force=true);
+		SubWindow sub(this, frameStyle=thin3DFrame);
+		preview = Display(sub);
+		// I had to do this since Display had a bug with default size in 6.0 
+		preview.setSize((100, 100));
+		preview.setImage(image);
+		sub.autoSize();
+		sub.h = sub.h - 2;
+		sub.w = sub.w - 2;
+		
+		sub.below(transparancySL, margin=12);
+		
+		Button browseBtn(this, label="Browse for Texture", image=icon("open"));
+		browseBtn.rightOf(sub, 8);
+		browseBtn.pressCb = function browseCB;
+
+		Button colorBtn(this, label="Edit Color Material", image=icon("open"));
+		colorBtn.below(browseBtn);
+		colorBtn.pressCb = function colorCB;
+
+		Button gMatBtn(this, label="Browse GMaterial", image=icon("open"));
+		gMatBtn.below(colorBtn);
+		gMatBtn.pressCb = function gMatCB;
+
+		int btnW = max(browseBtn.w, colorBtn.w, gMatBtn.w);
+		browseBtn.w = btnW;
+		colorBtn.w = btnW;
+		gMatBtn.w = min (145, gMatBtn.w);
+		
+		scaleD = Display(this, label="Scale");
+		scaleD.rightOf(transparancySL, margin=12);
+		scaleD.y = last.y + last.h + 12;
+
+		scaleField = DoubleField(this,
+					subset=DoubleRange(0.001, 100.0),
+					useStepButton=true,
+					value=1.0,
+					posChangedCallback= function scaleMaterialCB);
+		scaleField.setValue(tempMat.scale);
+		scaleField.below(scaleD);
+		scaleField.w = 50;
+
+		Button cancelBtn = Button(this, label="Cancel", image=icon("cancel"));
+		
+		cancelBtn.below(sub);
+		cancelBtn.pressCb = function cancelCB;
+
+		Button okBtn = Button(this, label="Ok", image=icon("ok"));
+
+		okBtn.below(sub);
+		okBtn.alignRight();
+
+		okBtn.pressCb = function okCB;
+		
+		this.autoSize();
+    }
+}
+
+private void onTypeChanged(Control c) {
+	if (?AweCOMaterialDialog dialog = getDialog(c)) {
+        var type = c.DropDownTreeView.getSelection().item.value.AweCustomMaterialType;
+
+		dialog.buildPriceGrades(type);
+		
+		dialog.priceGradeField.trySelect("0");	
+
+		dialog.buildPatternNameAndColorFields(type);
+    }
+}
+
+private COMaterialDialog getDialog(Control c) {
+    COMaterialDialog d = c.valid ? c.parentFrame.COMaterialDialog : null;
+    
+    return d.valid ? d : null;
+}
+
+private void editTFCB(Control c) {
+    if (COMaterialDialog dialog = getDialog(c)) {
+        dialog.editTFCB();
+    }
+}
+
+private void colorCB(Control c) {
+    if (COMaterialDialog dialog = getDialog(c)) {
+        dialog.chooseBtnColorCB();
+    }
+}
+
+
+private void browseCB(Control c) {
+    if (COMaterialDialog dialog = getDialog(c)) dialog.browseUrl();
+}
+
+private void gMatCB(Control c) {
+    if (COMaterialDialog dialog = getDialog(c)) {
+        dialog.browseGMatUrl();
+    }
+}
+
+private void okCB(Control c) {
+    if (COMaterialDialog dialog = getDialog(c)) {
+        if (dialog.apply()) {
+            dialog.close();
+        }
+    }
+}
+
+private void cancelCB(Control c) {
+    dialog.close();
+}
+
+private int sortFun(CustomerOwnMaterial a, CustomerOwnMaterial b, Object env) {
+    if (a.id > b.id) return 1;
+    if (a.id < b.id) return -1;
+    return 0;
+}
+
+private COMaterialDialog dialog;
+
+private void showCOMaterialDialog(Window parent, CustomerOwnMaterial selected, MaterialDomain linkMaterials, bool focus=true) {
+    if (autoCrashing) return;
+
+    if (dialog.valid()) {
+	    dialog.close();
+    }
+
+    dialog = new AweCOMaterialDialog(parent, selected, linkMaterialDomain=linkMaterials);
+    dialog.show();
+
+    if (focus) {
+        dialog.setFocus();
+    }
+}
+
+public class AweCOMaterialCard extends COMaterialCard {
+    public void editCOM() {
+        if (parentFrame as OfficeMaterialDialog) {
+            showCOMaterialDialog(this, tempMat, parentFrame.domain);
+		}
+	}
+
+	public void build() {
+		matView = TreeView(this, listBoxStyle=true, callback=function materialSelectCB);
+		matView.pos = (10, 10);
+
+		buildMaterials();
+		matView.w = 320;
+		matView.h = 250;
+
+		Button editBtn = Button(this, label="Create/Edit COM", image=icon("open"));
+		editBtn.below(matView, 8);
+		editBtn.pressCb = function editCB;
+
+		Button remBtn = Button(this, label="Remove COM", image=icon("delete"));
+		remBtn.rightOf(editBtn, 8);
+		remBtn.pressCb = function deleteCB;
+
+		this.autoSize();
+	}
+}
+
+private void materialSelectCB(Control c) {
+    if (COMaterialCard dialog = c.parent.COMaterialCard) dialog.selectMaterial();
+}
+
+private void editCB(Control c) {
+    if (COMaterialCard dialog = c.parent.COMaterialCard) dialog.editCOM();
+}
+
+private void deleteCB(Control c) {
+    if (COMaterialCard dialog = c.parent.COMaterialCard) dialog.deleteCOM();
+}

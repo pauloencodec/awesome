@@ -1,0 +1,298 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.picklist;
+
+use custom.awesome.schemes;
+
+private const str defaultSpecialKey = "~~";
+private const str[] specialsKeys = [defaultSpecialKey, "~~~"];
+
+public class AwePicklistSifConfiguratorControl extends GroupBox {
+    public AweSifCatalog catalog;
+    public AwePicklistItem item;
+    
+    public ScrollableSubWindow propertiesWindow;
+
+    public DropDownTreeView[] options();
+
+    public function(AwePicklistSifConfiguratorControl c) onSaveCallback;
+    public function(AwePicklistSifConfiguratorControl c) onCloseCallback;
+
+    public constructor(Window parent, AweSifCatalog catalog, AwePicklistItem item) {
+        this.catalog = catalog;
+        this.item = item;
+        
+        if (!this.item.sifSku) {
+            this.item.sifSku = this.catalog.parseSku(this.item.partNo);
+        }
+        
+        super(parent, size=(515, 289), font=boldSystemFont, label=this.item.description);
+
+        this.build();
+    }
+
+    extend public void build() {
+        this.propertiesWindow = new ScrollableSubWindow(this, frameStyle=noFrame, horizontalBar=false);
+
+        var basemodelLabel = this.propertiesWindow.createLabel("Basemodel", 150, pos=(12, 12), align=alignment.right);
+        var basemodel = this.propertiesWindow.createLabel(item.sifSku.model.code, 250, rightOf=basemodelLabel);
+
+        basemodel.setFont(boldSystemFont);
+        basemodel.h = 25;
+        basemodelLabel.h = 25;
+        basemodel.setMargins(0, 0, 0, 5);
+        basemodelLabel.setMargins(0, 0, 5, 5);
+
+        Control lastDisplay = basemodelLabel;
+
+        for (optionKey in item.sifSku.model.optionKeys, index=i) {
+            var propertyName = this.catalog.getOptionDescription(optionKey);
+            
+            lastDisplay = this.createLabel(propertyName, below=lastDisplay);
+
+            var hasSpecials = false;
+
+            var optionTree = this.catalog.getOptionTree(optionKey);
+            var selection = this.item.sifSku.getSelection(optionKey);
+            var selected = this.item.sifSku.getFullSelectionKey(optionKey);
+            var root = this.buildTree(optionTree, optionKey, hasSpecials);
+
+            if (hasSpecials) {
+                if (selected == selection.specialValue) {
+                    selected = defaultSpecialKey;
+                }
+            }
+            
+            var control = this.propertiesWindow.createDropDown(300, root, selectedKey=selected, callback=function onOptionChanged, treeView=true);
+            
+            control.key = optionKey;
+
+            control.setMargins(0, 0, 0, 2);
+            control.rightOf(lastDisplay);
+
+            onOptionChanged(control);
+
+            if (hasSpecials) {
+                lastDisplay = this.createLabel("M Number / Price", below=lastDisplay);
+
+                var specialNumber = this.propertiesWindow.createTextField(195, below=control);
+                var specialPrice = this.propertiesWindow.createDoubleField(100, rightOf=specialNumber);
+
+                if (selection and selection.specialValue) {
+                    specialNumber.setText(selection.specialValue);
+                    specialPrice.setText(selection.upcharge.toS());
+                }
+
+                if (selected !in specialsKeys) {
+                    specialNumber.setEnabled(false);
+                    specialPrice.setEnabled(false);
+                }
+
+                control.tag = <specialNumber, specialPrice>;
+            }
+
+            this.options << control;
+        }
+        
+        this.propertiesWindow.extendBottomRight(10, 50);
+
+        var closeButton = this.createButton("Discard", icon("close"), callback=function onClose, below=this.propertiesWindow);
+        var saveButton = this.createButton("Accept", icon("ok-blue"), callback=function onSave, rightOf=closeButton);
+        
+        saveButton.alignRight(this.propertiesWindow, 0);
+    }
+
+    extend private Display createLabel(str text, Control below) {
+        var label = this.propertiesWindow.createLabel(text, 150, below=below, align=alignment.right);
+                
+        label.h = 20;
+        label.setMargins(0, 0, 5, 2);
+
+        return label;
+    }
+
+    extend public AwePicklistItem save() {
+        var sku = this.getSku();
+
+        if (!sku) return null;
+
+        var sifSku = this.catalog.parseSku(sku);
+
+        if (sifSku) {
+            this.item.partNo = sifSku.fullSku;
+
+            for (selection in this.item.sifSku.selections) {
+                if (selection.specialValue) {
+                    var newSelection = sifSku.getSelection(selection.optionKey);
+
+                    newSelection.specialValue = selection.specialValue;
+                    newSelection.upcharge = selection.upcharge;
+                }
+            }
+
+            this.item.sifSku = sifSku;
+            this.item.price = sifSku.totalPrice();
+
+            if (sifSku.isSpecial()) {
+                this.item.price -= sifSku.model.basePrice;
+            }
+
+            session.mainWorld.invalidateWorldPrice();
+        }
+
+        return this.item;
+    }
+
+    extend private str getSku() {
+        var sku = this.item.sifSku.model.code;
+
+        for (option in this.options) {
+            var value = option.getSelection().key;
+            var isSpecial = value in specialsKeys;
+            
+            if (value == "root") {
+                new OneButtonBox(this, "A valid selection must be specified", label="Warning");
+                return null;
+            }
+
+            var selection = this.item.sifSku.getSelection(option.key);
+
+            if (option.tag) {
+                <FormattedTextField specialNumber, DoubleField specialPrice> = option.tag.:<FormattedTextField, DoubleField>;
+                
+                if (isSpecial) {
+                    value = specialNumber.text();
+
+                    if (value.emptyOrOnlyWhiteSpace()) {
+                        new OneButtonBox(this, "Custom Number must be specified", label="Warning");
+                        return null;
+                    }
+
+                    selection.specialValue = value;
+                    selection.upcharge = specialPrice.value();
+                }
+                else {
+                    selection.specialValue = null;
+                    selection.upcharge = 0;
+                }
+            }
+
+            sku #= "." # value;
+        }
+
+        return sku;
+    }
+
+    extend private TreeViewItem buildTree(AweSifOptionTreeItem[] tree, str rootOptionKey, bool& hasSpecials) {
+        TreeViewItem root("root", rootOptionKey);
+
+        for (item in tree) {
+            if (item.key in specialsKeys) {
+                hasSpecials = true;
+            }
+
+            this.appendItem(root, item);
+        }
+
+        return root;
+    }
+
+    extend private void appendItem(TreeViewItem treeItem, AweSifOptionTreeItem sifItem) {
+        var item = new TreeViewItem(sifItem.key, sifItem.key # " - " # sifItem.label);
+
+        treeItem.appendChild(item);
+    
+        for (child in sifItem.children) {
+            this.appendItem(item, child);
+        }
+    }
+
+    extend private void createSpecialField(DropDownTreeView option) {
+        option.setWidth(200);
+        
+        if (!option.tag) {
+            option.tag = option.parent.createTextField(100, rightOf=option);
+        }
+
+        var field = option.tag.FormattedTextField;
+
+        field.setVisible(true);
+        field.setFocus();
+    }
+}
+
+private void onOptionChanged(Control c) {
+    if (c as DropDownTreeView) {
+        if (?AwePicklistSifConfiguratorControl editor = c.grandParent) {
+            var selected = c.getSelection().?key;
+
+            if (c.tag) {
+                <FormattedTextField specialNumber, DoubleField specialPrice> = c.tag.:<FormattedTextField, DoubleField>;
+                
+                if (selected and selected in specialsKeys) {
+                    specialNumber.enable(update=true);
+                    specialPrice.enable(update=true);
+                }
+                else {
+                    specialNumber.disable(update=true);
+                    specialPrice.disable(update=true);
+                }
+
+                specialNumber.setFocus();
+            }
+        }
+    }
+}
+
+private void onClose(Control c) {
+    if (?AwePicklistSifConfiguratorControl editor = c.parent) {
+        if (editor.onCloseCallback) {
+            editor.onCloseCallback(editor);
+        }
+    }
+    if (?AwePicklistDialog dialog = c.parentFrame) {
+        dialog.cancelEdit(true);
+    }
+}
+
+private void onSave(Control c) {
+    if (?AwePicklistSifConfiguratorControl editor = c.parent) {
+        if (editor.onSaveCallback) {
+            editor.onSaveCallback(editor);
+        }
+    }
+}

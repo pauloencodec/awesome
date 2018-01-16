@@ -1,0 +1,147 @@
+/** Configura CET Source Copyright Notice (CETSC)
+
+   This file contains Configura CM source code and is part of the
+   Configura CET Development Platform (CETDEV). Configura CM
+   is a programming language created by Configura Sverige AB.
+   Configura, Configura CET and Configura CM are trademarks of
+   Configura Sverige AB. Configura Sverige AB owns Configura CET,
+   Configura CM, and CETDEV.
+
+   Copyright (C) 2004 Configura Sverige AB, All rights reserved.
+
+   You can modify this source file under the terms of the Configura CET
+   Source Licence Agreement (CETSL) as published by Configura Sverige AB.
+
+   Configura Sverige AB has exclusive rights to all changes, modifications,
+   and corrections of this source file. Configura Sverige AB has exclusive
+   rights to any new source file containing material from this source file.
+   A new source file based on this source file or containing material from
+   this source file has to include this Configura CET Source Copyright Notice
+   in its full content. All changes, modifications, and corrections mentioned
+   above shall be reported to Configura Sverige AB within One Month from
+   the date that the modification occurred.
+
+   Configura CM is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the CETSL for more details.
+
+   You should have received a copy of the CETSL along with the CETDEV.
+   If not, write to Configura Sverige AB, Box 306, SE-581 02 Linköping, Sweden.
+   Tel +46 13377800, Fax +46 13377855,
+   Email: info@configura.com, www.configura.com
+
+   END OF CETSC
+*/
+
+package custom.awesome.picklist;
+
+public class AwePicklistFreeformTab extends Card {
+    private int catalogColumn = -1;
+    private int partNumberColumn = -1;
+    private int descriptionColumn = -1;
+    private int priceColumn = -1;
+
+    public ScrollableGridWindow grid;
+
+    private FormattedTextField catalogTextField;
+    private FormattedTextField partNumberTextField;
+    private FormattedTextField descriptionTextField;
+    private DoubleField priceTextField;
+    private DoubleField quantityTextField;
+
+    private int gridRowHeight = 15;
+    
+    public constructor(Window parent) {
+        super(parent, label="Freeform");
+
+        this.build();
+
+        this.show();
+        this.setFocus();
+    }
+
+    extend public void build() {
+        var catalogLabel = this.createLabel("Catalog", 100, pos=(12, 12));
+        var partNumberLabel = this.createLabel("Part Number", 225, rightOf=catalogLabel);
+        var descriptionLabel = this.createLabel("Description", 275, rightOf=partNumberLabel);
+        var priceLabel = this.createLabel("Price", 50, rightOf=descriptionLabel);
+        var quantityLabel = this.createLabel("Quantity", 50, rightOf=priceLabel);
+        
+        this.catalogTextField = this.createTextField(100, below=catalogLabel);
+        this.partNumberTextField = this.createTextField(225, rightOf=catalogTextField);
+        this.descriptionTextField = this.createTextField(275, rightOf=partNumberTextField);
+        this.priceTextField = this.createDoubleField(50, 1, rightOf=descriptionTextField);
+        this.quantityTextField = this.createDoubleField(50, rightOf=priceTextField);
+        
+        var addButton = this.createButton("Add", image=icon("plus"), callback=function addSpecialCB, rightOf=quantityTextField);
+
+        addButton.x += 5;
+        addButton.y -= 5;
+
+        this.createButton("Import SIF File", image=icon("open"), callback=function importSifFileCallback, below=catalogTextField);
+                 
+        this.autoSize();
+    }
+
+    extend public void updateGrid(bool select=false) {
+    }
+
+    extend public AwePicklistItem getItem() {
+        var catalog = catalogTextField.textIfAny();
+        var partNumber = partNumberTextField.textIfAny();
+        var description = descriptionTextField.textIfAny();
+        var price = priceTextField.textIfAny().Double;
+        var quantity = quantityTextField.textIfAny().Double;
+        
+        if (catalog and partNumber and description and price and quantity) {
+            return new AwePicklistItem(catalog, partNumber, description, price.v, quantity.v, freeform=true);
+        }
+
+        return null;
+    }
+
+    extend public void add() {
+        if (PicklistDialog d = getPicklistDialog()) {
+            d.add();
+
+            this.catalogTextField.setText("");
+            this.partNumberTextField.setText("");
+            this.descriptionTextField.setText("");
+            this.priceTextField.setText("0");
+            this.quantityTextField.setText("1");
+
+            this.catalogTextField.setFocus();
+        }
+    }
+
+    extend public void importSifFile() {
+        if (PicklistDialog dialog = getPicklistDialog()) {
+            var importer = new AwePicklistSIFImporter(this);
+            var result = importer.import();
+        
+            if (!result or result.empty()) return;
+            
+            for (item in result) {
+                dialog.itemManager.addItem(dialog.proxy, dialog.picklistKey, item);
+            }
+            
+            dialog.buildPicklistContent();
+            session.mainWorld.invalidateWorldPrice();
+        }
+    }
+}
+
+private void addSpecialCB(Control c) {
+    if (AwePicklistFreeformTab dialog = c.parent.AwePicklistFreeformTab) {
+        dialog.add();
+    }
+}
+
+private void importSifFileCallback(Control c) {
+    if (AwePicklistFreeformTab dialog = c.parent.AwePicklistFreeformTab) {
+        waitCursorUI {
+            dialog.importSifFile();
+        }
+    }
+}
