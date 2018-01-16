@@ -40,6 +40,8 @@ public class EGraph {
     public Node{} nodes();
     public Edge{} edges();
 
+    public AweElectricalRoutingEnv env : copy=reference;
+
     public constructor() {}
 
     extend public void add( Node a ) {
@@ -137,6 +139,10 @@ public class EGraph {
 
         // calculate the cost for edges
         this.updateCosts( estimator, p );
+
+        // pln("  ");
+        // pln("---INIT DONE---");
+        // pln("  ");
         
         remaining.remove(start);
         options += start.edges;
@@ -186,6 +192,8 @@ public class EGraph {
             map.get(cur).children << t;
 
             remaining.remove(new);
+            e.path.selected();
+            env.visited << new.obj;
 
             if ( !sameComponent ) {
                 unavailable << new;
@@ -201,7 +209,7 @@ public class EGraph {
                 if ( o in remaining ) options << edge;
             }
         }
-
+        
         return root;
     }
 
