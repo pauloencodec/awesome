@@ -40,13 +40,16 @@ public class ElectricalConnectedPath {
     public point[] path;
     public ElectricalModel start;
     public ElectricalModel end;
+    public line[] debug();
 
     public ElectricalInternalComponent[] components();
+    public AweElectricalRoutingEnv env;
 
-    public constructor( point[] path, ElectricalModel start, ElectricalModel end ) {
+    public constructor( point[] path, ElectricalModel start, ElectricalModel end, AweElectricalRoutingEnv env ) {
         this.path = path;
         this.start = start;
         this.end = end;
+        this.env = env;
         if ( validPath ) {
             translateToComponents( parsePath() );
         }
@@ -66,15 +69,19 @@ public class ElectricalConnectedPath {
         return this.cost() < ( other ? other.cost() : maxDouble );
     }
 
+    public double costOverride = maxDouble;
+
     extend public double cost() {
         double d = 0;
         for ( i in 1..(this.path.count-1) ) {
             d += path[i-1].distance(path[i]);
         }
-        return d;
+        return min( d, costOverride );
     }
 
-    extend private void translateToComponents( AweElectricalPathPart[] parts ) {
+    extend public void selected() { }
+
+    extend public void translateToComponents( AweElectricalPathPart[] parts ) {
         // pln(#parts);
         for( p in parts ) {
             components <<? p.createComponent();

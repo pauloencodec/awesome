@@ -67,7 +67,8 @@ public class DistanceCostCase extends CostCase {
         // double cost = path.totalDistance();
         // point[] interestPoints = rGraph.findOwnerBreaks( path );
 
-        ElectricalConnectedPath ePath = builder.get( rGraph.shortestPath( aLoc, bLoc, debug=false ),a, b );
+        ElectricalConnectedPath ePath = builder.get( rGraph.shortestPath( aLoc, bLoc, debug=true, debugConsole=false ),a, b );
+        ePath.debug = pathFinderDebug.copy();
         return ePath;
     }
 }
@@ -88,16 +89,19 @@ public class SameComponentCostCase extends CostCase {
 */
 
 public class AweElectricalPathBuilderFactory {
-    public constructor() {}
+    public AweElectricalRoutingEnv env;
+    public constructor( AweElectricalRoutingEnv env ) { this.env = env; }
     extend public ElectricalConnectedPath get( point[] path, ElectricalModel start, ElectricalModel end ) {
-        return ElectricalConnectedPath(path, start, end);
+        return ElectricalConnectedPath(path, start, end, env);
     }
 }
 
 public class CostEstimator {
     public CostCase{} cases();
+    public AweRegionGraph graph;
     
     public constructor( AweElectricalPathBuilderFactory builder, AweRegionGraph g=null ) {
+        this.graph = g;
         // add base computer
         cases << DistanceCostCase(builder, g);
         // cases << SameComponentCostCase();
@@ -115,5 +119,17 @@ public class CostEstimator {
         }
     
         return best;
+    }
+
+    // basically just updates the graph doors
+    extend public void selectPath( point[] path ) {
+        if ( graph != null ) {
+            for( p in path ) {
+                RegionNode n = graph.find( p );
+                if ( n as RegionDoor ) {
+                    n.capacity -= 1;
+                }
+            }
+        }
     }
 }

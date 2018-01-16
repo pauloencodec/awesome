@@ -36,33 +36,26 @@
 
 package custom.awesome.electrical;
 
-public class AweElectricalPoint {
-    public point position;
-    public vector direction;
+public class AweElectricalRoutingEnv {
 
-    private bool hasDirection = false;
+    public AweElectricalInfeedModel infeed: copy=reference;
+    public point start;
 
-    public constructor( point p, Vector a=null ) {
-        if ( a ) {
-            this.hasDirection = true;
-            this.direction = a.v;
-        }
-        this.position = p;
+    public EGraph electricGraph : copy=reference;
+    public AweRegionGraph regionGraph : copy=reference;
+
+    public ElectricalModel{} visited();
+    public ElectricalModel{} whipUsed();
+
+    public constructor() {
+
+    }
+
+    public constructor( AweElectricalInfeedModel infeed, EGraph eGraph, AweRegionGraph rGraph ) {
+        this.infeed = infeed;
+        this.electricGraph = eGraph;
+        this.regionGraph = rGraph;
     }   
 
-    extend public void transform( Snapper s ) {
-        this.position = s.toSpace( this.position );
-        if ( hasDirection ) {
-            this.direction.rotateZ(s.rot.yaw);
-        }
-    }
 
-    extend public bool canGoTo( point p ) {
-        if ( !hasDirection ) return true;
-        // pln( "(" # position.x # ", " # position.z # ") -> (" # p.x # ", " # p.z # ") : " # direction );
-        
-        line l(position, p);
-        // these have to be normalized, otherwise it can give an odd result
-        return l.direction.normalized().angle(direction.normalized()) <= 90deg;
-    }
 }

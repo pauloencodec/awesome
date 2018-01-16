@@ -41,4 +41,12 @@ public class AweElectricalPathPart {
     public constructor() { }
     extend public str type() { return ""; }
     extend public ElectricalInternalComponent createComponent() { return null; }
+    
+    extend public double distance() {
+        double d = 0;
+        for( i in 1..(path.count-1) ) {
+            d += path[i-1].distance(path[i]);
+        }
+        return d;
+    }
 }
