@@ -59,15 +59,18 @@ public class AweGhost {
     public AweObject hostModel;
     public str hostConnectionId;
 
-    public AweModelSnapper ghostSnapper;
-
+    public AweGhostSnapper ghostSnapper;
 
     extend private void instantiateGhost() {
         this.ghostModel = this.ghostModel.copy();
-        this.ghostSnapper = new AweGhostSnapper(this.ghostModel);
+        this.ghostSnapper = this.createGhostSnapper(this.ghostModel);
+        this.ghostSnapper.hostSnapper = this.hostSnapper().?AweSnapper;
         this.updatePosition();
     }
 
+    extend public AweGhostSnapper createGhostSnapper(AweObject ghostModel) {
+        return new AweGhostSnapper(ghostModel);
+    }
 
     extend public Snapper hostSnapper() {
         return this.hostModel.mainSnapper();
@@ -104,7 +107,6 @@ public class AweGhost {
 
     extend public Snapper deploy() {
         var ghostSnapperCopy = ghostSnapper.copy();
-        this.hostSnapper().space.put(ghostSnapperCopy);
 
         for(c in ghostSnapperCopy.connectors()) {
             //set them free of ghosts
@@ -113,9 +115,6 @@ public class AweGhost {
                 c.setModel(ghostSnapperCopy.mainModel);
             c.disconnectAll();
         }
-
-
-        snapAndPosition(ghostSnapperCopy, this.ghostConnector(), this.hostConnector());
 
         return ghostSnapperCopy;
     }
@@ -150,6 +149,17 @@ public class AweGhost {
         return prims;
     }
 
-    
+    extend public void prepare(AweConnectEnv snap, AweConnectEnv attach) {
+        this.prepare();
+    }
+
+    extend public void prepare() {
+        
+    }
+
+    extend public void invalidate() {
+        this.ghostSnapper.refresh(true, true);
+        this.ghostSnapper.invalidate();
+    }
 
 }

@@ -36,7 +36,7 @@
 
 package custom.awesome;
 
-public class AweAnimation extends ObsoleteStateMouseAnimation {
+public class AweAnimation extends SpaceAnimation {
     
     public AweObject configurator;
     public ViewMode viewMode;
@@ -101,6 +101,37 @@ public class AweAnimation extends ObsoleteStateMouseAnimation {
 
     extend public void setViewMode(ViewMode viewMode) {
         this.viewMode = viewMode;
+        var space = this.space ? this.space : activeSpace();
         space.setViewMode( viewMode );
+    }
+
+    public PropObj end() {
+        var space = this.space ? this.space : activeSpace();
+        if (space) {
+            space.endAnimateDrawSequence(this);
+            space.hide(this);
+            space.setViewMode( null );
+        }
+
+        return super(..);
+    }
+
+    public void abort() {
+        if (space) {
+            space.abortAnimateDraw(this);
+            space.hide(this);
+        }
+
+
+        this.setViewMode(null);
+        super(..);
+    }
+
+    public void enterView(AnimationMouseInfo mi) {
+        super(..);
+
+        if (this.space) {
+            this.space.clearSelection();
+        }
     }
 }

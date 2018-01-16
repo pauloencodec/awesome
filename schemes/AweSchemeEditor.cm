@@ -37,35 +37,50 @@
 package custom.awesome.schemes;
 
 public class AweSchemeEditor extends OfficeGroupSchemeEditor {
-
     public AweScheme scheme;
-    public AweObject latestConfig;
 
     public constructor(AweScheme scheme) {
         this.scheme = scheme;
-        super(scheme.key, scheme.label);
+
+        super(scheme.key, scheme.label, tabbed=scheme.tabbed);
     }
 
     public bool applyScheme(Snapper{} snappers, GroupScheme gs) {
         bool applied = false;
-        if(gs as OfficeGroupScheme) {
-            var schemeModel = this.scheme.convert(gs);
-            this.latestConfig = schemeModel;
-            for(s in snappers) {
-                if(s as AweSnapper){
-                    var models = s.allModels();
-                    for(model in models) {
-                        bool invalidate = model.applyScheme(schemeModel);
-                        if(invalidate) {
+
+        waitCursorUI {
+            if (gs as OfficeGroupScheme) {
+                var schemeModels = this.scheme.convert(gs);
+                
+                for (AweSnapper s in snappers) {
+                    for (model in s.allModels()) {
+                        for (schemeModel in schemeModels) {
+                            var schemeApplier = new AweSchemeApplier(schemeModel, this.scheme.key, this.enableFilter);
+
+                            if (this.shouldApplyScheme(model, schemeApplier)) {
+                                if (model.applyScheme(schemeApplier)) {
+                                    applied = true;
+                                }
+                            }
+                        }
+
+                        if (applied) {
                             model.invalidate();
                         }
                     }
                 }
             }
-
         }
 
         return applied;
+    }
+
+    extend public bool shouldApplyScheme(AweObject model, AweSchemeApplier applier) {
+        return true;
+    }
+
+    public str tabDisplayName(str tabKey) {
+        return this.scheme.tabLabels.get(tabKey);
     }
 
     public SchemeProperty createProperty(str key,

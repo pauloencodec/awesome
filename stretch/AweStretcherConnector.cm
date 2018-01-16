@@ -36,17 +36,7 @@
 
 package custom.awesome.stretch;
 
-public class AweStretcherConnector extends AweConnectPoint {
-    public AweStretcher stretcher;
-    public point visiblePosOffset;
-
-    public constructor(Snapper snapper, AweStretcher stretcher, point visiblePosOffset=point()) {
-        super(snapper);
-
-        this.stretcher = stretcher;
-        this.visiblePosOffset = visiblePosOffset;
-    }
-
+public class AweManipulator extends AweConnectPoint {
     public bool isEnabled() { return true; }
     public bool connectable() { return false; }
     public bool isConnected() { return false; }
@@ -56,4 +46,150 @@ public class AweStretcherConnector extends AweConnectPoint {
     public Connector connection() { return null; }
     public Connector{} connections() { return null; }
     public bool isConnectedTo(Connector c) { return false; }
+}
+
+public class AweStretchableConnector extends AweManipulator {
+}
+
+public class AweStretcherConnector extends AweStretchableConnector {
+    public AweStretcher stretcher;
+    public point visiblePosOffset;
+
+    //another connector (actual connector, not stretcher) which is in the same 2d pos and rot as this one.
+    //framework will hide it and have this connector be a proxy to it, so that we don't end up with
+    //two connectors at the same place (1 stretcher + 1 actual connector)
+    public AweConnectPoint proxied : copy=null,stream=null;
+
+    public constructor(Snapper snapper, AweStretcher stretcher, point visiblePosOffset=point()) {
+        super(snapper);
+
+        this.stretcher = stretcher;
+        this.visiblePosOffset = visiblePosOffset;
+    }
+
+    public Animation standardStretchAnimation() {
+        return new AweStretcherAnimation(this.stretchAnimationEnv());
+    }
+
+    extend public point anchor() {
+        return this.stretcher.?getAnchor(this);
+    }
+
+    extend public bool pointInDomain(point p) {
+        var newLength = p.distance(this.anchor());
+        return newLength in this.stretcher.?domain();
+    }
+
+    //takes in stretch plane, return the point in local coordinates if the plane works for this domain. null instead.
+    extend public Point viablePoint(plane pl) {
+        if(!this.isPerpendicularTo(pl)) return null;
+
+        var projection = pl.project(this.spacePos());
+        
+        if(this.pointInDomain(projection)) {
+            return this.snapper.toSnapper(projection);
+        }
+        return null;
+    }
+
+    extend private bool isPerpendicularTo(plane pl) {
+        line thisLine(point(), this.spaceRot().direction);
+        line planeNomalLine(point(), pl.n);
+        return thisLine.isParallell(planeNomalLine);
+    }
+
+    extend public bool isFree() {
+        for(c in this.samePlaneConnectors()) {
+            if(c.isConnected) return false;
+            if(c.isAlignedToConnect()) return false;
+        }
+        return true;
+    }
+
+    extend public plane spacePlane() {
+        return new plane(this.spaceRot().direction, this.spacePos());
+    }
+
+    extend public line spaceDirectionLine() {
+        var pos = this.spacePos();
+
+        return line(pos, pos + this.spaceRot().direction);
+    }
+
+    extend public Connector{} samePlaneConnectors(Connector{} collection=null) {
+        if(collection == null) {
+            collection = this.snapper.connectors();
+        }
+        if(!this.snapper) return null;
+        Connector{} samePlane();
+        var pl = this.spacePlane();
+        for(c in collection) {
+            if(c != this) {
+                var p = c.spacePos();
+                if(pl.project(p) == p and c.spaceRot() == orientation(pl.n)) {
+                    samePlane << c;
+                }
+            }
+        }
+        return samePlane;
+    }
+
+    /**************** proxing ************ */
+    extend public void updateProxied(Connector{} collection=null) {
+        AweConnectPoint newProxied = null;
+        for(AweConnectPoint cp in this.samePlaneConnectors(collection)) {
+            //get first, if any
+            newProxied = cp;
+        }
+        if(this.proxied) {
+            //release pointers
+            this.proxied.stretcherProxy = null;
+            this.proxied = null;
+        }
+        if(newProxied) {
+            this.proxied = newProxied;
+            this.proxied.stretcherProxy = this;
+        }
+    }
+
+    public Animation standardClickAnimation() {
+        if(this.proxied) {
+            return new AweStretcherConnectorClickAnimation(this.clickAnimationEnv());
+        }
+        return super();
+    }
+
+
+    public Primitive3D get3D(FetchEnv3D env) {
+		bool drawArrow = isMainSelected(snapper) and stretchable;
+		if (proxied.?isConnected())
+		  return snappedSnapModel(drawArrow, snapMaterial3D(snapColor), this);
+		else
+		  return unsnappedSnapModel(drawArrow, snapMaterial3D(snapColor), this);
+    }
+
+
+}
+
+public bool isAlignedToConnect(Connector c, Space space=activeSpace()) {
+    FilteredConnectorSet fas(connectableAttachFilter);
+	space.getCollection(c.connectSpaceBox, collection=fas, filterViewModes=false, filterSpaceVolumes=false, snapperFilter=null);
+    for(potential in fas) {
+        if(potential.isAligned(c)) return true;
+    }
+    return false;
+}
+
+public class AweStretcherConnectorClickAnimation extends SnapClickAnimation {
+    public void toggleConnection(View v, line l, bool invalidate=false) {
+        if(snap as AweStretcherConnector) {
+            var proxied = snap.proxied;
+            var attach = proxied.connection();
+            if(attach) {
+                proxied.snapper.disconnect(proxied, attach, updateBsp=true);
+                snap.updateProxied();
+                this.space.?updateSelectionConnectors();
+            }
+        }
+    }
 }

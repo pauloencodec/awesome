@@ -67,7 +67,6 @@ public member @visibility modelConnecting ';' {
                 AweConnectEnv other(c);
                 if(me.set) {
                     me.set.connected(me, other);
-                    me.set.connectedModels << otherModel;
                 }
 
                 if (this.snapper in AweSnapper) {
@@ -91,7 +90,6 @@ public member @visibility modelConnecting ';' {
                 AweConnectEnv other(c);
                 if(me.set) {
                     me.set.disconnected(me, other);
-                    me.set.connectedModels.exclude(otherModel);
                 }
 
                 if (this.snapper in AweSnapper) {
@@ -112,8 +110,16 @@ public member @visibility modelConnecting ';' {
                 Connector self = this;
 
                 if (self as ConnectLine) {
-                    if (self.freeSnapPosition(connector, self.length / 2) == maxDouble) {
+                    //maxDouble means it doesn't fit. sometimes I get ~0 too, meaning the same thing
+                    //ask one
+                    if (self.freeSnapPosition(connector, self.length / 2) == maxDouble or self.freeSnapPosition(connector, self.length / 2) == 0) {
                         return false;
+                    }
+                    if (connector as ConnectLine) {
+                        //ask the other
+                        if (connector.freeSnapPosition(self, connector.length / 2) == maxDouble or connector.freeSnapPosition(self, connector.length / 2) == 0) {
+                            return false;
+                        }
                     }
                 }
 
@@ -127,6 +133,24 @@ public member @visibility modelConnecting ';' {
             if (me.set) return me.set.connect(me, other);
 
             return magnetSetsAttract(this.magnets, connector.getMagnets());
+        }
+
+        /**
+        * Return the distance from this connection to the mouse line 'l' (space-coordinetes).
+        */
+        public double distance(line l) {
+            AweConnectEnv me(this);
+            if(me.set) {
+                //delegate to set
+                return me.set.distance(this, l);
+            } else {
+                return super(..);
+            }
+        }
+
+        public double priority = 0;
+        public double attachPriority() { 
+            return this.priority;
         }
     };
 }

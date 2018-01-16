@@ -78,7 +78,7 @@ public class AweAnimationButton extends AnimationImageButton {
 
     public Animation getToolboxAnimation() {
         if (this.limb) {
-            return this.limb.animation.class.instantiate().Animation;
+            return this.limb.animation.copy();
         }
 
         return null;

@@ -39,6 +39,8 @@ package custom.awesome.electrical;
 use custom.awesome;
 use custom.awesome.connectors;
 use custom.awesome.product;
+use custom.awesome.structures;
+use custom.awesome.schemes;
 
 use cm.application;
 use cm.basic;

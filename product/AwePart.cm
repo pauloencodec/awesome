@@ -36,16 +36,25 @@
 
 package custom.awesome.product;
 
+use custom.awesome.sif;
+
 private const str notFoundInSifErrorMessage = " * Not found in SIF";
+private const str allsteelCompanyCode = "ALS";
 
 public class AwePart extends OfficePart {
     public str sku;
     public str catalog;
+    public str company;
+    public str category;
     public bool isValid;
+    public bool isSpecial;
     private AwePartOption[] options : public readable;
     public AwePartHeader header();
+    public AweTag tag;
 
-    public constructor(str catalog, str sku, double quantity=1) {
+    public str->double specialUpcharges();
+
+    public constructor(str catalog, str sku, double quantity=1, AweTag tag=null) {
         super();
 
         this.catalog = catalog;
@@ -53,19 +62,62 @@ public class AwePart extends OfficePart {
 
         this.data.setArticleCode(this.basemodel);
         this.data.setQuantity(quantity);
+        this.tag = tag;
+
+        if (this.tag) {
+            this.tag.infoKey = this.flattenableKey();
+        }
     }
 
-    public constructor(Snapper snapper, str catalog, str sku, double quantity=1) {
+    public constructor(Snapper snapper, str catalog, str sku, double quantity=1, AweTag tag=null) {
         this.catalog = catalog;
         this.sku = sku;
+        this.tag = tag;
         
         super(snapper, this.basemodel, this.sku, 0, quantity=quantity);
     }
 
     extend private str basemodel() {
-        return this.sku.split('.').v0;
+        var skuParts = this.sku.breakdownSku();
+
+        if (skuParts and skuParts.any()) {
+            return skuParts.first();
+        }
+
+        return this.sku;
     }
 
+    public str getCompanyCode() {
+        return allsteelCompanyCode;
+    }
+
+    public str catalog() {
+        return this.catalog;
+    }
+
+    public str company() {
+        return this.company;
+    }
+
+    public str category() {
+        return this.category;
+    }
+
+    public ItemTag createItemTag() {
+        ItemTagInfo info = itemTagInfo();
+        
+        point position = this.tag ? this.tag.getPos : (0, 0, 0);
+        angle rotation = this.tag ? this.tag.rotation : 0deg;
+
+        return ItemTag(owner, info, drawPos=position, rot=rotation, key=itemTagKey());
+    }
+    
+    public bool acceptItemTags() {
+        if (this.tag) return owner and owner.acceptItemTags();
+
+        return false;
+    }    
+    
     public PartInfoTree[] infoTrees() {
         PartInfoTree[] tree();
 
@@ -99,13 +151,34 @@ public class AwePart extends OfficePart {
         }
     }
 
+    extend public double totalUpcharge() {
+        double total = 0;
+
+        for (option in this.options) {
+            total += option.price;
+        }
+
+        return total;
+    }
+
     extend public bool isValid() {
         return this.isValid;
+    }
+
+    public str itemTagKey() {
+        if (!empty(this.tag.?key)) {
+            return this.tag.key;
+        }
+        else {
+            return super();
+        }
     }
 
     public str flattenableKey() {
         return this.sku # this.header.tg;
     }
+
+    public str completeSpecified() { return isValid ? "Yes" : "No"; }
 
     public str[] generatePmSifRows(Space space) {
 	    str[] res();
@@ -122,6 +195,8 @@ public class AwePart extends OfficePart {
         res << spnn("S-=", this.discount(space) * 100);
         // SP= Sell Price
         res << spnn("SP=", this.sellPrice(true, space).formatted(precision=2));
+        // TG= Ind. Tag
+        res << spnn("TG=", this.tag ? this.tag.text : "");
 
         //Catalog specific header rows
         for (row in this.header.getCatalogHeaderRows()) {
@@ -142,6 +217,18 @@ public class AwePart extends OfficePart {
             res << spnn("ON=", option.code);
             // OD= Option Description
             res << spnn("OD=", desc);
+            // OG= Option Group
+            res << spnn("OG=", option.name);
+            // O1= Option Upcharge
+            if (option.price > 0) {
+                res << spnn("O1=", option.price);
+            }
         }
+    }
+}
+
+public class AweSpecialPart extends AwePart {
+    public str flattenableKey() {
+        return this.sku # this.header.tg # this.tag.?key # this.tag.?text;
     }
 }

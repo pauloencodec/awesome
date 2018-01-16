@@ -36,6 +36,10 @@
 
 package custom.awesome.connectors;
 
+use cm.subset;
+
+public double connectLineAutoSizeMergeRadius = 5inch;
+
 public class AweConnectLine extends ConnectLine {
     public aweDynamicContract {
         aweDynamic bool shouldRealign();
@@ -49,6 +53,10 @@ public class AweConnectLine extends ConnectLine {
     public bool realign = false;
 
     public bool mandatory = false;
+
+    public str overrideGroupKey;
+    public str friendlyName;
+
     extend public bool isMandatory() {
         return mandatory;
     }
@@ -86,4 +94,114 @@ public class AweConnectLine extends ConnectLine {
 
     /************** model connecting ******************/
     public modelConnecting;
-}
+
+    /************* adjusting size on trySnap ***************/
+    public str autoSizePropKey;
+
+    extend public bool tryResizeToFit(Connector attach, line mouseLine) {
+        if(attach as ConnectLine) {
+            return this.resizeToFit(attach, mouseLine);
+        }
+        return false;
+    }
+
+    extend public bool resizeToFit(ConnectLine attach, line mouseLine) {
+        var domain = this.model.getDomain(autoSizePropKey);
+        if(!domain or domain.empty) return false;
+        double[] sizes = this.preferredSizes(attach, mouseLine, domain);
+        return this.resizeToFit(sizes, domain);
+    }
+
+    extend private double[] preferredSizes(ConnectLine attach, line mouseLine, SubSet domain) {
+        double[] sizes();
+
+        //total space available in all aligned connectable lines
+        //for instance an entire row of panels
+        double availableSpace = attach.freeSpace(this, mouseLine);
+        if(availableSpace == 0 and domain and !domain.empty) {
+            //we get 0 here when the object doesn't fit the available space. so we set the size to the smallest possible domain size, which will triger the whole cycle again 
+            //but next time we're smaller, so we might fit
+            sizes << domain.closest(availableSpace).double;
+            return sizes;
+        }
+
+        //size of one object (for instance, one panel)
+        double oneLineLength = attach.length;
+        double extraLengthFromNeighborLine = this.extraLength(attach, mouseLine);
+
+        //no neighbors?
+        if(extraLengthFromNeighborLine == 0) {
+            sizes << oneLineLength;
+        }
+
+        double twoLinesLength = oneLineLength + extraLengthFromNeighborLine;
+
+
+        if(twoLinesLength <= availableSpace and twoLinesLength != oneLineLength) {
+            sizes << twoLinesLength;
+        }
+
+        if(oneLineLength <= availableSpace) {
+            sizes << oneLineLength;
+        }
+
+
+        //fullsize, half, third, etc.
+        for(divisor in [1,2,3,4,5,6]) {
+            sizes << availableSpace / divisor;
+        }
+
+        return sizes;
+    }
+
+    extend public double extraLength(ConnectLine attach, line mouseLine) {
+        double mergeThreshold = .1;
+        if(attach.j0 and mouseLine.distance(attach.spaceLine().p0) < connectLineAutoSizeMergeRadius) {
+            return attach.j0.length;
+        }  
+        if(attach.j1 and mouseLine.distance(attach.spaceLine().p1) < connectLineAutoSizeMergeRadius) {
+            return attach.j1.length;
+        } 
+        return 0;
+    }
+
+    /**
+     * Valid connection?
+     */
+    public bool validConnection(ConnectLine c) {
+        return true;
+    }
+
+    extend public bool resizeToFit(double[] sizes, SubSet domain) {
+        var currentValue = safeDouble(this.model.get(autoSizePropKey));
+
+        for (s in sizes) if (s in domain) {
+            if (currentValue != s) {
+                this.model.set(autoSizePropKey, s);
+                this.model.invalidate();
+
+                this.snapper.space.clearSelection();
+                
+                return true;
+            }
+            
+            break;
+        }
+
+        return false;
+    }
+
+ }
+
+ public double perpendicularDistance(ConnectLine cl, line mouseLine) {
+    plane pl(cl.spaceRot().normal, cl.spacePos());
+    point mouseLineToPlaneIntersection = mouseLine.intersect(pl).ip;
+    point projection = cl.spaceLine().normalIntersectUnbounded(mouseLineToPlaneIntersection).ip;
+    var p0Distance = cl.spaceLine().p0.distance(projection);
+    var p1Distance = cl.spaceLine().p1.distance(projection);
+    double d = p0Distance;
+    if(p1Distance < d) {
+        d = p1Distance;
+    }
+    return d;
+ }

@@ -128,21 +128,26 @@ public class AweConnectorCache {
         return c;
     }
 
-    extend public Connector makeFace(str key, point pos, Graph g, ConnectRule rule=magneticRule, bool realign=false, bool mandatory=false) {
+    extend public Connector makeFace(str key, point pos, Graph g, ConnectRule rule=magneticRule, bool realign=false, bool mandatory=false, orientation rot = (0deg, 0deg, 0deg), AweMagnet magnet=null, AweMagnet{} magnets=null) {
         Connector c = this.get(key);
 
         if (!c) {
-            c = new AweSupportSurface(this.snapper, pos, g, rule);
-
+            c = new AweSupportSurface(this.snapper, pos, g, rule, rot);
             this._cache.put(this.getCacheKey(key), c);
-        } 
+        }
+
+        if(magnet and !magnets) {
+            magnets = {magnet};
+        }
         
         if (c as AweSupportSurface) {
             c.update(pos, g);
             c.setRule(rule);
             c.setId(key);
+            c.setRot(rot);
             c.realign = realign;
             c.mandatory = mandatory;
+            c.setMagnets(magnets);
         }
         
         this.addToBuffer(c);
@@ -150,21 +155,27 @@ public class AweConnectorCache {
         return c;
     }
 
-    extend public Connector makeStandOn(str key, point pos, ConnectRule rule=magneticRule, bool realign=false, bool mandatory=false) {
+    extend public Connector makeStandOn(str key, point pos, ConnectRule rule=magneticRule, bool realign=false, bool mandatory=false, orientation rot = (0deg, 90deg, 0deg), AweMagnet magnet=null, AweMagnet{} magnets=null) {
         Connector c = this.get(key);
 
         if (!c) {
-            c = new AweStandOnPoint(this.snapper, pos);
+            c = new AweStandOnPoint(this.snapper, pos, rot);
 
             this._cache.put(this.getCacheKey(key), c);
+        }
+
+        if(magnet and !magnets) {
+            magnets = {magnet};
         }
         
         if (c as AweStandOnPoint) {
             c.setPos(pos);
             c.setRule(rule);
+            c.setRot(rot);
             c.setId(key);
             c.realign = realign;
             c.mandatory = mandatory;
+            c.setMagnets(magnets);
         }
         
         this.addToBuffer(c);
@@ -181,7 +192,7 @@ public class AweConnectorCache {
             this._cache.put(this.getCacheKey(key), c);
         }
 
-        this.setupConnector(connector, connector.pos, connector.rot, connector.getId(), connector.rule);
+        this.setupConnector(c, connector.pos, connector.rot, connector.getId(), connector.rule);
 
         return c;
     }

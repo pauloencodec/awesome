@@ -53,15 +53,20 @@ public class AwePartColumn extends BasicPartColumn : abstract {
     }
 }
 
-public class AweIsValidPartColumn extends AwePartColumn {
-    public constructor(int order) {
-        super("isValid", "cm.abstract.part", order);
+public class AwePriceUpchargeColumn extends BasicPartColumn {
+    public constructor() {
+        super("optionUpcharge", "cm.abstract.part");
     }
 
     public Object value(Part part, Space space) {
-        if ( part as AwePart ) {
-            return part.isValid;
+        if (part as AwePart) {
+            return cm.core.calc.calcFormatPrice(part.totalUpcharge);
         }
+
         return super(..);
+    }
+
+    public alignment alignment() {
+	    return right;
     }
 }

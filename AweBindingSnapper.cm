@@ -91,7 +91,9 @@ public class AweBindingSnapper extends AweSnapper : abstract {
 
         for (m in this.allModels()) {
             if (AweProduct product = getProductForModel(m)) {
-                list << product;
+                if (product !in list) {
+                    list << product;
+                }
             }
         }
 
@@ -148,10 +150,6 @@ public class AweBindingSnapper extends AweSnapper : abstract {
             }
         }
 
-        if (AweStretcher stretcher = this.getActiveStretcher()) {
-            graph <<? stretcher.get2D();
-        }
-
         return graph;
     }
 
@@ -161,7 +159,7 @@ public class AweBindingSnapper extends AweSnapper : abstract {
     }
 
     public Primitive3D get3D(FetchEnv3D env) {
-        Awe3D all();
+        Primitive3D[] all();
 
         for (m in allModels) {
             if (AweProduct product = getProductForModel(m)) {
@@ -181,11 +179,7 @@ public class AweBindingSnapper extends AweSnapper : abstract {
             }
         }
 
-        if (AweStretcher stretcher = this.getActiveStretcher()) {
-            all <<? stretcher.get3D(env);
-        }
-        
-        return all;
+        return all.safeSet3D();
     }   
 
     extend private void flushCache() {
@@ -239,7 +233,15 @@ public class AweBindingSnapper extends AweSnapper : abstract {
      * Material change
      ***********************************************************************/
 
-     public AweMaterialManager materialManager(this);
+     private AweMaterialManager _materialManager : copy=null, stream=null;
+
+     extend public AweMaterialManager materialManager() {
+         if (!this._materialManager) {
+             this._materialManager = new AweMaterialManager(this);
+         }
+
+         return this._materialManager;
+     }
 
     /**
      * Return true if material change is supported.

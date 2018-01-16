@@ -36,8 +36,8 @@
 
 package custom.awesome;
 
-public AweIsValidPartColumn isValidColumn(17);
+public AwePriceUpchargeColumn modelUpchargeColumn();
 
 package void registerCustomColumns() {
-    registerPartColumn(isValidColumn, true);
+    registerPartColumn(modelUpchargeColumn, true);
 }

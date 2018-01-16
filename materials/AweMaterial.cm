@@ -35,17 +35,36 @@
 */
 
 package custom.awesome.materials;
-use cm.abstract.office;
-use cm.win;
+    
+package Image undefinedImage;
 
 public class AweMaterial extends OfficeMaterial {
     private Image thumbnailCache : stream = null, copy = null;
     public Image sizedPreviewImage2(double scale, int sz=48, int w=-1, int h=-1, bool superQuality=false, bool force=false) {
+            if(this.noThumbnail) return getUndefinedImage();
             if(!thumbnailCache) {
-                thumbnailCache = getSizedPreviewImage(this, 1, w=sz, h=sz, force=true);
+                thumbnailCache = getSizedPreviewImage(this, 1, w=sz, h=sz, force=false);
             }
             return thumbnailCache;
     }   
+
+    public constructor(str id, symbol pkg=#:package : caller eval, MaterialCategory category=null) {
+        super(..);
+    }
+
+
+    /**
+     * Create a new one.
+     */
+    public constructor(str id, Material3D material3D, str description=null, MaterialCategory category=null,
+		       Brush material2D=null, double thumbnailScale=1, symbol pkg=#:package : caller eval, bool noThumbnail=false) {
+        super(id, material3D, description=description, category=category, material2D=material2D, thumbnailScale=thumbnailScale, pkg=pkg);
+
+        setSuperMaterial(material3D);
+        this.noThumbnail = noThumbnail;
+    }
+
+    private bool noThumbnail;
     
     public Material3D thumbnailMaterial3D() {
         if(this.material3D) return this.material3D;
@@ -54,5 +73,29 @@ public class AweMaterial extends OfficeMaterial {
 
     public Image sizedPreviewImage(int w, int h, bool force=false) {
         return getSizedPreviewImage(this, thumbnailScale(w), w=w, h=h, force=force);
+    }
+
+    public Object copy(CopyEnv env, bool shallow=false) {
+        return this;
+    }
+
+    public Material3D material3D() {
+        var material = super();
+
+        //Return a non texturized version of the material
+        //for real time views
+        //Issue Awesome#299
+        if(material as GMaterial3D) {
+            return matteMaterial3D(material.getAverageColor());
+        }
+
+        return material;
+    }
+
+    extend public Image getUndefinedImage() {
+        //TODO: Return an image representing a missing material.
+        if (!undefinedImage) undefinedImage = getSizedPreviewImage(this, 1, w=12, h=12, force=false);
+
+        return undefinedImage;
     }
 }

@@ -41,7 +41,7 @@ public class AweEnum extends AweEnumBase : abstract {
 
     public ObjectSubSet domain(function(Object item):bool filter=null, AweEnum[] includes=null, AweEnum[] excludes=null) {
         if (!this._domain) {
-            this._domain = new AweEnumSubSet(this.entries().:Object[]);
+            this._domain = new AweEnumSubSet(this.entries());
         }
 
         if (filter) {
@@ -110,6 +110,7 @@ public class AweEnum extends AweEnumBase : abstract {
     }
     
     public bool equal(Object other, EqualEnv env=EqualEnv()) {
+
         if (other as AweEnum) {
             return this.class == other.class and this.name == other.name;
         }
@@ -121,8 +122,13 @@ public class AweEnum extends AweEnumBase : abstract {
         return super(..);
     }
 
-    extend public bool operator==(Object other) {
+    extend public bool operator==(Object other) : null=false {
+
         return this.equal(other);
+    }
+
+    public Object copy(CopyEnv env, bool shallow=false) {
+        return this;
     }
 }
 

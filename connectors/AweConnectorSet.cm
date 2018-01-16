@@ -35,14 +35,14 @@
 */
 
 package custom.awesome.connectors;
-use cm.runtime, cm.basic;
+
+use cm.runtime;
 
 public class AweConnectorSet  {
     public constructor() { }
 
-    public AweConnectorCache connectorCache : copy=null;
+    public AweConnectorCache connectorCache : copy=null, stream=null;
     public bool selected = true;
-    public AweObject[] connectedModels();
 
     extend public str name() {
         return null;
@@ -54,6 +54,85 @@ public class AweConnectorSet  {
 
     extend public bool active() {
         return !this.optional() or this.selected;
+    }
+
+    extend public str application() {
+        return null;
+    }
+
+    //bigger numbers will make this application be presented before others
+    extend public double applicationBoost() {
+        return 0;
+    }
+
+    //return false here for connections that don't need to actively snap to other things while being dragged. 
+    //In other words, for connections that receive other objects connecting to it, such as a panel line that expects a worksurface.
+    extend public bool snap() {
+        return true;
+    }
+
+    extend public AweObject{} connectedModels() {
+        AweObject{} result();
+        
+        if (!this.connectorCache) {
+            return result;
+        }
+
+        for (c in this.connectorCache.buffer) {
+            for (AweSnapper s in c.connectedSnappers()) {
+                result <<? s.mainModel;                
+            }
+        }
+
+        return result;
+    }
+
+    extend public AweObject getConnection(rest: str[] ids) {
+        if (!this.connectorCache) return null;
+
+        for (id in ids) {
+            var connector = this.connectorCache.get(id);
+            var connections = connector.?connectedSnappers();
+
+            if (connections.any()) {
+                return connections.get().getModel();
+            }
+        }
+
+        return null;
+    }
+
+    extend public AweObject{} getConnections(rest: str[] ids) {
+        if (!this.connectorCache) return null;
+
+        AweObject{} result();
+
+        for (id in ids) {
+            var connector = this.connectorCache.get(id);
+            var connections = connector.?connectedSnappers();
+
+            if (connections.any()) {
+                for (c in connections) {
+                    result << c.getModel();
+                }
+            }
+        }
+
+        return result;
+    }
+
+    extend public bool isConnected(rest: str[] ids) {
+        if (!this.connectorCache) return false;
+
+        for (id in ids) {
+            var connector = this.connectorCache.get(id);
+
+            if (connector.isConnected()) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     extend public void connectors(AweConnectorCache cc, bool ghostMode) {
@@ -86,6 +165,24 @@ public class AweConnectorSet  {
 
     }
 
+    //this is trying to connect to something
+    extend public void trySnap(AweConnectEnv me, AweConnectEnv other, AnimationMouseInfo mi) {
+    }
+
+    extend public void trySnapAborted(AweConnectEnv me, AweConnectEnv other, AnimationMouseInfo mi) {
+    }
+
+    //somethign is trying to connect to this
+    extend public void tryAttach(AweConnectEnv me, AweConnectEnv other, AnimationMouseInfo mi) {
+    }
+
+    extend public void tryAttachAborted(AweConnectEnv me, AweConnectEnv other, AnimationMouseInfo mi) {
+    }
+
+    extend public Point visiblePosition(Connector c, point p) {
+        return null;
+    }
+
     extend public vector getDisplacementIfConnected(AweConnectEnv me, AweConnectEnv other) {
         point oldPosition = me.snapper.pos();
         point newPosition = me.snapper.positionIfConnected(me.connector, other.connector);
@@ -102,5 +199,28 @@ public class AweConnectorSet  {
             return true;
 
         return false;
+    }
+
+    extend public int connectedCount() {
+        int count = 0;
+
+        if (connectorCache != null) for (c in connectorCache.buffer) if (c.isConnected)
+            count++;
+
+        return count;
+    }
+
+    /**
+     * Return the distance from a connection to the mouse line 'l' (space-coordinates).
+     */
+     extend public double distance(Connector c, line l) {
+         if(c as ConnectLine) {
+             return l.distance(c.spaceLine());
+         }
+        return l.distance(c.spacePos());
+    }
+
+    extend public Double connectLineAlignConnector(ConnectLine s, Connector c, double t) {
+        return null;
     }
 }

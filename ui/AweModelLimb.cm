@@ -39,6 +39,7 @@ package custom.awesome.ui;
 public class AweModelLimb extends SnapperLimb {
     private AweObject originalModel : public readable;
     private str limbKey;
+    private str{} defaultsBlackList;
 
     public constructor(
         LibraryLimb parent,
@@ -47,14 +48,15 @@ public class AweModelLimb extends SnapperLimb {
         str key=null,
         Image image=null,
         str label=null,
-        str toolTipText=null) {
+        str toolTipText=null,
+        str{} defaultsBlackList=null) {
 
-        if(!key)
-            key = cm.os.createGUID();
-        
         this.originalModel = model;
-        this.limbKey = this.originalModel.hash().toS;
+        this.limbKey = this.originalModel.modelHash();
+        this.defaultsBlackList = defaultsBlackList;
         
+        key = model.class.toS() # this.limbKey;
+        pkg = model.class.pkg;
         
         super(parent, pkg, key, image=image, label="", toolTipText=toolTipText);
     }
@@ -66,7 +68,11 @@ public class AweModelLimb extends SnapperLimb {
         }
         this.originalModel.limbKey = this.limbKey;
         var model = templateModel.copy();
-        model.updateWithLatestSchemes();
+        
+        for (k in this.defaultsBlackList) {
+            model.set(k, this.originalModel.get(k));
+        }
+
         return model;
     }
     
@@ -92,8 +98,38 @@ public class AweModelLimb extends SnapperLimb {
     public Snapper getSnapper() {
         return new AweModelSnapper(this.model);
     }
+}
 
+public str modelHash(AweObject model) {
+    StrBuf buffer();
 
+    model.modelHash(buffer);
+
+    return cm.math.big.hashMd5asHex(model.toS(buffer.toS()));
+}
+
+private void modelHash(AweObject model, StrBuf buffer) {
+    buffer << model.class.toS << ":";
+    
+    var keys = model.props.keys.seq;
+    
+    keys.sort();
+    
+    for (key in keys) {
+        var value = model.props.get(key);
+        var iterator = value.?class.?iterator.?instantiate();
+        
+        if (value and !iterator) {
+            if (value as AweObject) {
+                value.modelHash(buffer);
+            }
+            else {
+                buffer << key << "={" << key << "}";
+            }
+
+            buffer << "|";
+        }
+    }
 }
 
 //str is the hash of the original model passed during limb construction, works like a limb key
@@ -106,4 +142,8 @@ public str->AweObject modelLimbDefaults() {
         _modelLimbDefaults = new str->AweObject();
     }
     return _modelLimbDefaults;
+}
+
+{
+    _modelLimbDefaults = null;
 }

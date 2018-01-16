@@ -44,16 +44,19 @@ public class ToStrShell extends AweDynamicShell {
 }
 
 public class AweObject {
-    public str->Object props();
+    public str->Object props() : copy=null;
     public str _galleryId;
     public str _label;
+    public bool buildParentQuickProperties;
 
     //used to expose multiple aweObjects at once in quick properties
     public str _uniqueQuickPropertyId;
 
+    public AweConnectEnv trySnapEnv: copy=null, stream=null;
+    public AweConnectEnv tryAttachEnv: copy=null, stream=null;
+
     public constructor() {
         this.init();
-        this.appendGhosts(this.ghosts);
     }
 
     extend public void init() { 
@@ -62,6 +65,40 @@ public class AweObject {
 
     public str toS() {
         return this._label ? this._label : super();
+    }
+
+    //use this to turn off product (geometry, graphs, parts..)
+    extend public bool disableProduct() {
+        return false;
+    }
+
+    extend public bool lonelyRemove() {
+        return false;
+    }
+
+    extend public bool isPreferrableConnector(Connector c) {
+        if (c as AweConnectLine) {
+            return !c.overrideGroupKey.emptyOrOnlyWhiteSpace() or !c.friendlyName.emptyOrOnlyWhiteSpace();
+        }
+        
+        return false;
+    }
+
+    extend public AweModelLine[] potentialStretchLines() {
+        AweModelLine[] lines();
+
+        if(this.mainSnapper) {
+            lines << new AweLocalBoundWidthModelLine(this);
+            lines << new AweLocalBoundDepthModelLine(this);
+        }
+
+        for(c in this.getConnectors(this.mainSnapper)) {
+            if(c as ConnectLine) {
+                lines << new AweConnectionModelLine(c);
+            }
+        }
+
+        return lines;
     }
 
     extend public void applyFrom(AweObject source, str{} ignore=null) {
@@ -78,47 +115,219 @@ public class AweObject {
         return this.props.get(propName);
     }
 
+    public bool disableModelLimbDefaultsUpdating = false;
+
     extend public void set(str propName, Object value) {
-        this.makePropModelAware(propName, value);
         Object oldValue = get(propName);
 
-        //AweMaterialShell instance must never be replaced. instead, update the contents of the shell
-        if(oldValue as AweMaterialShell) {
-            if(value as AweMaterialShell) {
-                oldValue.setMaterial(value.materialInstance());
-            }
-        } else {
-            this.props.put(propName, value);
+        if(oldValue.equal(value)) return;
+        
+        if (value as AweObject) {
+            value.parent = this;
         }
+
+        //AweMaterialShell instance must never be replaced. instead, update the contents of the shell
+        if (value in AweMaterialShell and oldValue in AweMaterialShell) {
+            oldValue.AweMaterialShell.setMaterial(value.AweMaterialShell.materialInstance());
+        }
+        else {
+            this.props.put(propName, value);
+            
+            this.makePropModelAware(propName, value);
+        }
+
         propChanged(propName, oldValue, value);
+        
+        if (this.parent) {
+            this.parent.childPropChanged(this, propName, oldValue, value);
+        }
 
         for (AweSnapper snapper in this.snappers) {
-            if (snapper.mainModel() == this) {
-                snapper.onModelPropertyChanged(propName, oldValue, value);
+            for (model in snapper.allModels()) {
+                if (model == this) {
+                    snapper.onModelPropertyChanged(propName, oldValue, value);
+                } 
             }
         }
 
-        this.updateLimbDefaults();
+        if(!disableModelLimbDefaultsUpdating)
+            this.updateLimbDefaults();
     }
 
     extend public SubSet getDomain(str propName) {
+        if (SubSet domain = this.getCustomDomain(propName)) {
+            return domain;
+        }
+        
         return null;
     }
 
-    public str->AweStretcher _stretchers : copy=null;
-
-    extend public AweStretcher[] getStretchers() {
+    extend public SubSet getCustomDomain(str propName) {
         return null;
-        // var bound = this.mainSnapper.localBound();
+    }
 
-        // AweStretcher[] result();
+    extend public str getLabel(str propName) {
+        return null;
+    }
 
-        // result <<? this.createStretcher("width", bound.upCenterlineX);
-        // result <<? this.createStretcher("depth", bound.upCenterlineY);
-        // result <<? this.createStretcher("height", bound.verticalCenterline, enableA=false, visiblePosOffsetB=(0, 0, snapShapeSize));
-        // result <<? this.createStretcher("elevation", bound.verticalCenterline, enableA=false, visiblePosOffsetB=(0, 0, snapShapeSize));
+    public AweStretcher{} _stretchers : copy=null, stream=null;
+    extend public AweStretcher{} getStretchers() {
+        if(!this._stretchers) {
+            this._stretchers = this.createStretchers();
+        }
+        AweStretcher{} active();
+        for(s in this._stretchers) {
+            if (s.model.hasDomainOptions(s.propKey)) {
+                active << s;
+            }
+        }
+        return active;
+    }
 
-        // return result;
+    extend public void stretched(str propKey, double propValue) {
+    }
+
+    extend public void endStretch(str propKey, double propValue){
+        
+    }
+
+    extend public bool hasDomainOptions(str propKey) {
+        var domain = this.getDomain(propKey);
+        
+        return domain and domain.count > 1;
+    }
+
+    private str->str _connectLineToPropMap();
+    extend public str->str connectLineToPropMap() {
+        if(!this._connectLineToPropMap) init this._connectLineToPropMap();
+
+        return this._connectLineToPropMap;
+    }
+
+    extend public AweStretcher{} createStretchers() {
+        //default stretchers for everyone.
+        var stretchers = {AweStretcher:
+            new AweHeightStretcher(this),
+            new AweElevationStretcher(this)
+        };
+
+        stretchers += this.createDomainStretchers();
+
+        return stretchers;
+    }
+
+    extend public AweStretcher{} createDomainStretchers() {
+        AweStretcher{} stretchers();
+        str->DistanceEnum stretchableDomains();
+
+        for(key, value in this.props) {
+            var domain = this.getDomain(key);
+            if(domain as DistanceEnum) {
+                stretchableDomains.put(key, domain);
+            }
+        }
+
+        for (key, domain in stretchableDomains) {
+            var stretcher = this.domainStretcher(domain, key, stretchableDomains.keys());
+            
+            if (stretcher) {
+                stretchers << stretcher;
+            }
+            else {
+                if (key == "width") {
+                    stretchers << new AweWidthStretcher(this);
+                }
+                else if (key == "depth") {
+                    stretchers << new AweDepthStretcher(this);
+                }
+            }
+        }
+
+        return stretchers;
+    }
+
+    extend public AweStretcher domainStretcher(DistanceEnum domain, str propKey, str{} allStretchableDomainKeys) {
+        if (!domain) return null;
+
+        if (?AweSnapper s = this.mainSnapper()) {
+            if (s.isLegacySnapper()) {
+                return null;
+            }
+        }
+
+        //make a copy of the model to try the different sizes
+        var model = this.copy();
+        model.disableModelLimbDefaultsUpdating = true;
+        //use it in a snapper to get localbound, connectors and what not
+        var snapper = new custom.awesome.snapper.AweModelSnapper(model);
+
+        var lines = model.potentialStretchLines();
+        if(!lines or lines.count == 0) return null;
+
+
+        //get all domain sizes
+        double[] values();
+        for(v in domain._members) {
+            values << v.double;
+        }
+
+        for(v in values) {
+            model.set(propKey, v);
+            // model.invalidate();
+            snapper.refresh();
+            for(stretchLine in lines) {
+                //try each line
+                if(stretchLine.localLine().length != v) {
+                    //if not match, get rid of it
+                    lines.exclude(stretchLine);
+                }
+            }
+        }
+
+        //did any survive?
+        if(lines.count > 0) {
+
+            //set connectLineToPropMap so lines can autosize on trysnap
+            for(stretchLine in lines) {
+                if(stretchLine as AweConnectionModelLine) {
+                    this.connectLineToPropMap.put(stretchLine.id, propKey);
+                }
+            }
+
+            var chosenLine = lines.first();
+            chosenLine.model = this;
+
+            //lock all other props
+            var otherKeys = new str{};
+            for(key in allStretchableDomainKeys) {
+                if(key != propKey) {
+                    otherKeys << key;
+                }
+            }
+
+            return new AweModelLineStretcher(chosenLine, propKey, lockProps=otherKeys);
+        }
+
+        return null;
+    }
+
+    extend public void resetStretchers() {
+        this.connectLineToPropMap.clear();
+        this._stretchers = null;
+    }
+
+    extend public bool isStretchableProp(str propKey) {
+        for (stretcher in this.getStretchers()) {
+            if (stretcher in AweHeightStretcher or stretcher in AweElevationStretcher) {
+                continue;
+            }
+
+            if (stretcher.propKey == propKey) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /************** prop awereness ***********************/
@@ -136,11 +345,34 @@ public class AweObject {
     }
 
     public Object copy(CopyEnv env, bool shallow=false) {
-        var c = super(..);
-        c.AweObject.updatePropAwareness();
-        c.AweObject.materialManager().?clear();
-        return c;
+        var newCopy = super(..);
+
+        if (newCopy as AweObject) {
+            init newCopy.props();
+    
+            for (key, value in this.props) {
+                newCopy.props.put(key, this.copyProp(env, key, value));
+            }
+
+            newCopy.updatePropAwareness();
+            newCopy.materialManager().?clear();
+        }
+
+        return newCopy;
     }
+
+    extend public Object copyProp(CopyEnv env, str key, Object value) {
+        if (value as AweEnum) {
+            return value;
+        }
+
+        if (value) {
+            return value.copy(env);
+        }
+
+        return value;
+    }
+
     /*************************************/
 
     extend public AweMaterialManager materialManager() {
@@ -150,23 +382,20 @@ public class AweObject {
     extend public void propChanged(str propName, Object oldValue, Object newValue) {
     }        
 
+    extend public void childPropChanged(AweObject child, str propName, Object oldValue, Object newValue) {
+    }        
+
     extend public void buildQuickPropertiesFromSyntax(QuickProperties props) {
     }
 
     extend public void buildConnectorSetProperties(QuickProperties props) {
-        for(set in this.connectorSets) {
-            if(set.optional and set.name()) {
-                var setKey = "ConnectorSet_" # set.name();
-                props.append(setKey, set.name(), set.selected, BoolSubSet());
-            }
-        }
     }
 
     extend public void buildConnectorSetAnimationProperties(AnimationProperties props) {
         for(set in this.connectorSets) {
             if(set.optional and set.name()) {
                 var setKey = "ConnectorSet_" # set.name();
-                props.append2(setKey, set.name(), set.selected, BoolSubSet(), lockable=false);
+                props.appendSmart(setKey, set.name(), set.selected, BoolSubSet(), lockable=false);
             }
         }
     }
@@ -188,9 +417,12 @@ public class AweObject {
     }
 
     extend public bool buildQuickProperties(QuickProperties props) {
+        if (this.buildParentQuickProperties) this.parent.?buildQuickProperties(props);
+        
         this.buildQuickPropertiesFromSyntax(props);
         this.buildConnectorSetProperties(props);
         this.sortQuickProperties(props);
+        if (this.buildParentQuickProperties) this.parent.?sortQuickProperties(props);
         
         return props and props.properties.any();
     }
@@ -206,6 +438,12 @@ public class AweObject {
     }
 
     extend public bool quickPropertyChanged(QuickProperties props, str key, Object value, bool testChangeOnly) {
+        if (this.buildParentQuickProperties) {
+            if (this.parent.?quickPropertyChanged(..)) {
+                return true;
+            }
+        }
+
         var changed = false;
         
         if(!testChangeOnly)
@@ -236,6 +474,9 @@ public class AweObject {
     public AweProduct _product : stream=null, copy=null;
 
     extend public AweProduct getProduct() {
+
+        if(this.disableProduct) return null;
+
         if (!this._product) {
             this._product = this.createProduct();
         }
@@ -246,6 +487,10 @@ public class AweObject {
     extend public AweProduct createProduct() {
         return null;
     }
+
+    extend public symbol[] getCategories() {
+        return new symbol[]();
+    }    
 
     extend public str toS(str format, rest: Object[] extraParams) {
         str->Object props();
@@ -470,7 +715,6 @@ public class AweObject {
         snappers << s;
     }
 
-
     /************** connect events ************/
     extend public void connected(Connector thisConnector, Connector otherConnector, AweObject model) {
 
@@ -488,16 +732,41 @@ public class AweObject {
 
     }
 
-    extend public AweObject{} directlyConnectedModels() {
+    //this is trying to connect to something
+    extend public void trySnap(AweConnectEnv me, AweConnectEnv other, AnimationMouseInfo mi) {
+
+    }
+
+    extend public void trySnapAborted(AweConnectEnv me, AweConnectEnv other, AnimationMouseInfo mi) {
+
+    }
+
+    //somethign is trying to connect to this
+    extend public void tryAttach(AweConnectEnv me, AweConnectEnv other, AnimationMouseInfo mi) {
+
+    }
+
+    extend public void tryAttachAborted(AweConnectEnv me, AweConnectEnv other, AnimationMouseInfo mi) {
+
+    }
+
+    extend public AweObject{} directlyConnectedModels(bool includeTryConnections=false) {
         AweObject{} connected();
-        for(connector in this.getConnectors(null)) {
-            for(attach in connector.connections) {
+        
+        for (connector in this.getConnectors(null)) {
+            for (attach in connector.connections) {
                 var model = attach.getModel();
-                if(model) {
+                if (model) {
                     connected << model;
                 }
             }
         }
+
+        if (includeTryConnections) {
+            connected <<? this.tryAttachEnv.?model;
+            connected <<? this.trySnapEnv.?model;
+        }
+
         return connected;
     }
 
@@ -532,7 +801,7 @@ public class AweObject {
             this.appendSnapper(snapper);
         }
         Connector{} connectors();
-        for(set in connectorSets) if(set.active()) {
+        for(set in connectorSets) if(set.active() and this.isConnectorSetActive(set)) {
             if(!set.connectorCache) {
                 if(!snapper) continue;
                 set.connectorCache = new AweConnectorCache(snapper);
@@ -555,7 +824,12 @@ public class AweObject {
         return connectors;
     }
 
-    private Field{} _connectorSetFields;
+    extend public bool isConnectorSetActive(AweConnectorSet set) {
+        return true;
+    }
+
+    private Field{} _connectorSetFields : copy=null, stream=null;
+
     extend public AweConnectorSet{} connectorSets() {
         if(!_connectorSetFields) {
             init _connectorSetFields();
@@ -582,16 +856,13 @@ public class AweObject {
         return null;
     }
 
-    /***************** schemes ******************/
-    extend public bool applyScheme(AweObject schemeModel) {
-        return false;
+    extend public AweAutomation[] getAutomations() {
+        return null;
     }
 
-    //invoked by AweModelLimb
-    extend public void updateWithLatestSchemes() {
-        for(model in getLatestAweSchemeModels()) {
-            this.applyScheme(model);
-        }
+    /***************** schemes ******************/
+    extend public bool applyScheme(AweSchemeApplier applier) {
+        return false;
     }
 
     /**************** update settings ****************/
@@ -599,6 +870,8 @@ public class AweObject {
     public str limbKey;
 
     extend public void updateLimbDefaults() {
+        if(this.disableModelLimbDefaultsUpdating) return;
+
         //limb settings
         if(this.limbKey) {
             custom.awesome.ui.modelLimbDefaults.put(this.limbKey, this.copy());
@@ -608,15 +881,24 @@ public class AweObject {
     }
 
     /*************** g-g-g-ghost! *****************/
-    public AweGhost{} ghosts();
+    // boo
+    private AweGhost{} _ghosts : copy=null, stream=null;
 
     extend public void appendGhosts(AweGhost{} ghosts) {
 
     }
 
+    extend public AweGhost{} getGhosts() {
+        if(!this._ghosts) {
+            init this._ghosts();
+            this.appendGhosts(this._ghosts);
+        }
+        return this._ghosts;
+    }
+
     extend public Connector{} getGhostConnectors() {
         Connector{} ghostConnectors();
-        for(ghost in this.ghosts) {
+        for(ghost in this.getGhosts()) {
             for(c in ghost.getConnectors()) {
                 c.setGhost(ghost);
                 ghostConnectors << c;
@@ -625,6 +907,116 @@ public class AweObject {
         return ghostConnectors;
     }
 
+    /************** reference line ************/
+    //return a line here to display connection angle during try snap
+    extend public Line2D referenceLine() {
+        return null;
+    }
+
+    /***********************************************************************
+     * Electrical
+     ***********************************************************************/
+
+    public ElectricalPosition->ElectricalModel electricalComponents();
+
+    /*** Electrical Position Helpers ***/
+    extend public ElectricalPosition findPosition( ElectricalModel model ) {
+        for( k,v in electricalComponents ) {
+            if ( v == model ) return k;
+        }
+        return null;
+    }
+
+    extend public ElectricalModel findEM( ElectricalPosition pos ) {
+        return findEM( pos.position.toElectricPoint(), front=pos.front, middle=pos.middle, back=pos.back );
+    }
+
+    extend public ElectricalModel findEM( point2D loc, bool front=false, bool middle=false, bool back=false ) {
+        for ( k,v in electricalComponents ) {
+            if ( k.position.x == loc.x and k.position.z == loc.y
+                and k.front == front and k.middle == middle and k.back == back ) return v;
+        }
+        return null;
+    }
+
+    extend public electricalAction allow(ElectricalModel object, ElectricalPosition pos, bool replace=false, bool toogle=false) {
+        for( k,v in electricalComponents ) {
+            if ( k.position == pos.position ) {                
+                if ( ( k.front and pos.front ) or ( k.back and pos.back ) or ( k.middle and pos.middle ) ) {
+                    return v.allow( object );
+                }
+            }
+        }
+
+        return electricalAction.insert;
+    }
+
+    extend public bool remove( ElectricalPosition placement, electricalAction action) {
+        for( k,v in electricalComponents ) {
+            if ( k.position == placement.position and ( ( k.front and placement.front ) or (k.back and placement.back) or (k.middle and placement.middle) ) ) {
+                electricalComponents.remove( k );
+                this.electricalModelChange( v, k, electricalAction.remove );
+                return true;
+            }
+        }
+        return false;
+    }
+
+    extend public void apply( ElectricalModel object, ElectricalPosition placement, electricalAction action) {
+        if ( findEM( placement ) ) {
+            return;
+        }
+        object.owner = this.mainSnapper;
+        electricalComponents.put( placement, object );
+        this.electricalModelChange( object, placement, electricalAction.insert );
+    }
+
+    extend public void electricalModelChange( ElectricalModel obj, ElectricalPosition pos, electricalAction action ) {
+
+    }
+
+    extend public ElectricalPosition[] electricalPositions( ElectricalModel object ) {
+        return null;
+    }
+
+    extend public ElectricalPosition[] getPlacedInfeedLocations() {
+        ElectricalPosition[] positions();
+
+        for( k,v in electricalComponents ) {
+            if ( v in AweElectricalInfeedModel ) {
+                positions << k;
+            }
+        }
+
+        return positions;
+    }
+
+    extend public bool validElectricalConnection( ElectricalModel mine, point start, point end ) {
+        return true;
+    }
+
+    /*** Electrical Regions ***/
+    extend public box[] electricalRegions() {
+        return null;
+    }
+
+    extend public point[] electricalDoors() {
+        return null;
+    }
+
+    extend public line[] doNotConnect() {
+        return null;
+    }
+
+    /*** Animations ***/
+    extend public Animation customInsertAnimation(StartInsertAnimationEnv env) {     
+        return null;
+    }
+
+    /*** Snapper space events ***/
+    extend public void dropped() {
+        
+    }
 }
 
 public definition @visibility aweObject @name=id @parentClass=["extends" type]? '{'  @props=["props" formalArgList ';']? @members=[classMember]* '}' {
@@ -710,6 +1102,7 @@ public definition @visibility aweObject @name=id @parentClass=["extends" type]? 
             @visibility class @name extends @baseClassName {
                 public constructor(@props) {
                     super();
+                    @initProps;
                 }
 
                 public void init() { 
@@ -741,6 +1134,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
 
     SStatements applyFrom();
     SStatements getDomain();
+    SStatements getLabel();
     
     for (i in 0..(domains.count-1)) {
         SFormalArg arg = domains[i];
@@ -751,16 +1145,20 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         SExpr domainInitialValue = arg.default();
         SId labelName(arg.id.name#"Label");
         SId visibleName(arg.id.name#"Visible");
+        SId controlTypeName(arg.id.name#"ControlType");
 
         domainMembers << member {
             @visibility SubSet @domainName = @domainInitialValue;
             @visibility str @labelName = @propNameStr.propNameToLabel();
             @visibility bool @visibleName = true;
+            @visibility AwePropertyControlType @controlTypeName = AwePropertyControlType.default;
         };
 
         //we use distance subsets for double properties, so we need this great if statement there:
         if (propType.type == distance) {
             buildQuickProperties << statement {
+                var @domainName = this.getDomain(@propNameStr);
+
                 if (@domainName and @visibleName) {
                     Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, distance(@propName));
 
@@ -769,28 +1167,25 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                             props.append(customQuickProperty.QuickProperty);
                         }
                         else {
-                            props.append(this._uniqueQuickPropertyId # @propNameStr, @labelName, distance(@propName), @domainName);
+                            props.append(this._uniqueQuickPropertyId # @propNameStr, @labelName, distance(@propName), @domainName, @controlTypeName);
                         }
                     }
                 }
             };
 
             buildAnimationProperties << statement {
-                if (@domainName and @visibleName) {
-                    Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, distance(@propName));
+                var @domainName = this.getDomain(@propNameStr);
 
+                if (@domainName and @visibleName) {
                     if (@domainName.any()) {
-                        if (customQuickProperty) {
-                            // props.append(customQuickProperty.QuickProperty);
-                        }
-                        else {
-                            props.append2(this._uniqueQuickPropertyId # @propNameStr, @labelName, distance(@propName), @domainName, lockable=false);
-                        }
+                        props.appendSmart(this._uniqueQuickPropertyId # @propNameStr, @labelName, distance(@propName), @domainName, @controlTypeName, lockable=false);
                     }
                 }
             };
 
             applyFrom << statement {
+                var @domainName = this.getDomain(@propNameStr);
+
                 if (@domainName and @visibleName and @propNameStr !in ignore) {
                     if (Object value = source.get(@propNameStr)) {
                         // aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, distance(@propName));
@@ -804,6 +1199,8 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         }
         else {
             buildQuickProperties << statement {
+                var @domainName = this.getDomain(@propNameStr);
+
                 if (@domainName and @visibleName) {
                     Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, @propName);
 
@@ -812,28 +1209,25 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                             props.append(customQuickProperty.QuickProperty);
                         }
                         else {
-                            props.append(this._uniqueQuickPropertyId # @propNameStr, @labelName, @propName, @domainName);
+                            props.append(this._uniqueQuickPropertyId # @propNameStr, @labelName, @propName, @domainName, @controlTypeName);
                         }
                     }
                 }
             };
 
             buildAnimationProperties << statement {
-                if (@domainName and @visibleName) {
-                    Object customQuickProperty = aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, @propName);
+                var @domainName = this.getDomain(@propNameStr);
 
+                if (@domainName and @visibleName) {
                     if (@domainName.any()) {
-                        if (customQuickProperty) {
-                            // props.append(customQuickProperty.QuickProperty);
-                        }
-                        else {
-                            props.append2(this._uniqueQuickPropertyId # @propNameStr, @labelName, @propName, @domainName, lockable=false);
-                        }
+                        props.appendSmart(this._uniqueQuickPropertyId # @propNameStr, @labelName, @propName, @domainName, @controlTypeName, lockable=false);
                     }
                 }
             };
 
             applyFrom << statement {
+                var @domainName = this.getDomain(@propNameStr);
+
                 if (@domainName and @visibleName and @propNameStr !in ignore) {
                     if (Object value = source.get(@propNameStr)) {
                         aweDynamicCall @domainName.customQuickProperty(@propNameStr, @labelName, @propName);
@@ -861,7 +1255,13 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
 
         getDomain << statement {
             if (propName == @propNameStr) {
-                return @domainName;
+                return this.@domainName;
+            }
+        };
+
+        getLabel << statement {
+            if (propName == @propNameStr) {
+                return @labelName ?? @propNameStr;
             }
         };
     }
@@ -899,7 +1299,17 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
         }
 
         @visibility SubSet getDomain(str propName) {
+            if (SubSet domain = super(..)) {
+                return domain;
+            }
+            
             @getDomain;
+
+            return null;
+        }
+
+        @visibility str getLabel(str propName) {
+            @getLabel;
 
             return super(..);
         }
@@ -923,4 +1333,8 @@ private int propertySort( str a, str b, Object order ) {
         if ( bIndex > aIndex ) return aIndex == -1 ? 1 : -1; // if A wasn't in the list, push it to the end
     }
     return 0;
+}
+
+private point2D toElectricPoint( point self ) {
+    return ( self.x, self.z );
 }

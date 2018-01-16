@@ -39,18 +39,38 @@ package custom.awesome.storage;
 public class AweStorageShelf extends AweStorageGridPiece {
     public double thickness;
     public double indent;
+    
+   private Box _bound;
 
-    public constructor(double thickness, double indent = 0) {
+   extend public box bound() {
+        if (this._bound) {
+            return this._bound.v;
+        }
+
+       return box((0, this.indent, 0), (this.width, this.depth, this.thickness));
+    }
+
+   extend public box bound=(box v) {
+        this._bound = v;
+
+       return v;
+    }
+
+   public constructor(double thickness, double indent=0) {
         this.thickness = thickness;
         this.indent = indent;
     }   
 
-    public Awe3D get3D() {
-        AweBox3D aweBox(box((0, indent, 0), (width, depth, thickness)), owner.getMaterial("shelves"));
-        return aweBox;
+   public constructor(box bound) {
+        this._bound = bound;
+        this.thickness = bound.h;
     }
 
-    public Graph get2D() {
+   public Awe3D get3D() {
+        return new AweBox3D(this.bound, owner.getMaterial("shelves"));
+    }
+
+   public Graph get2D() {
         return null;
     }
 }
