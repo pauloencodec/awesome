@@ -47,6 +47,7 @@ public class AweBoolCallbackLimb extends LibraryLimb {
         function(bool v) callback,
         symbol pkg=null,
         str key=null,
+        bool initial=false,
         Image image=null,
         str label=null,
         str toolTipText=null) {
@@ -56,7 +57,7 @@ public class AweBoolCallbackLimb extends LibraryLimb {
         }
         
         super(parent, pkg, key, image=image, label=label, toolTipText=toolTipText);
-
+        this.initial = initial;
         this.callback = callback;
     }
 
@@ -64,7 +65,10 @@ public class AweBoolCallbackLimb extends LibraryLimb {
         var checkbox = new AweBoolCallbackCheckBox(w, this.callback, label=this.label, frameStyle=toolboxButtonFrameStyle);
 
         checkbox.key = this.key;
+        checkbox.setChecked( this.initial, false );
+        pln(#key);
         checkbox.setToolTipText(this.toolTipText ?? this.label);
+
 
         return checkbox;
     }
@@ -80,6 +84,42 @@ public class AweBoolCallbackCheckBox extends CheckBox {
         this.clickedCb = callback;
         // this.pressCb = function onCheckboxClick;
     }
+}
+
+public bool updateAllTbAweCheckBoxes(symbol pkg, str libraryFun, str checkBoxKey, bool check, bool invokeCallback=true) {
+   bool fail;
+
+   for (w in allFrameWindows) if (w as CoreAppWindow) {
+       bool ok = updateToolboxAweCheckBox(pkg, libraryFun, checkBoxKey, check, appWindow=w, invokeCallback=invokeCallback);
+       if (!ok) fail = true;
+   }
+
+   return !fail;
+}
+
+public bool updateToolboxAweCheckBox(symbol pkg, str libraryFun, str checkBoxKey, bool check, CoreAppWindow appWindow=null, bool invokeCallback=true) {
+    if (LazyLibraryCard card = getLibraryCard(pkg, libraryFun, appWindow=appWindow)) 
+      if (AweBoolCallbackCheckBox checkbox = card.findAweCheckBox(checkBoxKey)) {
+	    checkbox.setChecked(check);
+        return true;
+      }
+
+    return false;
+}
+
+public AweBoolCallbackCheckBox findAweCheckBox(LazyLibraryCard this, str key) {
+	Window{} children = allChildrenOfClass(AweBoolCallbackCheckBox);
+	for (c in children) {
+	    if (c as AweBoolCallbackCheckBox and c.key == key) return c;
+    }
+
+	for (z in splitCards) {
+	    Window{} children = z.allChildrenOfClass(AweBoolCallbackCheckBox);
+	    for (c in children) {
+            if (c as AweBoolCallbackCheckBox and c.key == key) return c;
+        }
+	}
+	return null;
 }
 
 private void onCheckboxClick(Control control) {
