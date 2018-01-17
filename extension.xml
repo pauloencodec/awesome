@@ -19,6 +19,7 @@
     <package id="custom.awesome.product" />
     <package id="custom.awesome.sample" />
     <package id="custom.awesome.schemes" />
+    <package id="custom.awesome.security" />
     <package id="custom.awesome.sif" />
     <package id="custom.awesome.snapper" />
     <package id="custom.awesome.storage" />
