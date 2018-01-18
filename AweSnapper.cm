@@ -41,6 +41,7 @@ use cm.abstract.picklist;
 use custom.awesome.connectors;
 use custom.awesome.gallery;
 use custom.awesome.picklist;
+use custom.awesome.sif;
 
 private alias SnapperArray = Snapper{};
 
@@ -361,6 +362,14 @@ public class AweSnapper extends TaggableSnapper {
         this.modelChanged(new AweGroupAutomationDisconnected(this, c0, c1));
     }
 
+    public void deselected() {
+        super(..);
+
+        if (currentAweMaterialDialog and currentAweMaterialDialog.visible()) {
+            currentAweMaterialDialog.close();
+        }
+    }
+
     public void invalidated(dirty3D flag3D) {
         this.appendSelfToModels();
         invalidateLights();
@@ -548,6 +557,14 @@ public class AweSnapper extends TaggableSnapper {
 
     public bool denyParts() {
         return this.allProducts.count == 0;
+    }
+
+    extend public AweSifCatalogCollection getSifCatalogsInstance() {
+        return null;
+    }
+
+    extend public AweMaterialFactory getMaterialFactoryInstance() {
+        return null;
     }
 
     /***********************************************************************

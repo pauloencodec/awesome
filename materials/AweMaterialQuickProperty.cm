@@ -36,16 +36,49 @@
 
 package custom.awesome.materials;
 
-public class AweMaterialTreeItem {
-    public constructor() {
-    }
-    
-    public constructor(str key, str name) {
-        this.key = key;
-        this.name = name;
+public class AweMaterialQuickProperty extends QuickProperty {
+    public AweObject model;
+
+    public constructor(AweObject model, str key, str label, Object value, SubSet domain) {
+        super(key, label, value, value.class, domain);
+
+        this.model = model;
     }
 
-    public str name;
-    public str key;
-    public AweMaterialTreeItem[] children;
+    public void build(QuickProperties props) {
+        super(props);
+        
+        var choice = new AweOfficeMaterialSelection(props, domain=domain.MaterialDomain, selected=value.AweMaterialShell.materialInstance, callback=function selectChoice);
+        
+        choice.model = this.model;
+        choice.property = this;
+        choice._domain = domain.MaterialDomain;
+        
+        choice.setSize(sizeI(160, 18));
+
+        this.controls = [Control: choice];
+    }
+}
+
+public class AweOfficeMaterialSelection extends OfficeMaterialSelection {
+    public AweObject model;
+    public QuickProperty property;
+    public MaterialDomain _domain;
+}
+
+public class AweMaterialSchemeProperty extends MaterialSchemeProperty {
+    public AweObject model;
+}
+
+private void selectChoice(Control c) {
+    if (c as AweOfficeMaterialSelection) {
+        AweMaterialSchemeProperty schemeProp(c.property.key, c.property.label, c.selected, domain=c._domain,
+            isSubProperty=false,
+            disabledAllowed=false,
+            images=null);
+
+        schemeProp.model = c.model;
+
+        showAweMaterialDialog(c.ancestor, c._domain, c.selected, schemeProp=schemeProp);
+    }
 }
