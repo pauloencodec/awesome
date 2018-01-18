@@ -261,6 +261,20 @@ public class TreeNode {
         this.p = p;
     }
 
+    extend public Graph graph(Snapper z, ElectricalPosition p){
+        GInstance result();
+        for( c in electrical.components ) {
+            result <<? c.?graph(z, p);
+        }
+        return result;
+    }
+
+    extend public void cleanTag(){
+        for(c in electrical.components){
+            pln(#c);
+        }
+    }
+
     extend public Primitive3D get3D( FetchEnv3D env, Snapper z, ElectricalPosition p ) {
         Primitive3D[] prims();
 
@@ -271,22 +285,22 @@ public class TreeNode {
         return safeInstance3D(prims);
     }
 
-    extend public AwePart[] getParts( CircuitType circuit, ElectricalModel{} added=null ) {
+    extend public AwePart[] getParts() {
         AwePart[] parts();
-        if ( !added ) {
-            init added();
-        } 
-        if ( !added.contains(eo) ) {
-            added << eo;
-            parts += eo.getParts(circuit);
-        }
+        // if ( !added ) {
+        //     init added();
+        // } 
+        // if ( !added.contains(eo) ) {
+        //     added << eo;
+        //     // parts += eo.getParts();
+        // }
 
         for( c in electrical.?components ) {
-            parts +=? c.getParts(circuit);
+            parts +=? c.getParts();
         }
 
         for( c in children ) {
-            parts +=? c.getParts(circuit, added);
+            parts +=? c.getParts();
         }
 
         return parts;

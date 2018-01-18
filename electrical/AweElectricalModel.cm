@@ -56,6 +56,10 @@ public class ElectricalModel extends AweObject {
         return null;
     }
 
+    extend public Graph graph(Snapper z, ElectricalPosition pos) {
+        return null;
+    }
+
     extend public void propertyChange( str key, Object value ) { }
 
     extend public electricalAction allow( ElectricalModel object ) { return electricalAction.no; }
@@ -64,9 +68,11 @@ public class ElectricalModel extends AweObject {
         return [AweElectricalPoint(center)];
     }
 
+    extend public void cleanTags(double oldValue){}
+
     extend public bool isMiddle(){
         return false;
     }
 
-    extend public AwePart[] getParts( CircuitType circuit ) { return null; }
+    extend public AwePart[] getParts() { return null; }
 }
