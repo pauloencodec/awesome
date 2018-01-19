@@ -37,6 +37,8 @@
 package custom.awesome.electrical;
 
 public class ElectricalModel extends AweObject {
+    public color fillColor2D = new color(204, 0, 102);
+
     public Snapper owner : copy=reference;
     public point location;
     public ElectricalModel child : copy=reference;
