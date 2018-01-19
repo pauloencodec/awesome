@@ -55,7 +55,7 @@ public class AweMaterialOptionFinder {
         this.materialFactory = materialFactory;
     }
 
-    extend public MaterialDomain get(AweObject model, str propKey) {
+    extend public MaterialDomain get(AweObject model, str propKey, bool full) {
         var modelCopy = this.copyModel(model, propKey);
 
         for (basePart in this.getParts(model)) {
@@ -74,7 +74,7 @@ public class AweMaterialOptionFinder {
 
                 if (sifSku and sifSku.optionKeys) {
                     if (sifSku.optionKeys.count() > optionIndex) {
-                        var materialTree = this.getMaterialTree(catalog, sifSku.optionKeys[optionIndex]);
+                        var materialTree = this.getMaterialTree(catalog, sifSku.optionKeys[optionIndex], full);
                         
                         return new AweMaterialDomain(materialTree, useCOM=false, this.materialFactory);
                     }
@@ -99,13 +99,20 @@ public class AweMaterialOptionFinder {
         return -1;
     }
 
-    extend private AweMaterialTreeItem getMaterialTree(AweSifCatalog catalog, str optionKey) {
-        AweMaterialTreeItem root(optionKey, catalog.getOptionDescription(optionKey));
+    extend private AweMaterialTreeItem getMaterialTree(AweSifCatalog catalog, str optionKey, bool full) {
+        var description = catalog.getOptionDescription(optionKey);
+        
+        AweMaterialTreeItem root(optionKey, description);
 
-        var options = catalog.getOptionTree(optionKey);
+        if (full) {
+            var options = catalog.getOptionTree(optionKey);
 
-        for (option in options) {
-            this.appendMaterialItem(root, option);
+            for (option in options) {
+                this.appendMaterialItem(root, option);
+            }
+        }
+        else {
+            this.appendMaterialItem(root, new AweSifOptionTreeItem(optionKey, description));
         }
 
         return root;

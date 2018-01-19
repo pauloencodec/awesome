@@ -38,11 +38,13 @@ package custom.awesome.materials;
 
 public class AweMaterialQuickProperty extends QuickProperty {
     public AweObject model;
+    public AweMaterialOptionFinder finder;
 
-    public constructor(AweObject model, str key, str label, Object value, SubSet domain) {
+    public constructor(AweObject model, str key, str label, Object value, SubSet domain, AweMaterialOptionFinder finder) {
         super(key, label, value, value.class, domain);
 
         this.model = model;
+        this.finder = finder;
     }
 
     public void build(QuickProperties props) {
@@ -50,9 +52,7 @@ public class AweMaterialQuickProperty extends QuickProperty {
         
         var choice = new AweOfficeMaterialSelection(props, domain=domain.MaterialDomain, selected=value.AweMaterialShell.materialInstance, callback=function selectChoice);
         
-        choice.model = this.model;
         choice.property = this;
-        choice._domain = domain.MaterialDomain;
         
         choice.setSize(sizeI(160, 18));
 
@@ -61,9 +61,8 @@ public class AweMaterialQuickProperty extends QuickProperty {
 }
 
 public class AweOfficeMaterialSelection extends OfficeMaterialSelection {
-    public AweObject model;
     public QuickProperty property;
-    public MaterialDomain _domain;
+    public MaterialDomain fullDomain;
 }
 
 public class AweMaterialSchemeProperty extends MaterialSchemeProperty {
@@ -72,13 +71,21 @@ public class AweMaterialSchemeProperty extends MaterialSchemeProperty {
 
 private void selectChoice(Control c) {
     if (c as AweOfficeMaterialSelection) {
-        AweMaterialSchemeProperty schemeProp(c.property.key, c.property.label, c.selected, domain=c._domain,
+        var model = c.property.AweMaterialQuickProperty.model;
+
+        if (!c.fullDomain) {
+            var finder = c.property.AweMaterialQuickProperty.finder;
+
+            c.fullDomain = finder.get(model, c.property.key, full=true);
+        }
+
+        AweMaterialSchemeProperty schemeProp(c.property.key, c.property.label, c.selected, domain=c.fullDomain,
             isSubProperty=false,
             disabledAllowed=false,
             images=null);
 
-        schemeProp.model = c.model;
+        schemeProp.model = model;
 
-        showAweMaterialDialog(c.ancestor, c._domain, c.selected, schemeProp=schemeProp);
+        showAweMaterialDialog(c.ancestor, c.fullDomain, c.selected, schemeProp=schemeProp);
     }
 }

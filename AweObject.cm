@@ -436,16 +436,28 @@ public class AweObject {
         return props and props.properties.any();
     }
 
-    extend public void buildMaterialQuickProperties(QuickProperties props) {
-        if (?AweSnapper snapper = this.mainSnapper) {
-            AweMaterialOptionFinder finder(snapper.getSifCatalogsInstance(), snapper.getMaterialFactoryInstance());
+    private AweMaterialOptionFinder materialFinder : copy=null, stream=null;
 
+    extend private AweMaterialOptionFinder getMaterialFinder() {
+        if (!this.materialFinder) {
+            if (?AweSnapper snapper = this.mainSnapper) {
+                this.materialFinder = new AweMaterialOptionFinder(snapper.getSifCatalogsInstance(), snapper.getMaterialFactoryInstance());
+            }
+        }
+
+        return this.materialFinder;
+    }
+
+    extend public void buildMaterialQuickProperties(QuickProperties props) {
+        var finder = this.getMaterialFinder();
+
+        if (finder) {
             for (key, value in this.props) {
                 if (value as AweMaterialShell) {
-                    var domain = finder.get(this, key);
+                    var domain = finder.get(this, key, full=false);
                     
                     if (domain and domain.count() > 0) {
-                        props.append(new AweMaterialQuickProperty(this, this._uniqueQuickPropertyId # key, key.propNameToLabel(), value, domain));
+                        props.append(new AweMaterialQuickProperty(this, this._uniqueQuickPropertyId # key, key.propNameToLabel(), value, domain, finder));
                     }
                 }
             }
