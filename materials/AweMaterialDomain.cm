@@ -40,20 +40,23 @@ use custom.awesome.io;
 use cm.format.json;
 
 public class AweMaterialDomain extends OfficeMaterialDomain {
-
+    private bool _useCOM;
     private AweMaterialFactory _factory;
+
     extend public AweMaterialFactory factory() {
         if(this._factory) return this._factory;
         return new AweMaterialFactory();
     }
 
-    public constructor(AweMaterialTreeItem root, AweMaterialFactory factory = null) {
+    public constructor(AweMaterialTreeItem root, bool useCOM=true, AweMaterialFactory factory=null) {
+        this._useCOM = useCOM;
         this._factory = factory;
-        super(convertTree(root));
+
+        super(this.convertTree(root));
     }
 
-    public constructor(str jsonUrl, AweMaterialFactory factory = null) {
-        this(loadJsonUrl(jsonUrl), factory);
+    public constructor(str jsonUrl, AweMaterialFactory factory=null) {
+        this(this.loadJsonUrl(jsonUrl), factory=factory);
     }
 
     extend public AweMaterialTreeItem loadJsonUrl(str jsonUrl) {
@@ -66,10 +69,11 @@ public class AweMaterialDomain extends OfficeMaterialDomain {
         AweJsonSerializer json();
         var jsonObj = parseToJson(jsonContent).JsonObject;
         var tree = json.fromJson(jsonObj, AweMaterialTreeItem).AweMaterialTreeItem;
+        
         return tree;
     }
 
-    public bool useCOM() { return true; }
+    public bool useCOM() { return this._useCOM; }
 
     public void buildCOMCard(Window parent) {
         new AweCOMaterialCard(parent);
