@@ -66,7 +66,6 @@ public class AweBoolCallbackLimb extends LibraryLimb {
 
         checkbox.key = this.key;
         checkbox.setChecked( this.initial, false );
-        pln(#key);
         checkbox.setToolTipText(this.toolTipText ?? this.label);
 
 
