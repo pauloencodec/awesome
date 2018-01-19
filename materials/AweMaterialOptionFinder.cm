@@ -66,10 +66,10 @@ public class AweMaterialOptionFinder {
             var baseSku = basePart.sku.explode(".");
             var newSku = newPart.sku.explode(".");
 
-            var optionIndex = this.getMatchinOptionIndex(baseSku, newSku);
+            var optionIndex = this.getMatchingOptionIndex(baseSku, newSku);
 
             if (optionIndex > -1) {
-                var catalog = catalogs.get(basePart.catalog);
+                var catalog = this.catalogs.get(basePart.catalog);
                 var sifSku = catalog.model(basePart.articleCode);
 
                 if (sifSku and sifSku.optionKeys) {
@@ -85,7 +85,7 @@ public class AweMaterialOptionFinder {
         return null;
     }
 
-    extend private int getMatchinOptionIndex(str[] baseSku, str[] newSku) {
+    extend private int getMatchingOptionIndex(str[] baseSku, str[] newSku) {
         if (baseSku.count() == newSku.count()) {
             for (baseOption in baseSku, index=i) {
                 var newOption = newSku[i];
