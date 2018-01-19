@@ -386,7 +386,9 @@ public class AwePlaceSnapperAnimationProxy {
 
             var sorted = score.sort(function sortApplications, null);
 
-            list << autoId;
+            if (sorted.count() > 1) {
+                list << autoId;
+            }
 
             for (s in sorted) {
                 list << s.v1;
