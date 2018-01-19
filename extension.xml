@@ -3,7 +3,7 @@
   <main>custom.awesome</main>
   <name>Awesome Library</name>
   <type>code</type>
-  <version>0.0.44.0</version>
+  <version>0.0.45.0</version>
   <packages>
     <package id="custom.awesome" />
     <package id="custom.awesome.automations" />
@@ -19,6 +19,7 @@
     <package id="custom.awesome.product" />
     <package id="custom.awesome.sample" />
     <package id="custom.awesome.schemes" />
+    <package id="custom.awesome.security" />
     <package id="custom.awesome.sif" />
     <package id="custom.awesome.snapper" />
     <package id="custom.awesome.storage" />

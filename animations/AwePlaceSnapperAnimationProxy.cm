@@ -89,7 +89,7 @@ public class AwePlaceSnapperAnimationProxy {
 
         var canAutoSize = this.canAutoSize();
         var preferredConnections = this.preferredConnectionSelector.options.:Object[];
-        var hasPreferrableConnectors = preferredConnections and preferredConnections.count > 0;
+        var hasPreferrableConnectors = this.selectedApplication != autoId and preferredConnections and preferredConnections.count > 0;
 
         if (hasPreferrableConnectors) {
             this.owner.animationProperties.appendSmart(preferredPropKey, "Preferred Connection", this.preferredConnectionSelector.selected, new ObjectSubSet(preferredConnections), lockable=false);
@@ -306,6 +306,8 @@ public class AwePlaceSnapperAnimationProxy {
     }
 
     extend public Connector[] filterPreferredSnaps(Connector[] snaps) {
+        if (this.selectedApplication == autoId) return snaps;
+
         if (AwePreferredConnection selected = this.preferredConnectionSelector.selected) {
             Connector[] filtered();
 
@@ -323,7 +325,7 @@ public class AwePlaceSnapperAnimationProxy {
 
     extend public bool includeSnap(Connector snap) {
         var application = this.getSafeSelectionApplication();
-
+        
         if (application != autoId) {
             AweConnectEnv env(snap);
 
@@ -345,13 +347,10 @@ public class AwePlaceSnapperAnimationProxy {
     }
 
     extend public void updateApplicationList() {
-        if (this.connectionApplications.count > 0) {
-            return;
-        }
+        if (this.connectionApplications.count > 0) return;
 
         //name->boost
         str->double applications();
-
         bool boosted = false;
 
         for (snap in this.owner.selection.snaps) {
@@ -383,15 +382,14 @@ public class AwePlaceSnapperAnimationProxy {
 
         var sorted = score.sort(function sortApplications, null);
         str[] list();
+
+        list << autoId;
+
         for(s in sorted) {
             list << s.v1;
         }
 
         this.connectionApplications = list;
-
-        if(this.connectionApplications.count > 1 and !boosted) {
-            this.connectionApplications.insert(0, autoId);
-        }
     }
 
     extend public void updatePreferredConnectorList() {

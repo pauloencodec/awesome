@@ -34,18 +34,20 @@
    END OF CETSC
 */
 
-package custom.awesome.materials;
+package custom.awesome.security;
 
-public class AweMaterialTreeItem {
-    public constructor() {
-    }
-    
-    public constructor(str key, str name) {
-        this.key = key;
-        this.name = name;
-    }
-
-    public str name;
-    public str key;
-    public AweMaterialTreeItem[] children;
-}
+use custom.awesome.product;
+use custom.awesome;
+use custom.awesome.io;
+use custom.awesome.materials;
+use custom.awesome.schemes;
+use cm.format.cm3D;
+use cm.geometry.advanced;
+use cm.application;
+use cm.basic;
+use cm.core;
+use cm.core3D;
+use cm.draw;
+use cm.win;
+use cm.io;
+use cet.runtime;

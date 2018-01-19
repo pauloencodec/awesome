@@ -36,16 +36,36 @@
 
 package custom.awesome.materials;
 
-public class AweMaterialTreeItem {
-    public constructor() {
+private AweMaterialDialog dialog;
+
+public AweMaterialDialog currentAweMaterialDialog() { return dialog; }
+
+public AweMaterialDialog showAweMaterialDialog(Window window, MaterialDomain domain,
+					     Material value,
+					     OfficeMaterialLimb limb=null,
+					     MaterialSchemeProperty schemeProp=null) {
+    if (DialogWindow w = currentOfficeMaterialDialog) w.close();
+
+    if (dialog.valid) {
+	    dialog.update(domain, value, limb, schemeProp, useCOM=domain.OfficeMaterialDomain.useCOM);
+    }
+    else {
+        dialog = new AweMaterialDialog(window, domain, value, limb, schemeProp);
+        dialog.setFocus();
     }
     
-    public constructor(str key, str name) {
-        this.key = key;
-        this.name = name;
-    }
+    return dialog;
+}
 
-    public str name;
-    public str key;
-    public AweMaterialTreeItem[] children;
+public class AweMaterialDialog extends OfficeMaterialDialog {
+    public void selectionChangedCB() {
+        super(..);
+
+        if (scheme as AweMaterialSchemeProperty) {
+            scheme.model.set(scheme.key.replaceAll(scheme.model._uniqueQuickPropertyId, ""), this.selected);
+            scheme.model.invalidate();
+
+            scheme.model.mainSnapper().showQuickProperties();
+        }
+    }
 }
