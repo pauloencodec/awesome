@@ -36,16 +36,56 @@
 
 package custom.awesome.materials;
 
-public class AweMaterialTreeItem {
-    public constructor() {
-    }
-    
-    public constructor(str key, str name) {
-        this.key = key;
-        this.name = name;
+public class AweMaterialQuickProperty extends QuickProperty {
+    public AweObject model;
+    public AweMaterialOptionFinder finder;
+
+    public constructor(AweObject model, str key, str label, Object value, SubSet domain, AweMaterialOptionFinder finder) {
+        super(key, label, value, value.class, domain);
+
+        this.model = model;
+        this.finder = finder;
     }
 
-    public str name;
-    public str key;
-    public AweMaterialTreeItem[] children;
+    public void build(QuickProperties props) {
+        super(props);
+        
+        var choice = new AweOfficeMaterialSelection(props, domain=domain.MaterialDomain, selected=value.AweMaterialShell.materialInstance, callback=function selectChoice);
+        
+        choice.property = this;
+        
+        choice.setSize(sizeI(160, 18));
+
+        this.controls = [Control: choice];
+    }
+}
+
+public class AweOfficeMaterialSelection extends OfficeMaterialSelection {
+    public QuickProperty property;
+    public MaterialDomain fullDomain;
+}
+
+public class AweMaterialSchemeProperty extends MaterialSchemeProperty {
+    public AweObject model;
+}
+
+private void selectChoice(Control c) {
+    if (c as AweOfficeMaterialSelection) {
+        var model = c.property.AweMaterialQuickProperty.model;
+
+        if (!c.fullDomain) {
+            var finder = c.property.AweMaterialQuickProperty.finder;
+
+            c.fullDomain = finder.get(model, c.property.key, full=true);
+        }
+
+        AweMaterialSchemeProperty schemeProp(c.property.key, c.property.label, c.selected, domain=c.fullDomain,
+            isSubProperty=false,
+            disabledAllowed=false,
+            images=null);
+
+        schemeProp.model = model;
+
+        showAweMaterialDialog(c.ancestor, c.fullDomain, c.selected, schemeProp=schemeProp);
+    }
 }

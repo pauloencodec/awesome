@@ -38,7 +38,12 @@ package custom.awesome.sif;
 
 public class AweSifOptionTreeItem {
     public constructor() {
-    }   
+    }
+
+    public constructor(str key, str label) {
+        this.key = key;
+        this.label = label;
+    }
 
     public str key;
     public str label;
