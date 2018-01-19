@@ -69,7 +69,7 @@ public class AweMaterialOptionFinder {
             var optionIndex = this.getMatchinOptionIndex(baseSku, newSku);
 
             if (optionIndex > -1) {
-                var catalog = sifCatalogs.get(basePart.catalog);
+                var catalog = catalogs.get(basePart.catalog);
                 var sifSku = catalog.model(basePart.articleCode);
 
                 if (sifSku and sifSku.optionKeys) {
