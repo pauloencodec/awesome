@@ -150,14 +150,19 @@ public class AweRegionGraph {
         return null;
     }
 
-    extend public point[] shortestPath( point start, point end, bool debug=false ) {
+    extend public point[] shortestPath( point start, point end, bool debug=false, bool debugConsole=false ) {
         RegionNode startNode = find( start );
         RegionNode endNode = find( end );
 
+        // if ( startNode.element == endNode.element ) return [start,end];
+
         if ( debug ) {
             pathFinderDebug.clear();
-            pln("Start: " # start);
-            pln("end: " # end );
+            if ( debugConsole ) {
+                pln("  ");
+                pln("Start: " # start);
+                pln("end: " # end );
+            }
         }
 
         PathNode{} open();
@@ -170,13 +175,15 @@ public class AweRegionGraph {
         while( open.count > 0 ) {
             if ( debug ) {
                 count++;
-                pln(" ");
-                pln("-----------Step " # count.formatLeadingZeros(3) # "--------------");
-                pln(" ");
+                if ( debugConsole ) {
+                    pln(" ");
+                    pln("-----------Step " # count.formatLeadingZeros(3) # "--------------");
+                    pln(" ");
+                }
             }
             PathNode next = null;
             for ( n in open ) {
-                if ( debug ) {
+                if ( debugConsole ) {
                     pln( n.toS );
                 }
                 if ( !next or n.f < next.f ) next = n;
@@ -184,8 +191,10 @@ public class AweRegionGraph {
 
             if ( debug ) {
                 if ( next.parent ) pathFinderDebug << line( next.parent.node.p, next.node.p );
-                pln(" " );
-                pln( "Took: " # next.toS );
+                if ( debugConsole ) {
+                    pln(" " );
+                    pln( "Took: " # next.toS );
+                }
             }
 
             open.remove(next);
@@ -251,12 +260,7 @@ public class AweRegionGraph {
         available <<? find( start );
 
         while( available.count > 0 ) {
-            RegionNode next = null;
-            // just get an item from "available"
-            for( n in available ) {
-                next = n;
-                break;
-            }
+            RegionNode next = available.get();
             visited << next;
             available.remove(next);
             for ( e in next.edges ) {

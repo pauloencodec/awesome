@@ -34,35 +34,38 @@
    END OF CETSC
 */
 
-package custom.awesome.electrical;
+package custom.awesome.materials;
 
-public class AweElectricalPoint {
-    public point position;
-    public vector direction;
+private AweMaterialDialog dialog;
 
-    private bool hasDirection = false;
+public AweMaterialDialog currentAweMaterialDialog() { return dialog; }
 
-    public constructor( point p, Vector a=null ) {
-        if ( a ) {
-            this.hasDirection = true;
-            this.direction = a.v;
-        }
-        this.position = p;
-    }   
+public AweMaterialDialog showAweMaterialDialog(Window window, MaterialDomain domain,
+					     Material value,
+					     OfficeMaterialLimb limb=null,
+					     MaterialSchemeProperty schemeProp=null) {
+    if (DialogWindow w = currentOfficeMaterialDialog) w.close();
 
-    extend public void transform( Snapper s ) {
-        this.position = s.toSpace( this.position );
-        if ( hasDirection ) {
-            this.direction.rotateZ(s.rot.yaw);
-        }
+    if (dialog.valid) {
+	    dialog.update(domain, value, limb, schemeProp, useCOM=domain.OfficeMaterialDomain.useCOM);
     }
+    else {
+        dialog = new AweMaterialDialog(window, domain, value, limb, schemeProp);
+        dialog.setFocus();
+    }
+    
+    return dialog;
+}
 
-    extend public bool canGoTo( point p ) {
-        if ( !hasDirection ) return true;
-        // pln( "(" # position.x # ", " # position.z # ") -> (" # p.x # ", " # p.z # ") : " # direction );
-        
-        line l(position, p);
-        // these have to be normalized, otherwise it can give an odd result
-        return l.direction.normalized().angle(direction.normalized()) <= 90deg;
+public class AweMaterialDialog extends OfficeMaterialDialog {
+    public void selectionChangedCB() {
+        super(..);
+
+        if (scheme as AweMaterialSchemeProperty) {
+            scheme.model.set(scheme.key.replaceAll(scheme.model._uniqueQuickPropertyId, ""), this.selected);
+            scheme.model.invalidate();
+
+            scheme.model.mainSnapper().showQuickProperties();
+        }
     }
 }

@@ -105,22 +105,20 @@ public class AweConnectorSet  {
     extend public AweObject{} getConnections(rest: str[] ids) {
         if (!this.connectorCache) return null;
 
+        AweObject{} result();
+
         for (id in ids) {
             var connector = this.connectorCache.get(id);
             var connections = connector.?connectedSnappers();
-
-            AweObject{} result();
 
             if (connections.any()) {
                 for (c in connections) {
                     result << c.getModel();
                 }
-
-                return result;
             }
         }
 
-        return null;
+        return result;
     }
 
     extend public bool isConnected(rest: str[] ids) {
