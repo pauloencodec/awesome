@@ -40,7 +40,8 @@ public class RegionEdge {
     public RegionNode a;
     public RegionNode b;
 
-    public double cost;
+    public double _cost;
+    public double weight;
 
     public constructor( RegionNode a, RegionNode b ) {
         this.a = a;
@@ -49,7 +50,18 @@ public class RegionEdge {
         b.edges << this;
 
         // for now just use the distance as the cost
-        this.cost = a.p.distance(b.p);
+        this._cost = a.p.distance(b.p);
+        this.weight = calcWeight();
+    }
+
+    extend public double cost() {
+        // return _cost;
+        return _cost * weight;
+    }
+
+    extend private double calcWeight() {
+        if ( | a.p.z - b.p.z | < 1inch ) return 0.95;
+        return 1.0;
     }
 
     extend public RegionNode other( RegionNode me ) {

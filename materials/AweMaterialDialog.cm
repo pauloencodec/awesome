@@ -34,23 +34,38 @@
    END OF CETSC
 */
 
-package custom.awesome.electrical;
+package custom.awesome.materials;
 
-public class ElectricalInternalComponent extends ElectricalModel {
-    public point[] path(); //Space coordinates.
+private AweMaterialDialog dialog;
 
-    extend public ColorMaterial3D componentColor() { return ColorMaterial3D( 0, 255, 0); }
+public AweMaterialDialog currentAweMaterialDialog() { return dialog; }
 
-	public Primitive3D get3D( FetchEnv3D env, Snapper z, ElectricalPosition p ) {
-        Primitive3D[] prims();
-        for( i in 1..(path.count-1)) {
-            if(path[i-1] == path[i]) continue;
+public AweMaterialDialog showAweMaterialDialog(Window window, MaterialDomain domain,
+					     Material value,
+					     OfficeMaterialLimb limb=null,
+					     MaterialSchemeProperty schemeProp=null) {
+    if (DialogWindow w = currentOfficeMaterialDialog) w.close();
 
-            ClosedCylinder3D cyl( z.toSnapper( path[i-1] ), z.toSnapper( path[i] ), 0.25inch );
-            cyl.setMaterial( componentColor() );
-            cyl.layer = #electrical;
-            prims << cyl;
+    if (dialog.valid) {
+	    dialog.update(domain, value, limb, schemeProp, useCOM=domain.OfficeMaterialDomain.useCOM);
+    }
+    else {
+        dialog = new AweMaterialDialog(window, domain, value, limb, schemeProp);
+        dialog.setFocus();
+    }
+    
+    return dialog;
+}
+
+public class AweMaterialDialog extends OfficeMaterialDialog {
+    public void selectionChangedCB() {
+        super(..);
+
+        if (scheme as AweMaterialSchemeProperty) {
+            scheme.model.set(scheme.key.replaceAll(scheme.model._uniqueQuickPropertyId, ""), this.selected);
+            scheme.model.invalidate();
+
+            scheme.model.mainSnapper().showQuickProperties();
         }
-        return safeInstance3D( prims );
     }
 }
