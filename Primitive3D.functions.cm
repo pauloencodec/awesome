@@ -57,7 +57,7 @@ public Primitive3D applyMaterial(Primitive3D p, Material material) {
     return p;
 }
 
-public Primitive3D applyMaterial(Primitive3D p, AweMaterialShell aweMaterial) {
+public Primitive3D applyMaterial(Primitive3D p, AweMaterialShell aweMaterial, AweObject picksurfaceModel = null) {
     if(!aweMaterial or !p) return p;
 
     var model = aweMaterial.model;
@@ -65,7 +65,7 @@ public Primitive3D applyMaterial(Primitive3D p, AweMaterialShell aweMaterial) {
     var materialManager = snapper.AweBindingSnapper.?materialManager;
 
     if(materialManager) {
-        materialManager.registerPickSurface(p, aweMaterial);
+        materialManager.registerPickSurface(p, aweMaterial, picksurfaceModel);
     }
 
     return applyMaterial(p, aweMaterial.materialInstance);
