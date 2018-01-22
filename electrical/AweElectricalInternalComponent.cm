@@ -37,7 +37,7 @@
 package custom.awesome.electrical;
 
 public class ElectricalInternalComponent extends ElectricalModel {
-    public point[] path();
+    public point[] path(); //Space coordinates.
 
     extend public ColorMaterial3D componentColor() { return ColorMaterial3D( 0, 255, 0); }
 
