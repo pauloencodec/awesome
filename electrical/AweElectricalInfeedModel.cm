@@ -74,6 +74,23 @@ public class AweElectricalInfeedModel extends ElectricalModel {
         return safeInstance3D(prims);
     }
 
+    public Graph graph(Snapper z, ElectricalPosition pos){
+        GInstance result();
+        
+        if(path){
+            getTreeNode2D( path, result, z, pos );
+        }
+        return result;
+    }
+
+    extend private void getTreeNode2D( TreeNode tn, GInstance graphs, Snapper z, ElectricalPosition p ) {
+        for ( child in tn.children ) {
+            graphs << child.graph( z, p );
+            // process child
+            getTreeNode2D( child, graphs, z, p );
+        }
+    }
+
     extend private void getTreeNodeLines( TreeNode tn, Primitive3D[] prims, Snapper z ) {
         for ( child in tn.children ) {
             prims << child.get3D( null, z, null );

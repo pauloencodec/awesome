@@ -374,19 +374,25 @@ public class AwePlaceSnapperAnimationProxy {
                 applications.put(name, boost); 
             }
         }
-        
-        <double, str>[] score();
-        for(name, boost in applications) {
-            score << <boost, name>;
-        }
 
-        var sorted = score.sort(function sortApplications, null);
         str[] list();
 
-        list << autoId;
+        if (applications.count() > 0) {
+            <double, str>[] score();
+            
+            for (name, boost in applications) {
+                score << <boost, name>;
+            }
 
-        for(s in sorted) {
-            list << s.v1;
+            var sorted = score.sort(function sortApplications, null);
+
+            if (sorted.count() > 1) {
+                list << autoId;
+            }
+
+            for (s in sorted) {
+                list << s.v1;
+            }
         }
 
         this.connectionApplications = list;
