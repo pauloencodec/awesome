@@ -66,14 +66,12 @@ public class AwePointsAnimation extends AweAnimation {
     }
 
     public void move(AnimationMouseInfo mi) {
-        pln("move");
         this.updateCurrentPoint(mi);
     }
 
     public void click(AnimationMouseInfo mi) {
 	    super(..);
 
-        pln(#mi);
         if (this.currentPoint) {
             if (Point pointToSave = this.savePoint(points.count(), this.currentPoint.v)) {
                 this.points << pointToSave.v;
@@ -92,16 +90,15 @@ public class AwePointsAnimation extends AweAnimation {
         
         if (!newPoint) {
             this.currentPoint = null;
-            // this.refresh();
+            this.refresh();
         }
         else if (newPoint != currentPoint) {
             this.currentPoint = newPoint;
-            // this.refresh();
+            this.refresh();
         }
     }
 
     extend public void refresh() {
-        pln("refreshing");
         if (space) {
             if ( viewMode ) space.invalidate3D( viewMode );
             space.invalidate2D(this);

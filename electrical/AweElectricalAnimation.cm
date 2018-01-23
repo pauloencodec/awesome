@@ -83,14 +83,11 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
     }
 
     public void hoveredPointChanged(Point target) {
-        pln("hovered"; #currentMode);
         currentMode.?hoveredPointChanged(target);
     }
 
     public point savePoint(int pointIndex, point mousePoint) {
-        pln("save point");
         if (currentMode.?clicked(mousePoint)) { 
-            pln("refreshing...");
             status.?updateStatus();
             this.refresh();
         }
@@ -103,11 +100,8 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
 
     public Primitive3D get3D(FetchEnv3D env) {
         
-        pln("get3d");
         Awe3D prims();
-
         prims << currentMode.?get3D();
-        pln("end get3d");
         return prims;
     }
 
@@ -165,7 +159,6 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
     }
 
     extend public void updateMap() {
-        pln("updating map");
        this.map = new AweElectricalMap(this.space);
        status = new AweElectricalClusterInfo(this.map);
    }

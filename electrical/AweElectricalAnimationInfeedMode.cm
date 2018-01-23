@@ -50,9 +50,8 @@ public class AweElectricalAnimationInfeedMode extends AweElectricalAnimationMode
 
     public bool clicked(point p) {
         var infeed = animation.?map.?infeedAt(p);
-        pln(#infeed);
         if(infeed) {
-            this._prims = null;
+
             if (isControlKeyDown()) { 
                 infeed.configurator.active = !infeed.configurator.active;
             }
@@ -77,37 +76,34 @@ public class AweElectricalAnimationInfeedMode extends AweElectricalAnimationMode
     private Primitive3D _prims : copy=null, stream=null; 
 
     public Primitive3D get3D() {
-        if (this._prims) { 
-            return this._prims;
-        }
         Awe3D prims();
 
-        pln("G1");
-        for(infeed in animation.?map.?allInfeeds) {
-            if(!infeed.active) {
-                var cone = infeedGeometry(infeed);
-                cone.setMaterial(plainGrayMaterial3D);
-                prims << cone;
+        if (this._prims) { 
+            prims << this._prims.copy();
+        } else { 
+            for(infeed in animation.?map.?allInfeeds) {
+                if(!infeed.active) {
+                    var cone = infeedGeometry(infeed);
+                    cone.setMaterial(plainGrayMaterial3D);
+                    prims << cone;
+                }
             }
+            this._prims = prims.copy();
         }
 
-        pln("G2");
         if(animation.currentPoint) {
             Sphere3D sphere(animation.currentPoint.v, 3inch);
             sphere.setMaterial(transparencyMaterial3D(color(50, 50, 50), 0.8));
             prims << sphere;
         } 
 
-        pln("G3");
         if(this.selectedInfeed) {
             Sphere3D sphere(this.selectedInfeed.spacePoint.v, 4inch);
             sphere.setMaterial(transparencyMaterial3D(color(255, 255, 0), this.selectedInfeed.active ? 0.2 : 0.1));
             prims << sphere;
         } 
 
-        pln("G4");
-
-        return this._prims = prims;
+        return  prims;
     }
 
 
@@ -125,7 +121,6 @@ public class AweElectricalAnimationInfeedMode extends AweElectricalAnimationMode
 
     public void configuratorChanged() {
         this._prims = null;
-        
         this.animation.status.?updateStatus();
         this.animation.updateMap();
     }

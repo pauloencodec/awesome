@@ -53,8 +53,6 @@ public class AweAnimation extends SpaceAnimation {
 
     public void buildProperties() {
 
-        pln("building properties...");
-
         this.destroyAnimationProperties();
         this.createAnimationProperties();
         
