@@ -26,8 +26,12 @@ public class AweElectricalViewMode extends ViewMode {
         return false;
     }
 
-    // not sure if this is necessary or not
-    public bool process3D() { 
-        return false; 
+    public bool process3D() {
+        return true;
+    }
+
+    public Primitive3D process3D(Snapper s, Primitive3D prim) {
+        prim.setMaterial(transparencyMaterial3D(.6));
+        return prim;
     }
 }

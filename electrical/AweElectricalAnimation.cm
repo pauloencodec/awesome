@@ -42,9 +42,11 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
     public AweElectricalClusterInfo status;
     public AweElectricalAnimationMode currentMode;
     public str fixedMode;
+    public bool singleClickInfeedToggle = false;
 
-    public constructor(AweElectricalMap map=null, str fixedMode=null) {
+    public constructor(AweElectricalMap map=null, str fixedMode=null, bool singleClickInfeedToggle=false) {
         this.fixedMode = fixedMode;
+        this.singleClickInfeedToggle = singleClickInfeedToggle;
 
         this(map);
     }
@@ -114,7 +116,7 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
                 case "Add": 
                     txt = "Click on two points, one after the other, to route power. A power line will be created from point A to point B."; 
                 case "Infeed": 
-                    txt = "Select an infeed to edit its properties or ctrl+click it to toggle on and off."; 
+                    txt = this.singleClickInfeedToggle ? "Click an infeed to toggle it on and off" : "Select an infeed to edit its properties or ctrl+click it to toggle on and off."; 
                 case "Remove": 
                     txt = "Click on two points, one after the other, to remove an existing power route."; 
                 case "View":
