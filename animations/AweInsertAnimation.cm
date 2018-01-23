@@ -90,7 +90,7 @@ public class AweInsertAnimation extends InsertAnimation {
 
         if (immediate) {
             this.immediateSnap = immediate;
-            allowRotate = true;
+            allowRotate = false;
 
             this.proxy.complete = true;
             this.proxy.invalidate();
