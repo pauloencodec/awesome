@@ -41,19 +41,22 @@ public class AwePartOption extends PartInfoTree {
     public str name;
     public str description;
     public double price;
+    public bool valid;
     public AwePart part;
 
-    public constructor(AwePart part, str code, str name=null, str description=null, double price=0) {
+    public constructor(AwePart part, str code, str name=null, str description=null, double price=0, bool valid=false) {
         super(code, part);
 
+        this.part = part;
         this.code = code;
         this.name = name;
         this.description = description;
         this.price = price;
+        this.valid = valid;
     }
 
     extend public bool isValid() {
-        return this.part.isValid;
+        return this.valid and !this.code.contains("~");
      }
 
      public PartInfoColumn[] columns() {
@@ -61,7 +64,8 @@ public class AwePartOption extends PartInfoTree {
             new AwePartOptionCodeColumn("articleCode", pkg="cm.core"),
             new AwePartOptionDescriptionColumn("description", pkg="cm.core"),
             new AwePartOptionNameColumn("optionKey", pkg="cm.abstract.part"),
-            new AwePartOptionPriceColumn("optionUpcharge", pkg="cm.abstract.part")];
+            new AwePartOptionPriceColumn("optionUpcharge", pkg="cm.abstract.part"),
+            new AwePartIsValidColumn("specified", pkg="cm.abstract.part")];
 	    
         return cached;
     }
@@ -112,7 +116,7 @@ package class AwePartOptionNameColumn extends AwePartInfoColumn {
 package class AwePartIsValidColumn extends AwePartInfoColumn {
     public str output(PartInfoTree tree, Space space) {
 	    if (tree as AwePartOption) {
-            return tree.isValid.toS;
+            return tree.isValid() ? "Yes" : "No";
         }
         
 	    return "";

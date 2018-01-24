@@ -86,9 +86,10 @@ public class AweInsertAnimation extends InsertAnimation {
     }
 
     public Animation immediateAnimation(angle a, bool allowRotate) {
-        this.immediateSnap = this.proxy.getImmediateSnap(a, allowRotate);
+        var immediate = this.proxy.getImmediateSnap(a, allowRotate);
 
-        if (this.immediateSnap) {
+        if (immediate) {
+            this.immediateSnap = immediate;
             allowRotate = false;
 
             this.proxy.complete = true;

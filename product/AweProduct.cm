@@ -146,8 +146,15 @@ public class AweProduct extends AweGeometry {
     extend public Primitive3D get3D(FetchEnv3D env) {
         //for rendering
         if (env.detail == detailLevel3D.super) return this.getSuper3D();
-
-        return this.getMedium3D();
+        var prim = this.getMedium3D();
+        var snapper = this._model.?mainSnapper;
+        if(snapper) {
+            var viewMode = snapper.?space.?viewMode();
+            if(viewMode and viewMode.process3D) {
+                return viewMode.process3D(snapper, prim.copy());
+            }
+        }
+        return prim;
     }
 
     extend public Primitive3D getSuper3D() {
