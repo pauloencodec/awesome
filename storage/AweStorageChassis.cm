@@ -226,16 +226,16 @@ public class AweStorageChassis3D extends Awe3D {
     extend public void setMaterial(str indexKey, Material3D material) {
         var faces = index.get(indexKey);
         for(f in faces) {
-            f.setMaterial( getMaterialWithElectrical( material) );
+            f.setMaterial( material );
         }
     }
 
     public void setMaterial(Material3D material) {
         for (p in specialPrims) {
-            p.setMaterial( getMaterialWithElectrical( material ) );
+            p.setMaterial( material );
         }
         for(f in allFaces) {
-            f.setMaterial( getMaterialWithElectrical( material ) );
+            f.setMaterial( material );
         }
     }
 }

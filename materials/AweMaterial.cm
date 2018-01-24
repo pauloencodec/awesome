@@ -39,19 +39,22 @@ package custom.awesome.materials;
 package Image undefinedImage;
 
 public class AweMaterial extends OfficeMaterial {
-    private Image thumbnailCache : stream = null, copy = null;
+    private bool noThumbnail;
+    private Image thumbnailCache : stream=null, copy=null;
+
     public Image sizedPreviewImage2(double scale, int sz=48, int w=-1, int h=-1, bool superQuality=false, bool force=false) {
-            if(this.noThumbnail) return getUndefinedImage();
-            if(!thumbnailCache) {
-                thumbnailCache = getSizedPreviewImage(this, 1, w=sz, h=sz, force=false);
-            }
-            return thumbnailCache;
+        if (this.noThumbnail) return this.getUndefinedImage();
+
+        if (!this.thumbnailCache) {
+            this.thumbnailCache = this.getSizedPreviewImage(1, w=sz, h=sz, force=false);
+        }
+
+        return this.thumbnailCache;
     }   
 
     public constructor(str id, symbol pkg=#:package : caller eval, MaterialCategory category=null) {
         super(..);
     }
-
 
     /**
      * Create a new one.
@@ -60,15 +63,11 @@ public class AweMaterial extends OfficeMaterial {
 		       Brush material2D=null, double thumbnailScale=1, symbol pkg=#:package : caller eval, bool noThumbnail=false) {
         super(id, material3D, description=description, category=category, material2D=material2D, thumbnailScale=thumbnailScale, pkg=pkg);
 
-        setSuperMaterial(material3D);
         this.noThumbnail = noThumbnail;
     }
-
-    private bool noThumbnail;
     
     public Material3D thumbnailMaterial3D() {
-        if(this.material3D) return this.material3D;
-        return plainBlueMaterial3D();
+        return this.material3D ?? plainBlueMaterial3D();
     }
 
     public Image sizedPreviewImage(int w, int h, bool force=false) {
@@ -80,16 +79,28 @@ public class AweMaterial extends OfficeMaterial {
     }
 
     public Material3D material3D() {
-        var material = super();
-
-        //Return a non texturized version of the material
-        //for real time views
+        var original = super();
+        var matte = matteMaterial3D(original.getAverageColor());
         //Issue Awesome#299
-        if(material as GMaterial3D) {
-            return matteMaterial3D(material.getAverageColor());
-        }
+        MaterialSelector3D selector();
+        //original material (with texture) for render
+		selector << option3D(original, #render);
+        //electrical material
+        selector << option3D(electricalMaterial(), #electrical);
+        //matte flat version (no texture) for real-time 3d
+		selector << option3D(matte, #normal);
+		
+        selector.finalizeSelector();
+		
+        return selector;
+    }
 
-        return material;
+    public Material3D material3D(FetchEnv3D env) {
+        return this.material3D();
+    }
+
+    public void apply(Primitive3D p, FetchEnv3D env) {
+        p.?setMaterial(this.material3D());
     }
 
     extend public Image getUndefinedImage() {
