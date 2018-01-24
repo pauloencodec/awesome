@@ -60,6 +60,7 @@ public class AweMaterial extends OfficeMaterial {
 		       Brush material2D=null, double thumbnailScale=1, symbol pkg=#:package : caller eval, bool noThumbnail=false) {
         super(id, material3D, description=description, category=category, material2D=material2D, thumbnailScale=thumbnailScale, pkg=pkg);
 
+        setSuperMaterial(material3D);
         this.noThumbnail = noThumbnail;
     }
 
@@ -79,18 +80,16 @@ public class AweMaterial extends OfficeMaterial {
     }
 
     public Material3D material3D() {
-        
-        var original = super();
-        var matte = matteMaterial3D(original.getAverageColor());
+        var material = super();
 
+        //Return a non texturized version of the material
+        //for real time views
         //Issue Awesome#299
-        MaterialSelector3D selector();
-        //original material (with texture) for render
-		selector << option3D(original, #render);
-        //matte flat version (no texture) for real-time 3d
-		selector << option3D(matte);
-		return selector;
-       
+        if(material as GMaterial3D) {
+            return matteMaterial3D(material.getAverageColor());
+        }
+
+        return material;
     }
 
     extend public Image getUndefinedImage() {
