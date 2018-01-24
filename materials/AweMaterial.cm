@@ -82,15 +82,22 @@ public class AweMaterial extends OfficeMaterial {
         
         var original = super();
         var matte = matteMaterial3D(original.getAverageColor());
-
         //Issue Awesome#299
         MaterialSelector3D selector();
         //original material (with texture) for render
 		selector << option3D(original, #render);
+        //electrical material
+        selector << option3D(electricalMaterial(), #electrical);
         //matte flat version (no texture) for real-time 3d
+		selector << option3D(matte, #normal);
 		selector << option3D(matte);
+        selector.finalizeSelector();
 		return selector;
        
+    }
+
+    public void apply(Primitive3D p, FetchEnv3D env) {
+        p.?setMaterial(this.material3D());
     }
 
     extend public Image getUndefinedImage() {

@@ -98,16 +98,7 @@ public class AweEdgedPath2D extends EdgedPath {
 				    bool surface=true, bool edge=true) {
         this.edgeMaterial = edgeMaterial;
 
-        MaterialSelector3D selector();
         var material = new CachedMaterial(surfaceMaterial.id);
-
-        selector << option3D(electricalMaterial, #electrical);
-        selector << option3D(surfaceMaterial.material3D.copy(), #normal);
-
-        selector.finalizeSelector();
-
-        material.material3D = selector;
-        material.superMaterial3D = surfaceMaterial.material3D();
 
         return get3D(owner, thickness, res, env, flatEdges, material, surfaceTextureSpace, edgeTextureUp, scale, surface, edge);
     }
