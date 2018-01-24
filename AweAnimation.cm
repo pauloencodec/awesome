@@ -103,27 +103,23 @@ public class AweAnimation extends SpaceAnimation {
         this.viewMode = viewMode;
         var space = this.space ? this.space : activeSpace();
         space.setViewMode( viewMode );
+        space.invalidate(space.snappers);
     }
 
     public PropObj end() {
         var space = this.space ? this.space : activeSpace();
-        if (space) {
-            space.endAnimateDrawSequence(this);
-            space.hide(this);
-            space.setViewMode( null );
-        }
-
+        space.endAnimateDrawSequence(this);
+        space.hide(this);
+        this.setViewMode( normalViewMode );
         return super(..);
     }
 
     public void abort() {
-        if (space) {
-            space.abortAnimateDraw(this);
-            space.hide(this);
-        }
+        var space = this.space ? this.space : activeSpace();        
+        this.setViewMode(normalViewMode);
+        space.abortAnimateDraw(this);
+        space.hide(this);
 
-
-        this.setViewMode(null);
         super(..);
     }
 

@@ -52,14 +52,15 @@ public class AweElectricalAnimationInfeedMode extends AweElectricalAnimationMode
         var infeed = animation.?map.?infeedAt(p);
 
         if(infeed) {
-            if (isControlKeyDown()) { 
+            if (isControlKeyDown() or animation.singleClickInfeedToggle) { 
                 infeed.configurator.active = !infeed.configurator.active;
             }
             
-            selectedInfeed = infeed;
-            this.infeedSelected(infeed);
-            animation.updateSubConfigurators();
-            
+            if(!animation.singleClickInfeedToggle) {
+                selectedInfeed = infeed;
+                this.infeedSelected(infeed);
+                animation.updateSubConfigurators();
+            }
         }
     }
 

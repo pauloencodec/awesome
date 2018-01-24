@@ -240,32 +240,21 @@ public class AwePlaceSnapperAnimationProxy {
 
         var model = this.snapper.mainModel();
         var stretchers = model.getStretchers();
-        var immediateStretchProp = "width";
-
-        if (?ConnectSnapInfo snapInfo = this.selection.activeSnapInfo) {
-            if (?AweConnectLine l = snapInfo.snap) {
-                if (model.isStretchableProp(l.autoSizePropKey)) {
-                    immediateStretchProp = l.autoSizePropKey;
-                }
-            }
-        }
-
         for (stretcher in stretchers) {
-            if (stretcher.propKey == immediateStretchProp) {
-                potentialStretchers << stretcher.stretcherB << stretcher.stretcherA;
-            }
+            potentialStretchers << stretcher.stretcherB << stretcher.stretcherA;
         }
 
         potentialStretchers.sort(function sortByDistanceToLine, this.owner.lastMouseInfo.mouseLine);
         
+        //tolerance of difference between the angle the user pulled and the direction of the stretchers
+        var threshold = 15deg;
+
         if (potentialStretchers.any()) {
             for (AweStretcherConnector c in potentialStretchers) {
-                if (c.isFree()) {
+                if (c.isFree() and c.rot.pitch == 0deg and c.rot.roll == 0deg and c.rot.yaw.minDiff(a) < threshold) {
                     return c;
                 }
             }
-
-            return potentialStretchers.first();
         }
         
         return null;

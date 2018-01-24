@@ -139,8 +139,8 @@ public class AwePart extends OfficePart {
         this.options << option;
     }
 
-    extend public void appendOption(str code, str name=null, str description=null, double price=0) {
-        this.appendOption(new AwePartOption(this, code, name, description, price));
+    extend public void appendOption(str code, str name=null, str description=null, double price=0, bool valid=false) {
+        this.appendOption(new AwePartOption(this, code, name, description, price, valid));
     }
 
     extend public void appendOptions(AwePartOption[] options) {
@@ -162,7 +162,7 @@ public class AwePart extends OfficePart {
     }
 
     extend public bool isValid() {
-        return this.isValid;
+        return this.isValid and !this.sku.contains("~");
     }
 
     public str itemTagKey() {
@@ -178,7 +178,7 @@ public class AwePart extends OfficePart {
         return this.sku # this.header.tg;
     }
 
-    public str completeSpecified() { return isValid ? "Yes" : "No"; }
+    public str completeSpecified() { return this.isValid() ? "Yes" : "No"; }
 
     public str[] generatePmSifRows(Space space) {
 	    str[] res();
