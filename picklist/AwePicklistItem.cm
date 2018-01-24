@@ -89,6 +89,9 @@ public class AwePicklistItem extends PicklistItem {
                     part.isSpecial = true;
                     part.specialUpcharges.put(selection.optionKey, selection.upcharge);
                 }
+                else  {
+                    part.appendOption(selection);
+                }
             }
         }
 
