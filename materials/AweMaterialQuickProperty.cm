@@ -34,57 +34,58 @@
    END OF CETSC
 */
 
-package custom.awesome.electrical;
+package custom.awesome.materials;
 
-public class ElectricalConnectedPath {
-    public point[] path;
-    public ElectricalModel start;
-    public ElectricalModel end;
-    public line[] debug();
+public class AweMaterialQuickProperty extends QuickProperty {
+    public AweObject model;
+    public AweMaterialOptionFinder finder;
 
-    public ElectricalInternalComponent[] components();
-    public AweElectricalRoutingEnv env;
+    public constructor(AweObject model, str key, str label, Object value, SubSet domain, AweMaterialOptionFinder finder) {
+        super(key, label, value, value.class, domain);
 
-    public constructor( point[] path, ElectricalModel start, ElectricalModel end, AweElectricalRoutingEnv env ) {
-        this.path = path;
-        this.start = start;
-        this.end = end;
-        this.env = env;
-        if ( validPath ) {
-            translateToComponents( parsePath() );
-        }
-    }   
-
-    extend public bool validPath() {
-        if ( path ) {
-            return path.count > 0;
-        } else {
-            return true;
-        }
+        this.model = model;
+        this.finder = finder;
     }
 
-    extend public AweElectricalPathPart[] parsePath() { return null; }
+    public void build(QuickProperties props) {
+        super(props);
+        
+        var choice = new AweOfficeMaterialSelection(props, domain=domain.MaterialDomain, selected=value.AweMaterialShell.materialInstance, callback=function selectChoice);
+        
+        choice.property = this;
+        
+        choice.setSize(sizeI(160, 18));
 
-    extend public bool operator<( ElectricalConnectedPath other ) {
-        return this.cost() < ( other ? other.cost() : maxDouble );
+        this.controls = [Control: choice];
     }
+}
 
-    public double costOverride = maxDouble;
+public class AweOfficeMaterialSelection extends OfficeMaterialSelection {
+    public QuickProperty property;
+    public MaterialDomain fullDomain;
+}
 
-    extend public double cost() {
-        double d = 0;
-        for ( i in 1..(this.path.count-1) ) {
-            d += path[i-1].distance(path[i]);
+public class AweMaterialSchemeProperty extends MaterialSchemeProperty {
+    public AweObject model;
+}
+
+private void selectChoice(Control c) {
+    if (c as AweOfficeMaterialSelection) {
+        var model = c.property.AweMaterialQuickProperty.model;
+
+        if (!c.fullDomain) {
+            var finder = c.property.AweMaterialQuickProperty.finder;
+
+            c.fullDomain = finder.get(model, c.property.key, full=true);
         }
-        return min( d, costOverride );
-    }
 
-    extend public void selected() { }
+        AweMaterialSchemeProperty schemeProp(c.property.key, c.property.label, c.selected, domain=c.fullDomain,
+            isSubProperty=false,
+            disabledAllowed=false,
+            images=null);
 
-    extend public void translateToComponents( AweElectricalPathPart[] parts ) {
-        // pln(#parts);
-        for( p in parts ) {
-            components <<? p.createComponent();
-        }
+        schemeProp.model = model;
+
+        showAweMaterialDialog(c.ancestor, c.fullDomain, c.selected, schemeProp=schemeProp);
     }
 }

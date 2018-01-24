@@ -37,7 +37,10 @@
 package custom.awesome;
 
 use cm.syntax;
+
 use custom.awesome.connectors;
+use custom.awesome.sif;
+
 
 public class ToStrShell extends AweDynamicShell {
     public aweShellMethod str toStr(str extraInfo);
@@ -127,8 +130,13 @@ public class AweObject {
         }
 
         //AweMaterialShell instance must never be replaced. instead, update the contents of the shell
-        if (value in AweMaterialShell and oldValue in AweMaterialShell) {
-            oldValue.AweMaterialShell.setMaterial(value.AweMaterialShell.materialInstance());
+        if (oldValue in AweMaterialShell) {
+            if (value in AweMaterialShell) {
+                oldValue.AweMaterialShell.setMaterial(value.AweMaterialShell.materialInstance());
+            }
+            else if (value in Material) {
+                oldValue.AweMaterialShell.setMaterial(value.Material);
+            }
         }
         else {
             this.props.put(propName, value);
@@ -420,11 +428,40 @@ public class AweObject {
         if (this.buildParentQuickProperties) this.parent.?buildQuickProperties(props);
         
         this.buildQuickPropertiesFromSyntax(props);
+        this.buildMaterialQuickProperties(props);
         this.buildConnectorSetProperties(props);
         this.sortQuickProperties(props);
         if (this.buildParentQuickProperties) this.parent.?sortQuickProperties(props);
         
         return props and props.properties.any();
+    }
+
+    private AweMaterialOptionFinder materialFinder : copy=null, stream=null;
+
+    extend private AweMaterialOptionFinder getMaterialFinder() {
+        if (!this.materialFinder) {
+            if (?AweSnapper snapper = this.mainSnapper) {
+                this.materialFinder = new AweMaterialOptionFinder(snapper.getSifCatalogsInstance(), snapper.getMaterialFactoryInstance());
+            }
+        }
+
+        return this.materialFinder;
+    }
+
+    extend public void buildMaterialQuickProperties(QuickProperties props) {
+        var finder = this.getMaterialFinder();
+
+        if (finder) {
+            for (key, value in this.props) {
+                if (value as AweMaterialShell) {
+                    var domain = finder.get(this, key, full=false);
+                    
+                    if (domain and domain.count() > 0) {
+                        props.append(new AweMaterialQuickProperty(this, this._uniqueQuickPropertyId # key, key.propNameToLabel(), value, domain, finder));
+                    }
+                }
+            }
+        }
     }
 
     extend public void sortQuickProperties(QuickProperties props) {

@@ -44,6 +44,17 @@ public class AweElectricalModelGeometry extends AweGeometry {
         this.model = obj;
     }
 
+    public Graph graph(){
+        GInstance graph();
+        for( k,v in model.electricalComponents ) {
+            Graph g = v.graph(model.mainSnapper, k);
+            if(g){
+                graph << g;
+            }
+        }
+        return graph;
+    }
+
     public Primitive3D medium3D() {
         Primitive3D[] prims();
         for( k,v in model.electricalComponents ) {
@@ -64,12 +75,12 @@ public class AweElectricalModelGeometry extends AweGeometry {
 
         for( k,v in model.electricalComponents ) {
             // if ( v in AweElectricalInfeedModel or v in ElectricalReceptacle)
-            if ( k.middle == false or v in AweElectricalInfeedModel) {
-                for( p in v.getParts(null) ) {
+            // if ( !k.middle ) {
+                for( p in v.getParts() ) {
                     // env << p;
                     this.addPart( p );
                 }
-            }
+            // }
         }
     }
 }
