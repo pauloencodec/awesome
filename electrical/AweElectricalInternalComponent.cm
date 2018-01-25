@@ -46,7 +46,8 @@ public class ElectricalInternalComponent extends ElectricalModel {
         for( i in 1..(path.count-1)) {
             if(path[i-1] == path[i]) continue;
 
-            ClosedCylinder3D cyl( z.toSnapper( path[i-1] ), z.toSnapper( path[i] ), 0.25inch );
+            // ClosedCylinder3D cyl( z.toSnapper( path[i-1] ), z.toSnapper( path[i] ), 0.25inch );
+            ClosedCylinder3D cyl( path[i-1], path[i], 0.25inch );
             cyl.setMaterial( componentColor() );
             cyl.layer = #electrical;
             prims << cyl;
