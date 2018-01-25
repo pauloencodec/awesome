@@ -110,13 +110,13 @@ public class AweAnimation extends SpaceAnimation {
         var space = this.space ? this.space : activeSpace();
         space.endAnimateDrawSequence(this);
         space.hide(this);
-        this.setViewMode( normalViewMode );
+        this.setViewMode( null );
         return super(..);
     }
 
     public void abort() {
         var space = this.space ? this.space : activeSpace();        
-        this.setViewMode(normalViewMode);
+        this.setViewMode(null);
         space.abortAnimateDraw(this);
         space.hide(this);
 
