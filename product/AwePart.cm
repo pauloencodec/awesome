@@ -143,6 +143,22 @@ public class AwePart extends OfficePart {
         this.appendOption(new AwePartOption(this, code, name, description, price, valid));
     }
 
+    extend public AwePartOption appendOption(AweSifOptionSelection item) {
+        var upcharge = item.upcharge;
+
+        if (this.isSpecial) {
+            if (item.optionKey in this.specialUpcharges) {
+                upcharge = this.specialUpcharges.get(item.optionKey);
+            }
+        }
+
+        var option = new AwePartOption(this, item.selectionKey, item.optionDescription, item.selectionDescription, upcharge, !item.invalid);
+
+        this.appendOption(option);
+
+        return option;
+    }
+
     extend public void appendOptions(AwePartOption[] options) {
         if (!options or options.empty()) return;
         
@@ -216,12 +232,12 @@ public class AwePart extends OfficePart {
             // ON= Option Code
             res << spnn("ON=", option.code);
             // OD= Option Description
-            res << spnn("OD=", desc);
+            res << spnn("OD=", desc ?? "");
             // OG= Option Group
-            res << spnn("OG=", option.name);
+            res << spnn("OG=", option.name ?? "");
             // O1= Option Upcharge
             if (option.price > 0) {
-                res << spnn("O1=", option.price);
+                res << spnn("O1=", option.price.formatted(precision=2));
             }
         }
     }

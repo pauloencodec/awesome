@@ -76,11 +76,19 @@ public class AweAutorization {
     }
 
     final public void register(symbol pkg=#:package : caller eval){ 
+        register(pkg, forceRequestUpdate=true);
+    }
+
+    final public void register(symbol pkg=#:package : caller eval, bool forceRequestUpdate=true){ 
 
         var pkgName = pkg.str;
         if (pkgName !in featureInfo) { 
             this.featureInfo.put(pkgName, new str->str());
             mcOverlord.registerProfileDataCallback(pkgName, function handleChannelCallback);
+        }
+
+        if (forceRequestUpdate) { 
+            mcOverlord.requestUpdateProfileData();
         }
     }
 
@@ -108,6 +116,5 @@ public void handleChannelCallback(str->str map, bool offline) {
 
 {
     // aweAutorization.register();
-    // mcOverlord.requestUpdateProfileData();
     pln(#aweAutorization.allows("amazon"));
 }

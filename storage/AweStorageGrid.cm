@@ -52,7 +52,7 @@ public class AweStorageGrid {
     }   
 
     extend public void setMaterial(str key, Material3D material) {
-        materials.put(key, getMaterialWithElectrical( material) );
+        materials.put(key, material);
     }
 
     extend public void setMaterial(Material3D material) {

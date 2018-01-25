@@ -46,27 +46,12 @@ public DualMaterial3D electricalMaterial() {
     return _electricalMaterial;
 }
 
-public Material3D getMaterialWithElectrical( Material3D material ) {
-    return material.applyViewLayers();
-}
-
 public Material3D applyViewLayers(Material material) {
     return material.material3D().applyViewLayers();
 }
 
 public Material3D applyViewLayers(Material3D material) {
-    if (material as MaterialSelector3D) {
-        return material;
-    }
-    
-    MaterialSelector3D selector();
-
-    selector << option3D(electricalMaterial, #electrical);
-    selector << option3D(material, #normal);
-
-    selector.finalizeSelector();
-
-    return selector;
+    return material;
 }
 
 public DualMaterial3D transparentColorMaterial(int r=0, int g=0, int b=0, double opacity=0.75) {
