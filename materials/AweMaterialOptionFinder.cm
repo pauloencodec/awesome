@@ -141,7 +141,7 @@ public class AweMaterialOptionFinder {
 
         //ensuring product for legacy models
         if (!modelCopy.getProduct()) {
-            modelCopy._product = model.safeGetProduct().copy();
+            modelCopy._product = model.getProduct().copy();
             modelCopy._product.updateModel(modelCopy);
         }
 
@@ -149,7 +149,7 @@ public class AweMaterialOptionFinder {
     }
 
     extend private AwePart[] getParts(AweObject model) {
-        var product = model.safeGetProduct();
+        var product = model.getProduct();
         
         return product.?getParts();
     }
@@ -163,16 +163,4 @@ public class AweMaterialOptionFinder {
 
         return null;
     }
-}
-
-private AweProduct safeGetProduct(AweObject model) {
-    var product = model.getProduct();
-
-    if (!product) {
-        if (?AweEasySnapper snapper = model.mainSnapper()) {
-            product = snapper.product;
-        }
-    }
-
-    return product;
 }

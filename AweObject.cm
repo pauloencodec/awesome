@@ -518,6 +518,12 @@ public class AweObject {
             this._product = this.createProduct();
         }
 
+        if (!this._product) {
+            if (?AweEasySnapper snapper = this.mainSnapper()) {
+                this._product = snapper.product;
+            }
+        }
+
         return this._product;
     }
 
