@@ -44,6 +44,11 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
     public str fixedMode;
     public bool singleClickInfeedToggle = false;
 
+
+    public constructor(AweElectricalMap map=null, str fixedMode=null) {
+        this(map, fixedMode, singleClickInfeedToggle=false);
+    }
+
     public constructor(AweElectricalMap map=null, str fixedMode=null, bool singleClickInfeedToggle=false) {
         this.fixedMode = fixedMode;
         this.singleClickInfeedToggle = singleClickInfeedToggle;

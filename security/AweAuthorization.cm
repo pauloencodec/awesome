@@ -75,7 +75,11 @@ public class AweAutorization {
         }
     }
 
-    final public void register(symbol pkg=#:package : caller eval, bool forceRequestUpdate = true){ 
+    final public void register(symbol pkg=#:package : caller eval){ 
+        register(pkg, forceRequestUpdate=true);
+    }
+
+    final public void register(symbol pkg=#:package : caller eval, bool forceRequestUpdate=true){ 
 
         var pkgName = pkg.str;
         if (pkgName !in featureInfo) { 
