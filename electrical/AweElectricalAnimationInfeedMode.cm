@@ -76,11 +76,9 @@ public class AweElectricalAnimationInfeedMode extends AweElectricalAnimationMode
         Awe3D prims();
 
         for(infeed in animation.?map.?allInfeeds) {
-            if(!infeed.active) {
-                var cone = infeedGeometry(infeed);
-                cone.setMaterial(plainGrayMaterial3D);
-                prims << cone;
-            }
+            var cone = infeedGeometry(infeed);
+            cone.setMaterial(infeed.active ? plainGreenMaterial3D : plainGrayMaterial3D);
+            prims << cone;
         }
 
         if(animation.currentPoint) {
