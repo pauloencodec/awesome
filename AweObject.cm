@@ -369,6 +369,10 @@ public class AweObject {
         return newCopy;
     }
 
+    extend public AweObject copyForLimb() {
+        return this.copy();
+    }
+
     extend public Object copyProp(CopyEnv env, str key, Object value) {
         if (value as AweEnum) {
             return value;
@@ -917,7 +921,7 @@ public class AweObject {
 
         //limb settings
         if(this.limbKey) {
-            custom.awesome.ui.modelLimbDefaults.put(this.limbKey, this.copy());
+            custom.awesome.ui.modelLimbDefaults.put(this.limbKey, this.copyForLimb());
         } else if(this.parent) {
             this.parent.updateLimbDefaults();
         }
