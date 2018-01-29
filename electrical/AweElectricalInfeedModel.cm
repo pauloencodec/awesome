@@ -39,6 +39,10 @@ package custom.awesome.electrical;
 public class AweElectricalInfeedModel extends ElectricalModel {
 
     public TreeNode path;
+
+    extend public void setPath( TreeNode path ) {
+        this.path = path;
+    }
     
     public Primitive3D get3D( FetchEnv3D env, Snapper z, ElectricalPosition pos ) {
         Primitive3D[] prims();

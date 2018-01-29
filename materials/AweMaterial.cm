@@ -80,7 +80,8 @@ public class AweMaterial extends OfficeMaterial {
 
     public Material3D material3D() {
         var original = super();
-        var matte = matteMaterial3D(original.getAverageColor());
+        var matte = this.getMatteMaterial3D(original);
+
         //Issue Awesome#299
         MaterialSelector3D selector();
         //original material (with texture) for render
@@ -93,6 +94,16 @@ public class AweMaterial extends OfficeMaterial {
         selector.finalizeSelector();
 		
         return selector;
+    }
+
+    extend private Material3D getMatteMaterial3D(Material3D original) {
+        var transparency = original.getTransparency(null);
+
+        if (transparency > 0) {
+            return transparencyMaterial3D(original.getAverageColor(), transparency);
+        }
+
+        return matteMaterial3D(original.getAverageColor());
     }
 
     public Material3D material3D(FetchEnv3D env) {
