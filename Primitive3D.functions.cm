@@ -49,15 +49,23 @@ public void standUp(Primitive3D p) {
     p.rotate(up);
 }
 
-public Primitive3D applyMaterial(Primitive3D p, Material material) {
+public Primitive3D applyMaterial(Primitive3D p, Material material, bool transparentElectrical) {
     if (material) {
-        material.apply(p, new FetchEnv3D());
+        if ( material as AweMaterial ) {
+            material.apply(p, new FetchEnv3D(), transparentElectrical);
+        } else {
+            material.apply(p, new FetchEnv3D());
+        }
     }
 
     return p;
 }
 
-public Primitive3D applyMaterial(Primitive3D p, AweMaterialShell aweMaterial, AweObject picksurfaceModel = null) {
+public Primitive3D applyMaterial(Primitive3D p, Material material) {
+    return applyMaterial(p, material, transparentElectrical=true);
+}
+
+public Primitive3D applyMaterial(Primitive3D p, AweMaterialShell aweMaterial, bool transparentElectrical, AweObject picksurfaceModel = null ) {
     if(!aweMaterial or !p) return p;
 
     var model = aweMaterial.model;
@@ -68,7 +76,11 @@ public Primitive3D applyMaterial(Primitive3D p, AweMaterialShell aweMaterial, Aw
         materialManager.registerPickSurface(p, aweMaterial, picksurfaceModel);
     }
 
-    return applyMaterial(p, aweMaterial.materialInstance);
+    return applyMaterial(p, aweMaterial.materialInstance, transparentElectrical);
+}
+
+public Primitive3D applyMaterial(Primitive3D p, AweMaterialShell aweMaterial, AweObject picksurfaceModel = null) {
+    return applyMaterial( p, aweMaterial, transparentElectrical=true, picksurfaceModel );
 }
 
 private void outlinePrims(Primitive3D thisPrim, Primitive3D[] processed, TransformF[] transformStack=null, Material3D currentMaterial=null, LayerExpr currentLayer=null) {
