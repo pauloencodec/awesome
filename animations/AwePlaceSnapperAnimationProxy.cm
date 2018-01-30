@@ -42,9 +42,11 @@ public const str autoId = "Auto";
 
 private str previousAnimationApplication;
 private str previousAnimationPreferredConnection;
+private bool previousAnimationUseLatestConfig = true;
 private str applicationPropKey = "connectionApplication";
 private str preferredPropKey = "preferredConnection";
 private str autoSizePropKey = "autoSize";
+private str useLatestConfigPropKey = "useLatestConfig";
 
 public class AwePlaceSnapperAnimationProxy {
     public PlaceSnapperAnimation owner;
@@ -55,6 +57,10 @@ public class AwePlaceSnapperAnimationProxy {
     public str selectedApplication = previousAnimationApplication ?? autoId;
     public AwePreferredConnectionSelector preferredConnectionSelector(previousAnimationPreferredConnection);
     public bool autoSize;
+    public bool useLatestConfig = previousAnimationUseLatestConfig;
+    
+
+    
 
     private str currentKey;
     
@@ -104,6 +110,11 @@ public class AwePlaceSnapperAnimationProxy {
                 this.snapper.addExtraAnimationProperties(this.owner.animationProperties);
                 this.snapper.activeConfigurator.buildAnimationProperties(this.owner.animationProperties);
 
+                if(this.snapper.originalLimbModel and this.snapper.latestLimbModel) {
+                    this.owner.animationProperties.append2(useLatestConfigPropKey, "Use lastest config", this.useLatestConfig, new BoolSubSet(), lockable=false);
+                }
+
+
                 sortOrder = this.snapper.activeConfigurator.quickPropertySort();
                 
                 if (sortOrder and sortOrder.count > 0) {
@@ -131,6 +142,8 @@ public class AwePlaceSnapperAnimationProxy {
                 sortOrder.exclude(applicationPropKey);
                 sortOrder.insert(0, applicationPropKey);
             }
+            if(useLatestConfigPropKey !in sortOrder)
+                sortOrder << useLatestConfigPropKey;
         }
 
         this.owner.animationProperties.finalize(showList=sortOrder);
@@ -160,7 +173,11 @@ public class AwePlaceSnapperAnimationProxy {
             this.autoSize = value.?bool;
         }
         else if (this.isInsertAnimation()) {
-            if (this.snapper.activeConfigurator) {
+            if(key == useLatestConfigPropKey) {
+                this.useLatestConfig = value.?bool;
+                selectConfiguration(snapper);
+            }
+            else if (this.snapper.activeConfigurator) {
                 this.snapper.activeConfigurator.animationPropertyChanged(..);
                 this.snapper.extraAnimationPropertyChanged(..);
                 this.snapper.refresh(true, true);   
@@ -171,6 +188,15 @@ public class AwePlaceSnapperAnimationProxy {
         this.owner.buildProperties();
         
         this.invalidate();
+    }
+
+    extend private void selectConfiguration(AweSnapper snapper) {
+        if(this.useLatestConfig and snapper.mainModel() != snapper.latestLimbModel) {
+            snapper.loadNewModel(snapper.latestLimbModel);
+        }
+        else if(!this.useLatestConfig and snapper.mainModel() != snapper.originalLimbModel) {
+            snapper.loadNewModel(snapper.originalLimbModel);
+        }
     }
 
     extend public bool canAutoSize() {
@@ -221,6 +247,7 @@ public class AwePlaceSnapperAnimationProxy {
 
         previousAnimationApplication = this.selectedApplication;
         previousAnimationPreferredConnection = this.preferredConnectionSelector.selected.?id;
+        previousAnimationUseLatestConfig = this.useLatestConfig;
     }
 
     extend private ModifyEnv getModifyEnv() {

@@ -96,7 +96,11 @@ public class AweModelLimb extends SnapperLimb {
     }
 
     public Snapper getSnapper() {
-        return new AweModelSnapper(this.model);
+        var latestModel = this.model();
+        var snapper = new AweModelSnapper(latestModel);
+        snapper.latestLimbModel = latestModel;
+        snapper.originalLimbModel = this.originalModel;
+        return snapper;
     }
 }
 

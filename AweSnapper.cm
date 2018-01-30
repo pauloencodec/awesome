@@ -65,6 +65,15 @@ public class AweSnapper extends TaggableSnapper {
         return this._connectorCache;
     }
 
+    //this can be copy null because of its short life cycle (only needed while insert animation is going). Insert animation will use it and set it to null on the way out.
+    public AweObject originalLimbModel : stream=null, copy=null; 
+    public AweObject latestLimbModel : stream=null, copy=null; 
+
+    extend public void loadNewModel(AweObject newModel) {
+        this.mainModel().?applyFrom(newModel);
+        this.mainModel().invalidate();
+    }
+
     public constructor() {
         this.appendSelfToModels();
 
