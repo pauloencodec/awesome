@@ -94,9 +94,10 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
     }
 
     public point savePoint(int pointIndex, point mousePoint) {
-        currentMode.?clicked(mousePoint);
-        status.?updateStatus();
-        this.refresh();
+        if (currentMode.?clicked(mousePoint)) { 
+            status.?updateStatus();
+            this.refresh();
+        }
         return super(..);
     }
 
@@ -107,7 +108,6 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
     public Primitive3D get3D(FetchEnv3D env) {
         
         Awe3D prims();
-
         prims << currentMode.?get3D();
         return prims;
     }

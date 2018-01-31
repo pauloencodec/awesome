@@ -47,8 +47,8 @@ public class AweElectricalAnimationMode {
         return null;
     } 
 
-    extend public void clicked(point p) {
-
+    extend public bool clicked(point p) {
+        return true;
     }
 
     extend public void hoveredPointChanged(Point target) {

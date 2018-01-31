@@ -43,13 +43,20 @@ public class AweElectricalAnimationDebugMode extends AweElectricalAnimationMode 
 
     public constructor(AweElectricalAnimation animation) {
         super(..);
+    }
+
+    public void begin() {
         clusterInfo = AweElectricalClusterInfo(animation.map, true);
         prims = getPrims();
     }
 
     public Primitive3D get3D() {
+        if (!prims) { 
+            prims = getPrims();
+        }
         return prims;
     }
+
     extend public Primitive3D getPrims() {
         if(!clusterInfo) return null;
 
