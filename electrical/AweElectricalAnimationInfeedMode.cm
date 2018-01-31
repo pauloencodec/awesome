@@ -48,10 +48,10 @@ public class AweElectricalAnimationInfeedMode extends AweElectricalAnimationMode
         return points;
     } 
 
-    public void clicked(point p) {
+    public bool clicked(point p) {
         var infeed = animation.?map.?infeedAt(p);
-
         if(infeed) {
+
             if (isControlKeyDown() or animation.singleClickInfeedToggle) { 
                 infeed.configurator.active = !infeed.configurator.active;
             }
@@ -62,6 +62,8 @@ public class AweElectricalAnimationInfeedMode extends AweElectricalAnimationMode
                 animation.updateSubConfigurators();
             }
         }
+
+        return (infeed != null);
     }
 
     extend public void infeedSelected(AweElectricalInfeedPoint infeed) {
@@ -72,13 +74,20 @@ public class AweElectricalAnimationInfeedMode extends AweElectricalAnimationMode
         
     }
 
+    private Primitive3D _prims : copy=null, stream=null; 
+
     public Primitive3D get3D() {
         Awe3D prims();
 
-        for(infeed in animation.?map.?allInfeeds) {
-            var cone = infeedGeometry(infeed);
-            cone.setMaterial(infeed.active ? plainGreenMaterial3D : plainGrayMaterial3D);
-            prims << cone;
+        if (this._prims) { 
+            prims << this._prims.copy();
+        } else { 
+            for(infeed in animation.?map.?allInfeeds) {
+                var cone = infeedGeometry(infeed);
+                cone.setMaterial(infeed.active ? plainGreenMaterial3D : plainGrayMaterial3D);
+                prims << cone;
+            }
+            this._prims = prims.copy();
         }
 
         if(animation.currentPoint) {
@@ -93,7 +102,7 @@ public class AweElectricalAnimationInfeedMode extends AweElectricalAnimationMode
             prims << sphere;
         } 
 
-        return prims;
+        return  prims;
     }
 
 
@@ -110,6 +119,7 @@ public class AweElectricalAnimationInfeedMode extends AweElectricalAnimationMode
     }
 
     public void configuratorChanged() {
+        this._prims = null;
         this.animation.status.?updateStatus();
         this.animation.updateMap();
     }
