@@ -36,18 +36,6 @@
 
 package custom.awesome.stretch;
 
-public class AweManipulator extends AweConnectPoint {
-    public bool isEnabled() { return true; }
-    public bool connectable() { return false; }
-    public bool isConnected() { return false; }
-    public bool connect(Connector c, bool oneway=false) { return false; }
-    public bool disconnect(Connector c, bool oneway=false) { return false; }
-    public bool multipleConnects() { return false; }
-    public Connector connection() { return null; }
-    public Connector{} connections() { return null; }
-    public bool isConnectedTo(Connector c) { return false; }
-}
-
 public class AweStretchableConnector extends AweManipulator {
 }
 
