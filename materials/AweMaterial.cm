@@ -122,8 +122,7 @@ public class AweMaterial extends OfficeMaterial {
     }
 
     extend public Image getUndefinedImage() {
-        //TODO: Return an image representing a missing material.
-        if (!undefinedImage) undefinedImage = getSizedPreviewImage(this, 1, w=12, h=12, force=false);
+        if (!undefinedImage) undefinedImage = getSizedPreviewImage(material("plain_gray"), 1, w=12, h=12, force=false);
 
         return undefinedImage;
     }
