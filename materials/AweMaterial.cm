@@ -79,15 +79,18 @@ public class AweMaterial extends OfficeMaterial {
     }
 
     public Material3D material3D() {
-        var original = super();
-        var matte = this.getMatteMaterial3D(original);
+        return material3D(transparentElectrical=true);
+    }
 
+    extend public Material3D material3D( bool transparentElectrical) {
+        var original = OfficeMaterial.material3D(this);
+        var matte = matteMaterial3D(original.getAverageColor());
         //Issue Awesome#299
         MaterialSelector3D selector();
         //original material (with texture) for render
 		selector << option3D(original, #render);
         //electrical material
-        selector << option3D(electricalMaterial(), #electrical);
+        selector << option3D( transparentElectrical ? electricalMaterial() : matte, #electrical);
         //matte flat version (no texture) for real-time 3d
 		selector << option3D(matte, #normal);
 		
@@ -109,9 +112,13 @@ public class AweMaterial extends OfficeMaterial {
     public Material3D material3D(FetchEnv3D env) {
         return this.material3D();
     }
+    
+    extend public void apply(Primitive3D p, FetchEnv3D env, bool transparentElectrical) {
+        p.?setMaterial(this.material3D(transparentElectrical));
+    }
 
     public void apply(Primitive3D p, FetchEnv3D env) {
-        p.?setMaterial(this.material3D());
+        this.apply( p, env, transparentElectrical=true);
     }
 
     extend public Image getUndefinedImage() {
