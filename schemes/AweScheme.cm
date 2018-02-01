@@ -103,14 +103,10 @@ public class AweScheme {
     }
 
     extend private bool isVisible(AweObject model, str key) {
-        var field = model.class.field(key # "Visible");
+        var visible = model.getVisible(key);
 
-        if (field) {
-            var value = model.get(field);
-    
-            if (value as bool) {
-                return value and model.getDomain(key) != null;
-            }
+        if (visible) {
+            return model.getDomain(key) != null;
         }
 
         return true;
