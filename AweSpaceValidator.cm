@@ -62,21 +62,27 @@ public class AweSpaceValidator {
         for(s in space.snappers) {
             var connectors = s.connectors();
             var mustConnect = (aweDynamicCall s.mustConnect()).?bool;
-            bool connected = false;
+            bool connected, anyMandatory = false;
 
             for(c in connectors) {
                 Object result = aweDynamicCall c.isMandatory();
                 bool mandatory = result.?bool;
-                if(mandatory and (!c.isConnected)) {
-                    invalidList.putWarning(key, description, {Snapper: s});
-                    break;
+                
+                if (mandatory) {
+                    anyMandatory = true;
+
+                    if (!c.isConnected) {
+                        invalidList.putWarning(key, description, {Snapper: s});
+                        break;
+                    }
                 }
-                if(c.isConnected) {
+
+                if (c.isConnected) {
                     connected = true;
                 }
             }
 
-            if(mustConnect and !connected) {
+            if (mustConnect and anyMandatory and !connected) {
                 invalidList.putWarning(key, description, {Snapper: s});
             }
         }
