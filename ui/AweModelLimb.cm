@@ -61,6 +61,8 @@ public class AweModelLimb extends SnapperLimb {
         super(parent, pkg, key, image=image, label="", toolTipText=toolTipText);
     }
 
+    public bool rememberChanges = true;
+
     extend public AweObject model() {
         AweObject templateModel = getLastestLimbConfiguration(this.limbKey);
         if(!templateModel) {
@@ -96,11 +98,11 @@ public class AweModelLimb extends SnapperLimb {
     }
 
     public Snapper getSnapper() {
-        var latestModel = this.model();
-        var snapper = new AweModelSnapper(latestModel);
-        snapper.latestLimbModel = latestModel;
-        snapper.originalLimbModel = this.originalModel;
-        return snapper;
+        if(!this.rememberChanges or cm.win.isControlKeyDown) {
+            return new AweModelSnapper(this.originalModel.copy());
+        } else {
+            return new AweModelSnapper(this.model());
+        }
     }
 }
 
