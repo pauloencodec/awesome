@@ -111,7 +111,7 @@ public class AweConnectorSet  {
             var connector = this.connectorCache.get(id);
             var connections = connector.?connectedSnappers();
 
-            if (connections.any()) {
+            if (connections.?any()) {
                 for (c in connections) {
                     result << c.getModel();
                 }
