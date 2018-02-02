@@ -82,15 +82,15 @@ public class AweMaterial extends OfficeMaterial {
         return material3D(transparentElectrical=true);
     }
 
-    extend public Material3D material3D( bool transparentElectrical) {
+    extend public Material3D material3D(bool transparentElectrical) {
         var original = OfficeMaterial.material3D(this);
-        var matte = matteMaterial3D(original.getAverageColor());
+        var matte = getMatteMaterial3D(original);
         //Issue Awesome#299
         MaterialSelector3D selector();
         //original material (with texture) for render
 		selector << option3D(original, #render);
         //electrical material
-        selector << option3D( transparentElectrical ? electricalMaterial() : matte, #electrical);
+        selector << option3D(transparentElectrical ? electricalMaterial() : matte, #electrical);
         //matte flat version (no texture) for real-time 3d
 		selector << option3D(matte, #normal);
 		
@@ -122,8 +122,7 @@ public class AweMaterial extends OfficeMaterial {
     }
 
     extend public Image getUndefinedImage() {
-        //TODO: Return an image representing a missing material.
-        if (!undefinedImage) undefinedImage = getSizedPreviewImage(this, 1, w=12, h=12, force=false);
+        if (!undefinedImage) undefinedImage = getSizedPreviewImage(material("plain_gray"), 1, w=12, h=12, force=false);
 
         return undefinedImage;
     }
