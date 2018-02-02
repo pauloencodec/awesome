@@ -79,6 +79,6 @@ public class ElectricalModel extends AweObject {
     extend public AwePart[] getParts() { return null; }
 
     extend public str getCatalog(){
-        return
+        return null;
     }
 }
