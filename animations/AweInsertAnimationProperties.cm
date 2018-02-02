@@ -34,57 +34,22 @@
    END OF CETSC
 */
 
-package custom.awesome;
+package custom.awesome.animations;
 
-public class AweSpaceValidator {
-    private Space space;
-    public constructor(Space space) {
-        this.space = space;
-    }   
+use custom.awesome.automations;
 
-    extend public void validate(InvalidList invalidList) {
-        if(space) {
-            validateElectrical(invalidList);
-            validateLonely(invalidList);
-        }
-    }
-
-    extend public void validateElectrical(InvalidList invalidList) {
-        AweElectricalMap map(space);
-        AweElectricalClusterInfo clusterInfo(map);
-        clusterInfo.validate(invalidList);
-    }
-
-    extend public void validateLonely(InvalidList invalidList) {
-        str key = "disconnected object";
-        str description = "Product not properly connected.";
-
-        for(s in space.snappers) {
-            var connectors = s.connectors();
-            var mustConnect = (aweDynamicCall s.mustConnect()).?bool;
-            bool connected, anyMandatory = false;
-
-            for(c in connectors) {
-                Object result = aweDynamicCall c.isMandatory();
-                bool mandatory = result.?bool;
+public class AweInsertAnimationProperties extends AnimationProperties {
+    public str objectToLabel(str key, Object value, SubSet domain) {
+        if (?InsertAnimation insert = this.ownerAnimation) {
+            if (?AweSnapper snapper = insert.selection.main) {
+                var model = snapper.mainModel();
                 
-                if (mandatory) {
-                    anyMandatory = true;
-
-                    if (!c.isConnected) {
-                        invalidList.putWarning(key, description, {Snapper: s});
-                        break;
-                    }
+                if (str label = model.getQuickPropertyLabel(key, value)) {
+                    return label;
                 }
-
-                if (c.isConnected) {
-                    connected = true;
-                }
-            }
-
-            if (mustConnect and anyMandatory and !connected) {
-                invalidList.putWarning(key, description, {Snapper: s});
             }
         }
+
+        return super(..);
     }
 }
