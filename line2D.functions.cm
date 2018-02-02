@@ -73,6 +73,10 @@ public line2D shrunken(line2D l, double shrinkDistance) {
     return line2D(l.p0 + offset, l.p1 - offset);
 }
 
+public line2D grown(line2D l, double shrinkDistance) {
+    return shrunken(l, -shrinkDistance);
+}
+
 public rect rect(line2D l, double depth) {
     rect r((0,0), (l.length, depth));
     line2D referenceLine = l.offset(-depth/2);
