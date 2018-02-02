@@ -56,8 +56,10 @@ public class AweSifSearchIndex {
     }
 
     extend public void process(AweSifModel basemodel) {
-        this.processCode(basemodel.code);
-        this.processDescrition(basemodel.code, basemodel.description);
+        if (basemodel) { 
+            this.processCode(basemodel.code);
+            this.processDescrition(basemodel.code, basemodel.description);
+        }
     }
 
     extend public str{} modelList(str indexKey, str->str{} index) {

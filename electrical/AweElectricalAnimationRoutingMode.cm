@@ -66,7 +66,7 @@ public class AweElectricalAnimationRoutingMode extends AweElectricalAnimationMod
         }
     }
 
-    public void clicked(point p) {
+    public bool clicked(point p) {
         if(!startPoint) {
             startPoint = p;
             currentCluster = animation.?map.?networkInfo.?clusterAt(p);
@@ -82,6 +82,7 @@ public class AweElectricalAnimationRoutingMode extends AweElectricalAnimationMod
             }
             suggestedRoute = null;
         }
+        return super(..);
     }
 
     public Primitive3D get3D() {

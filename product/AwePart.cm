@@ -44,6 +44,8 @@ private const str allsteelCompanyCode = "ALS";
 public class AwePart extends OfficePart {
     public str sku;
     public str catalog;
+    public str company;
+    public str category;
     public bool isValid;
     public bool isSpecial;
     private AwePartOption[] options : public readable;
@@ -93,6 +95,14 @@ public class AwePart extends OfficePart {
         return this.catalog;
     }
 
+    public str company() {
+        return this.company;
+    }
+
+    public str category() {
+        return this.category;
+    }
+
     public ItemTag createItemTag() {
         ItemTagInfo info = itemTagInfo();
         
@@ -129,8 +139,24 @@ public class AwePart extends OfficePart {
         this.options << option;
     }
 
-    extend public void appendOption(str code, str name=null, str description=null, double price=0) {
-        this.appendOption(new AwePartOption(this, code, name, description, price));
+    extend public void appendOption(str code, str name=null, str description=null, double price=0, bool valid=false) {
+        this.appendOption(new AwePartOption(this, code, name, description, price, valid));
+    }
+
+    extend public AwePartOption appendOption(AweSifOptionSelection item) {
+        var upcharge = item.upcharge;
+
+        if (this.isSpecial) {
+            if (item.optionKey in this.specialUpcharges) {
+                upcharge = this.specialUpcharges.get(item.optionKey);
+            }
+        }
+
+        var option = new AwePartOption(this, item.selectionKey, item.optionDescription, item.selectionDescription, upcharge, !item.invalid);
+
+        this.appendOption(option);
+
+        return option;
     }
 
     extend public void appendOptions(AwePartOption[] options) {
@@ -152,7 +178,7 @@ public class AwePart extends OfficePart {
     }
 
     extend public bool isValid() {
-        return this.isValid;
+        return this.isValid and !this.sku.contains("~");
     }
 
     public str itemTagKey() {
@@ -168,7 +194,7 @@ public class AwePart extends OfficePart {
         return this.sku # this.header.tg;
     }
 
-    public str completeSpecified() { return isValid ? "Yes" : "No"; }
+    public str completeSpecified() { return this.isValid() ? "Yes" : "No"; }
 
     public str[] generatePmSifRows(Space space) {
 	    str[] res();
@@ -206,12 +232,12 @@ public class AwePart extends OfficePart {
             // ON= Option Code
             res << spnn("ON=", option.code);
             // OD= Option Description
-            res << spnn("OD=", desc);
+            res << spnn("OD=", desc ?? "");
             // OG= Option Group
-            res << spnn("OG=", option.name);
+            res << spnn("OG=", option.name ?? "");
             // O1= Option Upcharge
             if (option.price > 0) {
-                res << spnn("O1=", option.price);
+                res << spnn("O1=", option.price.formatted(precision=2));
             }
         }
     }

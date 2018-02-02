@@ -34,35 +34,22 @@
    END OF CETSC
 */
 
-package custom.awesome.electrical;
+package custom.awesome.animations;
 
-public class AweElectricalPoint {
-    public point position;
-    public vector direction;
+use custom.awesome.automations;
 
-    private bool hasDirection = false;
-
-    public constructor( point p, Vector a=null ) {
-        if ( a ) {
-            this.hasDirection = true;
-            this.direction = a.v;
+public class AweInsertAnimationProperties extends AnimationProperties {
+    public str objectToLabel(str key, Object value, SubSet domain) {
+        if (?InsertAnimation insert = this.ownerAnimation) {
+            if (?AweSnapper snapper = insert.selection.main) {
+                var model = snapper.mainModel();
+                
+                if (str label = model.getQuickPropertyLabel(key, value)) {
+                    return label;
+                }
+            }
         }
-        this.position = p;
-    }   
 
-    extend public void transform( Snapper s ) {
-        this.position = s.toSpace( this.position );
-        if ( hasDirection ) {
-            this.direction.rotateZ(s.rot.yaw);
-        }
-    }
-
-    extend public bool canGoTo( point p ) {
-        if ( !hasDirection ) return true;
-        // pln( "(" # position.x # ", " # position.z # ") -> (" # p.x # ", " # p.z # ") : " # direction );
-        
-        line l(position, p);
-        // these have to be normalized, otherwise it can give an odd result
-        return l.direction.normalized().angle(direction.normalized()) <= 90deg;
+        return super(..);
     }
 }

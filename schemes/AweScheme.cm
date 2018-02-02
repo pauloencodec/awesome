@@ -103,14 +103,10 @@ public class AweScheme {
     }
 
     extend private bool isVisible(AweObject model, str key) {
-        var field = model.class.field(key # "Visible");
+        var visible = model.getVisible(key);
 
-        if (field) {
-            var value = model.get(field);
-    
-            if (value as bool) {
-                return value and model.getDomain(key) != null;
-            }
+        if (visible) {
+            return model.getDomain(key) != null;
         }
 
         return true;
@@ -125,7 +121,12 @@ public class AweScheme {
       
         if (schemeManager) {
             schemeManager.registerEditor(schemeEditor);
+            this.sortSchemes(schemeManager);
         }
+    }
+
+    extend private void sortSchemes(SchemeManager schemeManager) {
+        schemeManager.groupSchemeEditors = schemeManager.groupSchemeEditors.sort(function sortGroupSchemeEditors, null);
     }
 
     extend public AweSchemeEditor getEditorInstance() {
@@ -211,6 +212,10 @@ public class AweScheme {
             aweMaterial.setMaterial(material);
         }
     }
+}
+
+private int sortGroupSchemeEditors(GroupSchemeEditor a, GroupSchemeEditor b, Object env) {
+    return compare(a.label, b.label);
 }
 
 public class AweSchemeItem {

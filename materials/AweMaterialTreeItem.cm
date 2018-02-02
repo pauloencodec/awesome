@@ -38,7 +38,12 @@ package custom.awesome.materials;
 
 public class AweMaterialTreeItem {
     public constructor() {
-    }   
+    }
+    
+    public constructor(str key, str name) {
+        this.key = key;
+        this.name = name;
+    }
 
     public str name;
     public str key;

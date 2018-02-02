@@ -37,7 +37,10 @@
 package custom.awesome;
 
 use cm.syntax;
+
 use custom.awesome.connectors;
+use custom.awesome.sif;
+
 
 public class ToStrShell extends AweDynamicShell {
     public aweShellMethod str toStr(str extraInfo);
@@ -127,8 +130,13 @@ public class AweObject {
         }
 
         //AweMaterialShell instance must never be replaced. instead, update the contents of the shell
-        if (value in AweMaterialShell and oldValue in AweMaterialShell) {
-            oldValue.AweMaterialShell.setMaterial(value.AweMaterialShell.materialInstance());
+        if (oldValue in AweMaterialShell) {
+            if (value in AweMaterialShell) {
+                oldValue.AweMaterialShell.setMaterial(value.AweMaterialShell.materialInstance());
+            }
+            else if (value in Material) {
+                oldValue.AweMaterialShell.setMaterial(value.Material);
+            }
         }
         else {
             this.props.put(propName, value);
@@ -164,6 +172,14 @@ public class AweObject {
 
     extend public SubSet getCustomDomain(str propName) {
         return null;
+    }
+
+    extend public bool getVisible(str propName) {
+        if (this.get(propName) in AweMaterialShell) {
+            return true;    
+        }
+
+        return false;
     }
 
     extend public str getLabel(str propName) {
@@ -361,6 +377,10 @@ public class AweObject {
         return newCopy;
     }
 
+    extend public AweObject copyForLimb() {
+        return this.copy();
+    }
+
     extend public Object copyProp(CopyEnv env, str key, Object value) {
         if (value as AweEnum) {
             return value;
@@ -420,11 +440,40 @@ public class AweObject {
         if (this.buildParentQuickProperties) this.parent.?buildQuickProperties(props);
         
         this.buildQuickPropertiesFromSyntax(props);
+        this.buildMaterialQuickProperties(props);
         this.buildConnectorSetProperties(props);
         this.sortQuickProperties(props);
         if (this.buildParentQuickProperties) this.parent.?sortQuickProperties(props);
         
         return props and props.properties.any();
+    }
+
+    private AweMaterialOptionFinder materialFinder : copy=null, stream=null;
+
+    extend private AweMaterialOptionFinder getMaterialFinder() {
+        if (!this.materialFinder) {
+            if (?AweSnapper snapper = this.mainSnapper) {
+                this.materialFinder = new AweMaterialOptionFinder(snapper.getSifCatalogsInstance(), snapper.getMaterialFactoryInstance());
+            }
+        }
+
+        return this.materialFinder;
+    }
+
+    extend public void buildMaterialQuickProperties(QuickProperties props) {
+        var finder = this.getMaterialFinder();
+
+        if (finder) {
+            for (key, value in this.props) {
+                if (value as AweMaterialShell) {
+                    var domain = finder.get(this, key, full=false);
+                    
+                    if (domain and domain.count() > 0) {
+                        props.append(new AweMaterialQuickProperty(this, this._uniqueQuickPropertyId # key, key.propNameToLabel(), value, domain, finder));
+                    }
+                }
+            }
+        }
     }
 
     extend public void sortQuickProperties(QuickProperties props) {
@@ -479,6 +528,12 @@ public class AweObject {
 
         if (!this._product) {
             this._product = this.createProduct();
+        }
+
+        if (!this._product) {
+            if (?AweEasySnapper snapper = this.mainSnapper()) {
+                this._product = snapper.product;
+            }
         }
 
         return this._product;
@@ -874,7 +929,7 @@ public class AweObject {
 
         //limb settings
         if(this.limbKey) {
-            custom.awesome.ui.modelLimbDefaults.put(this.limbKey, this.copy());
+            custom.awesome.ui.modelLimbDefaults.put(this.limbKey, this.copyForLimb());
         } else if(this.parent) {
             this.parent.updateLimbDefaults();
         }
@@ -989,6 +1044,10 @@ public class AweObject {
         }
 
         return positions;
+    }
+
+    extend public bool validElectricalConnection( ElectricalModel mine, point start, point end ) {
+        return true;
     }
 
     /*** Electrical Regions ***/
@@ -1130,6 +1189,7 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
 
     SStatements applyFrom();
     SStatements getDomain();
+    SStatements getVisible();
     SStatements getLabel();
     
     for (i in 0..(domains.count-1)) {
@@ -1260,6 +1320,12 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
                 return @labelName ?? @propNameStr;
             }
         };
+
+        getVisible << statement {
+            if (propName == @propNameStr) {
+                return @visibleName;
+            }
+        };
     }
 
     return member {
@@ -1302,6 +1368,12 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
             @getDomain;
 
             return null;
+        }
+
+        @visibility bool getVisible(str propName) {
+            @getVisible;
+
+            return super(..);
         }
 
         @visibility str getLabel(str propName) {

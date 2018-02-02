@@ -34,35 +34,20 @@
    END OF CETSC
 */
 
-package custom.awesome.electrical;
+package custom.awesome.security;
 
-public class AweElectricalPoint {
-    public point position;
-    public vector direction;
-
-    private bool hasDirection = false;
-
-    public constructor( point p, Vector a=null ) {
-        if ( a ) {
-            this.hasDirection = true;
-            this.direction = a.v;
-        }
-        this.position = p;
-    }   
-
-    extend public void transform( Snapper s ) {
-        this.position = s.toSpace( this.position );
-        if ( hasDirection ) {
-            this.direction.rotateZ(s.rot.yaw);
-        }
-    }
-
-    extend public bool canGoTo( point p ) {
-        if ( !hasDirection ) return true;
-        // pln( "(" # position.x # ", " # position.z # ") -> (" # p.x # ", " # p.z # ") : " # direction );
-        
-        line l(position, p);
-        // these have to be normalized, otherwise it can give an odd result
-        return l.direction.normalized().angle(direction.normalized()) <= 90deg;
-    }
-}
+use custom.awesome.product;
+use custom.awesome;
+use custom.awesome.io;
+use custom.awesome.materials;
+use custom.awesome.schemes;
+use cm.format.cm3D;
+use cm.geometry.advanced;
+use cm.application;
+use cm.basic;
+use cm.core;
+use cm.core3D;
+use cm.draw;
+use cm.win;
+use cm.io;
+use cet.runtime;

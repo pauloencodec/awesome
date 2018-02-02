@@ -39,6 +39,10 @@ package custom.awesome.electrical;
 public class AweElectricalInfeedModel extends ElectricalModel {
 
     public TreeNode path;
+
+    extend public void setPath( TreeNode path ) {
+        this.path = path;
+    }
     
     public Primitive3D get3D( FetchEnv3D env, Snapper z, ElectricalPosition pos ) {
         Primitive3D[] prims();
@@ -49,7 +53,7 @@ public class AweElectricalInfeedModel extends ElectricalModel {
             Instance3D i(c0, c1);
             i.move((0, -3inch, 0));
             i.setColor(0, 255, 0);
-            i.layer = #electrical;
+            i.layer = {#electrical, #installation};
             result i;
         };
         if ( pos ) {
@@ -72,6 +76,23 @@ public class AweElectricalInfeedModel extends ElectricalModel {
         }
 
         return safeInstance3D(prims);
+    }
+
+    public Graph graph(Snapper z, ElectricalPosition pos){
+        GInstance result();
+        
+        if(path){
+            getTreeNode2D( path, result, z, pos );
+        }
+        return result;
+    }
+
+    extend private void getTreeNode2D( TreeNode tn, GInstance graphs, Snapper z, ElectricalPosition p ) {
+        for ( child in tn.children ) {
+            graphs << child.graph( z, p );
+            // process child
+            getTreeNode2D( child, graphs, z, p );
+        }
     }
 
     extend private void getTreeNodeLines( TreeNode tn, Primitive3D[] prims, Snapper z ) {
