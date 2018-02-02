@@ -211,6 +211,8 @@ public class AwePart extends OfficePart {
         res << spnn("S-=", this.discount(space) * 100);
         // SP= Sell Price
         res << spnn("SP=", this.sellPrice(true, space).formatted(precision=2));
+        // EC= Company
+        res << spnn("EC=", this.company ?? "");
         // TG= Ind. Tag
         res << spnn("TG=", this.tag ? this.tag.text : "");
 
