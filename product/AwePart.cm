@@ -211,8 +211,19 @@ public class AwePart extends OfficePart {
         res << spnn("S-=", this.discount(space) * 100);
         // SP= Sell Price
         res << spnn("SP=", this.sellPrice(true, space).formatted(precision=2));
+        // EC= Company
+        res << spnn("EC=", this.company ?? "");
         // TG= Ind. Tag
         res << spnn("TG=", this.tag ? this.tag.text : "");
+
+        //L1=TAG1, L2=TAG2, L3=TAG3
+        while (PartTagList e=this.tags(); e; e=e.next) {
+		    if (e.tag and e.tag.category) {
+                var key = e.tag.category.label.replaceAll("TAG", "L");
+
+                res << spnn(key # "=", e.tag.label);
+            }
+		}
 
         //Catalog specific header rows
         for (row in this.header.getCatalogHeaderRows()) {
