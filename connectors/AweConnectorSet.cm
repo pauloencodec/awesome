@@ -127,7 +127,7 @@ public class AweConnectorSet  {
         for (id in ids) {
             var connector = this.connectorCache.get(id);
 
-            if (connector.isConnected()) {
+            if (connector.?isConnected()) {
                 return true;
             }
         }
