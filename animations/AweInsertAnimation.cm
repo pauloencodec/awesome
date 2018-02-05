@@ -36,6 +36,7 @@
 
 package custom.awesome.animations;
 
+use cm.win;
 use custom.awesome.automations;
 
 public class AweInsertAnimation extends InsertAnimation {
@@ -45,6 +46,24 @@ public class AweInsertAnimation extends InsertAnimation {
         super(..);
 
         this.proxy = new AwePlaceSnapperAnimationProxy(this, env);
+    }
+
+    public void createAnimationProperties() {
+        if (!this.animationProperties) {
+            this.animationProperties = this.getAnimationProperties();
+        }
+    }
+
+    extend private AnimationProperties getAnimationProperties() {
+        WindowView v = activeView();
+
+        if (v and v.window and v.window.visible()) {
+            if ((Viewport vp = v.viewport) and !vp.showAnimationProperties(v, this)) return null;
+            
+            return new AweInsertAnimationProperties(v.window, this);
+        }
+        
+        return null;
     }
 
     public void buildProperties() {

@@ -70,8 +70,12 @@ public class AweSchemeApplier {
 
         if (this.propEnabled(schemePropKey)) {
             var value = this.schemeModel.get(schemePropKey);
-
+            
             if (!value) return false;
+            
+            var visible = target.getVisible(modelPropKey);     
+            
+            if (!visible) return false;
 
             var domain = target.getDomain(modelPropKey);
 

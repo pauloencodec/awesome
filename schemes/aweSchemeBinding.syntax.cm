@@ -67,13 +67,17 @@ public member @visibility aweSchemeBindings '(' @bindings=[aweSchemeBinding ',']
             if (applier.is(@schemeKey)) {
                 if (applier.propEnabled(@schemePropKeyStr)) {
                     if (schemeModel as @schemeKey) {
-                        var domain = this.getDomain(@propNameStr);
-                        var value = schemeModel.@schemePropKey;
+                        var visible = this.getVisible(@propNameStr);
+                        
+                        if (visible) {
+                            var domain = this.getDomain(@propNameStr);
+                            var value = schemeModel.@schemePropKey;
 
-                        if (!domain or value in domain) {
-                            this.@propName = schemeModel.@schemePropKey;
-    
-                            applied = true;
+                            if (!domain or value in domain) {
+                                this.@propName = schemeModel.@schemePropKey;
+        
+                                applied = true;
+                            }
                         }
                     }
                 }
