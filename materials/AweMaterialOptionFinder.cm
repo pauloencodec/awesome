@@ -133,6 +133,8 @@ public class AweMaterialOptionFinder {
     }
 
     extend private AweObject copyModel(AweObject model, str propKey) {
+        if (!model.getProduct()) return null;
+
         var modelCopy = model.copy();
 
         modelCopy.disableModelLimbDefaultsUpdating = true;
