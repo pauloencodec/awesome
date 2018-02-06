@@ -58,6 +58,8 @@ public class AweMaterialOptionFinder {
     extend public MaterialDomain get(AweObject model, str propKey, bool full) {
         var modelCopy = this.copyModel(model, propKey);
 
+        if (!modelCopy) return null;
+
         for (basePart in this.getParts(model)) {
             var newPart = this.getMatchingPart(basePart, modelCopy);
 
