@@ -181,7 +181,7 @@ public class AweSnapper extends TaggableSnapper {
             }
         }
 
-        var stretchers = this.mainModel.getStretchers();
+        var stretchers = this.mainModel.?getStretchers();
 
         if (stretchers and stretchers.any()) {
             for (s in stretchers) {
