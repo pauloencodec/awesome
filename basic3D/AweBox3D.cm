@@ -79,21 +79,21 @@ public class AweBox3D extends Awe3D {
         Material3D bottomMaterial
         ) {
 
-        front = Rect3D(1, point(), b.w, b.h, reversed=true);
-        back = Rect3D(1, (0,b.d,0), b.w, b.h, reversed=false);
-        left = Rect3D(2, point(), b.d, b.h, reversed=true);
-        right = Rect3D(2, (b.w,0,0), b.d, b.h, reversed=false);
-        top = Rect3D(0, (0,0,b.h), b.w, b.d, reversed=false);
-        bottom = Rect3D(0, point(), b.w, b.d, reversed=true);
+        this.front = new Rect3D(1, point(), b.w, b.h, reversed=true);
+        this.back = new Rect3D(1, (0,b.d,0), b.w, b.h, reversed=false);
+        this.left = new Rect3D(2, point(), b.d, b.h, reversed=true);
+        this.right = new Rect3D(2, (b.w,0,0), b.d, b.h, reversed=false);
+        this.top = new Rect3D(0, (0,0,b.h), b.w, b.d, reversed=false);
+        this.bottom = new Rect3D(0, point(), b.w, b.d, reversed=true);
 
-        this << bottom << top << left << right << front << back;
+        this << this.bottom << this.top << this.left << this.right << this.front << this.back;
 
-        front.setMaterial(frontMaterial);
-        back.setMaterial(backMaterial);
-        left.setMaterial(leftMaterial);
-        right.setMaterial(rightMaterial);
-        top.setMaterial(topMaterial);
-        bottom.setMaterial(bottomMaterial);
+        if (frontMaterial) this.front.setMaterial(frontMaterial);
+        if (backMaterial) this.back.setMaterial(backMaterial);
+        if (leftMaterial) this.left.setMaterial(leftMaterial);
+        if (rightMaterial) this.right.setMaterial(rightMaterial);
+        if (topMaterial) this.top.setMaterial(topMaterial);
+        if (bottomMaterial) this.bottom.setMaterial(bottomMaterial);
 
         this.move(b.p0);
     }
