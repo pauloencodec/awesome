@@ -181,7 +181,7 @@ public class AweSnapper extends TaggableSnapper {
             }
         }
 
-        var stretchers = this.mainModel.getStretchers();
+        var stretchers = this.mainModel.?getStretchers();
 
         if (stretchers and stretchers.any()) {
             for (s in stretchers) {
@@ -527,6 +527,28 @@ public class AweSnapper extends TaggableSnapper {
                 picklistInterface.afterGetParts(this.picklistProxy, env);
             }
         }
+
+        this.removeTagsWithNoAssociatedParts(env);
+    }
+
+    extend private void removeTagsWithNoAssociatedParts(PartsEnv env) {
+        str{} partTagsKeys();
+
+        forItemTags(tag in itemTags)  {
+            partTagsKeys << tag.key;
+        }
+
+        for (AwePart part in env.?parts) if (part.tag) {
+            var tagKey = part.tag.key;
+
+            if (tagKey in partTagsKeys) {
+                partTagsKeys.remove(tagKey);
+            }
+        }
+
+	    for (key in partTagsKeys) {
+            this.removeTag(key);
+	    }
     }
 
     extend public AwePart[] getParts() {
