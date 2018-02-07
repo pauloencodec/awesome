@@ -55,9 +55,6 @@ public class AwePlaceSnapperAnimationProxy {
     public str selectedApplication = previousAnimationApplication ?? autoId;
     public AwePreferredConnectionSelector preferredConnectionSelector(previousAnimationPreferredConnection);
     public bool autoSize;
-    
-
-    
 
     private str currentKey;
     
