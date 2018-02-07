@@ -940,7 +940,7 @@ public class AweObject {
 
         //limb settings
         if(this.limbKey) {
-            custom.awesome.ui.modelLimbDefaults.put(this.limbKey, this.copyForLimb());
+            custom.awesome.ui.setLastestLimbConfiguration(this.limbKey, this.copyForLimb());
         } else if(this.parent) {
             this.parent.updateLimbDefaults();
         }

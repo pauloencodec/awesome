@@ -61,8 +61,10 @@ public class AweModelLimb extends SnapperLimb {
         super(parent, pkg, key, image=image, label="", toolTipText=toolTipText);
     }
 
+    public bool rememberChanges = true;
+
     extend public AweObject model() {
-        AweObject templateModel = modelLimbDefaults.get(this.limbKey);
+        AweObject templateModel = getLastestLimbConfiguration(this.limbKey);
         if(!templateModel) {
             templateModel = originalModel;
         }
@@ -96,7 +98,11 @@ public class AweModelLimb extends SnapperLimb {
     }
 
     public Snapper getSnapper() {
-        return new AweModelSnapper(this.model);
+        if(!this.rememberChanges or cm.win.isControlKeyDown) {
+            return new AweModelSnapper(this.originalModel.copy());
+        } else {
+            return new AweModelSnapper(this.model());
+        }
     }
 }
 
@@ -136,14 +142,10 @@ private void modelHash(AweObject model, StrBuf buffer) {
 //AweObject is the updated version of that limbs model. every time a model changes, the latest version is put here under the limb key.
 //that way, this holds a copy of the last state of a snapper build by the limb.
 //when the user uses the limb to place a new snapper, the limb then comes here to get the lastest and apply.
-private str->AweObject _modelLimbDefaults;
-public str->AweObject modelLimbDefaults() {
-    if(!_modelLimbDefaults) {
-        _modelLimbDefaults = new str->AweObject();
-    }
-    return _modelLimbDefaults;
+public AweObject getLastestLimbConfiguration(str limbKey) {
+    return activeWorld().?getAuxillary("model-limb-defaults" # limbKey).AweObject;
 }
 
-{
-    _modelLimbDefaults = null;
+public void setLastestLimbConfiguration(str limbKey, AweObject configuration) {
+    activeWorld().?putAuxillary("model-limb-defaults" # limbKey, configuration, silent=true);
 }
