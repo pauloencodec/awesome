@@ -527,6 +527,28 @@ public class AweSnapper extends TaggableSnapper {
                 picklistInterface.afterGetParts(this.picklistProxy, env);
             }
         }
+
+        /***********************************************************************
+         * Remove tags which don't have an associated part anymore
+         ***********************************************************************/
+        str{} partTagsKeys();
+
+        forItemTags(tag in itemTags)  {
+            partTagsKeys << tag.key;
+        }
+
+        for (AwePart part in env.?parts) if (part.tag) {
+            var tagKey = part.tag.key;
+
+            if (tagKey in partTagsKeys) {
+                partTagsKeys.remove(tagKey);
+            }
+        }
+
+	    for (key in partTagsKeys) {
+            this.removeTag(key);
+	    }
+        /********************************************************************* */
     }
 
     extend public AwePart[] getParts() {
