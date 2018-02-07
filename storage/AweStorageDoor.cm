@@ -101,7 +101,7 @@ public class AweStorageDoor extends AweStorageGridPiece {
         return g;
     }
 
-    extend private void ensurePullValues() {
+    extend public void ensurePullValues() {
         if (this.pull.material == null) {
             this.pull.material = owner.getMaterial("pull");
         }
