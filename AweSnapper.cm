@@ -528,9 +528,10 @@ public class AweSnapper extends TaggableSnapper {
             }
         }
 
-        /***********************************************************************
-         * Remove tags which don't have an associated part anymore
-         ***********************************************************************/
+        this.removeTagsWithNoAssociatedParts(env);
+    }
+
+    extend private void removeTagsWithNoAssociatedParts(PartsEnv env) {
         str{} partTagsKeys();
 
         forItemTags(tag in itemTags)  {
@@ -548,7 +549,6 @@ public class AweSnapper extends TaggableSnapper {
 	    for (key in partTagsKeys) {
             this.removeTag(key);
 	    }
-        /********************************************************************* */
     }
 
     extend public AwePart[] getParts() {
