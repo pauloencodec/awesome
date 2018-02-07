@@ -62,7 +62,18 @@ public class AweElectricalPoint {
         // pln( "(" # position.x # ", " # position.z # ") -> (" # p.x # ", " # p.z # ") : " # direction );
         
         line l(position, p);
-        // these have to be normalized, otherwise it can give an odd result
-        return l.direction.normalized().angle(direction.normalized()) <= 90deg;
+
+        // this method is more numerical stable as the angle approaches 0, which can happen here
+        /*
+                    v1 x v2       (v1 crossed v2)
+            atan2( --------- )
+                    v1 . v2       (v1 DOT v2)
+         */
+
+        var angle = atan( l.direction.crossed(direction).length, l.direction*direction );
+        // pln(#angle);
+        // DO NOT USE the .angle(..) method here, its unreliable and sometimes returns NAN
+        // return l.direction.normalized().angle(direction.normalized()) <= 90deg;
+        return angle <= 90deg;
     }
 }
