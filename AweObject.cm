@@ -66,6 +66,17 @@ public class AweObject {
 
     }
 
+    /**************** repositioning things after changes from QuickProps ************ */
+    extend public void repositionAfterQPChange(Snapper snapper, point previousPin, point currentPin) {
+        //pin here is in space coords
+        snapper.move(previousPin - currentPin);
+    }
+    //point that remains in the same place when object changes size
+    extend public point pin(Snapper snapper) {
+        return (0,0,0);
+    }
+    /**************** /repositioning things after changes ************ */
+
     public str toS() {
         return this._label ? this._label : super();
     }
@@ -929,7 +940,7 @@ public class AweObject {
 
         //limb settings
         if(this.limbKey) {
-            custom.awesome.ui.modelLimbDefaults.put(this.limbKey, this.copyForLimb());
+            custom.awesome.ui.setLastestLimbConfiguration(this.limbKey, this.copyForLimb());
         } else if(this.parent) {
             this.parent.updateLimbDefaults();
         }
