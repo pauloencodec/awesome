@@ -88,4 +88,40 @@ public class AweElectricalCache {
     extend public AweElectricalInfeedPoint createInfeedInstance() {
         return new AweElectricalInfeedPoint(point());
     }
+
+    extend public Primitive3D get3D() {
+        if (animation()) return null;
+        if (this.infeeds.empty() and this.cables.empty()) return null;
+
+        Primitive3D[] prims();
+
+        for (key, cable in this.cables) {
+            if (!cable.active) continue;
+
+            prims << this.getPoweredCable3D(cable);
+        }
+
+        var result = prims.safeSet3D();
+        
+        result.setMaterial(plainGreenMaterial3D);
+        result.layer = #electrical;
+
+        return result;
+    }
+
+    extend private Primitive3D getPoweredCable3D(AweElectricalCableLine cable) {
+        Awe3D prims();
+
+        var lineThickness = 0.3inch;
+        var flowline = cable.snapper.toSnapper(cable.flow);
+
+        if (flowline.length > 5inch) {
+            prims << new Arrow3D(flowline.p0, flowline.p1, 0.7inch, lineThickness, 1.5inch);
+        }
+        else {
+            prims << new Cylinder3D(flowline.p0, flowline.p1, lineThickness);
+        }
+
+        return prims;
+    }
 }

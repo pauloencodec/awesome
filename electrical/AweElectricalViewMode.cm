@@ -4,7 +4,7 @@ public class AweElectricalViewMode extends ViewMode {
     private AweElectricalMap map;
 
     public constructor() {
-        symbol{} categories = { #electrical, #normal, #cad };
+        symbol{} categories = { #electrical };
         super("aweElectrical",  (#:package).toS().substring(1), "electricalViewModeName", visible=categories, draw={#electrical} );
         this.map = new AweElectricalMap( activeSpace );
     }
@@ -17,21 +17,7 @@ public class AweElectricalViewMode extends ViewMode {
 
     public void drawGraphs(LayerBuffer lb, View view, GeometricFinder finder=null) {
         if (debugClusterInfo) { 
-            new AweElectricalClusterInfo(this.map).debug2D(lb); 
+            new AweElectricalClusterInfo(this.map).debug2D(lb);
         }
-    }
-
-    // not sure if this is necessary or not
-    public bool deny3D() {
-        return false;
-    }
-
-    public bool process3D() {
-        return true;
-    }
-
-    public Primitive3D process3D(Snapper s, Primitive3D prim) {
-        prim.setMaterial(transparencyMaterial3D(.6));
-        return prim;
     }
 }

@@ -99,17 +99,10 @@ public class AweAnimation extends SpaceAnimation {
         return (key in allIgnoreKeys);
     }
 
-    extend public void setViewMode(ViewMode viewMode, bool invalidateSnappers) {
+    extend public void setViewMode(ViewMode viewMode) {
         this.viewMode = viewMode;
         var space = this.space ? this.space : activeSpace();
         space.setViewMode( viewMode );
-        if (invalidateSnappers) { 
-            space.invalidate(space.snappers);
-        }
-    }
-
-    extend public void setViewMode(ViewMode viewMode) {
-        this.setViewMode(viewMode, true);
     }
 
     public PropObj end() {
