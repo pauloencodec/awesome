@@ -38,9 +38,7 @@ package custom.awesome.picklist;
 
 public class AwePicklist extends Picklist : abstract {
     public constructor() {
-        if (!registeredPicklistEnv(this.picklistKey)) {
-            registerPicklistEnv(this.picklistKey, this.picklistEnv);
-        }
+        this.tryRegisterPicklistEnv();
     }
 
     public str picklistKey() {
@@ -53,6 +51,17 @@ public class AwePicklist extends Picklist : abstract {
 
     extend public PicklistEnv picklistEnv() {
         return new AwePicklistEnv(this.proxy.AwePicklistProxy);
+    }
+
+    public void dropped() { 
+        this.tryRegisterPicklistEnv();
+        super(..);
+    }
+
+    final private void tryRegisterPicklistEnv(){ 
+        if (!registeredPicklistEnv(this.picklistKey)) {
+            registerPicklistEnv(this.picklistKey, this.picklistEnv);
+        }
     }
 
     public void drawGraphs(LayerBuffer lb, View v, GeometricFinder finder=null) {
