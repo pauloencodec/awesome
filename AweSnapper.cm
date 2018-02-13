@@ -181,7 +181,7 @@ public class AweSnapper extends TaggableSnapper {
             }
         }
 
-        var stretchers = this.mainModel.getStretchers();
+        var stretchers = this.mainModel.?getStretchers();
 
         if (stretchers and stretchers.any()) {
             for (s in stretchers) {
@@ -206,10 +206,13 @@ public class AweSnapper extends TaggableSnapper {
 
     public bool quickPropertyChanged(QuickProperties props, str key, Object value, bool testChangeOnly) {
         if (this.activeConfigurator and !testChangeOnly) {
+            point oldPin = this.toSpace(this.mainModel.pin(this));
             bool changed = this.activeConfigurator.quickPropertyChanged(..);
             
             this.onPropertyChanged(key, value);
             this.refresh(true, true);
+            point newPin = this.toSpace(this.mainModel.pin(this));
+            this.mainModel.repositionAfterQPChange(this, oldPin, newPin);
             
             return changed;
         }
@@ -529,6 +532,28 @@ public class AweSnapper extends TaggableSnapper {
                 picklistInterface.afterGetParts(this.picklistProxy, env);
             }
         }
+
+        this.removeTagsWithNoAssociatedParts(env);
+    }
+
+    extend private void removeTagsWithNoAssociatedParts(PartsEnv env) {
+        str{} partTagsKeys();
+
+        forItemTags(tag in itemTags)  {
+            partTagsKeys << tag.key;
+        }
+
+        for (AwePart part in env.?parts) if (part.tag) {
+            var tagKey = part.tag.key;
+
+            if (tagKey in partTagsKeys) {
+                partTagsKeys.remove(tagKey);
+            }
+        }
+
+	    for (key in partTagsKeys) {
+            this.removeTag(key);
+	    }
     }
 
     extend public AwePart[] getParts() {

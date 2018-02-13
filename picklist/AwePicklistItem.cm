@@ -97,6 +97,10 @@ public class AwePicklistItem extends PicklistItem {
 
         part.data.setListPrice(totalPrice);
 
+        if (owner.space) {
+            part.updatePartTag(owner.space.sortedTaggingSnappers());
+        }
+
         return part;
     }
 

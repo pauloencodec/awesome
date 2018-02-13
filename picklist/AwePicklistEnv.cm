@@ -47,7 +47,7 @@ public class AwePicklistEnv extends PicklistEnv {
         Part[] parts();
 
         for (AwePicklistItem item in items) {
-            parts << item.getPart(this.owner.snapper);
+            parts << item.getPart(proxy.snapper);
         }
 
         return parts;

@@ -47,6 +47,8 @@ public class AweElectricalRoutingEnv {
     public ElectricalModel{} visited();
     public ElectricalModel{} whipUsed();
 
+    public ElectricalModel->ElectricalModel parentMap();
+
     public constructor() {
 
     }

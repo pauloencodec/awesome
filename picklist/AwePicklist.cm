@@ -36,12 +36,11 @@
 
 package custom.awesome.picklist;
 
+use cm.io;
+
 public class AwePicklist extends Picklist : abstract {
     public constructor() {
-        // 8.5 the registeredPickListEnv(..) is gone...so I guess just put it there?
-        // if (!registeredPicklistEnv(this.picklistKey)) {
-            registerPicklistEnv(this.picklistKey, this.picklistEnv);
-        // }
+        this.tryRegisterPicklistEnv();
     }
 
     public str picklistKey() {
@@ -54,6 +53,14 @@ public class AwePicklist extends Picklist : abstract {
 
     extend public PicklistEnv picklistEnv() {
         return new AwePicklistEnv(this.proxy.AwePicklistProxy);
+    }
+
+    public void loaded1(ObjectFormatter formatter, LoadFailInfo failInfo) {
+        this.tryRegisterPicklistEnv();
+    }
+
+    final private void tryRegisterPicklistEnv(){ 
+        registerPicklistEnv(this.picklistKey, this.picklistEnv);
     }
 
     public void drawGraphs(LayerBuffer lb, View v, GeometricFinder finder=null) {
