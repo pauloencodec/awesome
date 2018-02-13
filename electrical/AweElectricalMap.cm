@@ -46,6 +46,7 @@ public class AweElectricalMap {
     public AweElectricalClusterInfo networkInfo;
     private str->AweElectricalInfeedPoint pointToInfeedIndex();
     public point{} notInfeedCableVertices();
+    public Snapper{} visitedSnappers();
 
     public constructor(Space space) {
         this.space = space;
@@ -61,10 +62,18 @@ public class AweElectricalMap {
         allInfeeds.clear();
         allCables.clear();
         notInfeedCableVertices.clear();
+        
+        if (!this.visitedSnappers) {
+            this.visitedSnappers = new Snapper{}();
+        }
+        else {
+            this.visitedSnappers.clear();
+        }
 
         for(snapper in space.?snappers) {
             Object points = aweDynamicCall snapper.getAweElectricalInfeedPoints();
             if(points as AweElectricalInfeedPoint[]) {
+                this.visitedSnappers << snapper;
                 for(p in points) {
                     p.snapper = snapper;
                     allInfeeds << p;
@@ -80,6 +89,7 @@ public class AweElectricalMap {
 
             Object lines = aweDynamicCall snapper.getAweElectricalCableLines();
             if(lines as AweElectricalCableLine[]) {
+                this.visitedSnappers << snapper;
                 for(l in lines) {
                     l.infeedCable = false;
                     l.snapper = snapper;
@@ -89,6 +99,8 @@ public class AweElectricalMap {
             }
         }
 
+        this.invalidateVisitedSnappers();
+
         for(c in allCables) if (c.clickable) {
             if (c.clickableP0) notInfeedCableVertices << c.spaceLine.v.p0;
             if (c.clickableP1) notInfeedCableVertices << c.spaceLine.v.p1;
@@ -97,5 +109,9 @@ public class AweElectricalMap {
         networkInfo = new AweElectricalClusterInfo(this, forRouting=true);
     }
 
-    
+    extend public void invalidateVisitedSnappers() {
+        for (snapper in this.visitedSnappers) {
+            snapper.invalidate();
+        }
+    }
 }

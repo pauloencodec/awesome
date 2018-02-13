@@ -100,16 +100,13 @@ public class AweAnimation extends SpaceAnimation {
     }
 
     extend public void setViewMode(ViewMode viewMode, bool invalidateSnappers) {
-        this.viewMode = viewMode;
-        var space = this.space ? this.space : activeSpace();
-        space.setViewMode( viewMode );
-        if (invalidateSnappers) { 
-            space.invalidate(space.snappers);
-        }
+        this.setViewMode(viewMode);
     }
 
     extend public void setViewMode(ViewMode viewMode) {
-        this.setViewMode(viewMode, true);
+        this.viewMode = viewMode;
+        var space = this.space ? this.space : activeSpace();
+        space.setViewMode( viewMode );
     }
 
     public PropObj end() {
