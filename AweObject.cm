@@ -1032,8 +1032,10 @@ public class AweObject {
         if ( findEM( placement ) ) {
             return;
         }
-        object.owner = this.mainSnapper;
+
+        object.model = this;
         electricalComponents.put( placement, object );
+        
         this.electricalModelChange( object, placement, electricalAction.insert );
     }
 
