@@ -68,7 +68,7 @@ public class AweWorksurface {
     extend public Primitive3D edge(Material3D material = randomColorLWMaterial) {
         AweExtrusion edgeEx(profile);
         Primitive3D edge = edgeEx.path(outline, extrudePathArcResolution = arcResolution);
-        PlaneTextureSpace3D texSpace( (0, 0, 0), this.textureRotation.direction(), (0, 0, 1));
+        PlaneTextureSpace3D texSpace( (0, 0, 0), 0deg.direction(), (0, 0, 1));
         edge.setTextureSpace(texSpace);
         edge.setMaterial(material);
         edge.move((0, 0, height));
@@ -86,7 +86,7 @@ public class AweWorksurface {
         PolygonMesh3D face(faceShape, 0, reversed=false, useNormals=false, doublePoints=true, doubleSided=true, arcResolution = arcResolution);
 
         face.move((0, 0, this.height + p.y));
-        PlaneTextureSpace3D texSpace( (0, 0, 0), 0deg.direction(), (0, 0, 1));
+        PlaneTextureSpace3D texSpace( (0, 0, 0), this.textureRotation.direction(), (0, 0, 1));
         face.setTextureSpace(texSpace);
         face.setMaterial(material);
         return face;
