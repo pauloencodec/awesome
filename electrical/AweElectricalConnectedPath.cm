@@ -66,12 +66,14 @@ public class ElectricalConnectedPath {
     extend public AweElectricalPathPart[] parsePath() { return null; }
 
     extend public bool operator<( ElectricalConnectedPath other ) {
-        return this.cost() < ( other ? other.cost() : maxDouble );
+        if ( !other ) return true;
+        return this.cost() < other.cost();
     }
 
     public double costOverride = maxDouble;
 
     extend public double cost() {
+        if ( start != end and !path ) return maxDouble;
         double d = 0;
         for ( i in 1..(this.path.count-1) ) {
             d += path[i-1].distance(path[i]);
