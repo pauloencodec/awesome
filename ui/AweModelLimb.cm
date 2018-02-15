@@ -149,3 +149,11 @@ public AweObject getLastestLimbConfiguration(str limbKey) {
 public void setLastestLimbConfiguration(str limbKey, AweObject configuration) {
     activeWorld().?putAuxillary("model-limb-defaults" # limbKey, configuration, silent=true);
 }
+
+{
+    for (key, value in activeWorld().?allAuxillary()) {
+        if (key.beginsWith("model-limb-defaults")) {
+            activeWorld().?removeAuxillary(key);
+        }
+    }
+}
