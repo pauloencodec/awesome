@@ -78,6 +78,20 @@ public class AweElectricalAnimation extends AwePointsListAnimation {
         if ( space ) this.setViewMode( AweElectricalViewMode() );
     }
 
+    public PropObj end() {
+        var s = super();
+        
+        this.map.?invalidateVisitedSnappers();
+
+        return s;
+    }
+
+    public void abort() {
+        super();
+
+        this.map.?invalidateVisitedSnappers();
+    }
+
     public void enterView(AnimationMouseInfo mi) {
         super(..);
 

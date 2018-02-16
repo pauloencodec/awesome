@@ -36,6 +36,7 @@
 
 package custom.awesome.product;
 
+use cm.abstract.part;
 use custom.awesome.sif;
 
 private const str notFoundInSifErrorMessage = " * Not found in SIF";
@@ -214,7 +215,7 @@ public class AwePart extends OfficePart {
         // EC= Company
         res << spnn("EC=", this.company ?? "");
         // TG= Ind. Tag
-        res << spnn("TG=", this.tag ? this.tag.text : "");
+        res << spnn("TG=", this.itemTag());
 
         //L1=TAG1, L2=TAG2, L3=TAG3
         while (PartTagList e=this.tags(); e; e=e.next) {
