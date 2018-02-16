@@ -171,7 +171,8 @@ public class AweProduct extends AweGeometry {
 
     extend public Graph get2D() {
         if (!this.graph) this.buildGraph();
-
+        if (!this.shouldAddFloorPlanLines()) return this.graph;
+        
         GInstance g();
 
         var dot = this.graph.copy();
@@ -198,6 +199,10 @@ public class AweProduct extends AweGeometry {
 
     extend public double getDotFloorPlanZIndex() {
         return 110inch;
+    }
+
+    extend public bool shouldAddFloorPlanLines() {
+        return true;
     }
 
     public box localBound() {
