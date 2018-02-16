@@ -41,6 +41,16 @@ public class AweGhostSnapper extends AweModelSnapper {
 
     public AweSnapper hostSnapper : copy=null, stream=null;
 
+    public bool disconnect(Connector snap, Connector attach=null, bool moveAway=true, bool updateBsp=true, bool undoable=false) {
+        if (super(..)) {
+            this.moveDisconnected(snap, attach);
+
+            return true;
+        }
+        
+        return false;
+    }
+
     public void disconnected(Connector c0, Connector c1, bool wasSnapped, bool wasAttached) {
         super(..);
 
@@ -49,6 +59,14 @@ public class AweGhostSnapper extends AweModelSnapper {
             if(this in this.space and this.isAlive)
                 this.space.remove(this);
         }
+    }
+
+    public bool allowRemoverAnimation() { return false; }
+
+    public bool removeLocked() {
+        var sel = this.space.?selection;
+
+        return sel and sel.count() == 1 and this in sel;
     }
 
     //return a line here to display connection angle during try snap

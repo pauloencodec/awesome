@@ -38,12 +38,14 @@ package custom.awesome.electrical;
 
 public class ElectricalModel extends AweObject {
     public color fillColor2D = new color(0, 0, 0);
-
-    public Snapper owner : copy=reference;
+    public AweObject model : copy=reference;
     public point location;
     public ElectricalModel child : copy=reference;
 
-    
+    extend public Snapper owner() {
+        return this.model.?mainSnapper();
+    }
+
     public bool applyScheme(AweSchemeApplier applier) {
         return false;
     }
@@ -80,5 +82,17 @@ public class ElectricalModel extends AweObject {
 
     extend public str getCatalog(){
         return null;
+    }
+
+    public loadFailedResult loadFailed(ObjectFormatter formatter, LoadFailure failure) {
+        if (failure as RemovedFieldLoadFailure) {
+            if (failure.fieldName == "owner") {
+                if (?AweSnapper oldOwner = failure.oldValue) {
+                    this.model = oldOwner.mainModel();
+                }
+            }
+        }
+
+        return super(..);
     }
 }
