@@ -102,9 +102,15 @@ public member @visibility modelConnecting ';' {
         /*********** awe connector set ****************/
         public AweConnectorSet connectorSet: copy=null, stream=null;
 
-        public bool connectableTo(Connector connector, bool oneway=false) {
+        public bool connectableTo(Connector connector, bool oneway=false, bool aligned=false) {
+            if (oneway) return true;
+            if (!super(..)) return false;
+
             AweConnectEnv me(this);
             AweConnectEnv other(connector);
+
+            //mama said it's fine and I'm not a connector set
+            if (!me.set and this.rule != magneticRule) return true;
 
             if (this.isConnectable(me, other, connector)) {
                 Connector self = this;
@@ -115,6 +121,7 @@ public member @visibility modelConnecting ';' {
                     if (self.freeSnapPosition(connector, self.length / 2) == maxDouble or self.freeSnapPosition(connector, self.length / 2) == 0) {
                         return false;
                     }
+
                     if (connector as ConnectLine) {
                         //ask the other
                         if (connector.freeSnapPosition(self, connector.length / 2) == maxDouble or connector.freeSnapPosition(self, connector.length / 2) == 0) {
@@ -126,7 +133,7 @@ public member @visibility modelConnecting ';' {
                 return true;
             }
 
-            return me.set or (this.rule == magneticRule) ? false : super(..);
+            return false;
         }
 
         extend private bool isConnectable(AweConnectEnv me, AweConnectEnv other, Connector connector) {

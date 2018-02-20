@@ -36,7 +36,6 @@
 
 package custom.awesome;
 
-use custom.genericOffice;
 use cm.abstract.picklist;
 use cm.abstract.tools.queryDialog;
 use custom.awesome.ui;
@@ -45,7 +44,45 @@ use cm.core.calc;
 
 private const str queryDialogKey = "awe-query-dialog";
 
-public class AweQueryDialog extends GoQueryDialog {
+package AweQueryDialog queryDialog = null : keep;
+
+private bool _multiMode = false;
+
+private sizeI _dialogSize(320, 200);
+private sizeI _gridSize(680, 540);
+
+public class AweQueryDialog extends AbstractQueryDialog {
+
+    /* pulled in from GoQueryDialog 8.0: */
+
+        public bool multiMode() { return _multiMode; }
+
+        public sizeI dialogSize() { return _dialogSize; }
+
+        public sizeI gridSize() { return _gridSize; }
+
+        public void closeQueryDialog() {
+	        if (queryDialog) queryDialog.close();
+        }
+
+        public void setLocalQueryDialog() {
+            queryDialog = this;
+        }
+
+        public void addMenu() {
+            MenuBar menu(this);
+            SubMenuInfo settingsInfo(TreeViewItem("settings", "Settings"),
+                        downCB=null);
+            menu.appendSubMenu(settingsInfo);
+            menu.appendItem("settings", TreeViewItem("single", "SingleMode",
+                                color()),
+                    callback=function multiMenuCB);
+            menu.appendItem("settings", TreeViewItem("multi", "MultiMode",  color()),
+                    callback=function multiMenuCB);
+        }
+
+    /* End pulled in from GoQueryDialog */
+
     public str dialogCaption() {
         return this.mainSnapper.?specialParts ? "Query - This product is a special" : "Query";
     }
@@ -139,6 +176,12 @@ public class AweQueryDialog extends GoQueryDialog {
     public void layoutQueryDialog(bool first=true) {
         super(..);
 
+        // copied in from goQueryDialog
+        if (menuBar) {
+            menuBar.enable("settings", "single", multiMode);
+            menuBar.enable("settings", "multi", !multiMode);
+	    }
+
         if (this.useSpecialButtons()) {
             this.makeSpecialBtn.enable(!this.multiMode);
             this.toggleRemoveSpecialsButton();
@@ -195,9 +238,6 @@ public class AweQueryDialog extends GoQueryDialog {
 
         this.removeSpecialsBtn.alignRight();
         this.removeSpecialsBtn.enable(!this.multiMode and this.mainSnapper.specialParts);
-    }
-
-    public void selectCell() {
     }
 
     public Part[] getRawParts() {
@@ -321,4 +361,12 @@ public bool aweQueryDialogItemClicked(Snapper z, View view, MenuCallbackEnv env)
     }
 
     return false;
+}
+
+/**
+ * Multi CB
+ */
+private void multiMenuCB(MenuCallbackEnv env) {
+    _multiMode = (env.key == "multi");
+    if (queryDialog) queryDialog.refreshContent();
 }
