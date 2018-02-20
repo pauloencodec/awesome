@@ -34,27 +34,57 @@
    END OF CETSC
 */
 
-package custom.awesome;
-use cm.syntax;
+package custom.awesome.ui;
 
-public member @visibility var @id=id @expr=['=' expr]? ';' { 
-    SType memberType(expr.type, expr.src);
-
-    return member { 
-        public @memberType @id = @expr;
-    };
-}
-
-/*
-
-// See cm/lang/basic.syntax.cm
-
-public statement var @id=id '=' @expr=expr ';' : invisible debug { 
-    SType memberType(expr.type, expr.src);
+public class AweSchemeLimb extends LibraryLimb {
+    public Type schemeType;
     
-    return statement { 
-        @memberType @id = @expr;
-    };
+    public constructor(
+        LibraryLimb parent,
+        Type schemeType,
+        symbol pkg=null,
+        str key=null,
+        Image image=null,
+        str label=null,
+        str toolTipText=null) {
+
+        if (!key) {
+            key = cm.os.createGUID();
+        }
+        
+        this.schemeType = schemeType;
+
+        super(parent, pkg, key, image=image, label="", toolTipText=toolTipText);
+    }
+
+    public Window build(Window w) {
+        var button = new AweSchemeButton(w, this, label=this.label, image=image, frameStyle=toolboxButtonFrameStyle);
+
+        button.key = this.key;
+        button.setToolTipText(this.toolTipText ?? this.label);
+
+        return button;
+    }
 }
 
-*/
+public class AweSchemeButton extends Button {
+    private AweSchemeLimb limb : public readable;
+
+    public constructor(Window parent, AweSchemeLimb limb, FrameStyle frameStyle=pushButtonFrame, str label=null, Image image=null, alignment textSide=alignment.down) {
+        this.limb = limb;
+
+        super(parent, frameStyle=frameStyle, label=label, image=image, textSide=textSide, margins=(2, 2));
+
+        this.pressCb = function onSchemeButtonClick;
+    }
+}
+
+private void onSchemeButtonClick(Control control) {
+    if (control as AweSchemeButton) {
+        custom.awesome.schemes.showAweScheme(control.limb.schemeType);
+    }
+}
+
+public void addScheme(LibraryLimb container, Type schemeType, Image image, str tooltip) {
+    new AweSchemeLimb(container, schemeType, image=image, toolTipText=tooltip);
+}

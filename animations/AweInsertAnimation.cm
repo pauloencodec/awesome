@@ -100,7 +100,7 @@ public class AweInsertAnimation extends InsertAnimation {
         super();
     }
 
-    public bool snapAllAlignedAtEnd() {
+    public bool snapInPutToBsp(Snapper z) {
         return this.proxy.selection.activeGhost == null;
     }
 

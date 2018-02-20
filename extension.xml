@@ -28,11 +28,6 @@
     <package id="custom.awesome.ui" />
     <package id="custom.awesome.security" />
     <package id="custom.awesome.animations" />
-    <package id="custom.genericOffice"/>
-    <package id="custom.genericOffice.worksurface"/>
-    <package id="custom.genericOffice.storage"/>
-    <package id="custom.genericOffice.panel"/>
-    <package id="custom.genericOffice.wall"/>
   </packages>
   <extension-dependencies>
     <dependency id="cet.designer"/>

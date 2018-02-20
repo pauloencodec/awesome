@@ -252,6 +252,11 @@ public class AweSnapper extends TaggableSnapper {
         return new AweInsertAnimation(env);
     }
 
+    public box connectLocalBound() {
+        //fix for v8.5 that is matching exact connectBound to connect via snapAllAligned
+        return super().grown(10inch);
+    }
+
     /**
      * Loops through all connected snappers and try to realign them just like 
      * (re)alignAllSnapped would do except it will check individually if that

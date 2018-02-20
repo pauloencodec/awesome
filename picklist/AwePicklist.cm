@@ -35,6 +35,7 @@
 */
 
 package custom.awesome.picklist;
+
 use cm.io;
 
 public class AwePicklist extends Picklist : abstract {
@@ -59,9 +60,7 @@ public class AwePicklist extends Picklist : abstract {
     }
 
     final private void tryRegisterPicklistEnv(){ 
-        if (!registeredPicklistEnv(this.picklistKey)) {
-            registerPicklistEnv(this.picklistKey, this.picklistEnv);
-        }
+        registerPicklistEnv(this.picklistKey, this.picklistEnv);
     }
 
     public void drawGraphs(LayerBuffer lb, View v, GeometricFinder finder=null) {
