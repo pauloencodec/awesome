@@ -36,18 +36,6 @@
 
 package custom.awesome.stretch;
 
-public class AweManipulator extends AweConnectPoint {
-    public bool isEnabled() { return true; }
-    public bool connectable() { return false; }
-    public bool isConnected() { return false; }
-    public bool connect(Connector c, bool oneway=false) { return false; }
-    public bool disconnect(Connector c, bool oneway=false) { return false; }
-    public bool multipleConnects() { return false; }
-    public Connector connection() { return null; }
-    public Connector{} connections() { return null; }
-    public bool isConnectedTo(Connector c) { return false; }
-}
-
 public class AweStretchableConnector extends AweManipulator {
 }
 
@@ -173,7 +161,7 @@ public class AweStretcherConnector extends AweStretchableConnector {
 
 public bool isAlignedToConnect(Connector c, Space space=activeSpace()) {
     FilteredConnectorSet fas(connectableAttachFilter);
-	space.getCollection(c.connectSpaceBox, collection=fas, filterViewModes=false, filterSpaceVolumes=false, snapperFilter=null);
+	space.getCollection(c.snapper.connectBound, collection=fas, filterViewModes=false, filterSpaceVolumes=false, snapperFilter=null);
     for(potential in fas) {
         if(potential.isAligned(c)) return true;
     }

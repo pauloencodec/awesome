@@ -53,8 +53,8 @@ public str[] getPriceGrades(AweCustomMaterialType type) {
         }
     }
     else if (type == AweCustomMaterialType.fabric) {
-        var a = 'A';
-        var z = 'Z';
+        char a = 'A';
+        char z = 'Z';
         
         for (i in a..z) {
             if (i == 'I') continue; //don't ask me why, ask SIF
@@ -82,7 +82,7 @@ public str getPriceGradeCode(AweCustomMaterialType type, str priceGrade) {
         return format("$(@priceGrade;COM)");
     }
 
-    var prefix = "";
+    str prefix = "";
     
     if (type == AweCustomMaterialType.paint) {
         prefix = "P";

@@ -34,27 +34,16 @@
    END OF CETSC
 */
 
-package custom.awesome;
-use cm.syntax;
+package custom.awesome.connectors;
 
-public member @visibility var @id=id @expr=['=' expr]? ';' { 
-    SType memberType(expr.type, expr.src);
-
-    return member { 
-        public @memberType @id = @expr;
-    };
+public class AweManipulator extends AweConnectPoint {
+    public bool isEnabled() { return true; }
+    public bool connectable() { return false; }
+    public bool isConnected() { return false; }
+    public bool connect(Connector c, bool oneway=false) { return false; }
+    public bool disconnect(Connector c, bool oneway=false) { return false; }
+    public bool multipleConnects() { return false; }
+    public Connector connection() { return null; }
+    public Connector{} connections() { return null; }
+    public bool isConnectedTo(Connector c) { return false; }
 }
-
-/*
-
-// See cm/lang/basic.syntax.cm
-
-public statement var @id=id '=' @expr=expr ';' : invisible debug { 
-    SType memberType(expr.type, expr.src);
-    
-    return statement { 
-        @memberType @id = @expr;
-    };
-}
-
-*/
