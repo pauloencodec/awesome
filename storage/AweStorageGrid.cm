@@ -193,8 +193,8 @@ public class AweStorageGrid {
             for(p in c.pieces) {
                 var pieceGeometry = p.get2D();
                 if (pieceGeometry) {
-                    point origin(x,0,p.z);
-                    pieceGeometry.move(origin + localBound.p0);
+                    point origin(x,0,0);
+                    pieceGeometry.move(origin + (localBound.p0.x, localBound.p0.y, 0));
                     graph << pieceGeometry;
                 }
             }
