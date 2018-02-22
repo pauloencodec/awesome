@@ -81,12 +81,15 @@ public class AweExtrusion {
     }
     
     extend public Primitive3D simple(double length, bool doubleSided=true) {
-       var mesh = PolygonMesh3D(this.profile, length);
+        return this.simple(length, closed=true, doubleSided);
+    }
+
+    extend public Primitive3D simple(double length, bool closed, bool doubleSided=true) {
+       var mesh = PolygonMesh3D(this.profile, endPlane=plane((0, 0, 1), length), sidesOnly=closed);
 
        if(doubleSided)
         mesh.setDoubleSided(doubleSided);
 
        return mesh;
     }
-
 }
