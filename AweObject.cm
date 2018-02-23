@@ -63,7 +63,23 @@ public class AweObject {
     }
 
     extend public void init() { 
+    }
 
+    extend public void initDomain(str domainName) {
+    }
+
+    public loadFailedResult loadFailed(ObjectFormatter formatter, LoadFailure failure) {
+        if (failure as UninitializedFieldLoadFailure) {
+            if (failure.field.name.endsWith("Domain")) {
+                var propName = failure.field.name.substring(0, failure.field.name.count - "Domain".count - 1);
+                
+                this.initDomain(propName);
+
+                return loadFailedResult.ignore;
+            }
+        }
+
+        return super(..);
     }
 
     /**************** repositioning things after changes from QuickProps ************ */
@@ -1204,6 +1220,8 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
     SStatements getDomain();
     SStatements getVisible();
     SStatements getLabel();
+
+    SStatements initDomainIfs();
     
     for (i in 0..(domains.count-1)) {
         SFormalArg arg = domains[i];
@@ -1221,6 +1239,17 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
             @visibility str @labelName = @propNameStr.propNameToLabel();
             @visibility bool @visibleName = true;
             @visibility AwePropertyControlType @controlTypeName = AwePropertyControlType.default;
+        };
+
+        // This gambirra is to help with loadFailed code. 
+        // We use it to init domains that might have been declared after a previous version of this AweObject class had been used in production and saved in old drawings.
+        initDomainIfs << statement {
+            if(domainName == @propNameStr) {
+                @domainName = @domainInitialValue;
+                @labelName = @propNameStr.propNameToLabel();
+                @visibleName = true;
+                @controlTypeName = AwePropertyControlType.default;
+            }
         };
 
         //we use distance subsets for double properties, so we need this great if statement there:
@@ -1343,6 +1372,11 @@ public member @visibility aweObjectDomain @domains=formalArgList ';' {
 
     return member {
         @domainMembers;
+
+        @visibility void initDomain(str domainName) {
+            @initDomainIfs;
+            super(..);
+        }
                 
         @visibility void buildQuickPropertiesFromSyntax(QuickProperties props) {
             super(..);
