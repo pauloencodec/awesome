@@ -44,7 +44,8 @@ public void removeTag(TaggableSnapper snapper, str key) {
     var map = session.mainWorld.getAuxillary(cItemTagInfoKey).?ItemTagInfoMap;
 
     forItemTags(tag in snapper.itemTags) {
-        if (!key or tag.key == key) {
+        if ((!key or tag.key == key) and snapper.space) {
+            
             snapper.removeItemTag(tag.key);
             snapper.space.removeFromBsp(tag);
             
