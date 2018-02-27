@@ -171,8 +171,38 @@ public class AweProduct extends AweGeometry {
 
     extend public Graph get2D() {
         if (!this.graph) this.buildGraph();
+        if (!this.shouldAddFloorPlanLines()) return this.graph;
         
-        return this.graph;
+        GInstance g();
+
+        var dot = this.graph.copy();
+
+        dot.setFillColor(nocolor);
+        dot.setLineType(new LineType(black, lineStyle.dot));
+        dot.move(0, 0, this.getDotFloorPlanZIndex());
+
+        g << dot;
+
+        var solid = this.graph.copy();
+
+        solid.setLineType(new LineType(black, lineStyle.solid));
+        solid.move(0, 0, this.getFloorPlanZIndex());
+
+        g << solid;
+        
+        return g;
+    }
+
+    extend public double getFloorPlanZIndex() {
+        return this.localBound().p1.z;
+    }
+
+    extend public double getDotFloorPlanZIndex() {
+        return 110inch;
+    }
+
+    extend public bool shouldAddFloorPlanLines() {
+        return true;
     }
 
     public box localBound() {

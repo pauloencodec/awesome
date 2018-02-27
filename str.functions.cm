@@ -54,3 +54,11 @@ public str propNameToLabel(str propName) {
 
     return label;
 }
+
+public bool beginsWith(str v, str[] candidates) {
+   for (candidate in candidates) {
+       if (v.beginsWith(candidate)) return true;
+   }
+
+   return false;
+}

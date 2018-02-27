@@ -164,5 +164,6 @@ package Url[] getFiles(Url directory, str ext, Url[] files=new Url[]()) {
 {
     // generateHardExtensionId(#:package, name).dumpAsCode();
     autoBuildExtension(#:package);
+    // lowLevelBuildExtension(lowLevelBuildExtension());
     // generateFreeExtensionId(#:package, name).dumpAsCode();
 }
