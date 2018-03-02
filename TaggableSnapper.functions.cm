@@ -41,6 +41,8 @@ public void removeAllTags(TaggableSnapper snapper) {
 }
 
 public void removeTag(TaggableSnapper snapper, str key) {
+    if(!snapper.space) return;
+    
     var map = session.mainWorld.getAuxillary(cItemTagInfoKey).?ItemTagInfoMap;
 
     forItemTags(tag in snapper.itemTags) {
